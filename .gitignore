@@ -36,8 +36,7 @@ Carthage/Build
 WireRequestStrategy.zip
 
 *.swp
-build/include
-build/lib
+build
 
 ## Test Output
 xcode-analyze.log
