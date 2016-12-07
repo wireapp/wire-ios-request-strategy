@@ -63,7 +63,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
+
 @protocol ZMObjectStrategy <NSObject, ZMEventConsumer, ZMRequestGeneratorSource, ZMContextChangeTrackerSource>
+@end
+
+
+
+/// An object that is part of slow or quicksync needs to implement this method
+@protocol ZMSyncPhase <NSObject>
 
 @property (nonatomic, readonly) BOOL isSlowSyncDone;
 
