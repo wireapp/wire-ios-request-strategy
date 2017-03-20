@@ -37,7 +37,7 @@ public class DependencyEntitySync<Transcoder : EntityTranscoder> : NSObject, ZMC
         self.context = context
     }
     
-    public func expireEntities(withDependency dependency: NSManagedObject) {
+    public func expireEntities(withDependency dependency: AnyHashable) {
         for entity in entitiesWithDependencies.dependents(on: dependency) {
             entity.expire()
         }
