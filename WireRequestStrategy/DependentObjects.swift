@@ -21,16 +21,16 @@ import Foundation
 fileprivate let zmLog = ZMSLog(tag: "Dependencies")
 
 
-public class DependentObjects<OBJECT: Hashable, DEPENDENCY: Hashable> {
+public class DependentObjects<Object: Hashable, Dependency: Hashable> {
     
     public init() {
     }
     
-    private var dependenciesToDependents: [DEPENDENCY: Set<OBJECT>] = [:]
-    private var dependentsToDependencies: [OBJECT: Set<DEPENDENCY>] = [:] // inverse of the previous one
+    private var dependenciesToDependents: [Dependency: Set<Object>] = [:]
+    private var dependentsToDependencies: [Object: Set<Dependency>] = [:] // inverse of the previous one
  
-    /// Adds a dependency to an
-    public func add(dependent: OBJECT, dependency: DEPENDENCY) {
+    /// Adds a Dependency to an
+    public func add(dependent: Object, dependency: Dependency) {
         zmLog.debug("Adding dependency of type \(type(of: dependency)) to object \(type(of: dependent)), object is: \(dependent)")
         let toDependents = self.dependenciesToDependents[dependency] ?? Set()
         self.dependenciesToDependents[dependency] = toDependents.union([dependent])
@@ -41,12 +41,12 @@ public class DependentObjects<OBJECT: Hashable, DEPENDENCY: Hashable> {
     
     
     /// Return any one dependency for the given dependent
-    public func anyDependency(for dependent: OBJECT) -> DEPENDENCY? {
+    public func anyDependency(for dependent: Object) -> Dependency? {
         return self.dependentsToDependencies[dependent]?.first
     }
     
     /// Removes from dependencies those objects for which the `block` returns true
-    public func enumerateAndRemoveObjects(for dependency: DEPENDENCY, block: (OBJECT)->Bool) {
+    public func enumerateAndRemoveObjects(for dependency: Dependency, block: (Object)->Bool) {
         guard let objects = self.dependenciesToDependents[dependency] else { return }
         let objectsToRemove = objects.filter { block($0) }
         guard !objectsToRemove.isEmpty else { return }
@@ -55,20 +55,20 @@ public class DependentObjects<OBJECT: Hashable, DEPENDENCY: Hashable> {
         }
     }
     
-    public func dependencies(for dependent: OBJECT) -> Set<DEPENDENCY> {
+    public func dependencies(for dependent: Object) -> Set<Dependency> {
         return self.dependentsToDependencies[dependent] ?? Set()
     }
     
-    public func dependents(on dependency: DEPENDENCY) -> Set<OBJECT> {
+    public func dependents(on dependency: Dependency) -> Set<Object> {
         return self.dependenciesToDependents[dependency] ?? Set()
     }
 
-    public func remove(dependency: DEPENDENCY, for dependent: OBJECT) {
+    public func remove(dependency: Dependency, for dependent: Object) {
         self.updateDependents(dependent: dependent, removing: dependency)
         self.updateDependencies(dependency: dependency, removing: dependent)
     }
     
-    private func updateDependencies(dependency: DEPENDENCY, removing dependent: OBJECT) {
+    private func updateDependencies(dependency: Dependency, removing dependent: Object) {
         guard let currentSet = dependenciesToDependents[dependency] else { return }
         let newSet = currentSet.subtracting([dependent])
         if newSet.isEmpty {
@@ -78,7 +78,7 @@ public class DependentObjects<OBJECT: Hashable, DEPENDENCY: Hashable> {
         }
     }
     
-    private func updateDependents(dependent: OBJECT, removing dependency: DEPENDENCY) {
+    private func updateDependents(dependent: Object, removing dependency: Dependency) {
         guard let currentSet = dependentsToDependencies[dependent] else { return }
         let newSet = currentSet.subtracting([dependency])
         if newSet.isEmpty {
