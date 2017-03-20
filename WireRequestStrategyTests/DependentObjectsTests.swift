@@ -167,7 +167,7 @@ class DependentObjectsTests: ZMTBaseTest {
         
         // THEN
         XCTAssertEqual(Set([self.conversation1!, self.conversation2!]), dependenciesB)
-        XCTAssertEqual(Set([self.conversation1!]), dependenciesA)
+        XCTAssertEqual(Set([self.conversation2!]), dependenciesA)
     }
     
     func testThatItReturnsAllDependentsOnADependency() {
