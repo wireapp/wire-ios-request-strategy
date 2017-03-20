@@ -128,7 +128,7 @@ class DependencyEntitySyncTests : ZMTBaseTest {
         sut.synchronize(entity: entity)
         
         // when
-        sut.expireEntities(withDependency: dependency)
+        sut.expireEntities(withDependency: dependency as AnyHashable)
         
         // then
         XCTAssertTrue(entity.isExpired)
