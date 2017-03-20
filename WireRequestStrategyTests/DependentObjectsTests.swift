@@ -55,7 +55,7 @@ class DependentObjectsTests: ZMTBaseTest {
         // GIVEN
         let messages = [self.messageA, self.messageB, self.messageC].flatMap { $0 }
         messages.forEach {
-            self.sut.add(dependent: $0, dependency: self.conversation1!)
+            self.sut.add(dependency: self.conversation1!, for: $0)
         }
     
         // WHEN
@@ -73,7 +73,7 @@ class DependentObjectsTests: ZMTBaseTest {
         // GIVEN
         let messages = [self.messageA!, self.messageA!, self.messageA!]
         messages.forEach {
-            self.sut.add(dependent: $0, dependency: self.conversation1!)
+            self.sut.add(dependency: self.conversation1!, for: $0)
         }
         
         // WHEN
@@ -91,7 +91,7 @@ class DependentObjectsTests: ZMTBaseTest {
         // GIVEN
         let messages = [self.messageA!, self.messageB!, self.messageC!]
         messages.forEach {
-            self.sut.add(dependent: $0, dependency: self.conversation1!)
+            self.sut.add(dependency: self.conversation1!, for: $0)
         }
 
         
@@ -114,7 +114,7 @@ class DependentObjectsTests: ZMTBaseTest {
         // GIVEN
         let messages = [self.messageA!, self.messageB!, self.messageC!]
         messages.forEach {
-            self.sut.add(dependent: $0, dependency: self.conversation1!)
+            self.sut.add(dependency: self.conversation1!, for: $0)
         }
         
         // WHEN
@@ -133,9 +133,9 @@ class DependentObjectsTests: ZMTBaseTest {
     
     func testThatItEnumeratesObjectsForTheCorrectDependency() {
         // GIVEN
-        self.sut.add(dependent: self.messageA!, dependency: self.conversation2!)
-        self.sut.add(dependent: self.messageB!, dependency: self.conversation1!)
-        self.sut.add(dependent: self.messageC!, dependency: self.conversation2!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageA!)
+        self.sut.add(dependency: self.conversation1!, for: self.messageB!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageC!)
         
         // WHEN
         var result1 = [ZMClientMessage]()
@@ -157,9 +157,9 @@ class DependentObjectsTests: ZMTBaseTest {
     
     func testThatItReturnsAllDependenciesForAnObject() {
         // GIVEN
-        self.sut.add(dependent: self.messageA!, dependency: self.conversation2!)
-        self.sut.add(dependent: self.messageB!, dependency: self.conversation1!)
-        self.sut.add(dependent: self.messageB!, dependency: self.conversation2!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageA!)
+        self.sut.add(dependency: self.conversation1!, for: self.messageB!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageB!)
         
         // WHEN
         let dependenciesB = self.sut.dependencies(for: self.messageB!)
@@ -172,9 +172,9 @@ class DependentObjectsTests: ZMTBaseTest {
     
     func testThatItReturnsAllDependentsOnADependency() {
         // GIVEN
-        self.sut.add(dependent: self.messageA!, dependency: self.conversation2!)
-        self.sut.add(dependent: self.messageB!, dependency: self.conversation1!)
-        self.sut.add(dependent: self.messageB!, dependency: self.conversation2!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageA!)
+        self.sut.add(dependency: self.conversation1!, for: self.messageB!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageB!)
         
         // WHEN
         let dependents = self.sut.dependents(on: self.conversation1!)
@@ -193,9 +193,9 @@ class DependentObjectsTests: ZMTBaseTest {
     func testThatItRemovesDependencies() {
         
         // GIVEN
-        self.sut.add(dependent: self.messageA!, dependency: self.conversation2!)
-        self.sut.add(dependent: self.messageB!, dependency: self.conversation1!)
-        self.sut.add(dependent: self.messageB!, dependency: self.conversation2!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageA!)
+        self.sut.add(dependency: self.conversation1!, for: self.messageB!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageB!)
         
         // WHEN
         self.sut.remove(dependency: self.conversation1!, for: self.messageB!)
@@ -212,8 +212,8 @@ class DependentObjectsTests: ZMTBaseTest {
     func testThatItReturnsOneObjectForDependency() {
         
         // GIVEN
-        self.sut.add(dependent: self.messageA!, dependency: self.conversation2!)
-        self.sut.add(dependent: self.messageB!, dependency: self.conversation1!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageA!)
+        self.sut.add(dependency: self.conversation1!, for: self.messageB)
         
         // WHEN
         let result = self.sut.anyDependency(for: self.messageB!)

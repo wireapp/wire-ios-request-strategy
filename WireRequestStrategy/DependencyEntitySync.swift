@@ -45,7 +45,7 @@ public class DependencyEntitySync<Transcoder : EntityTranscoder> : NSObject, ZMC
     
     public func synchronize(entity: Transcoder.Entity) {
         if let dependency = entity.dependentObjectNeedingUpdateBeforeProcessing {
-            entitiesWithDependencies.add(dependent: entity, dependency: dependency)
+            entitiesWithDependencies.add(dependency: dependency, for: entity)
         } else {
             entitiesWithoutDependencies.append(entity)
         }
@@ -57,7 +57,7 @@ public class DependencyEntitySync<Transcoder : EntityTranscoder> : NSObject, ZMC
                 let newDependency = entity.dependentObjectNeedingUpdateBeforeProcessing
                 
                 if let newDependency = newDependency, newDependency != (object as AnyHashable) {
-                    entitiesWithDependencies.add(dependent: entity, dependency: newDependency)
+                    entitiesWithDependencies.add(dependency: newDependency, for: entity)
                 } else if newDependency == nil {
                     entitiesWithDependencies.remove(dependency: object, for: entity)
                     entitiesWithoutDependencies.append(entity)

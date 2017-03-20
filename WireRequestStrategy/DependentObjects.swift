@@ -30,7 +30,7 @@ public class DependentObjects<Object: Hashable, Dependency: Hashable> {
     private var dependentsToDependencies: [Object: Set<Dependency>] = [:] // inverse of the previous one
  
     /// Adds a Dependency to an
-    public func add(dependent: Object, dependency: Dependency) {
+    public func add(dependency: Dependency, for dependent: Object) {
         zmLog.debug("Adding dependency of type \(type(of: dependency)) to object \(type(of: dependent)), object is: \(dependent)")
         let toDependents = self.dependenciesToDependents[dependency] ?? Set()
         self.dependenciesToDependents[dependency] = toDependents.union([dependent])
@@ -104,7 +104,7 @@ public class DependentObjects<Object: Hashable, Dependency: Hashable> {
     
     @objc(addDependentObject:dependency:)
     public func add(dependent: ZMManagedObject, dependency: ZMManagedObject) {
-        self.dependentObjects.add(dependent: dependent, dependency: dependency)
+        self.dependentObjects.add(dependency: dependency, for: dependent)
     }
     
     @objc(anyDependencyForObject:)
