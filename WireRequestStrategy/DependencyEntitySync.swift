@@ -18,10 +18,13 @@
 
 import Foundation
 
+fileprivate let zmLog = ZMSLog(tag: "Dependencies")
+
 public protocol DependencyEntity : AnyObject {
     
     var dependentObjectNeedingUpdateBeforeProcessing : AnyObject? { get }
-    
+    var isExpired: Bool { get }
+    func expire()
 }
 
 class DependencyMap<Key : AnyObject,Value : AnyObject> {
@@ -29,6 +32,7 @@ class DependencyMap<Key : AnyObject,Value : AnyObject> {
     let dependencyToDependents : NSMapTable<AnyObject, AnyObject> = NSMapTable.strongToStrongObjects()
     
     func add(dependency: Value, forEntity entity: Key) {
+        zmLog.debug("Adding depedency: \(type(of: dependency)) for entity: \(entity)")
         if var existingDependents = dependencyToDependents.object(forKey: dependency) as? [Key] {
             existingDependents.append(entity)
             dependencyToDependents.setObject(existingDependents as NSArray, forKey: dependency)
@@ -38,6 +42,7 @@ class DependencyMap<Key : AnyObject,Value : AnyObject> {
     }
     
     func remove(dependency: Value, forEntity entity: Key) {
+        zmLog.debug("Removing depedency: \(type(of: dependency)) for entity: \(entity)")
         if let existingDependents = dependencyToDependents.object(forKey: dependency) as? [Key] {
             dependencyToDependents.setObject(existingDependents.filter({ $0 !== entity }) as NSArray, forKey: dependency)
         }
@@ -59,6 +64,12 @@ public class DependencyEntitySync<Transcoder : EntityTranscoder> : NSObject, ZMC
     public init(transcoder: Transcoder, context : NSManagedObjectContext) {
         self.transcoder = transcoder
         self.context = context
+    }
+    
+    public func expireEntities(withDependency dependency: AnyObject) {
+        for entity in entitiesWithDependencies.entities(withDependency: dependency) {
+            entity.expire()
+        }
     }
     
     public func synchronize(entity: Transcoder.Entity) {
@@ -88,8 +99,8 @@ public class DependencyEntitySync<Transcoder : EntityTranscoder> : NSObject, ZMC
         guard let entity = entitiesWithoutDependencies.first else { return nil }
         
         entitiesWithoutDependencies.removeFirst()
-        
-        if let request = transcoder?.request(forEntity: entity) {
+    
+        if !entity.isExpired, let request = transcoder?.request(forEntity: entity) {
             
             request.add(ZMCompletionHandler(on: context, block: { [weak self] (response) in
                 guard
