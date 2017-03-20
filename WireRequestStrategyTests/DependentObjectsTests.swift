@@ -24,7 +24,7 @@ import WireRequestStrategy
 class DependentObjectsTests: ZMTBaseTest {
     
     var testSession: ZMTestSession!
-    var sut: DependentObjects!
+    var sut: DependentObjects<ZMManagedObject, ZMConversation>!
     var conversation1: ZMConversation!
     var conversation2: ZMConversation!
     var messageA: ZMClientMessage!
@@ -155,11 +155,54 @@ class DependentObjectsTests: ZMTBaseTest {
 
     }
     
+    func testThatItReturnsAllDependenciesForAnObject() {
+        // GIVEN
+        self.sut.add(dependent: self.messageA!, dependency: self.conversation2!)
+        self.sut.add(dependent: self.messageB!, dependency: self.conversation1!)
+        self.sut.add(dependent: self.messageB!, dependency: self.conversation2!)
+        
+        // WHEN
+        let dependenciesB = self.sut.dependencies(for: self.messageB!)
+        let dependenciesA = self.sut.dependencies(for: self.messageA!)
+        
+        // THEN
+        XCTAssertEqual(Set([self.conversation1!, self.conversation2!]), dependenciesB)
+        XCTAssertEqual(Set([self.conversation1!]), dependenciesA)
+    }
+    
+    func testThatItReturnsAllDependentsOnADependency() {
+        // GIVEN
+        self.sut.add(dependent: self.messageA!, dependency: self.conversation2!)
+        self.sut.add(dependent: self.messageB!, dependency: self.conversation1!)
+        self.sut.add(dependent: self.messageB!, dependency: self.conversation2!)
+        
+        // WHEN
+        let dependents = self.sut.dependents(on: self.conversation1!)
+        
+        // THEN
+        XCTAssertEqual(Set([self.messageB!]), dependents)
+    }
+    
     func testThatItDoesNotEnumerateWhenNoObjectsAreAdded() {
         self.sut.enumerateAndRemoveObjects(for: self.conversation1!) { (mo) -> Bool in
             XCTFail()
             return true
         }
+    }
+    
+    func testThatItRemovesDependencies() {
+        
+        // GIVEN
+        self.sut.add(dependent: self.messageA!, dependency: self.conversation2!)
+        self.sut.add(dependent: self.messageB!, dependency: self.conversation1!)
+        self.sut.add(dependent: self.messageB!, dependency: self.conversation2!)
+        
+        // WHEN
+        self.sut.remove(dependency: self.conversation1!, for: self.messageB!)
+        
+        // THEN
+        XCTAssertTrue(self.sut.dependents(on: self.conversation1!).isEmpty)
+        XCTAssertEqual(self.sut.dependencies(for: self.messageB!), Set([self.conversation2!]))
     }
     
     func testThatItReturnsNoObjectForDepedency() {
@@ -176,7 +219,7 @@ class DependentObjectsTests: ZMTBaseTest {
         let result = self.sut.anyDependency(for: self.messageB!)
         
         // THEN
-        XCTAssertEqual(result as? ZMConversation, self.conversation1!)
+        XCTAssertEqual(result, self.conversation1!)
         
     }
 }

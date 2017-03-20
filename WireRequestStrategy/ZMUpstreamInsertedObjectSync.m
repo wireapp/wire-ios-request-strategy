@@ -35,7 +35,7 @@
 @property (nonatomic, weak) id<ZMUpstreamTranscoder> transcoder;
 @property (nonatomic) NSManagedObjectContext *context;
 @property (nonatomic) NSPredicate *insertPredicate;
-@property (nonatomic) DependentObjects *insertedObjectsWithDependencies;
+@property (nonatomic) DependentObjectsObjc *insertedObjectsWithDependencies;
 @property (nonatomic, readonly) BOOL transcodeSupportsExpiration;
 @property (nonatomic) NSMutableSet *ignoredObjects;
 @property (nonatomic) NSPredicate *filter;
@@ -79,7 +79,7 @@
         self.filter = filter;
         
         if ([transcoder respondsToSelector:@selector(dependentObjectNeedingUpdateBeforeProcessingObject:)]) {
-            self.insertedObjectsWithDependencies = [[DependentObjects alloc] init];
+            self.insertedObjectsWithDependencies = [[DependentObjectsObjc alloc] init];
         }
     }
     return self;

@@ -77,7 +77,6 @@
 		166902141D708709000FE4AF /* ZMCDataModel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 166902131D708709000FE4AF /* ZMCDataModel.framework */; };
 		16D0E07D1DF872FD0075DF8F /* DependencyEntitySyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D0E07C1DF872FD0075DF8F /* DependencyEntitySyncTests.swift */; };
 		16D0E07F1DF88B430075DF8F /* EntityTranscoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */; };
-		16D0E0871DF9928B0075DF8F /* DependencyMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D0E0861DF9928B0075DF8F /* DependencyMapTests.swift */; };
 		16FFDE441DF6C668003494D6 /* DependencyEntitySync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FFDE431DF6C668003494D6 /* DependencyEntitySync.swift */; };
 		5442A7301E4222BD00415104 /* libPhoneNumberiOS.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 54FB03B21E422125000E13DC /* libPhoneNumberiOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		547D47171E7C1B0D002EEA15 /* DependentObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 547D47161E7C1B0D002EEA15 /* DependentObjects.swift */; };
@@ -252,7 +251,6 @@
 		166902321D7092D6000FE4AF /* ZMTesting.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZMTesting.framework; path = Carthage/Build/iOS/ZMTesting.framework; sourceTree = "<group>"; };
 		16D0E07C1DF872FD0075DF8F /* DependencyEntitySyncTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyEntitySyncTests.swift; sourceTree = "<group>"; };
 		16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EntityTranscoder.swift; sourceTree = "<group>"; };
-		16D0E0861DF9928B0075DF8F /* DependencyMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyMapTests.swift; sourceTree = "<group>"; };
 		16FFDE431DF6C668003494D6 /* DependencyEntitySync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyEntitySync.swift; sourceTree = "<group>"; };
 		547D47161E7C1B0D002EEA15 /* DependentObjects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependentObjects.swift; sourceTree = "<group>"; };
 		547D47181E7C2F6C002EEA15 /* DependentObjectsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependentObjectsTests.swift; sourceTree = "<group>"; };
@@ -409,7 +407,6 @@
 				166902151D70910F000FE4AF /* WireRequestStrategyTests-Bridging-Header.h */,
 				1666AA2B1D93FA0B00164C06 /* ZMChangeTrackerBootstrapTests.m */,
 				16D0E07C1DF872FD0075DF8F /* DependencyEntitySyncTests.swift */,
-				16D0E0861DF9928B0075DF8F /* DependencyMapTests.swift */,
 				1666AA2D1D93FBE200164C06 /* ZMSyncOperationSetTests.m */,
 				547D47181E7C2F6C002EEA15 /* DependentObjectsTests.swift */,
 				166902171D709110000FE4AF /* ZMDownstreamObjectSyncOrderingTests.m */,
@@ -702,7 +699,6 @@
 				1621D26B1D75C7FF007108C2 /* ZMUpstreamInsertedObjectSyncTests.m in Sources */,
 				1621D2691D75C77E007108C2 /* ZMSingleRequestSyncTests.m in Sources */,
 				1621D2661D75C755007108C2 /* ZMLocallyModifiedObjectSyncStatusTests.m in Sources */,
-				16D0E0871DF9928B0075DF8F /* DependencyMapTests.swift in Sources */,
 				1621D2611D75C742007108C2 /* ZMDownstreamObjectSyncTests.m in Sources */,
 				1621D2641D75C74D007108C2 /* ZMLocalInsertedObjectSetTests.m in Sources */,
 				1621D26C1D75C803007108C2 /* ZMUpstreamModifiedObjectSyncTests.m in Sources */,
