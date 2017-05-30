@@ -324,6 +324,37 @@ class TeamDownloadRequestStrategy_EventsTests: MessagingTestBase {
         }
     }
 
+    func testThatItFlagsATeamToBeRefetchedWhenItReceivesAMemberJoinForTheSelfUserEvenIfThereWasALocalTeam() {
+        // given
+        let teamId = UUID.create()
+        var userId: UUID!
+
+        syncMOC.performGroupedBlockAndWait {
+            let user = ZMUser.selfUser(in: self.syncMOC)
+            userId = user.remoteIdentifier
+            let team = Team.insertNewObject(in: self.syncMOC)
+            team.remoteIdentifier = teamId
+            XCTAssert(self.syncMOC.saveOrRollback())
+        }
+
+        let payload: [String: Any] = [
+            "type": "team.member-join",
+            "team": teamId.transportString(),
+            "time": Date().transportString(),
+            "data": ["user" : userId.transportString()]
+        ]
+
+        // when
+        processEvent(fromPayload: payload)
+
+        // then
+        syncMOC.performGroupedBlockAndWait {
+            guard let team = Team.fetch(withRemoteIdentifier: teamId, in: self.syncMOC) else { return XCTFail("No team") }
+            XCTAssertTrue(team.needsToBeUpdatedFromBackend)
+            XCTAssertFalse(team.needsToRedownloadMembers)
+        }
+    }
+
     // MARK: - Team Member-Leave
 
     func testThatItDeletesAMemberWhenReceivingATeamMemberLeaveUpdateEventForAnotherUser() {
@@ -433,6 +464,52 @@ class TeamDownloadRequestStrategy_EventsTests: MessagingTestBase {
             XCTAssertEqual(user.memberships.map { $0.team!.remoteIdentifier! }, [team2Id])
             guard let team = Team.fetch(withRemoteIdentifier: team1Id, in: self.syncMOC) else { return XCTFail("No team") }
             XCTAssertEqual(team.members, [])
+        }
+    }
+
+    func testThatItRemovesAMemberFromAllTeamConversationsSheWasPartOfWhenReceivingAMemberLeaveForThatMember() {
+        let teamId = UUID.create()
+        let teamConversationId = UUID.create(), conversationId = UUID.create()
+        let userId = UUID.create()
+
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let user = ZMUser.insertNewObject(in: self.syncMOC)
+            user.remoteIdentifier = userId
+            let otherUser = ZMUser.insertNewObject(in: self.syncMOC)
+            otherUser.remoteIdentifier = .create()
+            let team = Team.insertNewObject(in: self.syncMOC)
+            team.remoteIdentifier = teamId
+            let teamConversation1 = ZMConversation.insertNewObject(in: self.syncMOC)
+            teamConversation1.remoteIdentifier = teamConversationId
+            teamConversation1.conversationType = .group
+            teamConversation1.addParticipant(user)
+            teamConversation1.team = team
+            let conversation = ZMConversation.insertGroupConversation(into: self.syncMOC, withParticipants: [user, otherUser])
+            conversation?.remoteIdentifier = conversationId
+            let member = Member.getOrCreateMember(for: user, in: team, context: self.syncMOC)
+            XCTAssertNotNil(member)
+            XCTAssertEqual(user.membership(in: team), member)
+        }
+
+        // when
+        let payload: [String: Any] = [
+            "type": "team.member-leave",
+            "team": teamId.transportString(),
+            "time": Date().transportString(),
+            "data": ["user" : userId.transportString()]
+        ]
+        processEvent(fromPayload: payload)
+
+        // then
+        syncMOC.performGroupedBlockAndWait {
+            guard let user = ZMUser.fetch(withRemoteIdentifier: userId, in: self.syncMOC) else { return XCTFail("No User") }
+            guard let team = Team.fetch(withRemoteIdentifier: teamId, in: self.syncMOC) else { return XCTFail("No User") }
+            XCTAssertNil(user.membership(in: team))
+            guard let teamConversation = ZMConversation.fetch(withRemoteIdentifier: teamConversationId, in: self.syncMOC) else { return XCTFail("No Team Conversation") }
+            guard let conversation = ZMConversation.fetch(withRemoteIdentifier: conversationId, in: self.syncMOC) else { return XCTFail("No Conversation") }
+            XCTAssertFalse(teamConversation.otherActiveParticipants.contains(user))
+            XCTAssert(conversation.otherActiveParticipants.contains(user))
         }
     }
 
