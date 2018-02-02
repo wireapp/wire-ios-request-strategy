@@ -332,7 +332,7 @@
 				F9E9FB3D1DA4FFDB00B5B2C5 /* Cartfile */,
 				F9E9FB3E1DA4FFDB00B5B2C5 /* Cartfile.private */,
 				F9E9FB3F1DA4FFDB00B5B2C5 /* Cartfile.resolved */,
-				1669016C1D707509000FE4AF /* WireRequestStrategy */,
+				1669016C1D707509000FE4AF /* Sources */,
 				166901781D707509000FE4AF /* WireRequestStrategyTests */,
 				1669016B1D707509000FE4AF /* Products */,
 				166901841D7075D7000FE4AF /* Resources */,
@@ -350,59 +350,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		1669016C1D707509000FE4AF /* WireRequestStrategy */ = {
+		1669016C1D707509000FE4AF /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				F963E8DF1D955D5500098AD3 /* StatusProtocols */,
+				F1CD5D862024C363008C574E /* Other Syncs */,
+				F1CD5D842024C259008C574E /* Protocols */,
+				F1CD5D822024C1A0008C574E /* Request Syncs */,
+				F1CD5D812024C16B008C574E /* Object Syncs */,
 				F963E8D81D955D4600098AD3 /* Helper */,
 				166901F71D7081D1000FE4AF /* ImagePreprocessing */,
-				166901A71D7081C7000FE4AF /* RequestStrategy.swift */,
-				1621D21F1D75A71E007108C2 /* RequestAvailableNotification.swift */,
-				1621D22B1D75AC36007108C2 /* ZMChangeTrackerBootstrap.h */,
-				1621D22C1D75AC36007108C2 /* ZMChangeTrackerBootstrap.m */,
-				1621D22D1D75AC36007108C2 /* ZMChangeTrackerBootstrap+Testing.h */,
-				166902111D70851E000FE4AF /* ZMOutstandingItems.h */,
-				166901A81D7081C7000FE4AF /* ZMContextChangeTracker.h */,
-				1621D2721D7715EA007108C2 /* ZMObjectSyncStrategy.h */,
-				1621D2731D7715EA007108C2 /* ZMObjectSyncStrategy.m */,
-				547D47161E7C1B0D002EEA15 /* DependentObjects.swift */,
-				166901AB1D7081C7000FE4AF /* ZMDownstreamObjectSync.h */,
-				166901AC1D7081C7000FE4AF /* ZMDownstreamObjectSync.m */,
-				166901AD1D7081C7000FE4AF /* ZMDownstreamObjectSyncWithWhitelist.h */,
-				166901AE1D7081C7000FE4AF /* ZMDownstreamObjectSyncWithWhitelist.m */,
-				166901AF1D7081C7000FE4AF /* ZMDownstreamObjectSyncWithWhitelist+Internal.h */,
-				166901B01D7081C7000FE4AF /* ZMLocallyInsertedObjectSet.h */,
-				166901B11D7081C7000FE4AF /* ZMLocallyInsertedObjectSet.m */,
-				166901B21D7081C7000FE4AF /* ZMLocallyModifiedObjectSet.h */,
-				166901B31D7081C7000FE4AF /* ZMLocallyModifiedObjectSet.m */,
-				166901B41D7081C7000FE4AF /* ZMLocallyModifiedObjectSyncStatus.h */,
-				166901B51D7081C7000FE4AF /* ZMLocallyModifiedObjectSyncStatus.m */,
-				166901B61D7081C7000FE4AF /* ZMObjectSync.h */,
-				166901B71D7081C7000FE4AF /* ZMRemoteIdentifierObjectSync.h */,
-				166901B81D7081C7000FE4AF /* ZMRemoteIdentifierObjectSync.m */,
-				166901B91D7081C7000FE4AF /* ZMRequestGenerator.h */,
-				BF1F52C51ECC74E5002FB553 /* Array+RequestGenerator.swift */,
-				166901BA1D7081C7000FE4AF /* ZMRequestGenerator.m */,
-				166901BB1D7081C7000FE4AF /* ZMSingleRequestSync.h */,
-				166901BC1D7081C7000FE4AF /* ZMSingleRequestSync.m */,
-				166901BD1D7081C7000FE4AF /* ZMSyncOperationSet.h */,
-				166901BE1D7081C7000FE4AF /* ZMSyncOperationSet.m */,
-				166901C31D7081C7000FE4AF /* ZMTimedSingleRequestSync.h */,
-				166901C41D7081C7000FE4AF /* ZMTimedSingleRequestSync.m */,
-				166901C71D7081C7000FE4AF /* ZMUpstreamInsertedObjectSync.h */,
-				166901C81D7081C7000FE4AF /* ZMUpstreamInsertedObjectSync.m */,
-				166901C91D7081C7000FE4AF /* ZMUpstreamModifiedObjectSync.h */,
-				166901CA1D7081C7000FE4AF /* ZMUpstreamModifiedObjectSync.m */,
-				16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */,
-				16FFDE431DF6C668003494D6 /* DependencyEntitySync.swift */,
-				166901CB1D7081C7000FE4AF /* ZMUpstreamModifiedObjectSync+Testing.h */,
-				166901CC1D7081C7000FE4AF /* ZMUpstreamRequest.h */,
-				166901CD1D7081C7000FE4AF /* ZMUpstreamRequest.m */,
-				166901CE1D7081C7000FE4AF /* ZMUpstreamTranscoder.h */,
 				1669016D1D707509000FE4AF /* WireRequestStrategy.h */,
 				1669016F1D707509000FE4AF /* Info.plist */,
 			);
-			path = WireRequestStrategy;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		166901781D707509000FE4AF /* WireRequestStrategyTests */ = {
@@ -515,20 +475,132 @@
 			path = WireRequestStrategyTestHost;
 			sourceTree = "<group>";
 		};
+		F1CD5D812024C16B008C574E /* Object Syncs */ = {
+			isa = PBXGroup;
+			children = (
+				F1CD5D852024C281008C574E /* Protocols */,
+				F1CD5D832024C214008C574E /* Helpers */,
+				F1CD5D872024C46C008C574E /* Upstream */,
+				F1CD5D882024C47D008C574E /* Downstream */,
+			);
+			path = "Object Syncs";
+			sourceTree = "<group>";
+		};
+		F1CD5D822024C1A0008C574E /* Request Syncs */ = {
+			isa = PBXGroup;
+			children = (
+				166901BB1D7081C7000FE4AF /* ZMSingleRequestSync.h */,
+				166901BC1D7081C7000FE4AF /* ZMSingleRequestSync.m */,
+				166901C31D7081C7000FE4AF /* ZMTimedSingleRequestSync.h */,
+				166901C41D7081C7000FE4AF /* ZMTimedSingleRequestSync.m */,
+			);
+			path = "Request Syncs";
+			sourceTree = "<group>";
+		};
+		F1CD5D832024C214008C574E /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				166901B71D7081C7000FE4AF /* ZMRemoteIdentifierObjectSync.h */,
+				166901B81D7081C7000FE4AF /* ZMRemoteIdentifierObjectSync.m */,
+				166902111D70851E000FE4AF /* ZMOutstandingItems.h */,
+				1621D22B1D75AC36007108C2 /* ZMChangeTrackerBootstrap.h */,
+				1621D22C1D75AC36007108C2 /* ZMChangeTrackerBootstrap.m */,
+				1621D22D1D75AC36007108C2 /* ZMChangeTrackerBootstrap+Testing.h */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		F1CD5D842024C259008C574E /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				1621D2721D7715EA007108C2 /* ZMObjectSyncStrategy.h */,
+				1621D2731D7715EA007108C2 /* ZMObjectSyncStrategy.m */,
+				166901A71D7081C7000FE4AF /* RequestStrategy.swift */,
+				166901B91D7081C7000FE4AF /* ZMRequestGenerator.h */,
+				166901BA1D7081C7000FE4AF /* ZMRequestGenerator.m */,
+				F963E8E01D955D5500098AD3 /* SharedProtocols.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		F1CD5D852024C281008C574E /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				166901B61D7081C7000FE4AF /* ZMObjectSync.h */,
+				166901CE1D7081C7000FE4AF /* ZMUpstreamTranscoder.h */,
+				166901A81D7081C7000FE4AF /* ZMContextChangeTracker.h */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		F1CD5D862024C363008C574E /* Other Syncs */ = {
+			isa = PBXGroup;
+			children = (
+				16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */,
+				16FFDE431DF6C668003494D6 /* DependencyEntitySync.swift */,
+				547D47161E7C1B0D002EEA15 /* DependentObjects.swift */,
+			);
+			path = "Other Syncs";
+			sourceTree = "<group>";
+		};
+		F1CD5D872024C46C008C574E /* Upstream */ = {
+			isa = PBXGroup;
+			children = (
+				F1CD5D892024C4C9008C574E /* Helpers */,
+				166901C71D7081C7000FE4AF /* ZMUpstreamInsertedObjectSync.h */,
+				166901C81D7081C7000FE4AF /* ZMUpstreamInsertedObjectSync.m */,
+				166901CB1D7081C7000FE4AF /* ZMUpstreamModifiedObjectSync+Testing.h */,
+				166901C91D7081C7000FE4AF /* ZMUpstreamModifiedObjectSync.h */,
+				166901CA1D7081C7000FE4AF /* ZMUpstreamModifiedObjectSync.m */,
+			);
+			path = Upstream;
+			sourceTree = "<group>";
+		};
+		F1CD5D882024C47D008C574E /* Downstream */ = {
+			isa = PBXGroup;
+			children = (
+				F1CD5D8A2024C51B008C574E /* Helpers */,
+				166901AB1D7081C7000FE4AF /* ZMDownstreamObjectSync.h */,
+				166901AC1D7081C7000FE4AF /* ZMDownstreamObjectSync.m */,
+				166901AD1D7081C7000FE4AF /* ZMDownstreamObjectSyncWithWhitelist.h */,
+				166901AE1D7081C7000FE4AF /* ZMDownstreamObjectSyncWithWhitelist.m */,
+				166901AF1D7081C7000FE4AF /* ZMDownstreamObjectSyncWithWhitelist+Internal.h */,
+			);
+			path = Downstream;
+			sourceTree = "<group>";
+		};
+		F1CD5D892024C4C9008C574E /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				166901B21D7081C7000FE4AF /* ZMLocallyModifiedObjectSet.h */,
+				166901B31D7081C7000FE4AF /* ZMLocallyModifiedObjectSet.m */,
+				166901B41D7081C7000FE4AF /* ZMLocallyModifiedObjectSyncStatus.h */,
+				166901B51D7081C7000FE4AF /* ZMLocallyModifiedObjectSyncStatus.m */,
+				166901B01D7081C7000FE4AF /* ZMLocallyInsertedObjectSet.h */,
+				166901B11D7081C7000FE4AF /* ZMLocallyInsertedObjectSet.m */,
+				166901CC1D7081C7000FE4AF /* ZMUpstreamRequest.h */,
+				166901CD1D7081C7000FE4AF /* ZMUpstreamRequest.m */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		F1CD5D8A2024C51B008C574E /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				166901BD1D7081C7000FE4AF /* ZMSyncOperationSet.h */,
+				166901BE1D7081C7000FE4AF /* ZMSyncOperationSet.m */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		F963E8D81D955D4600098AD3 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				BF1F52C51ECC74E5002FB553 /* Array+RequestGenerator.swift */,
+				1621D21F1D75A71E007108C2 /* RequestAvailableNotification.swift */,
 				F963E8D91D955D4600098AD3 /* AssetRequestFactory.swift */,
 			);
 			path = Helper;
-			sourceTree = "<group>";
-		};
-		F963E8DF1D955D5500098AD3 /* StatusProtocols */ = {
-			isa = PBXGroup;
-			children = (
-				F963E8E01D955D5500098AD3 /* SharedProtocols.swift */,
-			);
-			path = StatusProtocols;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
