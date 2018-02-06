@@ -357,7 +357,7 @@
 				F1CD5D842024C259008C574E /* Protocols */,
 				F1CD5D822024C1A0008C574E /* Request Syncs */,
 				F1CD5D812024C16B008C574E /* Object Syncs */,
-				F963E8D81D955D4600098AD3 /* Helper */,
+				F963E8D81D955D4600098AD3 /* Helpers */,
 				166901F71D7081D1000FE4AF /* ImagePreprocessing */,
 				1669016D1D707509000FE4AF /* WireRequestStrategy.h */,
 				1669016F1D707509000FE4AF /* Info.plist */,
@@ -592,7 +592,7 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
-		F963E8D81D955D4600098AD3 /* Helper */ = {
+		F963E8D81D955D4600098AD3 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
 				BF1F52C51ECC74E5002FB553 /* Array+RequestGenerator.swift */,
@@ -600,7 +600,7 @@
 				1621D2801D783529007108C2 /* RequestAvailableNotificationTests.swift */,
 				F963E8D91D955D4600098AD3 /* AssetRequestFactory.swift */,
 			);
-			path = Helper;
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
