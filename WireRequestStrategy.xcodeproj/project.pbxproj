@@ -358,7 +358,7 @@
 				F1CD5D822024C1A0008C574E /* Request Syncs */,
 				F1CD5D812024C16B008C574E /* Object Syncs */,
 				F963E8D81D955D4600098AD3 /* Helpers */,
-				166901F71D7081D1000FE4AF /* ImagePreprocessing */,
+				166901F71D7081D1000FE4AF /* Image Preprocessing */,
 				1669016D1D707509000FE4AF /* WireRequestStrategy.h */,
 				1669016F1D707509000FE4AF /* Info.plist */,
 			);
@@ -417,7 +417,7 @@
 			path = "wire-ios-xcconfig";
 			sourceTree = "<group>";
 		};
-		166901F71D7081D1000FE4AF /* ImagePreprocessing */ = {
+		166901F71D7081D1000FE4AF /* Image Preprocessing */ = {
 			isa = PBXGroup;
 			children = (
 				166901F81D7081D1000FE4AF /* ZMImagePreprocessingTracker+Testing.h */,
@@ -425,7 +425,7 @@
 				166901FA1D7081D1000FE4AF /* ZMImagePreprocessingTracker.m */,
 				1669021A1D709110000FE4AF /* ZMImagePreprocessingTrackerTests.m */,
 			);
-			path = ImagePreprocessing;
+			path = "Image Preprocessing";
 			sourceTree = "<group>";
 		};
 		166902041D7082C7000FE4AF /* Frameworks */ = {
