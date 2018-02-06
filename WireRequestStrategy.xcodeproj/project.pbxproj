@@ -353,12 +353,12 @@
 		1669016C1D707509000FE4AF /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				F1CD5D862024C363008C574E /* Other Syncs */,
+				F963E8D81D955D4600098AD3 /* Helpers */,
 				F1CD5D842024C259008C574E /* Protocols */,
+				166901F71D7081D1000FE4AF /* Image Preprocessing */,
+				F1CD5D862024C363008C574E /* Other Syncs */,
 				F1CD5D822024C1A0008C574E /* Request Syncs */,
 				F1CD5D812024C16B008C574E /* Object Syncs */,
-				F963E8D81D955D4600098AD3 /* Helpers */,
-				166901F71D7081D1000FE4AF /* Image Preprocessing */,
 				1669016D1D707509000FE4AF /* WireRequestStrategy.h */,
 				1669016F1D707509000FE4AF /* Info.plist */,
 			);
@@ -461,8 +461,8 @@
 		F1CD5D812024C16B008C574E /* Object Syncs */ = {
 			isa = PBXGroup;
 			children = (
-				F1CD5D852024C281008C574E /* Protocols */,
 				F1CD5D832024C214008C574E /* Helpers */,
+				F1CD5D852024C281008C574E /* Protocols */,
 				F1CD5D872024C46C008C574E /* Upstream */,
 				F1CD5D882024C47D008C574E /* Downstream */,
 			);
