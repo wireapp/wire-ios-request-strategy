@@ -108,7 +108,7 @@ extension LinkPreviewPreprocessor: LinkPreviewDetectorDelegate {
     public func shouldDetectURL(_ url: URL, inRange range: NSRange, inText text: String) -> Bool {
         // We DONT want to generate link previews for markdown links such as
         // [click me!](www.example.com). So, we get all ranges of markdown links
-        // and return false if the url range equal to one of these
+        // and return false if the url range is equal to one of these
         guard let regex = try? NSRegularExpression(pattern: "\\[.+\\]\\((.+)\\)", options: []) else { return true }
         let wholeRange = NSMakeRange(0, (text as NSString).length)
         return  !regex
