@@ -38,14 +38,14 @@ public final class AssetRequestFactory : NSObject {
         case eternalInfrequentAccess = "eternal-infrequent_access"
     }
     
-    private struct Constant {
+    private enum Constant {
         static let path = "/assets/v3"
         static let md5 = "Content-MD5"
         static let accessLevel = "public"
         static let retention = "retention"
         static let boundary = "frontier"
         
-        struct ContentType {
+        enum ContentType {
             static let json = "application/json"
             static let octetStream = "application/octet-stream"
             static let multipart = "multipart/mixed; boundary=frontier"
