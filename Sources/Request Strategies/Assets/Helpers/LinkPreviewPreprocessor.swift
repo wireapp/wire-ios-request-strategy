@@ -105,7 +105,7 @@ private let zmLog = ZMSLog(tag: "link previews")
 }
 
 extension LinkPreviewPreprocessor: LinkPreviewDetectorDelegate {
-    public func shouldDetectURL(_ url: URL, inRange range: NSRange, inText text: String) -> Bool {
+    public func shouldDetectURL(_ url: URL, range: NSRange, text: String) -> Bool {
         // We DONT want to generate link previews for markdown links such as
         // [click me!](www.example.com). So, we get all ranges of markdown links
         // and return false if the url range is equal to one of these
