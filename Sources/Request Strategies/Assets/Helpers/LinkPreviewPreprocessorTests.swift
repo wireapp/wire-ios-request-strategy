@@ -21,7 +21,6 @@ import XCTest
 import WireLinkPreview
 import WireDataModel
 import WireRequestStrategy
-import WireRequestStrategy
 import WireImages
 
 final class MockLinkDetector: LinkPreviewDetectorType {
@@ -29,7 +28,7 @@ final class MockLinkDetector: LinkPreviewDetectorType {
     var nextResult = [LinkPreview]()
     var downloadLinkPreviewsCallCount: Int = 0
     
-    @objc func downloadLinkPreviews(inText text: String, completion: @escaping ([LinkPreview]) -> Void) {
+    @objc func downloadLinkPreviews(inText text: String, delegate: LinkPreviewDetectorDelegate? = nil, completion: @escaping ([LinkPreview]) -> Void) {
         downloadLinkPreviewsCallCount += 1
         completion(nextResult)
     }

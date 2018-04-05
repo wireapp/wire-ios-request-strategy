@@ -36,7 +36,6 @@ private let zmLog = ZMSLog(tag: "link previews")
         self.linkPreviewDetector = linkPreviewDetector
         self.managedObjectContext = managedObjectContext
         super.init()
-        (self.linkPreviewDetector as? LinkPreviewDetector)?.delegate = self
     }
 
     public func objectsDidChange(_ objects: Set<NSManagedObject>) {
@@ -68,7 +67,7 @@ private let zmLog = ZMSLog(tag: "link previews")
         
         if let messageText = (message as ZMConversationMessage).textMessageData?.messageText {
             zmLog.debug("Fetching previews in message with text \(messageText)")
-            linkPreviewDetector.downloadLinkPreviews?(inText: messageText) { [weak self] linkPreviews in
+            linkPreviewDetector.downloadLinkPreviews?(inText: messageText, delegate: self) { [weak self] linkPreviews in
                 zmLog.debug("Found \(linkPreviews.count) previews in message with text \(messageText):\n\(linkPreviews)")
                 self?.managedObjectContext.performGroupedBlock({
                     self?.didProcessMessage(message, linkPreviews: linkPreviews)
