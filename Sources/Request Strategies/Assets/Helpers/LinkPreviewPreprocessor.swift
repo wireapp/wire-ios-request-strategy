@@ -36,7 +36,7 @@ private let zmLog = ZMSLog(tag: "link previews")
         self.linkPreviewDetector = linkPreviewDetector
         self.managedObjectContext = managedObjectContext
         super.init()
-        (self.linkPreviewDetector as? LinkPreviewDetector)?.delegate = self
+        self.linkPreviewDetector.delegate = self
     }
 
     public func objectsDidChange(_ objects: Set<NSManagedObject>) {

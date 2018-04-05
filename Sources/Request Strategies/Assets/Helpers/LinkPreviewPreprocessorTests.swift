@@ -29,6 +29,8 @@ final class MockLinkDetector: LinkPreviewDetectorType {
     var nextResult = [LinkPreview]()
     var downloadLinkPreviewsCallCount: Int = 0
     
+    var delegate: LinkPreviewDetectorDelegate? = nil
+    
     @objc func downloadLinkPreviews(inText text: String, completion: @escaping ([LinkPreview]) -> Void) {
         downloadLinkPreviewsCallCount += 1
         completion(nextResult)
