@@ -78,8 +78,16 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
                 zmLog.info("Cannot create request: message = \(managedObject) message.isExpired = \((managedObject as? ZMClientMessage)?.isExpired ?? false)")
                 return nil
         }
+
+        guard let conversationID = message.conversation?.remoteIdentifier else {
+            zmLog.info("Cannot create request with invalid conversationID: message = \(managedObject)")
+            return nil
+        }
         
-        let request = self.requestFactory.upstreamRequestForMessage(message, forConversationWithId: message.conversation!.remoteIdentifier!)!
+        guard let request = self.requestFactory.upstreamRequestForMessage(message, forConversationWithId: conversationID) else {
+            return nil
+        }
+
         if message.genericMessage?.hasConfirmation() == true && self.applicationStatus!.deliveryConfirmation.needsToSyncMessages {
             request.forceToVoipSession()
         }
