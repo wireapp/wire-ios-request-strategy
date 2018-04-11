@@ -312,7 +312,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
     func testThatItCreatesARequestToUploadNotUploaded_Cancelled() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
-            var message: ZMAssetClientMessage = self.createMessage(isImage: false, uploaded: true, assetId: true, uploadState: .uploadingFullAsset, transferState: .uploading)
+            let message: ZMAssetClientMessage = self.createMessage(isImage: false, uploaded: true, assetId: true, uploadState: .uploadingFullAsset, transferState: .uploading)
 
             // WHEN
             message.fileMessageData?.cancelTransfer()
