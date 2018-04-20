@@ -215,7 +215,6 @@ extension AssetV3FileUploadRequestStrategy: ZMUpstreamTranscoder {
             _ = message.parseUploadResponse(response, clientRegistrationDelegate: delegate)
         }
 
-
         if let updated = message.genericAssetMessage?.updatedUploaded(withAssetId: assetId, token: payload["token"] as? String) {
             message.add(updated)
         }

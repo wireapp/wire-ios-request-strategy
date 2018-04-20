@@ -400,8 +400,8 @@ extension AssetV3DownloadRequestStrategyTests {
                 .setUploaded(ZMAssetRemoteDataBuilder()
                     .setOtrKey(key)
                     .setSha256(sha)
-                    .setAssetId(UUID.create().transportString())
-                    .setAssetToken(UUID.create().transportString()))
+                    .setAssetId("someId")
+                    .setAssetToken("someToken"))
                 .build()
             
             let genericMessage = ZMGenericMessage.genericMessage(asset: asset!, messageID: messageId)
@@ -470,8 +470,8 @@ extension AssetV3DownloadRequestStrategyTests {
                 .setUploaded(ZMAssetRemoteDataBuilder()
                     .setOtrKey(key)
                     .setSha256(sha)
-                    .setAssetId(UUID.create().transportString())
-                    .setAssetToken(UUID.create().transportString()))
+                    .setAssetId("someId")
+                    .setAssetToken("someToken"))
                 .build()
             
             let genericMessage = ZMGenericMessage.genericMessage(asset: asset!, messageID: messageId)
