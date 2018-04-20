@@ -58,17 +58,17 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         return conversation
     }
     
-    fileprivate func createMessage(in conversation: ZMConversation) -> (message: ZMAssetClientMessage, assetId: String, assetToken: String)? {
+    fileprivate func createMessage(in conversation: ZMConversation) -> (message: ZMAssetClientMessage, assetId: UUID, assetToken: UUID)? {
         
         let message = conversation.appendMessage(with: ZMFileMetadata(fileURL: testDataURL)) as! ZMAssetClientMessage
         let (otrKey, sha) = (Data.randomEncryptionKey(), Data.randomEncryptionKey())
-        let (assetId, token) = (UUID.create().transportString(), UUID.create().transportString())
+        let (assetId, token) = (UUID.create(), UUID.create())
         
         // TODO: We should replace this manual update with inserting a v3 asset as soon as we have sending support
         let uploaded = ZMGenericMessage.genericMessage(
             withUploadedOTRKey: otrKey,
             sha256: sha,
-            messageID: message.nonce!.transportString(),
+            messageID: message.nonce!,
             expiresAfter: NSNumber(value: conversation.messageDestructionTimeout)
         )
         
@@ -92,7 +92,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         }
     }
     
-    func createPreview(with nonce: String, otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (genericMessage: ZMGenericMessage, meta: PreviewMeta) {
+    func createPreview(with nonce: UUID, otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (genericMessage: ZMGenericMessage, meta: PreviewMeta) {
         let (assetId, token) = (UUID.create().transportString(), UUID.create().transportString())
         let assetBuilder = ZMAsset.builder()
         let previewBuilder = ZMAssetPreview.builder()
@@ -134,7 +134,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             
             // GIVEN
             let (message, _, _) = self.createMessage(in: self.conversation)!
-            let (previewGenericMessage, previewMeta) = self.createPreview(with: message.nonce!.transportString())
+            let (previewGenericMessage, previewMeta) = self.createPreview(with: message.nonce!)
             
             message.add(previewGenericMessage)
             self.prepareDownload(of: message)
@@ -159,7 +159,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedBlockAndWait {
             
             let (message, _, _) = self.createMessage(in: self.conversation)!
-            let preview = self.createPreview(with: message.nonce!.transportString())
+            let preview = self.createPreview(with: message.nonce!)
             previewMeta = preview.meta
             message.add(preview.genericMessage)
             self.prepareDownload(of: message)
@@ -193,7 +193,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(in: self.conversation)!.message
-            let preview = self.createPreview(with: message.nonce!.transportString())
+            let preview = self.createPreview(with: message.nonce!)
             previewMeta = preview.meta
             
             message.add(preview.genericMessage)
@@ -229,7 +229,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         var previewGenericMessage: ZMGenericMessage!
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(in: self.conversation)!.message
-            previewGenericMessage = self.createPreview(with: message.nonce!.transportString()).genericMessage
+            previewGenericMessage = self.createPreview(with: message.nonce!).genericMessage
         }
         
         // WHEN
@@ -258,7 +258,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         var message: ZMAssetClientMessage!
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(in: self.conversation)!.message
-            let (previewGenericMessage, _) = self.createPreview(with: message.nonce!.transportString(), otr: key, sha: sha)
+            let (previewGenericMessage, _) = self.createPreview(with: message.nonce!, otr: key, sha: sha)
         
             message.add(previewGenericMessage)
             self.prepareDownload(of: message)

@@ -141,11 +141,12 @@ extension LinkPreviewAssetUploadRequestStrategy : ZMUpstreamTranscoder {
     public func updateUpdatedObject(_ managedObject: ZMManagedObject, requestUserInfo: [AnyHashable: Any]?, response: ZMTransportResponse, keysToParse: Set<String>) -> Bool {
         guard let message = managedObject as? ZMClientMessage else { return false }
         guard keysToParse.contains(ZMClientMessageLinkPreviewStateKey) else { return false }
-        guard let payload = response.payload?.asDictionary(), let assetKey = payload["key"] as? String else { fatal("No asset ID present in payload: \(String(describing: response.payload))") }
+        guard let payload = response.payload?.asDictionary(), let assetKeyString = payload["key"] as? String, let assetKey = UUID(uuidString: assetKeyString) else { fatal("No asset ID present in payload: \(String(describing: response.payload))") }
         
         if let linkPreview = message.genericMessage?.linkPreviews.first, !message.isObfuscated {
-            let updatedPreview = linkPreview.update(withAssetKey: assetKey, assetToken: payload["token"] as? String)
-            let genericMessage = ZMGenericMessage.message(text: (message.textMessageData?.messageText)!, linkPreview: updatedPreview, nonce: message.nonce!.transportString(), expiresAfter: NSNumber(value: message.deletionTimeout))
+            let tokenString = payload["token"] as? String
+            let updatedPreview = linkPreview.update(withAssetKey: assetKey, assetToken: tokenString.flatMap(UUID.init))
+            let genericMessage = ZMGenericMessage.message(text: (message.textMessageData?.messageText)!, linkPreview: updatedPreview, nonce: message.nonce!, expiresAfter: NSNumber(value: message.deletionTimeout))
             message.add(genericMessage.data())
             zmLog.debug("Uploaded image for message with linkPreview: \(linkPreview), genericMessage: \(String(describing: message.genericMessage))")
             message.linkPreviewState = .uploaded

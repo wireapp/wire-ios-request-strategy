@@ -184,13 +184,15 @@ extension AssetV3ImageUploadRequestStrategy: ZMUpstreamTranscoder {
 
     public func updateUpdatedObject(_ managedObject: ZMManagedObject, requestUserInfo: [AnyHashable : Any]? = nil, response: ZMTransportResponse, keysToParse: Set<String>) -> Bool {
         guard let message = managedObject as? ZMAssetClientMessage, let genericMessage = message.genericAssetMessage, let asset = genericMessage.assetData else { return false }
-        guard let payload = response.payload?.asDictionary(), let assetId = payload["key"] as? String else { fatal("No asset ID present in payload: \(String(describing: response.payload))") }
-        let token: String? = payload["token"] as? String
+        guard let payload = response.payload?.asDictionary(), let assetIdString = payload["key"] as? String else { fatal("No asset ID present in payload: \(String(describing: response.payload))") }
+        guard let assetId = UUID(uuidString: assetIdString) else { fatal("No asset ID present in payload: \(String(describing: response.payload))") }
+
+        let tokenString: String? = payload["token"] as? String
 
         // We either uploaded the full asset if this file is an image, or we uploaded the preview image in case this
         // file does not represent an image but has a thumbnail image. We need to make sure that we update the correct
         // generic message (Asset.Uploaded in case of an image and Asset.Preview in case of a file with preview).an
-        if let updated = genericMessage.updatedUploaded(withAssetId: assetId, token: token),
+        if let updated = genericMessage.updatedUploaded(withAssetId: assetId, token: tokenString.flatMap(UUID.init)),
             asset.original.hasImage(),
             message.uploadState == .uploadingFullAsset {
 
@@ -201,7 +203,7 @@ extension AssetV3ImageUploadRequestStrategy: ZMUpstreamTranscoder {
             managedObjectContext.zm_fileAssetCache.deleteRequestData(message)
             // We need more requests to actually upload the message data (see AssetClientMessageRequestStrategy)
             return true
-        } else if let updated = genericMessage.updatedPreview(withAssetId: assetId, token: token),
+        } else if let updated = genericMessage.updatedPreview(withAssetId: assetId, token: tokenString.flatMap(UUID.init)),
             message.uploadState == .uploadingThumbnail,
             !asset.original.hasImage(),
             asset.preview.hasImage() {
@@ -298,7 +300,7 @@ extension AssetV3ImageUploadRequestStrategy: ZMUpstreamTranscoder {
             withImageSize: .zero,
             mimeType: "",
             size: message.size,
-            nonce: message.nonce!.transportString(),
+            nonce: message.nonce!,
             expiresAfter: NSNumber(value: message.deletionTimeout)
         )
         message.add(genericMessage)
