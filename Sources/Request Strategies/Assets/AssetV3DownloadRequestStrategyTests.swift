@@ -72,10 +72,10 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
         in aConversation: ZMConversation,
         otrKey: Data = Data.randomEncryptionKey(),
         sha: Data  = Data.randomEncryptionKey()
-        ) -> (message: ZMAssetClientMessage, assetId: UUID, assetToken: UUID)? {
+        ) -> (message: ZMAssetClientMessage, assetId: String, assetToken: String)? {
 
         let message = aConversation.appendMessage(with: ZMFileMetadata(fileURL: testDataURL)) as! ZMAssetClientMessage
-        let (assetId, token) = (UUID.create(), UUID.create())
+        let (assetId, token) = (UUID.create().transportString(), UUID.create().transportString())
 
         // TODO: We should replace this manual update with inserting a v3 asset as soon as we have sending support
         let timer: NSNumber? = aConversation.messageDestructionTimeout > 0 ? NSNumber(value: aConversation.messageDestructionTimeout) : nil
@@ -114,15 +114,15 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             
             guard let assetData = message.genericAssetMessage?.assetData else { return XCTFail("No assetData found") }
             XCTAssert(assetData.hasUploaded())
-            XCTAssertEqual(assetData.uploaded.assetId, assetId.transportString())
-            XCTAssertEqual(assetData.uploaded.assetToken, token.transportString())
+            XCTAssertEqual(assetData.uploaded.assetId, assetId)
+            XCTAssertEqual(assetData.uploaded.assetToken, token)
             
             // When
             guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
             
             // Then
             XCTAssertEqual(request.method, .methodGET)
-            XCTAssertEqual(request.path, "/assets/v3/\(assetId.transportString())")
+            XCTAssertEqual(request.path, "/assets/v3/\(assetId)")
             XCTAssert(request.needsAuthentication)
         }
     }
@@ -135,8 +135,8 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             guard let (message, assetId, token) = self.createFileMessageWithAssetId(in: self.conversation) else { return XCTFail("No message") }
             guard let assetData = message.genericAssetMessage?.assetData else { return XCTFail("No assetData found") }
             XCTAssert(assetData.hasUploaded())
-            XCTAssertEqual(assetData.uploaded.assetId, assetId.transportString())
-            XCTAssertEqual(assetData.uploaded.assetToken, token.transportString())
+            XCTAssertEqual(assetData.uploaded.assetId, assetId)
+            XCTAssertEqual(assetData.uploaded.assetToken, token)
             XCTAssert(message.genericAssetMessage!.hasEphemeral())
             
             // When
@@ -144,7 +144,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             
             // Then
             XCTAssertEqual(request.method, .methodGET)
-            XCTAssertEqual(request.path, "/assets/v3/\(assetId.transportString())")
+            XCTAssertEqual(request.path, "/assets/v3/\(assetId)")
             XCTAssert(request.needsAuthentication)
         }
     }

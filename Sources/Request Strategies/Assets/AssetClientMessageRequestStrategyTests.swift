@@ -107,7 +107,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
         if preview {
             let (otr, sha) = (Data.randomEncryptionKey(), Data.zmRandomSHA256Key())
-            let previewId: UUID? = previewAssetId ? UUID.create() : nil
+            let previewId: String? = previewAssetId ? UUID.create().transportString() : nil
             let previewAsset = ZMAssetPreview.preview(
                 withSize: 128,
                 mimeType: "image/jpg",
@@ -136,7 +136,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
                 expiresAfter: NSNumber(value: self.groupConversation.messageDestructionTimeout)
             )
             if assetId {
-                uploaded = uploaded.updatedUploaded(withAssetId: UUID.create(), token: nil)!
+                uploaded = uploaded.updatedUploaded(withAssetId: UUID.create().transportString(), token: nil)!
             }
             message.add(uploaded)
             XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded(), line: line)

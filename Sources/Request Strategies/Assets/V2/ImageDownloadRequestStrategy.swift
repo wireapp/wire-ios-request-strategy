@@ -80,7 +80,7 @@ extension ImageDownloadRequestStrategy : ZMDownstreamTranscoder {
             return nil
         } else {
             if message.imageMessageData != nil {
-                guard let assetId = message.assetId else { return nil }
+                guard let assetId = message.assetId?.transportString() else { return nil }
                 return requestFactory.requestToGetAsset(assetId, inConversation: conversation.remoteIdentifier!, isEncrypted: message.hasEncryptedAsset)
             } else if (message.fileMessageData != nil) {
                 guard let assetId = message.fileMessageData?.thumbnailAssetID else { return nil }

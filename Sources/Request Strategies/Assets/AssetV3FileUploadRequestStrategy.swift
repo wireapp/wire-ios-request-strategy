@@ -206,7 +206,7 @@ extension AssetV3FileUploadRequestStrategy: ZMUpstreamTranscoder {
 
         guard keysToParse.contains(#keyPath(ZMAssetClientMessage.uploadState)), response.result == .success else { return false }
         guard let message = managedObject as? ZMAssetClientMessage else { return false }
-        guard let payload = response.payload?.asDictionary(), let assetIdString = payload["key"] as? String, let assetId = UUID(uuidString: assetIdString) else {
+        guard let payload = response.payload?.asDictionary(), let assetId = payload["key"] as? String else {
             fatal("No asset ID present in payload: \(String(describing: response.payload))")
         }
 
@@ -215,9 +215,8 @@ extension AssetV3FileUploadRequestStrategy: ZMUpstreamTranscoder {
             _ = message.parseUploadResponse(response, clientRegistrationDelegate: delegate)
         }
 
-        let tokenString = payload["token"] as? String
 
-        if let updated = message.genericAssetMessage?.updatedUploaded(withAssetId: assetId, token: tokenString.flatMap(UUID.init)) {
+        if let updated = message.genericAssetMessage?.updatedUploaded(withAssetId: assetId, token: payload["token"] as? String) {
             message.add(updated)
         }
 
