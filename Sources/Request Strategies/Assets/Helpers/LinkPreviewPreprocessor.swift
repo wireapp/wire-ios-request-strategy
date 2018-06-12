@@ -24,7 +24,7 @@ import WireUtilities
 
 private let zmLog = ZMSLog(tag: "link previews")
 
-@objc public final class LinkPreviewPreprocessor : NSObject, ZMContextChangeTracker {
+@objcMembers public final class LinkPreviewPreprocessor : NSObject, ZMContextChangeTracker {
         
     /// List of objects currently being processed
     fileprivate var objectsBeingProcessed = Set<ZMClientMessage>()

@@ -25,7 +25,7 @@ import WireDataModel
 Prepares file to be uploaded
 It creates an encrypted version from the plain text version
 */
-@objc public final class FilePreprocessor : NSObject, ZMContextChangeTracker {
+@objcMembers public final class FilePreprocessor : NSObject, ZMContextChangeTracker {
     
     /// Queue to use for processing files
     fileprivate let processingQueue : DispatchQueue
