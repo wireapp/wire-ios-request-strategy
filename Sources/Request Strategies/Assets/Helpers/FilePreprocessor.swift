@@ -65,9 +65,10 @@ It creates an encrypted version from the plain text version
     }
 
     private func processObjects(_ objects: Set<NSManagedObject>) {
-        objects.flatMap(fileAssetToPreprocess)
-               .filter { !self.objectsBeingProcessed.contains($0) }
-               .forEach { self.startProcessing($0) }
+        objects
+            .compactMap(fileAssetToPreprocess)
+            .filter(!objectsBeingProcessed.contains)
+            .forEach(startProcessing)
     }
     
     /// Starts processing the asset client message
