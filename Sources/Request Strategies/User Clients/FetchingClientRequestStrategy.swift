@@ -27,7 +27,7 @@ private let zmLog = ZMSLog(tag: "fetchClientRS")
 
 public let ZMNeedsToUpdateUserClientsNotificationUserObjectIDKey = "userObjectID"
 
-public extension ZMUser {
+@objc public extension ZMUser {
     
     func fetchUserClients() {
         NotificationInContext(name: FetchingClientRequestStrategy.needsToUpdateUserClientsNotificationName,
