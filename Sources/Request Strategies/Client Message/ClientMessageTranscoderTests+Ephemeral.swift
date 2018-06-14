@@ -99,7 +99,7 @@ extension ClientMessageTranscoderTests {
         self.stopEphemeralMessageTimers()
         
         // WHEN
-        self.spinMainQueue(withTimeout: 8)
+        self.spinMainQueue(withTimeout: ZMConversationMessageDestructionTimeout.tenSeconds.rawValue + 3)
         self.syncMOC.performGroupedBlockAndWait {
             self.syncMOC.refreshAllObjects()
         }
