@@ -79,6 +79,8 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
                 return nil
         }
         
+        requireInternal(true == message.sender?.isSelfUser, "Trying to send message from sender other than self: \(message.nonce?.uuidString ?? "nil nonce")")
+        
         let request = self.requestFactory.upstreamRequestForMessage(message, forConversationWithId: message.conversation!.remoteIdentifier!)!
         if message.genericMessage?.hasConfirmation() == true && self.applicationStatus!.deliveryConfirmation.needsToSyncMessages {
             request.forceToVoipSession()
@@ -225,14 +227,14 @@ extension ClientMessageTranscoder {
 extension ClientMessageTranscoder : ZMEventConsumer {
     
     public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
-        let messages = events.flatMap { self.message(from: $0, prefetchResult: prefetchResult) }
+        let messages = events.compactMap { self.message(from: $0, prefetchResult: prefetchResult) }
         if (liveEvents) {
             messages.forEach { $0.conversation?.resortMessages(withUpdatedMessage: $0) }
         }
     }    
     
     public func messageNoncesToPrefetch(toProcessEvents events: [ZMUpdateEvent]) -> Set<UUID> {
-        return Set(events.flatMap {
+        return Set(events.compactMap {
             switch $0.type {
             case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
                 return $0.messageNonce()
@@ -243,7 +245,7 @@ extension ClientMessageTranscoder : ZMEventConsumer {
     }
     
     private func nonces(for updateEvents: [ZMUpdateEvent]) -> [UpdateEventWithNonce] {
-        return updateEvents.flatMap {
+        return updateEvents.compactMap {
             switch $0.type {
             case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
                 if let nonce = $0.messageNonce() {
