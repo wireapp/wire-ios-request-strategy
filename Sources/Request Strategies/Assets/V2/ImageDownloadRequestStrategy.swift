@@ -29,12 +29,12 @@ public final class ImageDownloadRequestStrategy : AbstractRequestStrategy {
         
         let downloadPredicate = NSPredicate { (object, _) -> Bool in
             guard let message = object as? ZMAssetClientMessage else { return false }
-            guard message.version < 3, message.hasEncryptedAsset else { return false }
+            guard message.version < 3 else { return false }
             
             let missingMediumImage = message.imageMessageData != nil && !message.hasDownloadedImage && message.assetId != nil
             let missingVideoThumbnail = message.fileMessageData != nil && !message.hasDownloadedImage && message.fileMessageData?.thumbnailAssetID != nil
             
-            return missingMediumImage || missingVideoThumbnail
+            return (missingMediumImage || missingVideoThumbnail) && message.hasEncryptedAsset
         }
         
         downstreamSync = ZMDownstreamObjectSyncWithWhitelist(transcoder: self,

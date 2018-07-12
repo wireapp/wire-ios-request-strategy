@@ -124,14 +124,18 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
     func testThatItDoesNotGenerateARequestForAMessageWithoutALinkPreview() {
         let genericMessage = ZMGenericMessage.message(text: name, nonce: UUID.create())
         let message = oneToOneconversationOnSync.appendClientMessage(with: genericMessage)!
-        _ = try? syncMOC.obtainPermanentIDs(for: [message])
+        
+        syncMOC.performGroupedBlockAndWait {
+            _ = try? self.syncMOC.obtainPermanentIDs(for: [message])
+        }
+        
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // WHEN
         message.requestImageDownload()
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // THEN
-        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         XCTAssertNil(sut.nextRequest())
     }
     
