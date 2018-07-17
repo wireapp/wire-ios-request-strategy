@@ -128,6 +128,7 @@ extension FetchingClientRequestStrategy: ZMRemoteIdentifierObjectTranscoder {
 
         for client in clients {
             if client.hasSessionWithSelfClient { continue }
+            // Add clients without a session to missed clients
             newClients.insert(client)
         }
 
