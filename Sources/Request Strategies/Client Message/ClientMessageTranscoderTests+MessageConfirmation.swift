@@ -281,13 +281,10 @@ extension ClientMessageTranscoderTests {
     
     /// Last confirmation message in the one to one conversation
     var lastConfirmationMessage: ZMClientMessage? {
-        for message in self.oneToOneConversation.hiddenMessages.array.reversed() {
-            guard let clientMessage = message as? ZMClientMessage else { continue }
-            if clientMessage.genericMessage!.hasConfirmation() {
-                return clientMessage
-            }
-        }
-        return nil
+        return self.oneToOneConversation.hiddenMessages.first(where: {
+            guard let clientMessage = $0 as? ZMClientMessage else { return false }
+            return clientMessage.genericMessage!.hasConfirmation()
+        }) as? ZMClientMessage
     }
 }
 
