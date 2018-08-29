@@ -105,7 +105,7 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
         request.add(completionHandler)
         
         if message.genericMessage?.hasConfirmation() == true && self.applicationStatus!.deliveryConfirmation.needsToSyncMessages {
-            request.forceToVoipSession()
+            request.forceToBackgroundSession()
         }
         
         self.messageExpirationTimer.stop(for: message)
