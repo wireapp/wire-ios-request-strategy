@@ -99,7 +99,7 @@ class CryptoboxUpdateEventsTests: MessagingTestBase {
             }
             
             // THEN
-            guard let lastMessage = self.groupConversation.messages.lastObject as? ZMSystemMessage else {
+            guard let lastMessage = self.groupConversation.recentMessages.last as? ZMSystemMessage else {
                 return XCTFail()
             }
             XCTAssertEqual(lastMessage.systemMessageType, .decryptionFailed)
@@ -141,7 +141,7 @@ class CryptoboxUpdateEventsTests: MessagingTestBase {
             }
 
             // Then
-            guard let lastMessage = self.groupConversation.messages.lastObject as? ZMSystemMessage else { return XCTFail() }
+            guard let lastMessage = self.groupConversation.recentMessages.last as? ZMSystemMessage else { return XCTFail() }
             XCTAssertEqual(lastMessage.systemMessageType, .decryptionFailed)
         }
     }
@@ -181,7 +181,7 @@ class CryptoboxUpdateEventsTests: MessagingTestBase {
             }
 
             // Then
-            guard let lastMessage = self.groupConversation.messages.lastObject as? ZMSystemMessage else { return XCTFail() }
+            guard let lastMessage = self.groupConversation.recentMessages.last as? ZMSystemMessage else { return XCTFail() }
             XCTAssertEqual(lastMessage.systemMessageType, .decryptionFailed)
         }
     }

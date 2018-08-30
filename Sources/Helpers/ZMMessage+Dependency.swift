@@ -90,7 +90,7 @@ extension ZMMessage {
         // so we iterate backwards and we ignore everything until we find this one
         var selfMessageFound = false
 
-        conversation.messages
+        NSOrderedSet(array: conversation.recentMessages)
             .enumerateObjects(options: NSEnumerationOptions.reverse) { (obj, _, stop) in
                 guard let previousMessage = obj as? ZMMessage else { return }
                 

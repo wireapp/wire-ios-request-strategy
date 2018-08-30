@@ -130,7 +130,7 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
 extension ClientMessageTranscoder {
 
     public var hasPendingMessages: Bool {
-        return self.messageExpirationTimer.hasMessageTimersRunning || self.upstreamObjectSync.hasCurrentlyRunningRequests;
+        return self.messageExpirationTimer.hasMessageTimersRunning || self.upstreamObjectSync.hasCurrentlyRunningRequests
     }
     
     @discardableResult func message(from event: ZMUpdateEvent, prefetchResult: ZMFetchRequestBatchResult?) -> ZMMessage? {
