@@ -101,7 +101,7 @@ extension OTREntity {
             if !missingClients.intersection(recipientClients).isEmpty {
                 // make sure that we fetch those clients, even if we somehow gave up on fetching them
                 selfClient.setLocallyModifiedKeys(Set(arrayLiteral: ZMUserClientMissingKey))
-                context.saveOrRollback()
+                context.enqueueDelayedSave()
                 return selfClient
             }
         }
