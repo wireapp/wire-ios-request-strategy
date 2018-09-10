@@ -133,11 +133,11 @@ extension ClientMessageTranscoder {
         return self.messageExpirationTimer.hasMessageTimersRunning || self.upstreamObjectSync.hasCurrentlyRunningRequests
     }
     
-    @discardableResult func message(from event: ZMUpdateEvent, prefetchResult: ZMFetchRequestBatchResult?) -> ZMMessage? {
+    func insertMessage(from event: ZMUpdateEvent, prefetchResult: ZMFetchRequestBatchResult?) {
         switch event.type {
         case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
             guard let updateResult = ZMOTRMessage.messageUpdateResult(from: event, in: self.managedObjectContext, prefetchResult: prefetchResult) else {
-                 return nil
+                 return
             }
             
             updateResult.message?.markAsSent()
@@ -158,11 +158,11 @@ extension ClientMessageTranscoder {
                 self.localNotificationDispatcher.process(updateMessage)
                 
             }
-            
-            return updateResult.message
         default:
-            return nil
+            break
         }
+        
+        managedObjectContext.processPendingChanges()
     }
     
     fileprivate func deleteOldEphemeralMessages() {
@@ -251,8 +251,7 @@ extension ClientMessageTranscoder {
 extension ClientMessageTranscoder : ZMEventConsumer {
     
     public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
-        events.forEach { self.message(from: $0, prefetchResult: prefetchResult) }
-        managedObjectContext.processPendingChanges()
+        events.forEach { _ = self.insertMessage(from: $0, prefetchResult: prefetchResult) }
     }    
     
     public func messageNoncesToPrefetch(toProcessEvents events: [ZMUpdateEvent]) -> Set<UUID> {
