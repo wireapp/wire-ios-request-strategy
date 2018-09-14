@@ -60,7 +60,7 @@ import Foundation
         isExpired = true
     }
     
-    public override var hashValue: Int {
+    public override var hash: Int {
         return self.message.hashValue
     }
 }
