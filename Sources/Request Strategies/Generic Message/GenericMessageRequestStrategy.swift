@@ -35,7 +35,7 @@ import Foundation
         return conversation!.managedObjectContext!
     }
     
-    public var dependentObjectNeedingUpdateBeforeProcessing: AnyHashable? {
+    public var dependentObjectNeedingUpdateBeforeProcessing: NSObject? {
         guard let conversation  = conversation else { return nil }
         
         return self.dependentObjectNeedingUpdateBeforeProcessingOTREntity(in: conversation)
