@@ -63,7 +63,7 @@ class LinkPreviewPreprocessorTests: MessagingTestBase {
         if isEphemeral {
             conversation.messageDestructionTimeout = .local(.tenSeconds)
         }
-        let message = conversation.appendMessage(withText: name) as! ZMClientMessage
+        let message = conversation.append(text: name) as! ZMClientMessage
         message.linkPreviewState = state
         return message
     }
@@ -171,7 +171,7 @@ extension LinkPreviewPreprocessorTests {
             // GIVEN
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.remoteIdentifier = UUID.create()
-            message = conversation.appendKnock() as! ZMClientMessage
+            message = conversation.appendKnock() as? ZMClientMessage
             
             // WHEN
             self.sut.objectsDidChange([message])
