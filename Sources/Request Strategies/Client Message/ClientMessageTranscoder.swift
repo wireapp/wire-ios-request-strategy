@@ -151,6 +151,16 @@ extension ClientMessageTranscoder {
                 }
             }
             
+            // Unarchive the conversation, if current user is mentioned.
+            if let updateMessage = updateResult.message,
+               let conversation = updateMessage.conversation,
+               conversation.isArchived,
+               let textMessageData = updateMessage.textMessageData,
+               textMessageData.isMentioningSelf {
+                
+                conversation.isArchived = false
+            }
+            
             if let updateMessage = updateResult.message, event.source == .pushNotification || event.source == .webSocket {
                 if let genericMessage = ZMGenericMessage(from: event) {
                     self.localNotificationDispatcher.process(genericMessage)
