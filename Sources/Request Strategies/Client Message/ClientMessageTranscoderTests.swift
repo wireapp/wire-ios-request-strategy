@@ -102,6 +102,24 @@ extension ClientMessageTranscoderTests {
         }
     }
     
+    func testThatConversationIsUnarchivedWithSelfMention() {
+        self.syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            self.groupConversation.isSilenced = true
+            self.groupConversation.isArchived = true
+            
+            let text = "@selfUser"
+            let mention = Mention(range: NSRange(location: 0, length: 9), user: ZMUser.selfUser(in: self.syncMOC))
+            let message = ZMGenericMessage.message(content: ZMText.text(with: text, mentions: [mention], linkPreviews: []))
+            let event = self.decryptedUpdateEventFromOtherClient(message: message)
+            
+            // WHEN
+            self.sut.processEvents([event], liveEvents: false, prefetchResult: nil)
+            
+            // THEN
+            XCTAssertFalse(self.groupConversation.isArchived)
+        }
+    }
 }
 
 // MARK: - Request generation
