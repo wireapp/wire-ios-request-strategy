@@ -120,6 +120,6 @@ private let zmLog = ZMSLog(tag: "link previews")
         
         let wholeRange = NSMakeRange(0, (text as NSString).length)
         
-        return regex.matches(in: text, options: [], range: wholeRange).compactMap {  Range<Int>($0.range(at: 1)) }
+        return regex.matches(in: text, options: [], range: wholeRange).compactMap {  Range<Int>($0.range(at: 0)) }
     }
 }
