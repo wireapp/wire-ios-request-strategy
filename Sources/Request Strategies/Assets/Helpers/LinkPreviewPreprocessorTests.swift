@@ -200,14 +200,14 @@ extension LinkPreviewPreprocessorTests {
     func testThatItShouldExcludeMarkdownLinksFromLinkPreviewGeneration() {
         syncMOC.performGroupedBlockAndWait {
             // GIVEN
-            let text = "[click me!](www.example.com)"
+            let text = "[click me!](www.example.com) hello"
             let message = self.createMessage(text: text)
             
             // WHEN
             self.sut.processMessage(message)
             
             // THEN
-            XCTAssertEqual(self.mockDetector.excludedRanges, [Range<Int>(NSMakeRange(12, 15))!])
+            XCTAssertEqual(self.mockDetector.excludedRanges, [Range<Int>(NSMakeRange(0, 28))!])
         }
     }
     
