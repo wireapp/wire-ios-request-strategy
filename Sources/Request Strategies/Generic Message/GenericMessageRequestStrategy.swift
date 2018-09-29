@@ -17,6 +17,7 @@
 //
 
 import Foundation
+
 @objcMembers public class GenericMessageEntity : NSObject, OTREntity {
 
     public var message : ZMGenericMessage
@@ -34,7 +35,7 @@ import Foundation
         return conversation!.managedObjectContext!
     }
     
-    public var dependentObjectNeedingUpdateBeforeProcessing: AnyHashable? {
+    public var dependentObjectNeedingUpdateBeforeProcessing: NSObject? {
         guard let conversation  = conversation else { return nil }
         
         return self.dependentObjectNeedingUpdateBeforeProcessingOTREntity(in: conversation)
@@ -52,14 +53,14 @@ import Foundation
     }
     
     public func detectedMissingClient(for user: ZMUser) {
-        conversation?.checkIfMissingActiveParticipant(user)
+        conversation?.addParticipantIfMissing(user)
     }
     
     public func expire() {
         isExpired = true
     }
     
-    public override var hashValue: Int {
+    public override var hash: Int {
         return self.message.hashValue
     }
 }

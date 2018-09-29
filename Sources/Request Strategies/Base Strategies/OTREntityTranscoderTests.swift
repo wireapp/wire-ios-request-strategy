@@ -37,7 +37,7 @@ import XCTest
     var isMissingClients = false
     var didCallHandleClientUpdates = false
     
-    var dependentObjectNeedingUpdateBeforeProcessing: AnyHashable?
+    var dependentObjectNeedingUpdateBeforeProcessing: NSObject?
     
     init(conversation: ZMConversation, context: NSManagedObjectContext) {
         self.conversation = conversation
@@ -53,7 +53,7 @@ import XCTest
     }
     
     func detectedMissingClient(for user: ZMUser) {
-        conversation?.checkIfMissingActiveParticipant(user)
+        conversation?.addParticipantIfMissing(user)
     }
     
 }
