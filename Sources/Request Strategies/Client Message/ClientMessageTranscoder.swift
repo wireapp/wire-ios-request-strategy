@@ -133,11 +133,20 @@ extension ClientMessageTranscoder {
         return self.messageExpirationTimer.hasMessageTimersRunning || self.upstreamObjectSync.hasCurrentlyRunningRequests;
     }
     
-    func message(from event: ZMUpdateEvent, prefetchResult: ZMFetchRequestBatchResult?) -> ZMMessage? {
+    func insertMessage(from event: ZMUpdateEvent, prefetchResult: ZMFetchRequestBatchResult?) {
         switch event.type {
         case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
+            
+            // process generic message first, b/c if there is no updateResult, then
+            // a the event from a deleted message wouldn't delete the notification.
+            if event.source == .pushNotification || event.source == .webSocket {
+                if let genericMessage = ZMGenericMessage(from: event) {
+                    self.localNotificationDispatcher.process(genericMessage)
+                }
+            }
+            
             guard let updateResult = ZMOTRMessage.messageUpdateResult(from: event, in: self.managedObjectContext, prefetchResult: prefetchResult) else {
-                 return nil
+                return
             }
             
             updateResult.message?.markAsSent()
@@ -152,16 +161,11 @@ extension ClientMessageTranscoder {
             }
             
             if let updateMessage = updateResult.message, event.source == .pushNotification || event.source == .webSocket {
-                if let genericMessage = ZMGenericMessage(from: event) {
-                    self.localNotificationDispatcher.process(genericMessage)
-                }
                 self.localNotificationDispatcher.process(updateMessage)
-                
             }
             
-            return updateResult.message
         default:
-            return nil
+            break
         }
     }
     
@@ -251,10 +255,7 @@ extension ClientMessageTranscoder {
 extension ClientMessageTranscoder : ZMEventConsumer {
     
     public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
-        let messages = events.compactMap { self.message(from: $0, prefetchResult: prefetchResult) }
-        if (liveEvents) {
-            messages.forEach { $0.conversation?.resortMessages(withUpdatedMessage: $0) }
-        }
+        events.forEach { _ = self.insertMessage(from: $0, prefetchResult: prefetchResult) }
     }    
     
     public func messageNoncesToPrefetch(toProcessEvents events: [ZMUpdateEvent]) -> Set<UUID> {

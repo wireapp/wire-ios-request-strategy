@@ -20,21 +20,18 @@
 import Foundation
 import WireLinkPreview
 
-@objcMembers public final class LinkPreviewDetectorHelper : NSObject {
+public final class LinkPreviewDetectorHelper : NSObject {
     fileprivate static var _test_debug_linkPreviewDetector : LinkPreviewDetectorType? = nil
     
-    @objc public class func test_debug_linkPreviewDetector() -> LinkPreviewDetectorType?
-    {
+    public class func test_debug_linkPreviewDetector() -> LinkPreviewDetectorType? {
         return _test_debug_linkPreviewDetector
     }
     
-    @objc public class func setTest_debug_linkPreviewDetector(_ detectorType: LinkPreviewDetectorType?)
-    {
+    public class func setTest_debug_linkPreviewDetector(_ detectorType: LinkPreviewDetectorType?) {
         _test_debug_linkPreviewDetector = detectorType
     }
     
-    @objc public class func tearDown()
-    {
+    public class func tearDown() {
         _test_debug_linkPreviewDetector = nil
     }
     
@@ -143,9 +140,13 @@ extension LinkPreviewAssetUploadRequestStrategy : ZMUpstreamTranscoder {
         guard keysToParse.contains(ZMClientMessageLinkPreviewStateKey) else { return false }
         guard let payload = response.payload?.asDictionary(), let assetKey = payload["key"] as? String else { fatal("No asset ID present in payload") }
         
-        if let linkPreview = message.genericMessage?.linkPreviews.first, !message.isObfuscated {
+        if let linkPreview = message.genericMessage?.linkPreviews.first, !message.isObfuscated,
+           let messageText = message.textMessageData?.messageText,
+           let mentions = message.textMessageData?.mentions {
+            
             let updatedPreview = linkPreview.update(withAssetKey: assetKey, assetToken: payload["token"] as? String)
-            let genericMessage = ZMGenericMessage.message(text: (message.textMessageData?.messageText)!, linkPreview: updatedPreview, nonce: message.nonce!, expiresAfter: NSNumber(value: message.deletionTimeout))
+            let updatedText = ZMText.text(with: messageText, mentions: mentions, linkPreviews: [updatedPreview])
+            let genericMessage = ZMGenericMessage.message(content: updatedText, nonce: message.nonce!, expiresAfter: message.deletionTimeout)
             message.add(genericMessage.data())
             zmLog.debug("did upload image for: \(message.nonce?.uuidString ?? "nil"), genericMessage: \(String(describing: message.genericMessage))")
             zmLog.debug("setting state to .uploaded for: \(message.nonce?.uuidString ?? "nil")")
