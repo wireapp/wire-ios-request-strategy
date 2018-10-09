@@ -428,6 +428,33 @@ class AssetV3ImageUploadRequestStrategyTests: MessagingTestBase {
         }
     }
     
+    func testThatItResetsExpirationTimerOnUploadCompleted() {
+        // GIVEN
+        var message: ZMAssetClientMessage!
+        var request: ZMTransportRequest!
+        
+        // WHEN
+        self.syncMOC.performGroupedBlockAndWait {
+            message = self.createAssetImageMessage()
+            message.uploadState = .uploadingFullAsset
+            request = self.assertThatItCreatesARequest(for: message)
+            self.syncMOC.saveOrRollback()
+            
+            let payload = ["key": "foo", "token":"bar"] as ZMTransportData
+            let response = ZMTransportResponse(payload: payload, httpStatus: 201, transportSessionError: nil)
+            request.complete(with: response)
+            self.syncMOC.saveOrRollback()
+            
+        }
+        
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // THEN
+        self.syncMOC.performGroupedBlockAndWait {
+            XCTAssertNil(message.expirationDate)
+        }
+    }
+    
     // MARK: – Ephemeral
     
     func testThatItGeneratesARequest_Ephemeral() {

@@ -241,7 +241,6 @@ extension AssetV3ImageUploadRequestStrategy: ZMUpstreamTranscoder {
         if message.uploadState == .uploadingFullAsset {
             request.add(ZMTaskProgressHandler(on: self.managedObjectContext) { progress in
                 message.setExpirationDate()
-                self.managedObjectContext.enqueueDelayedSave()
             })
             
             request.add(ZMCompletionHandler(on: managedObjectContext) { response in
