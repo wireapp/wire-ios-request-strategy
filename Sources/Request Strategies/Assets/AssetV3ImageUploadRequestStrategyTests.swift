@@ -78,6 +78,19 @@ class AssetV3ImageUploadRequestStrategyTests: MessagingTestBase {
         return message
     }
     
+    func createAssetImageMessage() -> ZMAssetClientMessage {
+        var message: ZMAssetClientMessage!
+        syncMOC.performGroupedBlockAndWait {
+            //self.conversation.messageDestructionTimeout = .local(.tenSeconds)
+            message = self.conversation.appendAssetClientMessage(withNonce: UUID(), imageData: self.imageData)
+            self.syncMOC.zm_fileAssetCache.storeAssetData(message, format: .original, encrypted: false, data: self.imageData)
+            self.syncMOC.saveOrRollback()
+        }
+        
+        XCTAssertEqual(message.version, 3)
+        return message
+    }
+    
     func simulatePreprocessing(of message: ZMAssetClientMessage, preview: Bool = false) {
         let size = CGSize(width: 368, height: 520)
         let properties = ZMIImageProperties(size: size, length: 1024, mimeType: "image/jpg")
@@ -370,6 +383,48 @@ class AssetV3ImageUploadRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(message.transferState, .failedUpload)
             XCTAssertEqual(message.uploadState, .uploadingFailed)
             XCTAssertEqual(message.deliveryState, .failedToSend)
+        }
+    }
+    
+    func testThatItSetsExpirationTimerOnImageMessageCreation() {
+        // GIVEN
+        var message: ZMAssetClientMessage!
+        let currentDate = Date()
+        
+        // WHEN
+        self.syncMOC.performGroupedBlockAndWait {
+            message = self.createAssetImageMessage()
+            
+            // THEN
+            guard let expirationDate = message.expirationDate else { return XCTFail() }
+            XCTAssertEqual(Int(expirationDate.timeIntervalSince(currentDate)), 30)
+        }
+    }
+    
+    func testThatItSetsExpirationTimerOnProgressChange() {
+        // GIVEN
+        var message: ZMAssetClientMessage!
+        var request: ZMTransportRequest!
+        let currentDate = Date()
+        
+        // WHEN
+        self.syncMOC.performGroupedBlockAndWait {
+            message = self.createAssetImageMessage()
+            message.uploadState = .uploadingFullAsset
+            request = self.assertThatItCreatesARequest(for: message)
+        }
+        
+        sleep(2)
+        
+        self.syncMOC.performGroupedBlockAndWait {
+            request.updateProgress(0.5)
+        }
+        
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        self.syncMOC.performGroupedBlockAndWait {
+            guard let expirationDate = message.expirationDate else { return XCTFail() }
+            XCTAssertEqual(Int(expirationDate.timeIntervalSince(currentDate)), 32)
         }
     }
     
