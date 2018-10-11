@@ -81,7 +81,6 @@ class AssetV3ImageUploadRequestStrategyTests: MessagingTestBase {
     func createAssetImageMessage() -> ZMAssetClientMessage {
         var message: ZMAssetClientMessage!
         syncMOC.performGroupedBlockAndWait {
-            //self.conversation.messageDestructionTimeout = .local(.tenSeconds)
             message = self.conversation.appendAssetClientMessage(withNonce: UUID(), imageData: self.imageData)
             self.syncMOC.zm_fileAssetCache.storeAssetData(message, format: .original, encrypted: false, data: self.imageData)
             self.syncMOC.saveOrRollback()
