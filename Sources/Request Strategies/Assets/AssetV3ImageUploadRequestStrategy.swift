@@ -238,6 +238,19 @@ extension AssetV3ImageUploadRequestStrategy: ZMUpstreamTranscoder {
             })
         }
         
+        if message.uploadState == .uploadingFullAsset {
+            request.add(ZMTaskProgressHandler(on: self.managedObjectContext) { progress in
+                message.setExpirationDate()
+            })
+            
+            request.add(ZMCompletionHandler(on: managedObjectContext) { response in
+                message.associatedTaskIdentifier = nil
+                if response.result == .success {
+                    message.removeExpirationDate()
+                }
+            })
+        }
+        
         return ZMUpstreamRequest(keys: [#keyPath(ZMAssetClientMessage.uploadState)], transportRequest: request)
     }
 
@@ -295,13 +308,11 @@ extension AssetV3ImageUploadRequestStrategy: ZMUpstreamTranscoder {
     }
 
     func scheduleImageProcessing(forMessage message: ZMAssetClientMessage, format: ZMImageFormat) {
-        let genericMessage = ZMGenericMessage.genericMessage(
-            withImageSize: .zero,
-            mimeType: "",
-            size: message.size,
-            nonce: message.nonce!,
-            expiresAfter: NSNumber(value: message.deletionTimeout)
-        )
+        let genericMessage = ZMGenericMessage.message(content: ZMAsset.asset(originalWithImageSize: .zero,
+                                                                             mimeType: "",
+                                                                             size: message.size),
+                                                      nonce: message.nonce!,
+                                                      expiresAfter: message.deletionTimeout)
         message.add(genericMessage)
         RequestAvailableNotification.notifyNewRequestsAvailable(self)
     }

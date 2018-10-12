@@ -36,7 +36,7 @@ public class ClientMessageTranscoder: AbstractRequestStrategy {
     {
         self.localNotificationDispatcher = localNotificationDispatcher
         self.requestFactory = ClientMessageRequestFactory()
-        self.messageExpirationTimer = MessageExpirationTimer(moc: moc, entityName: ZMClientMessage.entityName(), localNotificationDispatcher: localNotificationDispatcher)
+        self.messageExpirationTimer = MessageExpirationTimer(moc: moc, entityNames: [ZMClientMessage.entityName(), ZMAssetClientMessage.entityName()], localNotificationDispatcher: localNotificationDispatcher)
         
         super.init(withManagedObjectContext: moc, applicationStatus: applicationStatus)
         
@@ -136,8 +136,17 @@ extension ClientMessageTranscoder {
     func insertMessage(from event: ZMUpdateEvent, prefetchResult: ZMFetchRequestBatchResult?) {
         switch event.type {
         case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
+            
+            // process generic message first, b/c if there is no updateResult, then
+            // a the event from a deleted message wouldn't delete the notification.
+            if event.source == .pushNotification || event.source == .webSocket {
+                if let genericMessage = ZMGenericMessage(from: event) {
+                    self.localNotificationDispatcher.process(genericMessage)
+                }
+            }
+            
             guard let updateResult = ZMOTRMessage.messageUpdateResult(from: event, in: self.managedObjectContext, prefetchResult: prefetchResult) else {
-                 return
+                return
             }
             
             updateResult.message?.markAsSent()
@@ -152,12 +161,9 @@ extension ClientMessageTranscoder {
             }
             
             if let updateMessage = updateResult.message, event.source == .pushNotification || event.source == .webSocket {
-                if let genericMessage = ZMGenericMessage(from: event) {
-                    self.localNotificationDispatcher.process(genericMessage)
-                }
                 self.localNotificationDispatcher.process(updateMessage)
-                
             }
+            
         default:
             break
         }
