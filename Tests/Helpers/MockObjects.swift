@@ -103,7 +103,7 @@ public class MockClientRegistrationStatus: NSObject, ClientRegistrationDelegate 
 
 
 @objc public class MockConfirmationStatus : NSObject, DeliveryConfirmationDelegate {
-    
+
     public private (set) var messagesToConfirm = Set<UUID>()
     public private (set) var messagesConfirmed = Set<UUID>()
 
@@ -121,6 +121,9 @@ public class MockClientRegistrationStatus: NSObject, ClientRegistrationDelegate 
     
     public func didConfirmMessage(_ messageNonce: UUID) {
         messagesConfirmed.insert(messageNonce)
+    }
+
+    public func registerCompletionHandler(completion: @escaping () -> Void) {
     }
 }
 
