@@ -43,6 +43,8 @@ import Foundation
     
     /// Removes the messageNonce from a collection of messages to be synced and ends the background activity for sending the request
     func didConfirmMessage(_ messageNonce: UUID)
+
+    func registerCompletionHandler(completion: @escaping () -> Void)
 }
 
 
