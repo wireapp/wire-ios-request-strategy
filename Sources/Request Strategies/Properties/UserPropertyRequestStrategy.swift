@@ -173,7 +173,7 @@ extension UserPropertyRequestStrategy : ZMEventConsumer {
                 }
                     
                 let user = ZMUser.selfUser(in: managedObjectContext)
-                user.setReadReceiptsEnabled(boolValue, remote: true)
+                user.setReadReceiptsEnabled(boolValue, synchronize: false)
             }
         }
     }
