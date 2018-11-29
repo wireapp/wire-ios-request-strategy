@@ -88,6 +88,13 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
         }
         
         requireInternal(true == message.sender?.isSelfUser, "Trying to send message from sender other than self: \(message.nonce?.uuidString ?? "nil nonce")")
+
+        if message.conversation?.conversationType == .oneOnOne {
+            // Update expectsReadReceipt flag to reflect the current user setting
+            if let updatedGenericMessage = message.genericMessage?.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled) {
+                message.add(updatedGenericMessage.data())
+            }
+        }
         
         let request = self.requestFactory.upstreamRequestForMessage(message, forConversationWithId: message.conversation!.remoteIdentifier!)!
         
