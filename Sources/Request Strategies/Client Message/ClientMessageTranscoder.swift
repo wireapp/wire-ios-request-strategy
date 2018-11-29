@@ -145,15 +145,13 @@ extension ClientMessageTranscoder {
                 }
             }
             
-            guard let updateResult = ZMOTRMessage.messageUpdateResult(from: event, in: self.managedObjectContext, prefetchResult: prefetchResult) else {
-                return
-            }
+            let updateResult = ZMOTRMessage.messageUpdateResult(from: event, in: self.managedObjectContext, prefetchResult: prefetchResult)
             
             updateResult.message?.markAsSent()
                         
             if type(of: self.applicationStatus!.deliveryConfirmation).sendDeliveryReceipts {
                 if updateResult.needsConfirmation {
-                    let confirmation = updateResult.message!.confirmReception()!
+                    let confirmation = updateResult.message!.confirmDelivery()!
                     if event.source == .pushNotification {
                         self.applicationStatus!.deliveryConfirmation.needsToConfirmMessage(confirmation.nonce!)
                     }
