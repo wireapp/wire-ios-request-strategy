@@ -123,7 +123,6 @@ extension UserPropertyRequestStrategy : ZMUpstreamTranscoder {
     }
     
     public func shouldRetryToSyncAfterFailed(toUpdate managedObject: ZMManagedObject, request upstreamRequest: ZMUpstreamRequest, response: ZMTransportResponse, keysToParse keys: Set<String>) -> Bool {
-        // Todo: reset value
         return false
     }
     
@@ -166,14 +165,21 @@ extension UserPropertyRequestStrategy : ZMEventConsumer {
             }
             
             let value = event.payload[UserPropertyRequestStrategy.UpdateEventValue]
-            switch (property) {
-            case (.readReceiptsEnabled):
+            switch (property, event.type) {
+            case (.readReceiptsEnabled, .userPropertiesSet):
                 guard let boolValue = value as? Bool else {
                     return
                 }
                     
                 let user = ZMUser.selfUser(in: managedObjectContext)
                 user.setReadReceiptsEnabled(boolValue, synchronize: false)
+                
+            case (.readReceiptsEnabled, .userPropertiesDelete):
+                let user = ZMUser.selfUser(in: managedObjectContext)
+                user.setReadReceiptsEnabled(false, synchronize: false)
+                
+            default:
+                break
             }
         }
     }
