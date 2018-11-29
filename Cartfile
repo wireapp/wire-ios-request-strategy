@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "feature/background-task-manager"
+github "wireapp/wire-ios-data-model" ~> 129.0
