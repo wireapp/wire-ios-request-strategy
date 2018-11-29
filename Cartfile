@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "fix/nullability"
+github "wireapp/wire-ios-data-model" ~> 131.0
