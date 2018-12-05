@@ -168,13 +168,14 @@ extension ClientMessageTranscoderTests {
         }
     }
     
-    func testThatItDoesntUpdateExpectsReadConfirmationFlagWhenReadReceiptsAreDisabled() {
+    func testThatItUpdateExpectsReadConfirmationFlagWhenReadReceiptsAreDisabled() {
         self.syncMOC.performGroupedBlockAndWait {
             
             // GIVEN
             ZMUser.selfUser(in: self.syncMOC).readReceiptsEnabled = false
             let text = "Lorem ipsum"
             let message = self.oneToOneConversation.append(text: text) as! ZMClientMessage
+            message.add(message.genericMessage!.setExpectsReadConfirmation(true)!.data())
             self.syncMOC.saveOrRollback()
             
             // WHEN

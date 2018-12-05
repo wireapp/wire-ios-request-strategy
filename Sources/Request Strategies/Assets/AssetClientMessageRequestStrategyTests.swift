@@ -429,11 +429,12 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         }
     }
     
-    func testThatItDoesntUpdateExpectsReadConfirmationFlagWhenReadReceiptsAreDisabled() {
+    func testThatItUpdateExpectsReadConfirmationFlagWhenReadReceiptsAreDisabled() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             ZMUser.selfUser(in: self.syncMOC).readReceiptsEnabled = false
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.oneToOneConversation)
+            message.add(message.genericMessage!.setExpectsReadConfirmation(true)!)
             
             // WHEN
             XCTAssertNotNil(self.sut.nextRequest())
