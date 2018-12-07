@@ -103,12 +103,12 @@ extension UserProperty {
                 return
             }
             
-            selfUser.setReadReceiptsEnabled(intValue > 0, synchronize: false)
+            selfUser.readReceiptsEnabled = intValue > 0
             if updateType.source == .notificationStream {
                 selfUser.readReceiptsEnabledChangedRemotely = true
             }
         case (.readReceiptsEnabled, .delete):
-            selfUser.setReadReceiptsEnabled(false, synchronize: false)
+            selfUser.readReceiptsEnabled = false
             if updateType.source == .notificationStream {
                 selfUser.readReceiptsEnabledChangedRemotely = true
             }
