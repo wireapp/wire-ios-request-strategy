@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "feature/unordered-relations-masked"
+github "wireapp/wire-ios-data-model" ~> 140.0
