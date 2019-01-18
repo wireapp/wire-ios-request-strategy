@@ -349,7 +349,7 @@ extension MessagingTestBase {
         
         setupTimers()
     }
-            
+
     override var allDispatchGroups: [ZMSDispatchGroup] {
         return super.allDispatchGroups + [self.syncMOC?.dispatchGroup, self.uiMOC?.dispatchGroup].compactMap { $0 }
     }
