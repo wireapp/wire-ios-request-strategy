@@ -339,6 +339,22 @@ extension MessagingTestBase {
         
         self.uiMOC.zm_sync = self.syncMOC
         self.uiMOC.zm_fileAssetCache = fileAssetCache
+        
+        setupTimers()
+    }
+    
+    func setupTimers() {
+        syncMOC.performGroupedAndWait() {
+            $0.zm_createMessageObfuscationTimer()
+        }
+        uiMOC.zm_createMessageDeletionTimer()
+    }
+    
+    func destroyTimers() {
+        syncMOC.performGroupedAndWait() { 
+            $0.zm_teardownMessageObfuscationTimer()
+        }
+        uiMOC.zm_teardownMessageDeletionTimer()
     }
     
     override var allDispatchGroups: [ZMSDispatchGroup] {
