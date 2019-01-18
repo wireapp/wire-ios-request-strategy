@@ -297,6 +297,13 @@ extension MessagingTestBase {
 // MARK: - Internal helpers
 extension MessagingTestBase {
     
+    func setupTimers() {
+        syncMOC.performGroupedAndWait() {
+            $0.zm_createMessageObfuscationTimer()
+        }
+        uiMOC.zm_createMessageDeletionTimer()
+    }
+    
     func stopEphemeralMessageTimers() {
         self.syncMOC.performGroupedBlockAndWait {
             self.syncMOC.zm_teardownMessageObfuscationTimer()
@@ -342,21 +349,7 @@ extension MessagingTestBase {
         
         setupTimers()
     }
-    
-    func setupTimers() {
-        syncMOC.performGroupedAndWait() {
-            $0.zm_createMessageObfuscationTimer()
-        }
-        uiMOC.zm_createMessageDeletionTimer()
-    }
-    
-    func destroyTimers() {
-        syncMOC.performGroupedAndWait() { 
-            $0.zm_teardownMessageObfuscationTimer()
-        }
-        uiMOC.zm_teardownMessageDeletionTimer()
-    }
-    
+            
     override var allDispatchGroups: [ZMSDispatchGroup] {
         return super.allDispatchGroups + [self.syncMOC?.dispatchGroup, self.uiMOC?.dispatchGroup].compactMap { $0 }
     }
