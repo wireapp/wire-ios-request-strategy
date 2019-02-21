@@ -18,7 +18,7 @@
 
 import Foundation
 
-public final class ImageDownloadRequestStrategy : AbstractRequestStrategy {
+public final class ImageV2DownloadRequestStrategy : AbstractRequestStrategy {
     
     fileprivate var downstreamSync : ZMDownstreamObjectSyncWithWhitelist!
     fileprivate let requestFactory : ClientMessageRequestFactory = ClientMessageRequestFactory()
@@ -31,8 +31,8 @@ public final class ImageDownloadRequestStrategy : AbstractRequestStrategy {
             guard let message = object as? ZMAssetClientMessage else { return false }
             guard message.version < 3 else { return false }
             
-            let missingMediumImage = message.imageMessageData != nil && !message.hasDownloadedImage && message.assetId != nil
-            let missingVideoThumbnail = message.fileMessageData != nil && !message.hasDownloadedImage && message.fileMessageData?.thumbnailAssetID != nil
+            let missingMediumImage = message.imageMessageData != nil && !message.hasDownloadedFile && message.assetId != nil
+            let missingVideoThumbnail = message.fileMessageData != nil && !message.hasDownloadedPreview && message.fileMessageData?.thumbnailAssetID != nil
             
             return (missingMediumImage || missingVideoThumbnail) && message.hasEncryptedAsset
         }
@@ -71,7 +71,7 @@ public final class ImageDownloadRequestStrategy : AbstractRequestStrategy {
 
 }
 
-extension ImageDownloadRequestStrategy : ZMDownstreamTranscoder {
+extension ImageV2DownloadRequestStrategy : ZMDownstreamTranscoder {
     
     public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!) -> ZMTransportRequest! {
         guard let message = object as? ZMAssetClientMessage, let conversation = message.conversation else { return nil }
@@ -108,7 +108,7 @@ extension ImageDownloadRequestStrategy : ZMDownstreamTranscoder {
         
         guard let uiMOC = managedObjectContext.zm_userInterface else { return }
         NotificationDispatcher.notifyNonCoreDataChanges(objectID: message.objectID,
-                                                        changedKeys: [#keyPath(ZMAssetClientMessage.hasDownloadedImage)],
+                                                        changedKeys: [#keyPath(ZMAssetClientMessage.hasDownloadedFile)],
                                                         uiContext: uiMOC)
     }
     

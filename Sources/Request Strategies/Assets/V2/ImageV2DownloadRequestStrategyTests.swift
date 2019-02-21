@@ -25,7 +25,7 @@ class ImageDownloadRequestStrategyTests: MessagingTestBase {
     
     fileprivate var applicationStatus: MockApplicationStatus!
     
-    fileprivate var sut: ImageDownloadRequestStrategy!
+    fileprivate var sut: ImageV2DownloadRequestStrategy!
     
     override func setUp() {
         super.setUp()
