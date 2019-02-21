@@ -32,7 +32,7 @@ import Foundation
 public final class AssetClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
 
     fileprivate let requestFactory = ClientMessageRequestFactory()
-    fileprivate var upstreamSync: ZMUpstreamModifiedObjectSync!
+    fileprivate var upstreamSync: ZMUpstreamModifiedObjectSync! // TODO jacob this can be a insertion sync now
     fileprivate var assetAnalytics: AssetAnalytics
 
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
@@ -129,40 +129,6 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
         return false
     }
 
-//    func updateNonImageFileMessageStatus(for message: ZMAssetClientMessage, response: ZMTransportResponse) -> Bool {
-//        guard let filedata = message.fileMessageData else { return false }
-//        precondition(!filedata.v3_isImage, "Should not be called with a v3 image message")
-//
-//        switch message.uploadState {
-//        case .uploadingPlaceholder: // We uploaded the Asset.original
-//            if nil != message.fileMessageData?.previewData {
-//                // If the message has a thumbnail we update the state accordingly
-//                // so the thumbnail can be preprocessed and sent.
-//                message.uploadState = .uploadingThumbnail
-//            } else {
-//                // If we do not have a thumbnail to send we want to send the full asset next.
-//                message.uploadState = .uploadingFullAsset
-//            }
-//
-//            return true
-//        case .uploadingThumbnail: // We uploaded the Asset.preview
-//            message.uploadState = .uploadingFullAsset
-//            return true
-//        case .uploadingFullAsset: // We uploaded the Asset.uploaded
-//            message.uploadState = .done
-//            message.transferState = .downloaded
-//            message.delivered = true
-//            message.markAsSent()
-//
-//            // Track successful fileupload
-//            assetAnalytics.trackUploadFinished(for: message, with: response)
-//
-//        default: break
-//        }
-//
-//        return false
-//    }
-
     public func objectToRefetchForFailedUpdate(of managedObject: ZMManagedObject) -> ZMManagedObject? {
         return nil
     }
@@ -173,94 +139,8 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
         if let delegate = applicationStatus?.clientRegistrationDelegate {
             failedBecauseOfMissingClients = message.parseUploadResponse(response, clientRegistrationDelegate: delegate)
         }
-//        if !failedBecauseOfMissingClients {
-//            let shouldUploadFailed = [AssetUploadState.uploadingFullAsset, .uploadingThumbnail].contains(message.uploadState)
-//            failMessageUpload(message, keys: keys, request: upstreamRequest.transportRequest)
-//            return shouldUploadFailed
-//        }
 
         return failedBecauseOfMissingClients
     }
-
-//    fileprivate func failMessageUpload(_ message: ZMAssetClientMessage, keys: Set<String>, request: ZMTransportRequest?) {
-//        if message.transferState != .cancelledUpload {
-//            message.transferState = .failedUpload
-//            message.expire()
-//        }
-//
-//        if keys.contains(#keyPath(ZMAssetClientMessage.uploadState)) {
-//            switch message.uploadState {
-//            case .uploadingPlaceholder: // Asset.Original
-//                message.resetLocallyModifiedKeys(keys) // We do not want to send a not-uploaded if we failed to upload the Asset.Original
-//                deleteRequestData(forMessage: message, includingEncryptedAssetData: true)
-//
-//            case .uploadingFullAsset, .uploadingThumbnail: // Asset.Uploaded && Asset.Preview
-//                message.didFailToUploadFileData()
-//                deleteRequestData(forMessage: message, includingEncryptedAssetData: false)
-//
-//            case .uploadingFailed: return
-//            case .done: break
-//            }
-//
-//            message.uploadState = .uploadingFailed
-//        }
-//
-//        // Tracking
-//        assetAnalytics.trackUploadFailed(for: message, with: request)
-//    }
-
-//    fileprivate func deleteRequestData(forMessage message: ZMAssetClientMessage, includingEncryptedAssetData: Bool) {
-//        // delete request data
-//        message.managedObjectContext?.zm_fileAssetCache.deleteRequestData(message)
-//
-//        // delete asset data
-//        if includingEncryptedAssetData {
-//            message.managedObjectContext?.zm_fileAssetCache.deleteAssetData(message, encrypted: true)
-//        }
-//    }
-
+    
 }
-
-
-// MARK: - Predicates
-
-
-//extension ZMAssetClientMessage {
-//
-//    fileprivate static var v3_messageInsertionFilter: NSPredicate {
-//        return NSPredicate { (object, _) in
-//            guard let message = object as? ZMAssetClientMessage, message.version == 3 else { return false }
-//            return message.v3_isReadyToUploadOriginal
-//            || message.v3_isReadyToUploadThumbnail
-//            || message.v3_isReadyToUploadUploaded
-//            || message.v3_isReadyToUploadNotUploaded
-//        }
-//    }
-//
-//    fileprivate var v3_isReadyToUploadOriginal: Bool {
-//        let isNoImage = genericAssetMessage?.assetData?.original.hasImage() == false
-//        let hasOriginal = genericAssetMessage?.assetData?.hasOriginal() == true
-//        return transferState == .uploading && uploadState == .uploadingPlaceholder && isNoImage && hasOriginal
-//    }
-//
-//    fileprivate var v3_isReadyToUploadThumbnail: Bool {
-//        let hasAssetId = genericAssetMessage?.assetData?.preview.remote.hasAssetId() == true
-//        return transferState == .uploading && uploadState == .uploadingThumbnail && hasAssetId
-//    }
-//
-//    fileprivate var v3_isReadyToUploadUploaded: Bool {
-//        let hasAssetId = genericAssetMessage?.assetData?.uploaded.hasAssetId() == true
-//        return transferState == .uploading && uploadState == .uploadingFullAsset && hasAssetId
-//    }
-//
-//    fileprivate var v3_isReadyToUploadNotUploaded: Bool {
-//        let hasNotUploaded = genericAssetMessage?.assetData?.hasNotUploaded() == true
-//        let failedOrCancelled = transferState == .failedUpload || transferState == .cancelledUpload
-//        return failedOrCancelled && hasNotUploaded
-//    }
-//
-//    fileprivate static var v3_messageUpdatePredicate: NSPredicate {
-//        return NSPredicate(format: "delivered == NO && version == 3")
-//    }
-//    
-//}
