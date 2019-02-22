@@ -17,21 +17,22 @@
 //
 
 import Foundation
+import WireDataModel
+
+fileprivate let zmLog = ZMSLog(tag: "rich-profile")
 
 public class UserRichProfileRequestStrategy : AbstractRequestStrategy {
     
-    var modifiedSync: ZMUpstreamModifiedObjectSync!
+    var modifiedSync: ZMDownstreamObjectSync!
     
     override public init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
                          applicationStatus: ApplicationStatus) {
         
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         
-        self.modifiedSync = ZMUpstreamModifiedObjectSync(transcoder: self,
+        self.modifiedSync = ZMDownstreamObjectSync(transcoder: self,
                                                          entityName: ZMUser.entityName(),
-                                                         update: nil,
-                                                         filter: ZMUser.predicateForSelfUser(),
-                                                         keysToSync: [],
+                                                         predicateForObjectsToDownload: ZMUser.predicateForUsersToUpdateRichProfile(),
                                                          managedObjectContext: managedObjectContext)
     }
     
@@ -40,72 +41,40 @@ public class UserRichProfileRequestStrategy : AbstractRequestStrategy {
     }
 }
 
-extension UserRichProfileRequestStrategy : ZMUpstreamTranscoder {
-    
-    public func request(forUpdating managedObject: ZMManagedObject, forKeys keys: Set<String>) -> ZMUpstreamRequest? {
-        return nil
-//        guard let selfUser = managedObject as? ZMUser else { return nil }
-//
-//        let allProperties = Set(UserProperty.allCases.map(\.propertyName))
-//
-//        let intersect = allProperties.intersection(keys)
-//
-//        guard let first = intersect.first,
-//            let property = UserProperty(propertyName: first) else {
-//                return nil
-//        }
-//
-//        let request: ZMTransportRequest
-//
-//        switch property {
-//        case .readReceiptsEnabled:
-//            request = property.upstreamRequest(newValue: property.transportValue(for: selfUser))
-//        }
-//
-//        return ZMUpstreamRequest(keys: keys, transportRequest: request)
+extension UserRichProfileRequestStrategy : ZMDownstreamTranscoder {
+    public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!) -> ZMTransportRequest! {
+        guard let user = object as? ZMUser else { fatal("Object \(object.classForCoder) is not ZMUser") }
+        guard let remoteIdentifier = user.remoteIdentifier else { fatal("User does not have remote identifier") }
+        let path = "/users/\(remoteIdentifier)/rich_info"
+        return ZMTransportRequest(path: path, method: .methodGET, payload: nil)
     }
     
-    public func dependentObjectNeedingUpdate(beforeProcessingObject dependant: ZMManagedObject) -> Any? {
-        return nil
+    public func delete(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
+        
     }
     
-    public func updateUpdatedObject(_ managedObject: ZMManagedObject,
-                                    requestUserInfo: [AnyHashable : Any]? = nil,
-                                    response: ZMTransportResponse,
-                                    keysToParse: Set<String>) -> Bool {
-        return false
+    public func update(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
+        struct Response: Decodable {
+            struct Field: Decodable {
+                var type: String
+                var value: String
+            }
+            var fields: [Field]
+        }
+        
+        guard let user = object as? ZMUser else { fatal("Object \(object.classForCoder) is not ZMUser") }
+        guard let data = response.rawData else { zmLog.error("Response has no rawData") return }
+        do {
+            let values = try JSONDecoder().decode(Response.self, from: data)
+            user.richProfile = values.fields.map { ZMUser.RichProfileField(type: $0.type, value: $0.value) }
+        } catch {
+            zmLog.error("Failed to decode response: \(error)") return
+        }
+        user.needsRichProfileUpdate = false
     }
-    
-    public func shouldRetryToSyncAfterFailed(toUpdate managedObject: ZMManagedObject,
-                                             request upstreamRequest: ZMUpstreamRequest,
-                                             response: ZMTransportResponse,
-                                             keysToParse keys: Set<String>) -> Bool {
-        return false
-    }
-    
-    public func shouldProcessUpdatesBeforeInserts() -> Bool {
-        return false
-    }
-    
-    public func request(forInserting managedObject: ZMManagedObject, forKeys keys: Set<String>?) -> ZMUpstreamRequest? {
-        return nil // we will never insert objects
-    }
-    
-    public func updateInsertedObject(_ managedObject: ZMManagedObject,
-                                     request upstreamRequest: ZMUpstreamRequest,
-                                     response: ZMTransportResponse) {
-        // we will never insert objects
-    }
-    
-    public func objectToRefetchForFailedUpdate(of managedObject: ZMManagedObject) -> ZMManagedObject? {
-        return nil
-    }
-    
 }
 
-
 extension UserRichProfileRequestStrategy : ZMContextChangeTrackerSource {
-    
     public var contextChangeTrackers: [ZMContextChangeTracker] {
         return [modifiedSync]
     }
