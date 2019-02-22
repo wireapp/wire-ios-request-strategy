@@ -596,15 +596,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		8792F55521AD93E800795027 /* Properties */ = {
-			isa = PBXGroup;
-			children = (
-				8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */,
-				87F7288421AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift */,
-			);
-			path = Properties;
-			sourceTree = "<group>";
-		};
 		F12CD7932035FC4400EAAEBC /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -621,6 +612,15 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		F14B7AD5222006A100458624 /* User */ = {
+			isa = PBXGroup;
+			children = (
+				8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */,
+				87F7288421AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift */,
+			);
+			path = User;
+			sourceTree = "<group>";
+		};
 		F154EDC51F447B6C00CB8184 /* Test Host */ = {
 			isa = PBXGroup;
 			children = (
@@ -634,7 +634,7 @@
 		F184014D2073BE0800E9F4CC /* Request Strategies */ = {
 			isa = PBXGroup;
 			children = (
-				8792F55521AD93E800795027 /* Properties */,
+				F14B7AD5222006A100458624 /* User */,
 				F184014E2073BE0800E9F4CC /* Client Message */,
 				F18401572073BE0800E9F4CC /* Generic Message */,
 				F184015C2073BE0800E9F4CC /* User Clients */,
