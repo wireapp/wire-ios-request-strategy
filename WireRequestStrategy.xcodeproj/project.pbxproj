@@ -619,8 +619,8 @@
 		F14B7AD5222006A100458624 /* User */ = {
 			isa = PBXGroup;
 			children = (
-				F14B7AEB222009C200458624 /* UserRichProfileRequestStrategyTests.swift */,
 				F14B7AE9222009BA00458624 /* UserRichProfileRequestStrategy.swift */,
+				F14B7AEB222009C200458624 /* UserRichProfileRequestStrategyTests.swift */,
 				8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */,
 				87F7288421AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift */,
 			);
