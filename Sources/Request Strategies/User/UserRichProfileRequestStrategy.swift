@@ -63,12 +63,12 @@ extension UserRichProfileRequestStrategy : ZMDownstreamTranscoder {
         }
         
         guard let user = object as? ZMUser else { fatal("Object \(object.classForCoder) is not ZMUser") }
-        guard let data = response.rawData else { zmLog.error("Response has no rawData") return }
+        guard let data = response.rawData else { zmLog.error("Response has no rawData"); return }
         do {
             let values = try JSONDecoder().decode(Response.self, from: data)
             user.richProfile = values.fields.map { ZMUser.RichProfileField(type: $0.type, value: $0.value) }
         } catch {
-            zmLog.error("Failed to decode response: \(error)") return
+            zmLog.error("Failed to decode response: \(error)"); return
         }
         user.needsRichProfileUpdate = false
     }
