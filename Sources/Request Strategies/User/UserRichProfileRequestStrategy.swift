@@ -86,7 +86,7 @@ extension UserRichProfileRequestStrategy : ZMDownstreamTranscoder {
         guard let data = response.rawData else { zmLog.error("Response has no rawData"); return }
         do {
             let values = try JSONDecoder().decode(Response.self, from: data)
-            user.richProfile = values.fields.map { ZMUser.RichProfileField(type: $0.type, value: $0.value) }
+            user.richProfile = values.fields.map { UserRichProfileField(type: $0.type, value: $0.value) }
         } catch {
             zmLog.error("Failed to decode response: \(error)"); return
         }
