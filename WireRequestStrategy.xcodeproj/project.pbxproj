@@ -29,6 +29,7 @@
 		16229487221EBB8100A98679 /* ZMImagePreprocessingTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 16229483221EBB8000A98679 /* ZMImagePreprocessingTracker.m */; };
 		16229488221EBB8100A98679 /* ZMImagePreprocessingTracker+Testing.h in Headers */ = {isa = PBXBuildFile; fileRef = 16229484221EBB8000A98679 /* ZMImagePreprocessingTracker+Testing.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		164D00742225624E00A8F264 /* ZMImagePreprocessingTrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 16229485221EBB8000A98679 /* ZMImagePreprocessingTrackerTests.m */; };
+		164D007622256C6E00A8F264 /* AssetV3UploadRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164D007522256C6E00A8F264 /* AssetV3UploadRequestStrategyTests.swift */; };
 		1669016E1D707509000FE4AF /* WireRequestStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 1669016D1D707509000FE4AF /* WireRequestStrategy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		166901D01D7081C7000FE4AF /* ZMContextChangeTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 166901A81D7081C7000FE4AF /* ZMContextChangeTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		166901D31D7081C7000FE4AF /* ZMDownstreamObjectSync.h in Headers */ = {isa = PBXBuildFile; fileRef = 166901AB1D7081C7000FE4AF /* ZMDownstreamObjectSync.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -278,6 +279,7 @@
 		16229484221EBB8000A98679 /* ZMImagePreprocessingTracker+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ZMImagePreprocessingTracker+Testing.h"; sourceTree = "<group>"; };
 		16229485221EBB8000A98679 /* ZMImagePreprocessingTrackerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMImagePreprocessingTrackerTests.m; sourceTree = "<group>"; };
 		164D006822253E1700A8F264 /* WireDataModel.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WireDataModel.xcodeproj; path = "../wire-ios-data-model/WireDataModel.xcodeproj"; sourceTree = "<group>"; };
+		164D007522256C6E00A8F264 /* AssetV3UploadRequestStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetV3UploadRequestStrategyTests.swift; sourceTree = "<group>"; };
 		1666AA2B1D93FA0B00164C06 /* ZMChangeTrackerBootstrapTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMChangeTrackerBootstrapTests.m; sourceTree = "<group>"; };
 		1666AA2D1D93FBE200164C06 /* ZMSyncOperationSetTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMSyncOperationSetTests.m; sourceTree = "<group>"; };
 		1669016A1D707509000FE4AF /* WireRequestStrategy.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WireRequestStrategy.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -751,6 +753,7 @@
 				F18401842073BE0800E9F4CC /* AssetV3PreviewDownloadStrategy.swift */,
 				F18401712073BE0800E9F4CC /* AssetV3PreviewDownloadRequestStrategyTests.swift */,
 				1622946A221C18BE00A98679 /* AssetV3UploadRequestStrategy.swift */,
+				164D007522256C6E00A8F264 /* AssetV3UploadRequestStrategyTests.swift */,
 				F184017B2073BE0800E9F4CC /* AssetClientMessageRequestStrategy.swift */,
 				F18401832073BE0800E9F4CC /* AssetClientMessageRequestStrategyTests.swift */,
 				F18401852073BE0800E9F4CC /* Helpers */,
@@ -1244,6 +1247,7 @@
 				F18401E12073C25900E9F4CC /* ClientMessageTranscoderTests+Depedency.swift in Sources */,
 				547D47191E7C2F6C002EEA15 /* DependentObjectsTests.swift in Sources */,
 				F19561F5202A1361005347C0 /* ZMUpstreamModifiedObjectSyncTests.m in Sources */,
+				164D007622256C6E00A8F264 /* AssetV3UploadRequestStrategyTests.swift in Sources */,
 				BFF9446620F5F79F00531BC3 /* ImageV2DownloadRequestStrategyTests.swift in Sources */,
 				F19561F1202A1325005347C0 /* ZMSingleRequestSyncTests.m in Sources */,
 				F19561F7202A1389005347C0 /* ZMLocallyInsertedObjectSetTests.m in Sources */,
