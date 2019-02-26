@@ -23,9 +23,9 @@ import Foundation
 /// transfer state is changed to .uploaded which is the signal that the asset message is ready to be sent.
 public final class AssetV3UploadRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
     
-    fileprivate let requestFactory = AssetRequestFactory()
-    fileprivate var upstreamSync: ZMUpstreamModifiedObjectSync!
-    fileprivate var preprocessor: AssetsPreprocessor
+    internal let requestFactory = AssetRequestFactory()
+    internal var upstreamSync: ZMUpstreamModifiedObjectSync!
+    internal var preprocessor: AssetsPreprocessor
     
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         preprocessor = AssetsPreprocessor(managedObjectContext: managedObjectContext)
@@ -64,13 +64,13 @@ public final class AssetV3UploadRequestStrategy: AbstractRequestStrategy, ZMCont
 extension AssetV3UploadRequestStrategy: ZMContextChangeTracker {
     
     // we need to cancel the requests manually as the upstream modified object sync
-    // will not pick up a change to keys which are already being synchronized (uploadState)
+    // will not pick up a change to keys which are already being synchronized (transferState)
     // WHEN the user cancels a file upload
     public func objectsDidChange(_ object: Set<NSManagedObject>) {
         let assetClientMessages = object.compactMap { object -> ZMAssetClientMessage? in
             guard let message = object as? ZMAssetClientMessage,
                 message.version == 3,
-                message.transferState == .uploadingFailed
+                message.transferState == .uploadingCancelled
                 else { return nil }
             return message
         }
@@ -89,6 +89,7 @@ extension AssetV3UploadRequestStrategy: ZMContextChangeTracker {
     fileprivate func cancelOutstandingUploadRequests(forMessage message: ZMAssetClientMessage) {
         guard let identifier = message.associatedTaskIdentifier else { return }
         applicationStatus?.requestCancellation.cancelTask(with: identifier)
+        message.associatedTaskIdentifier = nil
     }
     
 }
