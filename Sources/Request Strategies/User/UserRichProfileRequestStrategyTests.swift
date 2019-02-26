@@ -81,7 +81,27 @@ class UserRichProfileRequestStrategyTests: MessagingTestBase {
             
             // then
             XCTAssertFalse(user.needsRichProfileUpdate)
-            XCTAssertEqual(user.richProfile, [ZMUser.RichProfileField(type: type, value: value)])
+            XCTAssertEqual(user.richProfile, [UserRichProfileField(type: type, value: value)])
         }
     }
+    
+    func testThatItResetsTheFlagOnError() {
+        self.syncMOC.performGroupedAndWait { moc in
+            // given
+            let userID = UUID()
+            let user = ZMUser(remoteID: userID, createIfNeeded: true, in: self.syncMOC)!
+            user.needsRichProfileUpdate = true
+            self.sut.contextChangeTrackers.forEach({ $0.addTrackedObjects(Set<NSManagedObject>(arrayLiteral: user)) })
+            let request = self.sut.nextRequest()
+            XCTAssertNotNil(request)
+            
+            // when
+            let response = ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil)
+            self.sut.delete(user, with: response, downstreamSync: nil)
+            
+            // then
+            XCTAssertFalse(user.needsRichProfileUpdate)
+        }
+    }
+
 }
