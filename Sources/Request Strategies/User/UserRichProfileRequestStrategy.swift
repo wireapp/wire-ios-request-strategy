@@ -51,27 +51,6 @@ extension UserRichProfileRequestStrategy : ZMDownstreamTranscoder {
     
     public func delete(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
         guard let user = object as? ZMUser else { fatal("Object \(object.classForCoder) is not ZMUser") }
-
-        // TODO: Temporary code for testing end to end until backend is ready
-        if response.httpStatus == 404 && (response.payload?.asDictionary()?["label"] as? String == "no-endpoint") {
-            let department = ["Hardware Development and Administration", "Department of Extranet Programming Development", "Hardware Maintenance Division", "Internet Security Team", "PC Backup Team"]
-            let name = ["Lolicia", "Riina", "Hemingr", "Jožica", "Ilmari"]
-            
-            let fakeData = [
-                "fields" : [
-                    [
-                        "type" : "Department",
-                        "value" : department[Int(arc4random_uniform(UInt32(department.count)))]
-                    ],
-                    [
-                        "type" : "Name",
-                        "value" : name[Int(arc4random_uniform(UInt32(name.count)))]
-                    ]
-                ]
-            ]
-            let fakeResponse = ZMTransportResponse(payload: fakeData as NSDictionary, httpStatus: 200, transportSessionError: nil)
-            update(object, with: fakeResponse, downstreamSync: downstreamSync)
-        }
         user.needsRichProfileUpdate = false
     }
     
