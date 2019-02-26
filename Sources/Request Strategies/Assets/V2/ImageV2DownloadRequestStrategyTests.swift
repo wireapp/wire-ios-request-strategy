@@ -21,7 +21,7 @@ import Foundation
 import XCTest
 import WireDataModel
 
-class ImageDownloadRequestStrategyTests: MessagingTestBase {
+class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
     
     fileprivate var applicationStatus: MockApplicationStatus!
     
@@ -30,7 +30,7 @@ class ImageDownloadRequestStrategyTests: MessagingTestBase {
     override func setUp() {
         super.setUp()
         applicationStatus = MockApplicationStatus()
-        sut = ImageDownloadRequestStrategy(withManagedObjectContext: syncMOC, applicationStatus: applicationStatus)
+        sut = ImageV2DownloadRequestStrategy(withManagedObjectContext: syncMOC, applicationStatus: applicationStatus)
     }
     
     override func tearDown() {
@@ -39,21 +39,21 @@ class ImageDownloadRequestStrategyTests: MessagingTestBase {
         sut = nil
     }
     
-    func createImageMessage(withAssetId assetId: UUID?) -> ZMAssetClientMessage {
+    func createV2ImageMessage(withAssetId assetId: UUID?) -> ZMAssetClientMessage {
         let conversation = ZMConversation.insertNewObject(in: syncMOC)
         conversation.remoteIdentifier = UUID.create()
-        let message = conversation.append(imageFromData: verySmallJPEGData(), nonce: UUID.create()) as! ZMAssetClientMessage
-        message.version = 0;
-        let imageData = message.imageAssetStorage.originalImageData()
+        
+        let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: syncMOC)
+        let imageData = verySmallJPEGData() // message.imageAssetStorage.originalImageData()
         let imageSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
-        let properties = ZMIImageProperties(size: imageSize, length: UInt(imageData!.count), mimeType: "image/jpeg")
+        let properties = ZMIImageProperties(size: imageSize, length: UInt(imageData.count), mimeType: "image/jpeg")
         let keys = ZMImageAssetEncryptionKeys(otrKey: Data.randomEncryptionKey(), macKey: Data.zmRandomSHA256Key(), mac: Data.zmRandomSHA256Key())
         
         message.add(ZMGenericMessage.message(content: ZMImageAsset(mediumProperties: properties, processedProperties: properties, encryptionKeys: keys, format: .medium), nonce: message.nonce!))
         message.add(ZMGenericMessage.message(content: ZMImageAsset(mediumProperties: properties, processedProperties: properties, encryptionKeys: keys, format: .preview), nonce: message.nonce!))
-        
-        message.resetLocallyModifiedKeys(["uploadedState"])
+        message.version = 2
         message.assetId = assetId
+        conversation.append(message)
         syncMOC.saveOrRollback()
         
         return message
@@ -64,7 +64,7 @@ class ImageDownloadRequestStrategyTests: MessagingTestBase {
         conversation.remoteIdentifier = UUID.create()
         
         let nonce = UUID.create()
-        let fileURL = Bundle(for: ImageDownloadRequestStrategyTests.self).url(forResource: "Lorem Ipsum", withExtension: "txt")!
+        let fileURL = Bundle(for: ImageV2DownloadRequestStrategyTests.self).url(forResource: "Lorem Ipsum", withExtension: "txt")!
         let metadata = ZMFileMetadata(fileURL: fileURL)
         let message = conversation.append(file: metadata, nonce: nonce) as! ZMAssetClientMessage
         
@@ -76,18 +76,18 @@ class ImageDownloadRequestStrategyTests: MessagingTestBase {
     func requestToDownloadAsset(withMessage message: ZMAssetClientMessage) -> ZMTransportRequest {
         // remove image data or it won't be downloaded
         syncMOC.zm_fileAssetCache.deleteAssetData(message, format: .original, encrypted: false)
-        message.imageMessageData?.requestImageDownload()
+        message.imageMessageData?.requestFileDownload()
         return sut.nextRequest()!
     }
     
     func testRequestToDownloadAssetIsNotCreated_whenAssetIdIsNotAvailable() {
         // GIVEN
         self.syncMOC.performGroupedBlock {
-            let message = self.createImageMessage(withAssetId: nil)
+            let message = self.createV2ImageMessage(withAssetId: nil)
             
             // remove image data or it won't be downloaded
             self.syncMOC.zm_fileAssetCache.deleteAssetData(message, format: .original, encrypted: false)
-            message.imageMessageData?.requestImageDownload()
+            message.imageMessageData?.requestFileDownload()
         }
         
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -103,7 +103,7 @@ class ImageDownloadRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlock {
             // GIVEN
             let message = self.createFileMessage()
-            message.transferState = .uploaded
+            message.updateTransferState(.uploaded, synchronize: false)
             message.delivered = true
             message.assetId = UUID.create()
             
@@ -120,7 +120,7 @@ class ImageDownloadRequestStrategyTests: MessagingTestBase {
     func testMessageIsDeleted_whenDownloadRequestFail() {
         let (nonce, conversation) = syncMOC.performGroupedAndWait { moc -> (UUID, ZMConversation) in
             // GIVEN
-            let message = self.createImageMessage(withAssetId: UUID.create())
+            let message = self.createV2ImageMessage(withAssetId: UUID.create())
             let nonceAndConversation = (message.nonce!, message.conversation!)
 
             // WHEN
