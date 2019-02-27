@@ -45,7 +45,7 @@ extension UserRichProfileRequestStrategy : ZMDownstreamTranscoder {
     public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!) -> ZMTransportRequest! {
         guard let user = object as? ZMUser else { fatal("Object \(object.classForCoder) is not ZMUser") }
         guard let remoteIdentifier = user.remoteIdentifier else { fatal("User does not have remote identifier") }
-        let path = "/users/\(remoteIdentifier)/rich_info"
+        let path = "/users/\(remoteIdentifier)/rich-info"
         return ZMTransportRequest(path: path, method: .methodGET, payload: nil)
     }
     
