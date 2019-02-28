@@ -42,7 +42,7 @@ import Foundation
     /// Creates a file processor
     /// - note: All methods of this object should be called from the thread associated with the passed managedObjectContext
     public init(managedObjectContext: NSManagedObjectContext) {
-        self.processingGroup = managedObjectContext.dispatchGroup
+        self.processingGroup = ZMSDispatchGroup(label: "Asset Preprocessing")
         self.managedObjectContext = managedObjectContext
         self.imageProcessingQueue = ZMImagePreprocessor.createSuitableImagePreprocessingQueue()
         
@@ -76,6 +76,8 @@ import Foundation
     fileprivate func startProcessing(_ message: ZMAssetClientMessage) {
         objectsBeingProcessed.insert(message)
         
+        _ = managedObjectContext.enterAllGroups()
+        
         for asset in message.assets {
             
             if asset.needsPreprocessing, let imageOperations = imageAssetPreprocessor?.operations(forPreprocessingImageOwner: AssetImageOwnerAdapter(asset: asset)) {
@@ -84,7 +86,6 @@ import Foundation
             } else {
                 asset.encrypt()
             }
-            
         }
         
         notifyWhenProcessingIsComplete(message)
@@ -96,7 +97,8 @@ import Foundation
             self?.managedObjectContext.performGroupedBlock {
                 self?.objectsBeingProcessed.remove(message)
                 message.setLocallyModifiedKeys(Set(arrayLiteral: #keyPath(ZMAssetClientMessage.transferState))) // TODO jacob hacky
-                message.managedObjectContext?.enqueueDelayedSave()
+                message.managedObjectContext?.saveOrRollback()
+                self?.managedObjectContext.leaveAllGroups(self?.managedObjectContext.allGroups())
             }
         }
     }
