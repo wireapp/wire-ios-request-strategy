@@ -256,6 +256,28 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
     }
 
     // MARK: Response handling
+    
+    func testThatItExpiresAMessageWhenItReceivesAFailureResponse() {
+        // GIVEN
+        var message: ZMAssetClientMessage!
+        self.syncMOC.performGroupedBlockAndWait {
+            message = self.createMessage(uploaded: true, assetId: true)
+        }
+        
+        // WHEN
+        self.syncMOC.performGroupedBlockAndWait {
+            let request = self.sut.assertCreatesValidRequestForAsset(in: self.groupConversation)!
+            request.complete(withHttpStatus: 400)
+        }
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // THEN
+        self.syncMOC.performGroupedBlockAndWait {
+            XCTAssert(message.isExpired)
+            XCTAssertEqual(message.deliveryState, .failedToSend)
+            XCTAssertNil(self.sut.nextRequest())
+        }
+    }
 
     func testThatItMarksAnImageMessageAsSentWhenItReceivesASuccesfulResponse() {
         

@@ -139,6 +139,10 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
         if let delegate = applicationStatus?.clientRegistrationDelegate {
             failedBecauseOfMissingClients = message.parseUploadResponse(response, clientRegistrationDelegate: delegate)
         }
+        
+        if !failedBecauseOfMissingClients {
+            message.expire()
+        }
 
         return failedBecauseOfMissingClients
     }
