@@ -33,10 +33,8 @@ public final class AssetClientMessageRequestStrategy: AbstractRequestStrategy, Z
 
     fileprivate let requestFactory = ClientMessageRequestFactory()
     fileprivate var upstreamSync: ZMUpstreamModifiedObjectSync! // TODO jacob this can be a insertion sync now
-    fileprivate var assetAnalytics: AssetAnalytics
 
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
-        assetAnalytics = AssetAnalytics(managedObjectContext: managedObjectContext)
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         configuration = [.allowsRequestsDuringEventProcessing, .allowsRequestsWhileInBackground]
 
