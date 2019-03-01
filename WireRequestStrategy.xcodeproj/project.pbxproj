@@ -193,33 +193,33 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		162446A122293AB600075B83 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1624469B22293AB600075B83 /* WireDataModel.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F9C9A4FC1CAD5DF10039E10C;
+			remoteInfo = WireDataModel;
+		};
+		162446A322293AB600075B83 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1624469B22293AB600075B83 /* WireDataModel.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F9C9A5061CAD5DF10039E10C;
+			remoteInfo = WireDataModelTests;
+		};
+		162446A522293AB600075B83 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1624469B22293AB600075B83 /* WireDataModel.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F9C9A7F31CAED9510039E10C;
+			remoteInfo = WireDataModelTestHost;
+		};
 		166901761D707509000FE4AF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 166901611D707509000FE4AF /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 166901691D707509000FE4AF;
 			remoteInfo = WireRequestStrategy;
-		};
-		1684142322283C3C00FCB9BC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1684141D22283C3B00FCB9BC /* WireDataModel.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = F9C9A4FC1CAD5DF10039E10C;
-			remoteInfo = WireDataModel;
-		};
-		1684142522283C3C00FCB9BC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1684141D22283C3B00FCB9BC /* WireDataModel.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = F9C9A5061CAD5DF10039E10C;
-			remoteInfo = WireDataModelTests;
-		};
-		1684142722283C3C00FCB9BC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1684141D22283C3B00FCB9BC /* WireDataModel.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = F9C9A7F31CAED9510039E10C;
-			remoteInfo = WireDataModelTestHost;
 		};
 		F154EDD61F447BB600CB8184 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -280,6 +280,7 @@
 		16229483221EBB8000A98679 /* ZMImagePreprocessingTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMImagePreprocessingTracker.m; sourceTree = "<group>"; };
 		16229484221EBB8000A98679 /* ZMImagePreprocessingTracker+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ZMImagePreprocessingTracker+Testing.h"; sourceTree = "<group>"; };
 		16229485221EBB8000A98679 /* ZMImagePreprocessingTrackerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMImagePreprocessingTrackerTests.m; sourceTree = "<group>"; };
+		1624469B22293AB600075B83 /* WireDataModel.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WireDataModel.xcodeproj; path = "../wire-ios-data-model/WireDataModel.xcodeproj"; sourceTree = "<group>"; };
 		164D007522256C6E00A8F264 /* AssetV3UploadRequestStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetV3UploadRequestStrategyTests.swift; sourceTree = "<group>"; };
 		1666AA2B1D93FA0B00164C06 /* ZMChangeTrackerBootstrapTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMChangeTrackerBootstrapTests.m; sourceTree = "<group>"; };
 		1666AA2D1D93FBE200164C06 /* ZMSyncOperationSetTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMSyncOperationSetTests.m; sourceTree = "<group>"; };
@@ -335,7 +336,6 @@
 		166902221D709110000FE4AF /* ZMUpstreamInsertedObjectSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMUpstreamInsertedObjectSyncTests.m; sourceTree = "<group>"; };
 		166902231D709110000FE4AF /* ZMUpstreamModifiedObjectSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMUpstreamModifiedObjectSyncTests.m; sourceTree = "<group>"; };
 		168414182228365D00FCB9BC /* AssetsPreprocessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetsPreprocessorTests.swift; sourceTree = "<group>"; };
-		1684141D22283C3B00FCB9BC /* WireDataModel.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WireDataModel.xcodeproj; path = "../wire-ios-data-model/WireDataModel.xcodeproj"; sourceTree = "<group>"; };
 		16D0E07C1DF872FD0075DF8F /* DependencyEntitySyncTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyEntitySyncTests.swift; sourceTree = "<group>"; };
 		16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EntityTranscoder.swift; sourceTree = "<group>"; };
 		16FFDE431DF6C668003494D6 /* DependencyEntitySync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyEntitySync.swift; sourceTree = "<group>"; };
@@ -525,10 +525,20 @@
 			path = "Image Preprocessing";
 			sourceTree = "<group>";
 		};
+		1624469C22293AB600075B83 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				162446A222293AB600075B83 /* WireDataModel.framework */,
+				162446A422293AB600075B83 /* WireDataModelTests.xctest */,
+				162446A622293AB600075B83 /* WireDataModelTestHost.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		166901601D707509000FE4AF = {
 			isa = PBXGroup;
 			children = (
-				1684141D22283C3B00FCB9BC /* WireDataModel.xcodeproj */,
+				1624469B22293AB600075B83 /* WireDataModel.xcodeproj */,
 				F9E9FB3D1DA4FFDB00B5B2C5 /* Cartfile */,
 				F9E9FB3E1DA4FFDB00B5B2C5 /* Cartfile.private */,
 				F9E9FB3F1DA4FFDB00B5B2C5 /* Cartfile.resolved */,
@@ -615,16 +625,6 @@
 				BF6651321D8C2ED50074F367 /* ProtocolBuffers.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		1684141E22283C3B00FCB9BC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				1684142422283C3C00FCB9BC /* WireDataModel.framework */,
-				1684142622283C3C00FCB9BC /* WireDataModelTests.xctest */,
-				1684142822283C3C00FCB9BC /* WireDataModelTestHost.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		F12CD7932035FC4400EAAEBC /* Resources */ = {
@@ -1113,8 +1113,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 1684141E22283C3B00FCB9BC /* Products */;
-					ProjectRef = 1684141D22283C3B00FCB9BC /* WireDataModel.xcodeproj */;
+					ProductGroup = 1624469C22293AB600075B83 /* Products */;
+					ProjectRef = 1624469B22293AB600075B83 /* WireDataModel.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -1127,25 +1127,25 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		1684142422283C3C00FCB9BC /* WireDataModel.framework */ = {
+		162446A222293AB600075B83 /* WireDataModel.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = WireDataModel.framework;
-			remoteRef = 1684142322283C3C00FCB9BC /* PBXContainerItemProxy */;
+			remoteRef = 162446A122293AB600075B83 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		1684142622283C3C00FCB9BC /* WireDataModelTests.xctest */ = {
+		162446A422293AB600075B83 /* WireDataModelTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = WireDataModelTests.xctest;
-			remoteRef = 1684142522283C3C00FCB9BC /* PBXContainerItemProxy */;
+			remoteRef = 162446A322293AB600075B83 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		1684142822283C3C00FCB9BC /* WireDataModelTestHost.app */ = {
+		162446A622293AB600075B83 /* WireDataModelTestHost.app */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.application;
 			path = WireDataModelTestHost.app;
-			remoteRef = 1684142722283C3C00FCB9BC /* PBXContainerItemProxy */;
+			remoteRef = 162446A522293AB600075B83 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
