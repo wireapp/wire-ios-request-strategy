@@ -251,7 +251,7 @@ extension AssetV3DownloadRequestStrategyTests {
         
         syncMOC.performGroupedBlockAndWait {
             // THEN
-            XCTAssertEqual(message.fileMessageData?.downloadState, .unavailable)
+            XCTAssertEqual(message.fileMessageData?.downloadState, .remote)
         }
     }
 
@@ -278,7 +278,7 @@ extension AssetV3DownloadRequestStrategyTests {
         
         // THEN
         syncMOC.performGroupedBlockAndWait {
-            XCTAssertEqual(message.fileMessageData?.downloadState, .unavailable)
+            XCTAssertEqual(message.fileMessageData?.downloadState, .remote)
         }
     }
 
