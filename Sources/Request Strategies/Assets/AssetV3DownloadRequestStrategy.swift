@@ -119,7 +119,6 @@ fileprivate let zmLog = ZMSLog(tag: "Asset V3")
         //we've just downloaded some data, we need to refresh the category of the message.
         assetClientMessage.updateCategoryCache()
         let messageObjectId = assetClientMessage.objectID
-//        let downloadSuccess = assetClientMessage.transferState == .downloaded
         let uiMOC = self.managedObjectContext.zm_userInterface!
         uiMOC.performGroupedBlock({ () -> Void in
             let uiMessage = (try? uiMOC.existingObject(with: messageObjectId)) as? ZMAssetClientMessage
