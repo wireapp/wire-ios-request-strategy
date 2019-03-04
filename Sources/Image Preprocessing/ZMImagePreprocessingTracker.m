@@ -197,7 +197,7 @@
         [group enter];
         [self.managedObjectContext performGroupedBlockAndWait:^{
             [group leave];
-            if ([imageOwner respondsToSelector:@selector(processingDidFinish)])  { // TODO jacob clean up
+            if ([imageOwner respondsToSelector:@selector(processingDidFinish)])  {
                 [(id)imageOwner processingDidFinish];
             }
         }];
@@ -209,9 +209,9 @@
 }
 
 - (void)completedDownsampleOperation:(ZMImageDownsampleOperation * __nonnull)operation imageOwner:(id<ZMImageOwner> __nonnull)imageOwner
-{
+{    
     [self.managedObjectContext performGroupedBlock:^{
-        if ([imageOwner respondsToSelector:@selector(setImageData:for:properties:)])  { // TODO jacob clean up
+        if ([imageOwner respondsToSelector:@selector(setImageData:for:properties:)])  {
             [(id)imageOwner setImageData:operation.downsampleImageData for:operation.format properties:operation.properties];
         }
     }];
@@ -219,7 +219,7 @@
 
 - (void)failedPreprocessingImageOwner:(id<ZMImageOwner>)imageOwner;
 {
-    if ([imageOwner respondsToSelector:@selector(processingDidFinish)])  { // TODO jacob clean up
+    if ([imageOwner respondsToSelector:@selector(processingDidFinish)])  {
         [(id)imageOwner processingDidFinish];
     }
 }
