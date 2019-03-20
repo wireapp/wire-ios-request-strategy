@@ -72,6 +72,7 @@ import WireTransport
             guard let `self` = self else { return }
             guard let object = try? self.managedObjectContext.existingObject(with: objectID) else { return }
             guard let message = object as? ZMAssetClientMessage else { return }
+            message.isDownloading = true
             self.assetDownstreamObjectSync.whiteListObject(message)
             RequestAvailableNotification.notifyNewRequestsAvailable(self)
         }
@@ -133,8 +134,6 @@ import WireTransport
     
     public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!) -> ZMTransportRequest! {
         if let assetClientMessage = object as? ZMAssetClientMessage {
-            
-            assetClientMessage.isDownloading = true
             
             let taskCreationHandler = ZMTaskCreatedHandler(on: managedObjectContext) { taskIdentifier in
                 assetClientMessage.associatedTaskIdentifier = taskIdentifier
