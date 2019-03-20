@@ -34,7 +34,7 @@ import WireTransport
             guard let message = object as? ZMAssetClientMessage else { return false }
             guard message.version < 3 else { return false }
             
-            return !message.hasDownloadedFile && message.transferState == .uploaded
+            return !message.hasDownloadedFile && message.transferState == .uploaded && message.isDownloading
         }
         
         assetDownstreamObjectSync = ZMDownstreamObjectSyncWithWhitelist(transcoder: self,
