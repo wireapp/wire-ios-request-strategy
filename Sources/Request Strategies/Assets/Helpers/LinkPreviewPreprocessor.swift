@@ -71,7 +71,7 @@ private let zmLog = ZMSLog(tag: "link previews")
             zmLog.debug("fetching previews for: \(message.nonce?.uuidString ?? "nil")")
             
             // We DONT want to generate link previews inside a mentions
-            let mentionRanges = textMessageData.mentions.compactMap{ Range<Int>($0.range) }
+            let mentionRanges = textMessageData.mentions.map(\.range)
             
             // We DONT want to generate link previews for markdown links such as
             // [click me!](www.example.com).
@@ -115,11 +115,9 @@ private let zmLog = ZMSLog(tag: "link previews")
         managedObjectContext.enqueueDelayedSave()
     }
     
-    fileprivate func markdownLinkRanges(in text: String) -> [Range<Int>] {
+    fileprivate func markdownLinkRanges(in text: String) -> [NSRange] {
         guard let regex = try? NSRegularExpression(pattern: "\\[.+\\]\\((.+)\\)", options: []) else { return [] }
-        
-        let wholeRange = NSMakeRange(0, (text as NSString).length)
-        
-        return regex.matches(in: text, options: [], range: wholeRange).compactMap {  Range<Int>($0.range(at: 0)) }
+        let wholeRange = NSRange(text.startIndex ..< text.endIndex, in: text)
+        return regex.matches(in: text, options: [], range: wholeRange).compactMap { $0.range(at: 0) }
     }
 }
