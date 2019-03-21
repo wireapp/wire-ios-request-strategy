@@ -24,6 +24,27 @@ import WireUtilities
 
 private let zmLog = ZMSLog(tag: "link-attachments")
 
+public final class LinkAttachmentDetectorHelper : NSObject {
+    fileprivate static var _test_debug_linkAttachmentDetector : LinkAttachmentDetectorType? = nil
+
+    public class func defaultDetector() -> LinkAttachmentDetectorType {
+        return test_debug_linkAttachmentDetector() ?? LinkAttachmentDetector()
+    }
+
+    public class func test_debug_linkAttachmentDetector() -> LinkAttachmentDetectorType? {
+        return _test_debug_linkAttachmentDetector
+    }
+
+    public class func setTest_debug_linkAttachmentDetector(_ detectorType: LinkAttachmentDetectorType?) {
+        _test_debug_linkAttachmentDetector = detectorType
+    }
+
+    public class func tearDown() {
+        _test_debug_linkAttachmentDetector = nil
+    }
+
+}
+
 @objcMembers public final class LinkAttachmentsPreprocessor : NSObject, ZMContextChangeTracker {
 
     /// List of objects currently being processed
