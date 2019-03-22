@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "feature/persistent-link-attachments"
+github "wireapp/wire-ios-data-model" ~> 162.0
