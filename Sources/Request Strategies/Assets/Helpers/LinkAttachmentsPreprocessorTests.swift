@@ -78,7 +78,6 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
                                        thumbnails: [thumbnailURL],
                                        originalRange: NSRange(location: 20, length: 43))
 
-        attachment.imageCache[thumbnailURL] = withCachedImage ? .secureRandomData(length: 256) : nil
         return attachment
     }
 
@@ -104,7 +103,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
         assertThatItProcessesMessageWithLinkAttachmentState(false)
     }
 
-    func testThatItStoresTheOriginalImageDataInTheCacheAndFinishesWhenItReceivesAPreviewWithImage() {
+    func testThatItDoesNotStoreTheOriginalImageDataInTheCacheAndFinishesWhenItReceivesAPreviewWithImage() {
         var message : ZMClientMessage!
         let attachment = self.createAttachment(withCachedImage: true)
 
@@ -122,7 +121,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
             XCTAssertEqual(self.mockDetector.downloadCount, 1)
             XCTAssertEqual(message.linkAttachments, [attachment])
             let data = self.syncMOC.zm_fileAssetCache.assetData(message, format: .original, encrypted: false)
-            XCTAssertEqual(data, attachment.imageCache[self.thumbnailURL])
+            XCTAssertNil(data)
             XCTAssertFalse(message.needsLinkAttachmentsUpdate)
         }
     }
@@ -229,7 +228,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
             XCTAssertEqual(self.mockDetector.downloadCount, 1)
             XCTAssertFalse(message.needsLinkAttachmentsUpdate)
             let data = self.syncMOC.zm_fileAssetCache.assetData(message, format: .original, encrypted: false)
-            XCTAssertEqual(data, attachment.imageCache[self.thumbnailURL]!)
+            XCTAssertNil(data)
             guard let genericMessage = message.genericMessage else { return XCTFail("No generic message") }
             XCTAssertTrue(genericMessage.hasEphemeral())
             XCTAssertTrue(message.linkAttachments?.isEmpty == false)
@@ -253,7 +252,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
 
         self.syncMOC.performGroupedBlockAndWait {
             // THEN
-            XCTAssertNil(message.linkAttachments)
+            XCTAssertEqual(message.linkAttachments, [])
             XCTAssertFalse(message.needsLinkAttachmentsUpdate)
         }
     }
