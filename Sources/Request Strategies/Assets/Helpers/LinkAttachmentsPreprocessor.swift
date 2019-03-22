@@ -113,12 +113,10 @@ public final class LinkAttachmentDetectorHelper : NSObject {
     func didProcessMessage(_ message: ZMClientMessage, linkAttachments: [LinkAttachment]) {
         objectsBeingProcessed.remove(message)
 
-        if let attachment = linkAttachments.first, !message.isObfuscated {
-            message.linkAttachments = [attachment]
-
-            if let imageData = attachment.thumbnails.first.flatMap({ (attachment.imageCache[$0]) }) {
-                managedObjectContext.zm_fileAssetCache.storeAssetData(message, format: .original, encrypted: false, data: imageData)
-            }
+        if !message.isObfuscated {
+            message.linkAttachments = linkAttachments
+        } else {
+            message.linkAttachments = []
         }
 
         message.needsLinkAttachmentsUpdate = false
