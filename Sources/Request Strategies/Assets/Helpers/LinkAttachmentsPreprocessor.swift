@@ -22,8 +22,6 @@ import WireLinkPreview
 import WireDataModel
 import WireUtilities
 
-private let zmLog = ZMSLog(tag: "link-attachments")
-
 public final class LinkAttachmentDetectorHelper : NSObject {
     fileprivate static var _test_debug_linkAttachmentDetector : LinkAttachmentDetectorType? = nil
 
@@ -45,73 +43,37 @@ public final class LinkAttachmentDetectorHelper : NSObject {
 
 }
 
-@objcMembers public final class LinkAttachmentsPreprocessor : NSObject, ZMContextChangeTracker {
+@objcMembers public final class LinkAttachmentsPreprocessor : LinkPreprocessor<LinkAttachment> {
 
-    /// List of objects currently being processed
-    fileprivate var objectsBeingProcessed = Set<ZMClientMessage>()
     fileprivate let linkAttachmentDetector: LinkAttachmentDetectorType
-
-    let managedObjectContext : NSManagedObjectContext
 
     public init(linkAttachmentDetector: LinkAttachmentDetectorType, managedObjectContext: NSManagedObjectContext) {
         self.linkAttachmentDetector = linkAttachmentDetector
-        self.managedObjectContext = managedObjectContext
-        super.init()
+        let log = ZMSLog(tag: "link-attachments")
+        super.init(managedObjectContext: managedObjectContext, zmLog: log)
     }
 
-    public func objectsDidChange(_ objects: Set<NSManagedObject>) {
-        processObjects(objects)
-    }
-
-    public func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
+    public override func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
         let predicate = ZMMessage.predicateForMessagesThatNeedToUpdateLinkAttachments()
         return ZMClientMessage.sortedFetchRequest(with: predicate)
     }
 
-    public func addTrackedObjects(_ objects: Set<NSManagedObject>) {
-        processObjects(objects)
-    }
-
-    func processObjects(_ objects: Set<NSObject>) {
-        objects.lazy
-            .compactMap(linkAttachmentsToPreprocess)
-            .filter(!objectsBeingProcessed.contains)
-            .forEach(processMessage)
-    }
-
-    func linkAttachmentsToPreprocess(_ object: NSObject) -> ZMClientMessage? {
+    override func objectsToPreprocess(_ object: NSObject) -> ZMClientMessage? {
         guard let message = object as? ZMClientMessage else { return nil }
         return message.needsLinkAttachmentsUpdate ? message : nil
     }
 
-    func processMessage(_ message: ZMClientMessage) {
-        objectsBeingProcessed.insert(message)
-
-        if let textMessageData = (message as ZMConversationMessage).textMessageData,
-            let messageText = textMessageData.messageText {
-            zmLog.debug("fetching previews for: \(message.nonce?.uuidString ?? "nil")")
-
-            // We DONT want to generate link previews inside a mentions
-            let mentionRanges = textMessageData.mentions.map(\.range)
-
-            // We DONT want to generate link previews for markdown links such as
-            // [click me!](www.example.com).
-            let markdownRanges = markdownLinkRanges(in: messageText)
-
-            linkAttachmentDetector.downloadLinkAttachments(inText: messageText, excluding: mentionRanges + markdownRanges) { [weak self] linkAttachments in
-                self?.managedObjectContext.performGroupedBlock {
-                    zmLog.debug("\(linkAttachments.count) attachments for: \(message.nonce?.uuidString ?? "nil")\n\(linkAttachments)")
-                    self?.didProcessMessage(message, linkAttachments: linkAttachments)
-                }
+    override func processLinks(in message: ZMClientMessage, text: String, excluding excludedRanges: [NSRange]) {
+        linkAttachmentDetector.downloadLinkAttachments(inText: text, excluding: excludedRanges) { [weak self] linkAttachments in
+            self?.managedObjectContext.performGroupedBlock {
+                self?.zmLog.debug("\(linkAttachments.count) attachments for: \(message.nonce?.uuidString ?? "nil")\n\(linkAttachments)")
+                self?.didProcessMessage(message, result: linkAttachments)
             }
-
-        } else {
-            didProcessMessage(message, linkAttachments: [])
         }
     }
 
-    func didProcessMessage(_ message: ZMClientMessage, linkAttachments: [LinkAttachment]) {
-        objectsBeingProcessed.remove(message)
+    override func didProcessMessage(_ message: ZMClientMessage, result linkAttachments: [LinkAttachment]) {
+        finishProcessing(message)
 
         if !message.isObfuscated {
             message.linkAttachments = linkAttachments
@@ -126,9 +88,4 @@ public final class LinkAttachmentDetectorHelper : NSObject {
         managedObjectContext.enqueueDelayedSave()
     }
 
-    fileprivate func markdownLinkRanges(in text: String) -> [NSRange] {
-        guard let regex = try? NSRegularExpression(pattern: "\\[.+\\]\\((.+)\\)", options: []) else { return [] }
-        let wholeRange = NSRange(text.startIndex ..< text.endIndex, in: text)
-        return regex.matches(in: text, options: [], range: wholeRange).compactMap { $0.range(at: 0) }
-    }
 }
