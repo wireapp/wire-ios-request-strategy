@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "fix/blacklisted-previews"
+github "wireapp/wire-ios-data-model" ~> 163.1
