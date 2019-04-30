@@ -1075,6 +1075,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -1281,7 +1282,6 @@
 			baseConfigurationReference = F1E47FED207E0B72008D4299 /* project-debug.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
-				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -1290,7 +1290,6 @@
 			baseConfigurationReference = F1E47FE9207E0B72008D4299 /* project.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
-				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
