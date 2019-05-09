@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "feature/Swift5"
+github "wireapp/wire-ios-data-model" ~> 171.0
