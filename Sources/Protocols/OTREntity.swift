@@ -180,7 +180,11 @@ extension OTREntity {
             
             // client
             guard let clientIDs = pair.1 as? [String] else { fatal("Missing client ID is not parsed properly") }
-            let clients = clientIDs.map { UserClient.fetchUserClient(withRemoteId: $0, forUser: user, createIfNeeded: true)! }
+            let clients: [UserClient] = clientIDs.map {
+                let client = UserClient.fetchUserClient(withRemoteId: $0, forUser: user, createIfNeeded: true)!
+                client.discoveredByMessage = self as? ZMOTRMessage
+                return client
+            }
             
             // is this user not there?
             detectedMissingClient(for: user)
@@ -200,7 +204,7 @@ extension OTREntity {
         selfClient.missesClients(missingClients)
         self.missesRecipients(missingClients)
         
-        selfClient.addNewClientsToIgnored(missingClients, causedBy: self as? ZMOTRMessage)
+        selfClient.addNewClientsToIgnored(missingClients)
         
     }
     
