@@ -97,7 +97,14 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
                 message.add(updatedGenericMessage.data())
             }
         }
-        
+
+        if let legalHoldStatus = message.conversation?.legalHoldStatus {
+            // Update the isUnderLegalHold flag to reflect the current known legal hold state
+            if let updatedGenericMessage = message.genericMessage?.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .ENABLED : .DISABLED) {
+                message.add(updatedGenericMessage.data())
+            }
+        }
+
         let request = self.requestFactory.upstreamRequestForMessage(message, forConversationWithId: message.conversation!.remoteIdentifier!)!
         
         // We need to flush the encrypted payloads cache, since the client is online now (request succeeded).
