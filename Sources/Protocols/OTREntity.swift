@@ -89,13 +89,19 @@ extension OTREntity {
     
     /// Which objects this message depends on when sending it to a list recipients
     public func dependentObjectNeedingUpdateBeforeProcessingOTREntity(recipients : Set<ZMUser>) -> ZMManagedObject? {
+        let recipientClients = recipients.flatMap {
+            return Array($0.clients)
+        }
+        
+        // If we discovered a new client we need fetch the client details before retrying
+        if let newClient = recipientClients.first(where: { $0.needsToBeUpdatedFromBackend }) {
+            return newClient
+        }
+        
         // If we are missing clients, we need to refetch the clients before retrying
         if let selfClient = ZMUser.selfUser(in: context).selfClient(),
            let missingClients = selfClient.missingClients , missingClients.count > 0
         {
-            let recipientClients = recipients.flatMap {
-                return Array($0.clients)
-            }
             // Don't block sending of messages if they are not affected by the missing clients
             if !missingClients.intersection(recipientClients).isEmpty {
                 
