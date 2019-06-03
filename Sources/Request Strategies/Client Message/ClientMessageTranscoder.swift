@@ -99,7 +99,7 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
         }
 
         if let legalHoldStatus = message.conversation?.legalHoldStatus {
-            // Update the isUnderLegalHold flag to reflect the current known legal hold state
+            // Update the legalHoldStatus flag to reflect the current known legal hold status
             if let updatedGenericMessage = message.genericMessage?.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .ENABLED : .DISABLED) {
                 message.add(updatedGenericMessage.data())
             }
