@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import WireDataModel
 
 fileprivate let zmLog = ZMSLog(tag: "Network")
 
@@ -69,6 +70,14 @@ extension ClientMessageTranscoder: ZMContextChangeTrackerSource {
     public var contextChangeTrackers: [ZMContextChangeTracker] {
         return [self.upstreamObjectSync, self.messageExpirationTimer, self.linkAttachmentsPreprocessor]
     }
+}
+
+extension ZMGenericMessage {
+
+    func setLegalHoldStatus(_ status: ZMLegalHoldStatus) -> ZMGenericMessage? {
+        return self
+    }
+
 }
 
 extension ClientMessageTranscoder: ZMUpstreamTranscoder {
