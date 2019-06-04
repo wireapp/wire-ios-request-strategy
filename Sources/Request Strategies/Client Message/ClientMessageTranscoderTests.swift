@@ -197,14 +197,13 @@ extension ClientMessageTranscoderTests {
         self.syncMOC.performGroupedBlockAndWait {
 
             // GIVEN
-            let selfUser = ZMUser.selfUser(in: self.syncMOC)
-
-            let selfLegalHoldClient = UserClient.insertNewObject(in: self.syncMOC)
-            selfLegalHoldClient.deviceClass = .legalHold
-            selfLegalHoldClient.type = .legalHold
-            selfLegalHoldClient.user = selfUser
+            let legalHoldClient = UserClient.insertNewObject(in: self.syncMOC)
+            legalHoldClient.deviceClass = .legalHold
+            legalHoldClient.type = .legalHold
+            legalHoldClient.user = self.otherUser
 
             let conversation = self.groupConversation!
+            conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: [self.otherUser])
             XCTAssertTrue(conversation.isUnderLegalHold)
 
             let text = "Lorem ipsum"
@@ -228,14 +227,13 @@ extension ClientMessageTranscoderTests {
         self.syncMOC.performGroupedBlockAndWait {
 
             // GIVEN
-            let selfUser = ZMUser.selfUser(in: self.syncMOC)
-
-            let selfLegalHoldClient = UserClient.insertNewObject(in: self.syncMOC)
-            selfLegalHoldClient.deviceClass = .legalHold
-            selfLegalHoldClient.type = .legalHold
-            selfLegalHoldClient.user = selfUser
+            let legalHoldClient = UserClient.insertNewObject(in: self.syncMOC)
+            legalHoldClient.deviceClass = .legalHold
+            legalHoldClient.type = .legalHold
+            legalHoldClient.user = self.otherUser
 
             let conversation = self.groupConversation!
+            conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: [self.otherUser])
             XCTAssertTrue(conversation.isUnderLegalHold)
 
             let text = "Lorem ipsum"
