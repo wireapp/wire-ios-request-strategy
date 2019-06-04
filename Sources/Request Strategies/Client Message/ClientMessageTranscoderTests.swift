@@ -16,10 +16,8 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
-import WireRequestStrategy
-import WireRequestStrategy
 import XCTest
+@testable import WireRequestStrategy
 
 class ClientMessageTranscoderTests: MessagingTestBase {
 
@@ -194,7 +192,69 @@ extension ClientMessageTranscoderTests {
             XCTAssertFalse(message.genericMessage!.content!.expectsReadConfirmation())
         }
     }
-    
+
+    func testThatItUpdatesLegalHoldStatusFlagWhenLegalHoldIsEnabled() {
+        self.syncMOC.performGroupedBlockAndWait {
+
+            // GIVEN
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+
+            let selfLegalHoldClient = UserClient.insertNewObject(in: self.syncMOC)
+            selfLegalHoldClient.deviceClass = .legalHold
+            selfLegalHoldClient.type = .legalHold
+            selfLegalHoldClient.user = selfUser
+
+            let conversation = self.groupConversation!
+            XCTAssertTrue(conversation.isUnderLegalHold)
+
+            let text = "Lorem ipsum"
+            let message = self.groupConversation.append(text: text) as! ZMClientMessage
+            message.add(message.genericMessage!.setLegalHoldStatus(.DISABLED)!.data())
+            self.syncMOC.saveOrRollback()
+
+            // WHEN
+            self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
+            if self.sut.nextRequest() == nil {
+                XCTFail()
+                return
+            }
+
+            // THEN
+            XCTAssertEqual(message.genericMessage!.content!.legalHoldStatus, .ENABLED)
+        }
+    }
+
+    func testThatItUpdatesLegalHoldStatusFlagWhenLegalHoldIsDisabled() {
+        self.syncMOC.performGroupedBlockAndWait {
+
+            // GIVEN
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+
+            let selfLegalHoldClient = UserClient.insertNewObject(in: self.syncMOC)
+            selfLegalHoldClient.deviceClass = .legalHold
+            selfLegalHoldClient.type = .legalHold
+            selfLegalHoldClient.user = selfUser
+
+            let conversation = self.groupConversation!
+            XCTAssertTrue(conversation.isUnderLegalHold)
+
+            let text = "Lorem ipsum"
+            let message = self.groupConversation.append(text: text) as! ZMClientMessage
+            message.add(message.genericMessage!.setLegalHoldStatus(.ENABLED)!.data())
+            self.syncMOC.saveOrRollback()
+
+            // WHEN
+            self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
+            if self.sut.nextRequest() == nil {
+                XCTFail()
+                return
+            }
+
+            // THEN
+            XCTAssertEqual(message.genericMessage!.content!.legalHoldStatus, .DISABLED)
+        }
+    }
+
     func testThatItGeneratesARequestToSendAClientMessage() {
         self.syncMOC.performGroupedBlockAndWait {
             
