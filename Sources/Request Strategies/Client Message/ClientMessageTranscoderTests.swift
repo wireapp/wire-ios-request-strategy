@@ -207,8 +207,8 @@ extension ClientMessageTranscoderTests {
             XCTAssertTrue(conversation.isUnderLegalHold)
 
             let text = "Lorem ipsum"
-            let message = self.groupConversation.append(text: text) as! ZMClientMessage
-            message.add(message.genericMessage!.setLegalHoldStatus(.DISABLED)!.data())
+            let message = conversation.append(text: text) as! ZMClientMessage
+            message.add(message.genericMessage!.setLegalHoldStatus(.DISABLED)!.data()!)
             self.syncMOC.saveOrRollback()
 
             // WHEN
@@ -227,17 +227,11 @@ extension ClientMessageTranscoderTests {
         self.syncMOC.performGroupedBlockAndWait {
 
             // GIVEN
-            let legalHoldClient = UserClient.insertNewObject(in: self.syncMOC)
-            legalHoldClient.deviceClass = .legalHold
-            legalHoldClient.type = .legalHold
-            legalHoldClient.user = self.otherUser
-
             let conversation = self.groupConversation!
-            conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: [self.otherUser])
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertFalse(conversation.isUnderLegalHold)
 
             let text = "Lorem ipsum"
-            let message = self.groupConversation.append(text: text) as! ZMClientMessage
+            let message = conversation.append(text: text) as! ZMClientMessage
             message.add(message.genericMessage!.setLegalHoldStatus(.ENABLED)!.data())
             self.syncMOC.saveOrRollback()
 
