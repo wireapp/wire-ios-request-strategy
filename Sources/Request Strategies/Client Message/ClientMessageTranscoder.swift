@@ -72,14 +72,6 @@ extension ClientMessageTranscoder: ZMContextChangeTrackerSource {
     }
 }
 
-extension ZMGenericMessage {
-
-    func setLegalHoldStatus(_ status: ZMLegalHoldStatus) -> ZMGenericMessage? {
-        return self
-    }
-
-}
-
 extension ClientMessageTranscoder: ZMUpstreamTranscoder {
     
     public func shouldProcessUpdatesBeforeInserts() -> Bool {
