@@ -17,16 +17,17 @@
 
 import Foundation
 
-class VerifyClientsRequestStrategy: AbstractRequestStrategy {
+@objc
+public final class VerifyClientsRequestStrategy: AbstractRequestStrategy {
     
-    let requestFactory =  ClientMessageRequestFactory()
-    var conversationSync: IdentifierObjectSync<VerifyClientsRequestStrategy>!
+    fileprivate let requestFactory =  ClientMessageRequestFactory()
+    fileprivate var conversationSync: IdentifierObjectSync<VerifyClientsRequestStrategy>!
     
-    override func nextRequestIfAllowed() -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
         return nil
     }
     
-    override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
+    public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         
         conversationSync = IdentifierObjectSync(managedObjectContext: managedObjectContext, transcoder: self)
@@ -60,13 +61,13 @@ extension VerifyClientsRequestStrategy:  ZMContextChangeTracker, ZMContextChange
 }
 
 extension VerifyClientsRequestStrategy: IdentifierObjectSyncTranscoder {
-    typealias T = ZMConversation
+    public typealias T = ZMConversation
     
-    var fetchLimit: Int {
+    public var fetchLimit: Int {
         return 1
     }
     
-    func request(for identifiers: Set<ZMConversation>) -> ZMTransportRequest? {
+    public func request(for identifiers: Set<ZMConversation>) -> ZMTransportRequest? {
         guard let conversationID = identifiers.first?.remoteIdentifier, identifiers.count == 1,
               let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
         else { return nil }
@@ -74,7 +75,7 @@ extension VerifyClientsRequestStrategy: IdentifierObjectSyncTranscoder {
         return requestFactory.upstreamRequestForFetchingClients(conversationId: conversationID, selfClient: selfClient)
     }
     
-    func didReceive(response: ZMTransportResponse, for identifiers: Set<ZMConversation>) {
+    public func didReceive(response: ZMTransportResponse, for identifiers: Set<ZMConversation>) {
         guard let conversation = identifiers.first else { return }
         
         let verifyClientsParser = VerifyClientsParser(context: managedObjectContext, conversation: conversation)
