@@ -17,32 +17,36 @@
 
 import Foundation
 
+/// This strategy observes the `needsToVerifyLegalHold` flag on conversations and fetches an updated list of available clients
+/// and verifies that the legal hold status is correct.
+
 @objc
-public final class VerifyClientsRequestStrategy: AbstractRequestStrategy {
+public final class VerifyLegalHoldRequestStrategy: AbstractRequestStrategy {
     
     fileprivate let requestFactory =  ClientMessageRequestFactory()
-    fileprivate var conversationSync: IdentifierObjectSync<VerifyClientsRequestStrategy>!
+    fileprivate var conversationSync: IdentifierObjectSync<VerifyLegalHoldRequestStrategy>!
     
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return nil
+        return conversationSync.nextRequest()
     }
     
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         
+        configuration = [.allowsRequestsDuringEventProcessing, .allowsRequestsDuringNotificationStreamFetch, .allowsRequestsWhileInBackground]
         conversationSync = IdentifierObjectSync(managedObjectContext: managedObjectContext, transcoder: self)
     }
     
 }
 
-extension VerifyClientsRequestStrategy:  ZMContextChangeTracker, ZMContextChangeTrackerSource {
+extension VerifyLegalHoldRequestStrategy:  ZMContextChangeTracker, ZMContextChangeTrackerSource {
     
     public var contextChangeTrackers: [ZMContextChangeTracker] {
         return [self]
     }
     
     public func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
-        return ZMConversation.sortedFetchRequest(with: NSPredicate(format: "needsToVerifyClientsBeforeSendingMessage != 0"))
+        return ZMConversation.sortedFetchRequest(with: NSPredicate(format: "needsToVerifyLegalHold != 0"))
     }
     
     public func addTrackedObjects(_ objects: Set<NSManagedObject>) {
@@ -53,14 +57,16 @@ extension VerifyClientsRequestStrategy:  ZMContextChangeTracker, ZMContextChange
     
     
     public func objectsDidChange(_ object: Set<NSManagedObject>) {
-        let conversationsNeedingToVerifyClients = object.compactMap({ $0 as? ZMConversation}).filter(\.needsToVerifyClientsBeforeSendingMessage)
+        let conversationsNeedingToVerifyClients = object.compactMap({ $0 as? ZMConversation}).filter(\.needsToVerifyLegalHold)
         
-        conversationSync.sync(identifiers: conversationsNeedingToVerifyClients)
+        if !conversationsNeedingToVerifyClients.isEmpty {
+            conversationSync.sync(identifiers: conversationsNeedingToVerifyClients)
+        }
     }
     
 }
 
-extension VerifyClientsRequestStrategy: IdentifierObjectSyncTranscoder {
+extension VerifyLegalHoldRequestStrategy: IdentifierObjectSyncTranscoder {
     public typealias T = ZMConversation
     
     public var fetchLimit: Int {
@@ -105,7 +111,7 @@ fileprivate class VerifyClientsParser: OTREntity {
     }
     
     func detectedMissingClient(for user: ZMUser) {
-        
+        // no-op
     }
     
     var dependentObjectNeedingUpdateBeforeProcessing: NSObject? = nil
