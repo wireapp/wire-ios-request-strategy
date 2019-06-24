@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "fix/lh-forced-update-dupe-message"
+github "wireapp/wire-ios-data-model" ~> 182.0
