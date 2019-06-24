@@ -118,8 +118,8 @@ extension OTREntity {
     }
 
     /// Parse the response to an upload, that will inform us of missing, deleted and redundant clients
-    public func parseUploadResponse(_ response: ZMTransportResponse, clientRegistrationDelegate: ClientRegistrationDelegate) -> Bool {
-        
+    public func parseUploadResponse(_ response: ZMTransportResponse, clientRegistrationDelegate: ClientRegistrationDelegate) -> ZMConversationRemoteClientChangeSet {
+
         // In case the self client got deleted remotely we will receive an event through the push channel and log out.
         // If we for some reason miss the push the BE will repond with a 403 and 'unknown-client' label to our
         // next sending attempt and we will logout and delete the current selfClient then
@@ -129,26 +129,32 @@ extension OTREntity {
             label == UnknownClientLabel
         {
             clientRegistrationDelegate.didDetectCurrentClientDeletion()
-            return false
+            return [.deleted]
         }
+
+        var changes: ZMConversationRemoteClientChangeSet = []
         
-        guard let payload = response.payload as? [String:AnyObject] else { return false }
+        guard let payload = response.payload as? [String:AnyObject] else { return changes }
         
         if let deletedMap = payload[DeletedLabel] as? [String:AnyObject] {
+            changes.insert(.deleted)
             self.processDeletedClients(deletedMap)
         }
         
         if let redundantMap = payload[RedundantLabel] as? [String:AnyObject],
             !redundantMap.isEmpty
         {
+            changes.insert(.redundant)
             detectedRedundantClients()
         }
         
         if let missingMap = payload[MissingLabel] as? [String:AnyObject] {
-            return self.processMissingClients(missingMap)
-        } else {
-            return false
+            if self.processMissingClients(missingMap) {
+                changes.insert(.missing)
+            }
         }
+
+        return changes
     }
     
     /// Parses the "deleted" clients and removes them
