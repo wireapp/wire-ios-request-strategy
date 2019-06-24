@@ -137,8 +137,9 @@ extension OTREntity {
         guard let payload = response.payload as? [String:AnyObject] else { return changes }
         
         if let deletedMap = payload[DeletedLabel] as? [String:AnyObject] {
-            changes.insert(.deleted)
-            self.processDeletedClients(deletedMap)
+            if self.processDeletedClients(deletedMap) {
+                changes.insert(.deleted)
+            }
         }
         
         if let redundantMap = payload[RedundantLabel] as? [String:AnyObject],
@@ -158,7 +159,7 @@ extension OTREntity {
     }
     
     /// Parses the "deleted" clients and removes them
-    fileprivate func processDeletedClients(_ deletedMap: [String:AnyObject]) {
+    fileprivate func processDeletedClients(_ deletedMap: [String:AnyObject]) -> Bool {
         
         let allDeletedClients = Set(deletedMap.flatMap { pair -> [UserClient] in
             
@@ -174,10 +175,16 @@ extension OTREntity {
                 return clientIDsSet.contains(remoteIdentifier)
             }
         })
+
+        guard !allDeletedClients.isEmpty else {
+            return false
+        }
         
         allDeletedClients.forEach {
             $0.deleteClientAndEndSession()
         }
+
+        return true
     }
     
     /// Parses the "missing" clients and creates the corresponding UserClients, then set them as missing
