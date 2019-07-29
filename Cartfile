@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "feature/teamlogo"
+github "wireapp/wire-ios-data-model" ~> 187.0
