@@ -44,7 +44,9 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
     }
     
     func modifiedPredicate() -> NSPredicate {
-        let baseModifiedPredicate = UserClient.predicateForObjectsThatNeedToBeUpdatedUpstream()
+        guard let baseModifiedPredicate = UserClient.predicateForObjectsThatNeedToBeUpdatedUpstream() else {
+            fatal("predicateForObjectsThatNeedToBeUpdatedUpstream is nil!")
+        }
         let missingClientsPredicate = NSPredicate(format: "\(ZMUserClientMissingKey).@count > 0")
         
         let modifiedPredicate = NSCompoundPredicate(andPredicateWithSubpredicates:[
