@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "fix/Move-UserClient-method-from-request"
+github "wireapp/wire-ios-data-model" ~> 193.4
