@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "feature/safe-public-logs"
+github "wireapp/wire-ios-data-model" ~> 197.0
