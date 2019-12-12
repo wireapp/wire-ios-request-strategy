@@ -259,10 +259,11 @@ extension MessagingTestBase {
     
     /// Creates a group conversation with a user
     func createGroupConversation(with user: ZMUser) -> ZMConversation {
-        let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+        let conversation = ZMConversation.insertNewObject(in: syncMOC)
         conversation.conversationType = .group
         conversation.remoteIdentifier = UUID.create()
         conversation.add(user: user, isFromLocal: false)
+        conversation.add(user: ZMUser.selfUser(in: syncMOC), isFromLocal: false)
         return conversation
     }
     
