@@ -44,8 +44,8 @@ import XCTest
         self.context = context
     }
     
-    var hashValue: Int {
-        return self.conversation!.hashValue
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(self.conversation!)
     }
     
     func detectedRedundantClients() {
