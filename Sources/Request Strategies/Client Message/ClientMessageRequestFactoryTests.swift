@@ -67,8 +67,6 @@ extension ClientMessageRequestFactoryTests {
             let confirmation = ZMConfirmation.confirm(messageId: message.nonce!, type: .DELIVERED)
             let confirmationMessage = self.oneToOneConversation.appendClientMessage(with: ZMGenericMessage.message(content: confirmation), expires: false, hidden: true)!
             
-            print("CLIENT ID", message.conversation?.localParticipants.first?.remoteIdentifier ?? "no ID")
-            print("OTHER USER", self.otherUser.remoteIdentifier!)
             // WHEN
             guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(confirmationMessage, forConversationWithId: self.oneToOneConversation.remoteIdentifier!) else {
                 return XCTFail("No request")
