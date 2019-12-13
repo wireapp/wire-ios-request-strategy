@@ -233,7 +233,7 @@ extension MessagingTestBase {
         conversation.connection = ZMConnection.insertNewObject(in: self.syncMOC)
         conversation.connection?.to = user
         conversation.connection?.status = .accepted
-        conversation.add(user: user, isFromLocal: false)
+        conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
         self.syncMOC.saveOrRollback()
         return conversation
     }
@@ -262,8 +262,9 @@ extension MessagingTestBase {
         let conversation = ZMConversation.insertNewObject(in: syncMOC)
         conversation.conversationType = .group
         conversation.remoteIdentifier = UUID.create()
-        conversation.add(user: user, isFromLocal: false)
-        conversation.add(user: ZMUser.selfUser(in: syncMOC), isFromLocal: false)
+        conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
+        conversation.addParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: syncMOC), role: nil)
+        conversation.needsToBeUpdatedFromBackend = false
         return conversation
     }
     
