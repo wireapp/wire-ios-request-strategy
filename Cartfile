@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" ~> 208.0
+github "wireapp/wire-ios-data-model" "refactor/generic-message-calling-ZIOS-12071"
