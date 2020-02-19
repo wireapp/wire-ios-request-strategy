@@ -101,11 +101,12 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
                 message.add(updatedGenericMessage)
             }
         }
-
+        
         if let legalHoldStatus = message.conversation?.legalHoldStatus {
-            if let updatedGenericMessage = message.genericMessage?.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .ENABLED : .DISABLED) {
-                message.add(updatedGenericMessage)
-            }
+            guard var updatedGenericMessage = message.underlyingMessage else { return nil }
+            updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
+            guard let zmGenericMessage = updatedGenericMessage.zmMessage else { return nil }
+            message.add(zmGenericMessage)
         }
         
         guard let request = requestFactory.upstreamRequestForMessage(message, forConversationWithId: conversation.remoteIdentifier!) else { fatal("Unable to generate request for \(message.safeForLoggingDescription)") }

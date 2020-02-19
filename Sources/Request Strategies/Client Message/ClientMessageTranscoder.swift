@@ -101,9 +101,11 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
 
         if let legalHoldStatus = message.conversation?.legalHoldStatus {
             // Update the legalHoldStatus flag to reflect the current known legal hold status
-            if let updatedGenericMessage = message.genericMessage?.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .ENABLED : .DISABLED) {
-                message.add(updatedGenericMessage.data())
-            }
+            guard var updatedGenericMessage = message.underlyingMessage else { return nil }
+            updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
+            do {
+                message.add(try updatedGenericMessage.serializedData())
+            } catch {}
         }
 
         let request = self.requestFactory.upstreamRequestForMessage(message, forConversationWithId: message.conversation!.remoteIdentifier!)!

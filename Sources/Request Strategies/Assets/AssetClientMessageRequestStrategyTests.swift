@@ -306,7 +306,9 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             XCTAssertTrue(conversation.isUnderLegalHold)
 
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.groupConversation)
-            message.add(message.genericMessage!.setLegalHoldStatus(.ENABLED)!)
+            var genericMessage = message.underlyingMessage!
+            genericMessage.setLegalHoldStatus(.enabled)
+            message.add(genericMessage.zmMessage!)
             self.syncMOC.saveOrRollback()
 
             // WHEN
@@ -317,7 +319,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             }
 
             // THEN
-            XCTAssertEqual(message.genericMessage!.content!.legalHoldStatus, .ENABLED)
+            XCTAssertEqual(message.underlyingMessage!.asset.legalHoldStatus, .enabled)
         }
     }
 
@@ -329,7 +331,9 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             XCTAssertFalse(conversation.isUnderLegalHold)
 
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.groupConversation)
-            message.add(message.genericMessage!.setLegalHoldStatus(.ENABLED)!)
+            var genericMessage = message.underlyingMessage!
+            genericMessage.setLegalHoldStatus(.enabled)
+            message.add(genericMessage.zmMessage!)
             self.syncMOC.saveOrRollback()
 
             // WHEN
@@ -340,7 +344,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             }
 
             // THEN
-            XCTAssertEqual(message.genericMessage!.content!.legalHoldStatus, .DISABLED)
+            XCTAssertEqual(message.underlyingMessage!.asset.legalHoldStatus, .disabled)
         }
     }
 
