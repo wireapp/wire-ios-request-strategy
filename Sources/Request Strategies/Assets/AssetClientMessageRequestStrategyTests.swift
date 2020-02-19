@@ -269,7 +269,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.oneToOneConversation)
             var genericMessage = message.underlyingMessage!
             genericMessage.setExpectsReadConfirmation(true)
-            message.add(genericMessage.zmMessage!)
+            message.add(genericMessage)
             
             // WHEN
             XCTAssertNotNil(self.sut.nextRequest())
@@ -286,7 +286,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.oneToOneConversation)
             var genericMessage = message.underlyingMessage!
             genericMessage.setExpectsReadConfirmation(true)
-            message.add(genericMessage.zmMessage!)
+            message.add(genericMessage)
 
             // WHEN
             XCTAssertNotNil(self.sut.nextRequest())
@@ -312,7 +312,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.groupConversation)
             var genericMessage = message.underlyingMessage!
             genericMessage.setLegalHoldStatus(.enabled)
-            message.add(genericMessage.zmMessage!)
+            message.add(genericMessage)
             self.syncMOC.saveOrRollback()
 
             // WHEN
@@ -337,7 +337,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.groupConversation)
             var genericMessage = message.underlyingMessage!
             genericMessage.setLegalHoldStatus(.enabled)
-            message.add(genericMessage.zmMessage!)
+            message.add(genericMessage)
             self.syncMOC.saveOrRollback()
 
             // WHEN
