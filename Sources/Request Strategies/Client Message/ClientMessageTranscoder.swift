@@ -91,11 +91,15 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
         }
         
         requireInternal(true == message.sender?.isSelfUser, "Trying to send message from sender other than self: \(message.nonce?.uuidString ?? "nil nonce")")
-
+        
         if message.conversation?.conversationType == .oneOnOne {
             // Update expectsReadReceipt flag to reflect the current user setting
-            if let updatedGenericMessage = message.genericMessage?.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled) {
-                message.add(updatedGenericMessage.data())
+            guard var updatedGenericMessage = message.underlyingMessage else { return nil }
+            updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
+            do {
+                message.add(try updatedGenericMessage.serializedData())
+            } catch {
+                fatal("Failure adding genericMessage")
             }
         }
 
@@ -105,7 +109,9 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
             updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
             do {
                 message.add(try updatedGenericMessage.serializedData())
-            } catch {}
+            } catch {
+                fatal("Failure adding genericMessage")
+            }
         }
 
         let request = self.requestFactory.upstreamRequestForMessage(message, forConversationWithId: message.conversation!.remoteIdentifier!)!

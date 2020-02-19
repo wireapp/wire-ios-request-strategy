@@ -97,9 +97,10 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
         
         if message.conversation?.conversationType == .oneOnOne {
             // Update expectsReadReceipt flag to reflect the current user setting
-            if let updatedGenericMessage = message.genericMessage?.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled) {
-                message.add(updatedGenericMessage)
-            }
+            guard var updatedGenericMessage = message.underlyingMessage else { return nil }
+            updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
+            guard let zmGenericMessage = updatedGenericMessage.zmMessage else { return nil }
+            message.add(zmGenericMessage)
         }
         
         if let legalHoldStatus = message.conversation?.legalHoldStatus {

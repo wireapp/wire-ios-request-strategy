@@ -178,7 +178,13 @@ extension ClientMessageTranscoderTests {
             ZMUser.selfUser(in: self.syncMOC).readReceiptsEnabled = false
             let text = "Lorem ipsum"
             let message = self.oneToOneConversation.append(text: text) as! ZMClientMessage
-            message.add(message.genericMessage!.setExpectsReadConfirmation(true)!.data())
+            var genericMessage = message.underlyingMessage!
+            genericMessage.setExpectsReadConfirmation(true)
+            do {
+                message.add(try genericMessage.serializedData())
+            } catch {
+                XCTFail("Error in adding data: \(error)")
+            }
             self.syncMOC.saveOrRollback()
             
             // WHEN
@@ -189,7 +195,7 @@ extension ClientMessageTranscoderTests {
             }
             
             // THEN
-            XCTAssertFalse(message.genericMessage!.content!.expectsReadConfirmation())
+            XCTAssertFalse(message.underlyingMessage!.text.expectsReadConfirmation)
         }
     }
 
@@ -213,7 +219,7 @@ extension ClientMessageTranscoderTests {
             do {
                 message.add(try genericMessage.serializedData())
             } catch {
-                return
+                XCTFail("Error in adding data: \(error)")
             }
             self.syncMOC.saveOrRollback()
 
@@ -243,7 +249,7 @@ extension ClientMessageTranscoderTests {
             do {
                 message.add(try genericMessage.serializedData())
             } catch {
-                return
+                XCTFail("Error in adding data: \(error)")
             }
             self.syncMOC.saveOrRollback()
 
