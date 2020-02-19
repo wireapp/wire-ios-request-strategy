@@ -97,17 +97,17 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
         
         if message.conversation?.conversationType == .oneOnOne {
             // Update expectsReadReceipt flag to reflect the current user setting
-            guard var updatedGenericMessage = message.underlyingMessage else { return nil }
-            updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
-            guard let zmGenericMessage = updatedGenericMessage.zmMessage else { return nil }
-            message.add(zmGenericMessage)
+            if var updatedGenericMessage = message.underlyingMessage {
+                updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
+                message.add(updatedGenericMessage)
+            }
         }
         
         if let legalHoldStatus = message.conversation?.legalHoldStatus {
-            guard var updatedGenericMessage = message.underlyingMessage else { return nil }
-            updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
-            guard let zmGenericMessage = updatedGenericMessage.zmMessage else { return nil }
-            message.add(zmGenericMessage)
+            if var updatedGenericMessage = message.underlyingMessage {
+                updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
+                message.add(updatedGenericMessage)
+            }
         }
         
         guard let request = requestFactory.upstreamRequestForMessage(message, forConversationWithId: conversation.remoteIdentifier!) else { fatal("Unable to generate request for \(message.safeForLoggingDescription)") }

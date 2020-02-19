@@ -94,23 +94,25 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
         
         if message.conversation?.conversationType == .oneOnOne {
             // Update expectsReadReceipt flag to reflect the current user setting
-            guard var updatedGenericMessage = message.underlyingMessage else { return nil }
-            updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
-            do {
-                message.add(try updatedGenericMessage.serializedData())
-            } catch {
-                fatal("Failure adding genericMessage")
+            if var updatedGenericMessage = message.underlyingMessage {
+                updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
+                do {
+                    message.add(try updatedGenericMessage.serializedData())
+                } catch {
+                    fatal("Failure adding genericMessage")
+                }
             }
         }
 
         if let legalHoldStatus = message.conversation?.legalHoldStatus {
             // Update the legalHoldStatus flag to reflect the current known legal hold status
-            guard var updatedGenericMessage = message.underlyingMessage else { return nil }
-            updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
-            do {
-                message.add(try updatedGenericMessage.serializedData())
-            } catch {
-                fatal("Failure adding genericMessage")
+            if var updatedGenericMessage = message.underlyingMessage {
+                updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
+                do {
+                    message.add(try updatedGenericMessage.serializedData())
+                } catch {
+                    fatal("Failure adding genericMessage")
+                }
             }
         }
 
