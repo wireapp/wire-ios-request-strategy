@@ -157,7 +157,7 @@ extension EncryptionSessionDirectorySafeLog: SafeForLoggingStringConvertible {
         case .cboxError(let error):
             return String(describing: error)
         case .senderIdentifier(let userClient):
-            return userClient.remoteIdentifier!.readableHash
+            return "<\(userClient.remoteIdentifier!.readableHash)>"
         }
     }
 }
