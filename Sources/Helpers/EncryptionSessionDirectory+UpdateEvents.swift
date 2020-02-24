@@ -81,7 +81,7 @@ extension EncryptionSessionsDirectory {
     
     /// Appends a system message for a failed decryption
     fileprivate func appendFailedToDecryptMessage(after error: CBoxResult?, for event: ZMUpdateEvent, sender: UserClient, in moc: NSManagedObjectContext) {
-        zmLog.safePublic("Failed to decrypt message with error: \(EncryptionSessionDirectorySafeLog.cboxError(error)), client id \(EncryptionSessionDirectorySafeLog.senderIdentifier(sender))")
+        zmLog.safePublic("Failed to decrypt message with error: \(error), client id <\(sender.safeRemoteIdentifier))>")
         zmLog.error("event debug: \(event.debugInformation)")
         if error == CBOX_OUTDATED_MESSAGE || error == CBOX_DUPLICATE_MESSAGE {
             return // do not notify the user if the error is just "duplicated"
@@ -142,23 +142,6 @@ extension EncryptionSessionsDirectory {
         client.discoveryDate = updateEvent.timeStamp()
         
         return client
-    }
-}
-
-// MARK: - Safe logging
-private enum EncryptionSessionDirectorySafeLog {
-    case cboxError(_ error: CBoxResult?)
-    case senderIdentifier(_ sender: UserClient)
-}
-
-extension EncryptionSessionDirectorySafeLog: SafeForLoggingStringConvertible {
-    public var safeForLoggingDescription: String {
-        switch self {
-        case .cboxError(let error):
-            return String(describing: error)
-        case .senderIdentifier(let userClient):
-            return "<\(userClient.remoteIdentifier!.readableHash)>"
-        }
     }
 }
 
