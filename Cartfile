@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "fix/log-level-encryption-errors"
+github "wireapp/wire-ios-data-model" ~> 210.2
