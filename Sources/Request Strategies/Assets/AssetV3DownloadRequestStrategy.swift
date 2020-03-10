@@ -32,14 +32,20 @@ fileprivate let zmLog = ZMSLog(tag: "Asset V3")
     
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
-
+        
         configuration = .allowsRequestsDuringEventProcessing
-
+        
         let downloadPredicate = NSPredicate { (object, _) -> Bool in
             guard let message = object as? ZMAssetClientMessage else { return false }
             guard message.version == 3 else { return false }
             
-            return !message.hasDownloadedFile && message.transferState == .uploaded && message.isDownloading && message.genericMessage?.assetData?.hasUploaded() == true
+            guard case .uploaded? = message.underlyingMessage?.assetData?.status,
+                !message.hasDownloadedFile,
+                message.transferState == .uploaded,
+                message.isDownloading else {
+                    return false
+            }
+            return true
         }
         
         assetDownstreamObjectSync = ZMDownstreamObjectSyncWithWhitelist(transcoder: self,

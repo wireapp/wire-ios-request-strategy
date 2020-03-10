@@ -73,18 +73,14 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
         otrKey: Data = Data.randomEncryptionKey(),
         sha: Data  = Data.randomEncryptionKey()
         ) -> (message: ZMAssetClientMessage, assetId: String, assetToken: String)? {
-
+        
         let message = aConversation.append(file: ZMFileMetadata(fileURL: testDataURL)) as! ZMAssetClientMessage
         let (assetId, token) = (UUID.create().transportString(), UUID.create().transportString())
-        let uploaded = ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: otrKey, sha256: sha), nonce: message.nonce!, expiresAfter: aConversation.messageDestructionTimeoutValue)
-
-        guard let uploadedWithId = uploaded.updatedUploaded(withAssetId: assetId, token: token) else {
-            XCTFail("Failed to update asset")
-            return nil
-        }
+        var uploaded = GenericMessage(content: WireProtos.Asset(otrKey: otrKey, sha256: sha), nonce: message.nonce!, expiresAfter: aConversation.messageDestructionTimeoutValue)
+        uploaded.updateUploaded(assetId: assetId, token: token)
         
         message.updateTransferState(.uploaded, synchronize: false)
-        message.add(uploadedWithId)
+        message.add(uploaded)
         deleteDownloadedFileFor(message: message)
         XCTAssertEqual(message.version, 3)
         syncMOC.saveOrRollback()

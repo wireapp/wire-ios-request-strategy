@@ -244,7 +244,19 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             XCTAssertNotNil(self.sut.nextRequest())
             
             // THEN
-            XCTAssertTrue(message.genericMessage!.content!.expectsReadConfirmation())
+            switch message.underlyingMessage!.content! {
+            case .asset(let data):
+                XCTAssertTrue(data.expectsReadConfirmation)
+            case .ephemeral(let data):
+                switch data.content {
+                case .asset(let data)?:
+                    XCTAssertTrue(data.expectsReadConfirmation)
+                default:
+                    break
+                }
+            default:
+                break
+            }
         }
     }
     
@@ -258,7 +270,19 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             XCTAssertNotNil(self.sut.nextRequest())
 
             // THEN
-            XCTAssertFalse(message.genericMessage!.content!.expectsReadConfirmation())
+            switch message.underlyingMessage!.content! {
+            case .asset(let data):
+                XCTAssertFalse(data.expectsReadConfirmation)
+            case .ephemeral(let data):
+                switch data.content {
+                case .asset(let data)?:
+                    XCTAssertTrue(data.expectsReadConfirmation)
+                default:
+                    break
+                }
+            default:
+                break
+            }
         }
     }
     
