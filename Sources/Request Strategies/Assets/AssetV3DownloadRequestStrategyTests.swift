@@ -294,7 +294,32 @@ extension AssetV3DownloadRequestStrategyTests {
         }
     }
 
-    func testThatItMarksDownloadAsFailedIfCannotDownload_TemporaryError_V3() {
+    // When the beck end redirects to the cloud service to get the image, it could be that the network bandwidth of the device is really rare. If the time interval is pretty long before the connectivity returns good the cloud responds with an error having status code 403.
+    func testThatItMarksDownloadAsFailedIfCannotDownload_TemporaryError_403_V3() {
+        let message: ZMAssetClientMessage = syncMOC.performGroupedAndWait { _ in
+            // GIVEN
+            let (msg, _, _) = self.createFileMessageWithAssetId(in: self.conversation)!
+            msg.requestFileDownload()
+            return msg
+        }
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        syncMOC.performGroupedBlockAndWait {
+            let request = self.sut.nextRequest()
+            let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 403, transportSessionError: nil)
+            
+            // WHEN
+            request?.complete(with: response)
+        }
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        syncMOC.performGroupedBlockAndWait {
+            // THEN
+            XCTAssertEqual(message.fileMessageData?.downloadState, .remote)
+        }
+    }
+    
+    func testThatItMarksDownloadAsFailedIfCannotDownload_TemporaryError_500_V3() {
         let message: ZMAssetClientMessage = syncMOC.performGroupedAndWait { _ in
             // GIVEN
             let (msg, _, _) = self.createFileMessageWithAssetId(in: self.conversation)!

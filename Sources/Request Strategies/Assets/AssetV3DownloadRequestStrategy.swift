@@ -96,7 +96,7 @@ fileprivate let zmLog = ZMSLog(tag: "Asset V3")
     }
 
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return self.assetDownstreamObjectSync.nextRequest()
+        return assetDownstreamObjectSync.nextRequest()
     }
 
     fileprivate func handleResponse(_ response: ZMTransportResponse, forMessage assetClientMessage: ZMAssetClientMessage) {
@@ -107,7 +107,8 @@ fileprivate let zmLog = ZMSLog(tag: "Asset V3")
         if response.result == .success {
             downloadSuccess = storeAndDecrypt(data: response.rawData!, for: assetClientMessage)
         }
-        else if response.result == .permanentError {
+        // When the beck end redirects to the cloud service to get the image, it could be that the network bandwidth of the device is really rare. If the time interval is pretty long before the connectivity returns good the cloud responds with an error having status code 403 -> retry the image request and not delete the asset client message.
+        else if response.result == .permanentError, response.httpStatus != 403 {
             zmLog.debug("asset unavailable on remote (\(response.httpStatus)), deleting")
             managedObjectContext.delete(assetClientMessage)
         }
