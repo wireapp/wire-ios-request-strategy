@@ -294,7 +294,7 @@ extension AssetV3DownloadRequestStrategyTests {
         }
     }
 
-    // When the beck end redirects to the cloud service to get the image, it could be that the network bandwidth of the device is really rare. If the time interval is pretty long before the connectivity returns good the cloud responds with an error having status code 403.
+    // When the backend redirects to the cloud service to get the image, it could be that the network bandwidth of the device is really bad. If the time interval is pretty long before the connectivity returns, the cloud responds with an error having status code 403 -> retry the image request and do not delete the asset client message.
     func testThatItMarksDownloadAsFailedIfCannotDownload_TemporaryError_403_V3() {
         let message: ZMAssetClientMessage = syncMOC.performGroupedAndWait { _ in
             // GIVEN
