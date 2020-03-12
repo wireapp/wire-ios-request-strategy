@@ -107,7 +107,10 @@ fileprivate let zmLog = ZMSLog(tag: "Asset V3")
         if response.result == .success {
             downloadSuccess = storeAndDecrypt(data: response.rawData!, for: assetClientMessage)
         }
-        // When the backend redirects to the cloud service to get the image, it could be that the network bandwidth of the device is really bad. If the time interval is pretty long before the connectivity returns, the cloud responds with an error having status code 403 -> retry the image request and do not delete the asset client message.
+//        When the backend redirects to the cloud service to get the image, it could be that the
+//        network bandwidth of the device is really bad. If the time interval is pretty long before
+//        the connectivity returns, the cloud responds with an error having status code 403
+//        -> retry the image request and do not delete the asset client message.
         else if response.result == .permanentError, response.httpStatus != 403 {
             zmLog.debug("asset unavailable on remote (\(response.httpStatus)), deleting")
             managedObjectContext.delete(assetClientMessage)
