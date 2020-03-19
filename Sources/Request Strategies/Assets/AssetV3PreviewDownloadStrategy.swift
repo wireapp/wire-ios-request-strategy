@@ -34,7 +34,7 @@ private let zmLog = ZMSLog(tag: "AssetPreviewDownloading")
         let filter = NSPredicate { object, _ in
             guard let message = object as? ZMAssetClientMessage, nil != message.fileMessageData else { return false }
             guard message.version == 3, message.visibleInConversation != nil else { return false }
-            guard nil != message.genericAssetMessage?.previewAssetId else { return false }
+            guard nil != message.underlyingMessage?.previewAssetId else { return false }
             return !message.hasDownloadedPreview
         }
 
