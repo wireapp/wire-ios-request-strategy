@@ -21,6 +21,8 @@ import Foundation
 public class AvailabilityRequestStrategy: AbstractRequestStrategy {
     
     var modifiedSync: ZMUpstreamModifiedObjectSync!
+
+    private let maximumBroadcastRecipients = 500
     
     override public init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         
@@ -57,14 +59,20 @@ extension AvailabilityRequestStrategy: ZMUpstreamTranscoder {
 
         let originalPath = "/broadcast/otr/messages"
         let message = ZMGenericMessage.message(content: ZMAvailability.availability(selfUser.availability))
-        
-        guard let dataAndMissingClientStrategy = message.encryptedMessagePayloadDataForBroadcast(context: managedObjectContext) else {
+        let recipients = ZMUser.recipientsForBroadcast(in: context, maxCount: maximumBroadcastRecipients)
+
+        guard let dataAndMissingClientStrategy = message.encryptedMessagePayloadDataForBroadcast(recipients: recipients, in: context) else {
             return nil
         }
 
         let protobufContentType = "application/x-protobuf"
         let path = originalPath.pathWithMissingClientStrategy(strategy: dataAndMissingClientStrategy.strategy)
-        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: dataAndMissingClientStrategy.data, type: protobufContentType, contentDisposition: nil)
+
+        let request = ZMTransportRequest(path: path,
+                                         method: .methodPOST,
+                                         binaryData: dataAndMissingClientStrategy.data,
+                                         type: protobufContentType,
+                                         contentDisposition: nil)
         
         return ZMUpstreamRequest(keys: keys, transportRequest: request)
     }
@@ -125,13 +133,14 @@ extension AvailabilityRequestStrategy: OTREntity {
     public func detectedMissingClient(for user: ZMUser) {
         // If we don't know about a user for a missing client we are out sync. To recover
         // from this we must restart the slow sync.
-        if !ZMUser.connectionsAndTeamMembers(in: managedObjectContext).contains(user) {
-            applicationStatus?.requestSlowSync()
+        if !ZMUser.recipientsForBroadcast(in: managedObjectContext, maxCount: maximumBroadcastRecipients).contains(user) {
+          applicationStatus?.requestSlowSync()
         }
     }
     
     public var dependentObjectNeedingUpdateBeforeProcessing: NSObject? {
-        return self.dependentObjectNeedingUpdateBeforeProcessingOTREntity(recipients: ZMUser.connectionsAndTeamMembers(in: managedObjectContext))
+        let recipients = ZMUser.recipientsForBroadcast(in: context, maxCount: maximumBroadcastRecipients)
+        return self.dependentObjectNeedingUpdateBeforeProcessingOTREntity(recipients: recipients)
     }
     
     public var isExpired: Bool {
