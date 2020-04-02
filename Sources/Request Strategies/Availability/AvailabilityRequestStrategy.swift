@@ -132,7 +132,7 @@ extension AvailabilityRequestStrategy: OTREntity {
     
     public func detectedMissingClient(for user: ZMUser) {
         // Broadcast messsages are targeted to specific set of recipients and we will ignore any other
-        // users who are not recipients. This should never be called.
+        // users who are not recipients.
     }
     
     public var dependentObjectNeedingUpdateBeforeProcessing: NSObject? {
