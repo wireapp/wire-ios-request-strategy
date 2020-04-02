@@ -131,11 +131,8 @@ extension AvailabilityRequestStrategy: OTREntity {
     }
     
     public func detectedMissingClient(for user: ZMUser) {
-        // If we don't know about a user for a missing client we are out sync. To recover
-        // from this we must restart the slow sync.
-        if !ZMUser.recipientsForBroadcast(in: managedObjectContext, maxCount: maximumBroadcastRecipients).contains(user) {
-          applicationStatus?.requestSlowSync()
-        }
+        // Broadcast messsages are targeted to specific set of recipients and we will ignore any other
+        // users who are not recipients. This should never be called.
     }
     
     public var dependentObjectNeedingUpdateBeforeProcessing: NSObject? {
