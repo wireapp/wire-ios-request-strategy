@@ -31,21 +31,11 @@ public class AvailabilityRequestStrategy: AbstractRequestStrategy {
         self.modifiedSync = ZMUpstreamModifiedObjectSync(transcoder: self,
                                                          entityName: ZMUser.entityName(),
                                                          update: nil,
-                                                         filter: predicateForSelfUserCommunicatingStatus(),
+                                                         filter: ZMUser.predicateForSelfUser(),
                                                          keysToSync: [AvailabilityKey],
                                                          managedObjectContext: managedObjectContext)
     }
-    
-    private func predicateForSelfUserCommunicatingStatus() -> NSPredicate {
-        let statusPredicate =  NSPredicate { object, _ in
-            guard let user = object as? ZMUser else { return false }
-            return user.team?.shouldCommunicateStatus ?? true
-        }
-        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [statusPredicate, ZMUser.predicateForSelfUser()])
-        
-        return compoundPredicate
-    }
-    
+
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
         return modifiedSync.nextRequest()
     }
