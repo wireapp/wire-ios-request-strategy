@@ -49,7 +49,7 @@ extension AvailabilityRequestStrategy: ZMUpstreamTranscoder {
 
         let originalPath = "/broadcast/otr/messages"
         let message = ZMGenericMessage.message(content: ZMAvailability.availability(selfUser.availability))
-        let recipients = ZMUser.recipientsForBroadcast(in: context, maxCount: maximumBroadcastRecipients)
+        let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: context, maxCount: maximumBroadcastRecipients)
 
         guard let dataAndMissingClientStrategy = message.encryptedMessagePayloadDataForBroadcast(recipients: recipients, in: context) else {
             return nil
@@ -126,7 +126,7 @@ extension AvailabilityRequestStrategy: OTREntity {
     }
     
     public var dependentObjectNeedingUpdateBeforeProcessing: NSObject? {
-        let recipients = ZMUser.recipientsForBroadcast(in: context, maxCount: maximumBroadcastRecipients)
+        let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: context, maxCount: maximumBroadcastRecipients)
         return self.dependentObjectNeedingUpdateBeforeProcessingOTREntity(recipients: recipients)
     }
     
