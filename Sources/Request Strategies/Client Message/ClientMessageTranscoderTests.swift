@@ -60,35 +60,35 @@ class ClientMessageTranscoderTests: MessagingTestBase {
 
 extension ClientMessageTranscoderTests {
 
-    func testThatANewOtrMessageIsCreatedFromAnEvent() {
-        self.syncMOC.performGroupedBlockAndWait {
-            
-            // GIVEN
-            let text = "Everything"
-            let base64Text = "CiQ5ZTU2NTQwOS0xODZiLTRlN2YtYTE4NC05NzE4MGE0MDAwMDQSDAoKRXZlcnl0aGluZw=="
-            let payload = [
-                "recipient": self.selfClient.remoteIdentifier,
-                "sender": self.otherClient.remoteIdentifier,
-                "text": base64Text
-            ]
-            let eventPayload = [
-                "type": "conversation.otr-message-add",
-                "data": payload,
-                "conversation": self.groupConversation.remoteIdentifier!.transportString(),
-                "time": Date().transportString()
-                ] as NSDictionary
-            guard let event = ZMUpdateEvent.decryptedUpdateEvent(fromEventStreamPayload: eventPayload, uuid: nil, transient: false, source: .webSocket) else {
-                XCTFail()
-                return
-            }
-            
-            // WHEN
-            self.sut.processEvents([event], liveEvents: false, prefetchResult: nil)
-            
-            // THEN
-            XCTAssertEqual(self.groupConversation.lastMessage?.textMessageData?.messageText, text)
-        }
-    }
+//    func testThatANewOtrMessageIsCreatedFromAnEvent() {
+//        self.syncMOC.performGroupedBlockAndWait {
+//            
+//            // GIVEN
+//            let text = "Everything"
+//            let base64Text = "CiQ5ZTU2NTQwOS0xODZiLTRlN2YtYTE4NC05NzE4MGE0MDAwMDQSDAoKRXZlcnl0aGluZw=="
+//            let payload = [
+//                "recipient": self.selfClient.remoteIdentifier,
+//                "sender": self.otherClient.remoteIdentifier,
+//                "text": base64Text
+//            ]
+//            let eventPayload = [
+//                "type": "conversation.otr-message-add",
+//                "data": payload,
+//                "conversation": self.groupConversation.remoteIdentifier!.transportString(),
+//                "time": Date().transportString()
+//                ] as NSDictionary
+//            guard let event = ZMUpdateEvent.decryptedUpdateEvent(fromEventStreamPayload: eventPayload, uuid: nil, transient: false, source: .webSocket) else {
+//                XCTFail()
+//                return
+//            }
+//            
+//            // WHEN
+//            self.sut.processEvents([event], liveEvents: false, prefetchResult: nil)
+//            
+//            // THEN
+//            XCTAssertEqual(self.groupConversation.lastMessage?.textMessageData?.messageText, text)
+//        }
+//    }
     
     func testThatANewOtrMessageIsCreatedFromADecryptedAPNSEvent() {
         self.syncMOC.performGroupedBlockAndWait {
