@@ -33,7 +33,7 @@ import WireUtilities
     }
 
     public override func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
-        let predicate = NSPredicate(format: "%K == %d", ZMClientMessageLinkPreviewStateKey, ZMLinkPreviewState.waitingToBeProcessed.rawValue)
+        let predicate = NSPredicate(format: "%K == %d", ZMClientMessage.linkPreviewStateKey, ZMLinkPreviewState.waitingToBeProcessed.rawValue)
         return ZMClientMessage.sortedFetchRequest(with: predicate)
     }
 
@@ -55,9 +55,14 @@ import WireUtilities
         finishProcessing(message)
 
         if let preview = linkPreviews.first, let messageText = message.textMessageData?.messageText, let mentions = message.textMessageData?.mentions, !message.isObfuscated {
-            let updatedText = ZMText.text(with: messageText, mentions: mentions, linkPreviews: [preview.protocolBuffer])
-            let updatedMessage = ZMGenericMessage.message(content: updatedText, nonce: message.nonce!, expiresAfter: message.deletionTimeout)
-            message.add(updatedMessage.data())
+
+            let updatedText = Text(content: messageText, mentions: mentions, linkPreviews: [preview], replyingTo: nil)
+            let updatedMessage = GenericMessage(content: updatedText, nonce: message.nonce!, expiresAfter: message.deletionTimeout)
+            do {
+                message.add(try updatedMessage.serializedData())
+            } catch {
+                return
+            }
 
             if let imageData = preview.imageData.first {
                 zmLog.debug("image in linkPreview (need to upload), setting state to .downloaded for: \(message.nonce?.uuidString ?? "nil")")
