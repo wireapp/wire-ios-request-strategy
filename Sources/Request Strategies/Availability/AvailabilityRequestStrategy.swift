@@ -116,8 +116,11 @@ extension AvailabilityRequestStrategy: OTREntity {
     public func detectedRedundantUsers(_ users: [ZMUser]) {
         // We were sending a message to clients which should not receive it. To recover
         // from this we must restart the slow sync.
-        
         applicationStatus?.requestSlowSync()
+        
+        // The missing users might have been deleted so we need re-fetch their profiles
+        // to verify if that's the case.
+        users.forEach({ $0.needsToBeUpdatedFromBackend = true })
     }
     
     public func detectedMissingClient(for user: ZMUser) {
