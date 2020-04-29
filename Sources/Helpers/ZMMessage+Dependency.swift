@@ -41,10 +41,6 @@ extension ZMOTRMessage: OTREntity {
         // no-op
     }
     
-    public func detectedMissingClient(for user: ZMUser) {
-        // no-op
-    }
-    
 }
 
 /// Message that can block following messages
