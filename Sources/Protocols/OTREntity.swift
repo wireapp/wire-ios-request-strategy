@@ -23,7 +23,12 @@ private let zmLog = ZMSLog(tag: "Dependencies")
 
 @objc public protocol OTREntity: DependencyEntity {
     
-    var context : NSManagedObjectContext { get }
+    /// NSManagedObjectContext which the OTR entity is associated with.
+    var context: NSManagedObjectContext { get }
+    
+    /// Conversation in which the OTR entity is sent. If the OTR entity is not associated with
+    /// any conversation this property should return nil.
+    var conversation: ZMConversation? { get }
     
     /// Add clients as missing recipients for this entity. If we want to resend
     /// the entity, we need to make sure those missing recipients are fetched
@@ -270,6 +275,16 @@ extension OTREntity {
         }
         
         if !redundantUsers.isEmpty {
+            // if the BE tells us that these users are not in the
+            // conversation anymore, it means that we are out of sync
+            // with the list of participants
+            conversation?.needsToBeUpdatedFromBackend = true
+            
+            // The missing users might have been deleted so we need re-fetch their profiles
+            // to verify if that's the case.
+            redundantUsers.forEach({ $0.needsToBeUpdatedFromBackend = true })
+            
+            
             detectedRedundantUsers(redundantUsers)
         }
         
@@ -302,6 +317,7 @@ extension OTREntity {
             }
             
             // is this user not there?
+            conversation?.addParticipantAndSystemMessageIfMissing(user, date: nil)
             detectedMissingClient(for: user)
             
             return clients
