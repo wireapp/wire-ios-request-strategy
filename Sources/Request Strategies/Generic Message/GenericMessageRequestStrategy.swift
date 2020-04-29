@@ -48,11 +48,7 @@ import Foundation
     public func detectedRedundantUsers(_ users: [ZMUser]) {
         // no-op
     }
-    
-    public func detectedMissingClient(for user: ZMUser) {
-        // no-op
-    }
-    
+        
     public func expire() {
         isExpired = true
     }

@@ -40,9 +40,6 @@ private let zmLog = ZMSLog(tag: "Dependencies")
     /// with the list of participants
     func detectedRedundantUsers(_ users: [ZMUser])
     
-    /// This method is called when BE doesn't find clients
-    /// in the uploaded payload.
-    func detectedMissingClient(for user: ZMUser)
 }
 
 /// HTTP status of a request that has
@@ -170,7 +167,6 @@ extension OTREntity {
             }
 
             if !userMissingClients.isEmpty {
-                detectedMissingClient(for: user)
                 allMissingClients.formUnion(userMissingClients)
             }
         }
@@ -318,7 +314,6 @@ extension OTREntity {
             
             // is this user not there?
             conversation?.addParticipantAndSystemMessageIfMissing(user, date: nil)
-            detectedMissingClient(for: user)
             
             return clients
         })

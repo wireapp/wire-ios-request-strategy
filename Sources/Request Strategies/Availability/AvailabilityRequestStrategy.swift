@@ -122,12 +122,7 @@ extension AvailabilityRequestStrategy: OTREntity {
         // from this we must restart the slow sync.
         applicationStatus?.requestSlowSync()
     }
-    
-    public func detectedMissingClient(for user: ZMUser) {
-        // Broadcast messsages are targeted to specific set of recipients and we will ignore any other
-        // users who are not recipients.
-    }
-    
+        
     public var dependentObjectNeedingUpdateBeforeProcessing: NSObject? {
         let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: context, maxCount: maximumBroadcastRecipients)
         return self.dependentObjectNeedingUpdateBeforeProcessingOTREntity(recipients: recipients)

@@ -51,11 +51,7 @@ import XCTest
     func detectedRedundantUsers(_ users: [ZMUser]) {
         // no-op
     }
-    
-    func detectedMissingClient(for user: ZMUser) {
-        // no-op
-    }
-    
+        
 }
 
 func ==(lhs: MockOTREntity, rhs: MockOTREntity) -> Bool {

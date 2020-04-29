@@ -109,11 +109,7 @@ fileprivate class VerifyClientsParser: OTREntity {
     func detectedRedundantUsers(_ users: [ZMUser]) {
         // no-op
     }
-    
-    func detectedMissingClient(for user: ZMUser) {
-        // no-op
-    }
-    
+        
     var dependentObjectNeedingUpdateBeforeProcessing: NSObject? = nil
     
     var isExpired: Bool = false
