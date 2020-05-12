@@ -207,11 +207,8 @@ extension MessagingTestBase {
             XCTFail("failed to decrypt", file: file, line: line)
             return nil
         }
-//        guard let receivedMessage = ZMGenericMessage.parse(from: plaintext) else {
-//            XCTFail("Invalid message")
-//            return nil
-//        }
-        let receivedMessage = try? GenericMessage.init(serializedData: plaintext) //TODO: ???
+
+        let receivedMessage = try? GenericMessage.init(serializedData: plaintext) 
         return receivedMessage
     }
 }
