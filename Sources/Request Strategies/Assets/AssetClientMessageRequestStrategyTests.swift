@@ -249,7 +249,6 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             
             // THEN
            XCTAssertTrue( message.needsReadConfirmation)
-//            XCTAssertTrue(message.underlyingMessage!.content!.expectsReadConfirmation())
         }
     }
     

@@ -24,14 +24,12 @@ public protocol PushMessageHandler: NSObjectProtocol {
     /// Create a notification for the message if needed
     ///
     /// - Parameter genericMessage: generic message that was received
-//    @objc(processGenericMessage:)
     func process(_ genericMessage: GenericMessage)
     
     
     /// Creates a notification for the message if needed
     ///
     /// - Parameter message: message that was received
-//    @objc(processMessage:)
     func process(_ message: ZMMessage)
     
     
