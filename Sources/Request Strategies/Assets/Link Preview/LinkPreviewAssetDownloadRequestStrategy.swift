@@ -30,10 +30,16 @@ import Foundation
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         
         let downloadFilter = NSPredicate { object, _ in
-            guard let message = object as? ZMClientMessage, let genericMessage = message.underlyingMessage, genericMessage.textData != nil else { return false }
-            guard let preview = genericMessage.linkPreviews.first, let remote: WireProtos.Asset.RemoteData = preview.image.preview.remote  else { return false } // TODO: CHECK!
+            guard let message = object as? ZMClientMessage,
+                let genericMessage = message.underlyingMessage,
+                genericMessage.textData != nil else {
+                    return false
+            }
+            guard let preview = genericMessage.linkPreviews.first else {
+                return false
+            }
             guard nil == managedObjectContext.zm_fileAssetCache.assetData(message, format: .medium, encrypted: false) else { return false }
-            return remote.hasAssetID
+            return preview.image.uploaded.hasAssetID
         }
         
         assetDownstreamObjectSync = ZMDownstreamObjectSyncWithWhitelist(
@@ -74,7 +80,11 @@ import Foundation
         let cache = managedObjectContext.zm_fileAssetCache
         
         let linkPreview = message.underlyingMessage?.linkPreviews.first
-        guard let remote = linkPreview?.image.preview.remote, let data = response.rawData else { return } //TODO: to check???
+        guard
+            let remote = linkPreview?.image.uploaded,
+            let data = response.rawData else {
+                return
+        }
         cache.storeAssetData(message, format: .medium, encrypted: true, data: data)
 
         let success = cache.decryptImageIfItMatchesDigest(
@@ -107,9 +117,10 @@ extension LinkPreviewAssetDownloadRequestStrategy: ZMDownstreamTranscoder {
     
     public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!) -> ZMTransportRequest! {
         guard let message = object as? ZMClientMessage else { fatal("Unable to generate request for \(object.safeForLoggingDescription)") }
-        guard let linkPreview = message.underlyingMessage?.linkPreviews.first else { return nil }
-//        guard let remoteData = linkPreview.image.preview.remote else { return nil }
-        let remoteData = linkPreview.image.preview.remote // TODO: CHECK!
+        guard let linkPreview = message.underlyingMessage?.linkPreviews.first else {
+            return nil
+        }
+        let remoteData = linkPreview.image.uploaded
 
         // Protobuf initializes the token to an empty string when set to nil
         let token = remoteData.hasAssetToken && remoteData.assetToken != "" ? remoteData.assetToken : nil
