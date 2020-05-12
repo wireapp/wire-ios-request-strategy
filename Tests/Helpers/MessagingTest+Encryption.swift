@@ -25,8 +25,8 @@ extension MessagingTestBase {
     
     /// Encrypts a message from the given client to the self user. 
     /// It will create a session between the two if needed
-    @objc(encryptedMessageToSelfWithMessage:fromSender:)
-    public func encryptedMessageToSelf(message: ZMGenericMessage, from sender: UserClient) -> Data {
+//    @objc(encryptedMessageToSelfWithMessage:fromSender:)
+    public func encryptedMessageToSelf(message: GenericMessage, from sender: UserClient) -> Data {
         
         let selfClient = ZMUser.selfUser(in: self.syncMOC).selfClient()!
         if selfClient.user!.remoteIdentifier == nil {
@@ -46,7 +46,7 @@ extension MessagingTestBase {
             }
             
             do {
-                cypherText = try session.encrypt(message.data(), for: selfClient.sessionIdentifier!)
+                cypherText = try session.encrypt(message.serializedData(), for: selfClient.sessionIdentifier!)
             } catch {
                 fatalError("Error in encrypting: \(error)")
             }
