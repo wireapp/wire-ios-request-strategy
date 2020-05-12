@@ -55,9 +55,12 @@ class LinkPreviewAssetDownloadRequestStrategyTests: MessagingTestBase {
     
     // MARK: - Helper
     
-    fileprivate func createLinkPreview(_ assetID: String, article: Bool = true, otrKey: Data? = nil, sha256: Data? = nil) -> LinkPreview {
+    fileprivate func createLinkPreview(_ assetID: String,
+                                       article: Bool = true,
+                                       otrKey: Data? = nil,
+                                       sha256: Data? = nil) -> LinkPreview {
         let URL = "http://www.example.com"
-        
+
         if article {
             let (otr, sha) = (otrKey ?? Data.randomEncryptionKey(), sha256 ?? Data.zmRandomSHA256Key())
             let remoteData = WireProtos.Asset.RemoteData.with {
@@ -68,7 +71,7 @@ class LinkPreviewAssetDownloadRequestStrategyTests: MessagingTestBase {
             let asset = WireProtos.Asset.with {
                 $0.uploaded = remoteData
             }
-            let preview = LinkPreview.with {
+            let linkPreview = LinkPreview.with {
                 $0.url = URL
                 $0.permanentURL = URL
                 $0.urlOffset = 42
@@ -76,20 +79,20 @@ class LinkPreviewAssetDownloadRequestStrategyTests: MessagingTestBase {
                 $0.summary = "Summary"
                 $0.image = asset
             }
-            return preview
+            return linkPreview
         } else {
-            let preview = LinkPreview.with {
+            let linkPreview = LinkPreview.with {
                 $0.url = URL
                 $0.permanentURL = URL
                 $0.urlOffset = 42
                 $0.title = "Title"
-                $0.summary = "Summary"
-                $0.tweet = Tweet.with {
+                $0.tweet = WireProtos.Tweet.with {
                     $0.author = "Author"
                     $0.username = "UserName"
                 }
             }
-            return preview
+
+            return linkPreview
         }
     }
     
@@ -135,11 +138,6 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
             // GIVEN
             let linkPreview = self.createLinkPreview(assetID)
             let nonce = UUID.create()
-//            let text = Text.with {
-//                $0.content = self.name
-//                $0.mentions = []
-//                $0.linkPreview = [linkPreview]
-//            }
             var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
             text.linkPreview.append(linkPreview)
             let genericMessage = GenericMessage(content: text, nonce: nonce, expiresAfter: 20)
@@ -189,11 +187,8 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
             let assetID = UUID.create().transportString()
             let linkPreview = self.createLinkPreview(assetID)
             let nonce = UUID.create()
-            let text = Text.with {
-                $0.content = self.name
-                $0.mentions = []
-                $0.linkPreview = [linkPreview]
-            }
+            var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
+            text.linkPreview.append(linkPreview)
             let genericMessage = GenericMessage(content: text, nonce: nonce)
             let message = self.oneToOneconversationOnSync.appendClientMessage(with: genericMessage)!
             _ = try? syncMOC.obtainPermanentIDs(for: [message])
@@ -212,11 +207,8 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         let assetID = UUID.create().transportString()
         let linkPreview = self.createLinkPreview(assetID, article: false)
         let nonce = UUID.create()
-        let text = Text.with {
-            $0.content = self.name
-            $0.mentions = []
-            $0.linkPreview = [linkPreview]
-        }
+        var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
+        text.linkPreview.append(linkPreview)
         let genericMessage = GenericMessage(content: text, nonce: nonce)
         var message: ZMMessage!
 
@@ -243,14 +235,11 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         let data = Data.secureRandomData(length: 256)
         let otrKey = Data.randomEncryptionKey()
         let encrypted = data.zmEncryptPrefixingPlainTextIV(key: otrKey)
-//        let (linkPreview, _, _) = createLinkPreviewAndKeys(assetID, otrKey: otrKey, sha256: encrypted.zmSHA256Digest())
         let linkPreview = createLinkPreview(assetID, otrKey: otrKey, sha256: encrypted.zmSHA256Digest())
         let nonce = UUID.create()
-        let text = Text.with {
-            $0.content = self.name
-            $0.mentions = []
-            $0.linkPreview = [linkPreview]
-        }
+        
+        var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
+        text.linkPreview.append(linkPreview)
         let genericMessage = GenericMessage(content: text, nonce: nonce)
 
         var message: ZMMessage!
@@ -279,17 +268,13 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
             XCTAssertNil(syncMOC.zm_fileAssetCache.assetData(message, format: .medium, encrypted: true))
         }
     }
-    
+
     func testThatItDoesNotDecyptTheImageDataInTheRequestResponseWhenTheResponseIsNotSuccessful() {
         let assetID = UUID.create().transportString()
-//        let (linkPreview, _, _) = createLinkPreviewAndKeys(assetID)
         let linkPreview = createLinkPreview(assetID)
         let nonce = UUID.create()
-        let text = Text.with {
-            $0.content = self.name
-            $0.mentions = []
-            $0.linkPreview = [linkPreview]
-        }
+        var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
+        text.linkPreview.append(linkPreview)
         let genericMessage = GenericMessage(content: text, nonce: nonce)
         var message: ZMMessage!
         self.syncMOC.performGroupedAndWait { syncMOC in
