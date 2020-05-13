@@ -147,7 +147,12 @@ extension ClientMessageTranscoderTests {
             }
             
             // THEN
-            XCTAssertTrue( message.needsReadConfirmation)
+            switch message.underlyingMessage?.content {
+            case .text(let data)?:
+                XCTAssertTrue(data.expectsReadConfirmation)
+            default:
+                XCTFail()
+            }
         }
     }
     
@@ -168,8 +173,12 @@ extension ClientMessageTranscoderTests {
             }
             
             // THEN
-            XCTAssertFalse( message.needsReadConfirmation)
-//            XCTAssertFalse(message.underlyingMessage!.content!.expectsReadConfirmation())
+            switch message.underlyingMessage?.content {
+            case .text(let data)?:
+                XCTAssertFalse(data.expectsReadConfirmation)
+            default:
+                XCTFail()
+            }
         }
     }
     

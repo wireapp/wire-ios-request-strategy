@@ -248,7 +248,12 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             XCTAssertNotNil(self.sut.nextRequest())
             
             // THEN
-           XCTAssertTrue( message.needsReadConfirmation)
+            switch message.underlyingMessage?.content {
+            case .asset(let data)?:
+                XCTAssertTrue(data.expectsReadConfirmation)
+            default:
+                XCTFail()
+            }
         }
     }
     
@@ -260,10 +265,14 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             
             // WHEN
             XCTAssertNotNil(self.sut.nextRequest())
-
+            
             // THEN
-            XCTAssertFalse( message.needsReadConfirmation)
-//            XCTAssertFalse(message.underlyingMessage!.content!.expectsReadConfirmation())
+            switch message.underlyingMessage?.content {
+            case .asset(let data)?:
+                XCTAssertFalse(data.expectsReadConfirmation)
+            default:
+                XCTFail()
+            }
         }
     }
     
