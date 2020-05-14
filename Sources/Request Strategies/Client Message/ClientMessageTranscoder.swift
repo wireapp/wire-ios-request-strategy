@@ -279,7 +279,7 @@ extension ClientMessageTranscoder : ZMEventConsumer {
         return Set(events.compactMap {
             switch $0.type {
             case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
-                return $0.messageNonce()
+                return $0.messageNonce
             default:
                 return nil
             }
@@ -290,7 +290,7 @@ extension ClientMessageTranscoder : ZMEventConsumer {
         return updateEvents.compactMap {
             switch $0.type {
             case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
-                if let nonce = $0.messageNonce() {
+                if let nonce = $0.messageNonce {
                     return UpdateEventWithNonce(event: $0, nonce: nonce)
                 }
                 return nil
