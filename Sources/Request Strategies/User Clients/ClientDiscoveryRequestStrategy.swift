@@ -24,7 +24,7 @@ import Foundation
 public final class ClientDiscoveryRequestStrategy: NSObject, RequestStrategy {
 
   public typealias ClientIdsByUserId = [String: [String]]
-  public typealias ClientDiscoveryRequestCompletion = (ClientIdsByUserId) -> Void
+  public typealias RequestCompletion = (ClientIdsByUserId) -> Void
 
   // MARK: - Private properties
 
@@ -34,7 +34,7 @@ public final class ClientDiscoveryRequestStrategy: NSObject, RequestStrategy {
   private var requestSync: ZMSingleRequestSync!
 
   private var pendingRequest: ZMTransportRequest?
-  private var pendingCompletion: ClientDiscoveryRequestCompletion?
+  private var pendingCompletion: RequestCompletion?
 
   // MARK: - Init
 
@@ -56,7 +56,7 @@ public final class ClientDiscoveryRequestStrategy: NSObject, RequestStrategy {
   ///   - conversationId: the id of the conversation.
   ///   - completion: invoked with a map of user ids to an array of client ids.
 
-  public func requestClientList(conversationId: UUID, completion: @escaping ClientDiscoveryRequestCompletion) {
+  public func requestClientList(conversationId: UUID, completion: @escaping RequestCompletion) {
     managedObjectContext.performGroupedBlock { [unowned self] in
       guard let selfClient = ZMUser.selfUser(in: self.managedObjectContext).selfClient() else { return }
 
