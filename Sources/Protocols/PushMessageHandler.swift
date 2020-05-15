@@ -19,12 +19,13 @@
 import Foundation
 import WireDataModel
 
-public protocol PushMessageHandler: NSObjectProtocol {
+@objc public protocol PushMessageHandler: NSObjectProtocol {
     
     /// Create a notification for the message if needed
     ///
-    /// - Parameter genericMessage: generic message that was received
-    func process(_ genericMessage: GenericMessage)
+    /// - Parameter event: the decrypted  ZMUpdateEvent 
+    @objc(processEvent:)
+    func process(_ event: ZMUpdateEvent)
     
     
     /// Creates a notification for the message if needed
@@ -36,5 +37,6 @@ public protocol PushMessageHandler: NSObjectProtocol {
     /// Shows a notification for a failure to send
     ///
     /// - Parameter message: message that failed to send
+    @objc(processMessage:)
     func didFailToSend(_ message: ZMMessage)
 }

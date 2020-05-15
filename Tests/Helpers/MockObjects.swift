@@ -134,8 +134,10 @@ class MockPushMessageHandler: NSObject, PushMessageHandler {
         processedMessages.append(message)
     }
     
-    public func process(_ genericMessage: GenericMessage) {
-        processedGenericMessages.append(genericMessage)
+    public func process(_ event: ZMUpdateEvent) {
+        if let genericMessage = GenericMessage(from: event) {
+            processedGenericMessages.append(genericMessage)
+        }
     }
     
     fileprivate(set) var failedToSend: [ZMMessage] = []
