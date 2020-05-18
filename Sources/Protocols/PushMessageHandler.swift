@@ -38,5 +38,6 @@ import WireDataModel
     /// Shows a notification for a failure to send
     ///
     /// - Parameter message: message that failed to send
+    @objc(processMessage:)
     func didFailToSend(_ message: ZMMessage)
 }
