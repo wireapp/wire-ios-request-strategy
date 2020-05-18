@@ -167,15 +167,13 @@ extension ClientMessageTranscoder {
             // process generic message first, b/c if there is no updateResult, then
             // a the event from a deleted message wouldn't delete the notification.
             if event.source == .pushNotification || event.source == .webSocket {
-                if let genericMessage = GenericMessage(from: event) {
-                    self.localNotificationDispatcher.process(genericMessage)
-                }
+                self.localNotificationDispatcher.process(event)
             }
             
             guard let message = ZMOTRMessage.createOrUpdate(from: event, in: managedObjectContext, prefetchResult: prefetchResult) else { return }
             
             message.markAsSent()
-                                    
+            
             if event.source == .pushNotification || event.source == .webSocket {
                 self.localNotificationDispatcher.process(message)
             }
