@@ -178,7 +178,9 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             XCTAssert(assetData.hasUploaded)
             XCTAssertEqual(assetData.uploaded.assetID, assetId)
             XCTAssertEqual(assetData.uploaded.assetToken, token)
-            XCTAssert(message.underlyingMessage!.hasEphemeral)
+            guard case .ephemeral? = message.underlyingMessage!.content else {
+                return XCTFail()
+            }
             message.requestFileDownload()
         }
         
