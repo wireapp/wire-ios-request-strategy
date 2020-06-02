@@ -233,9 +233,6 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
             guard case .ephemeral? = genericMessage.content else {
                 return XCTFail()
             }
-            guard case .ephemeral? = genericMessage.content else {
-                return XCTFail()
-            }
             XCTAssertTrue(message.linkAttachments?.isEmpty == false)
         }
     }
