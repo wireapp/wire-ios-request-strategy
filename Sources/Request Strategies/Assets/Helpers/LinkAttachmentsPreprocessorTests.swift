@@ -230,7 +230,9 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
             let data = self.syncMOC.zm_fileAssetCache.assetData(message, format: .original, encrypted: false)
             XCTAssertNil(data)
             guard let genericMessage = message.underlyingMessage else { return XCTFail("No generic message") }
-            XCTAssertTrue(genericMessage.hasEphemeral)
+            guard case .ephemeral? = genericMessage.content else {
+                return XCTFail()
+            }
             XCTAssertTrue(message.linkAttachments?.isEmpty == false)
         }
     }

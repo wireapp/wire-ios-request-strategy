@@ -314,8 +314,11 @@ extension LinkPreviewAssetUploadRequestStrategyTests {
         syncMOC.performGroupedBlock {
             // THEN
             XCTAssertTrue(message.isEphemeral)
-            XCTAssertTrue(message.underlyingMessage!.hasEphemeral)
-            XCTAssertFalse(message.underlyingMessage!.hasText)
+            guard case .ephemeral? = message.underlyingMessage!.content else {
+                return XCTFail()
+            }
+            // The message is ephemeral and contains text
+            XCTAssertTrue(message.underlyingMessage!.hasText)
             
             let linkPreview = message.underlyingMessage!.linkPreviews.first!
             XCTAssertEqual(linkPreview.image.uploaded.otrKey, otrKey)
