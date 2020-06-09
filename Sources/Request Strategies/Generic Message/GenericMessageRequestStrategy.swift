@@ -62,10 +62,11 @@ public func ==(lhs: GenericMessageEntity, rhs: GenericMessageEntity) -> Bool {
     return lhs === rhs
 }
 
-extension GenericMessageEntity : EncryptedPayloadGenerator {
+extension GenericMessageEntity: EncryptedPayloadGenerator {
     
-    public func encryptedMessagePayloadData() -> (data: Data, strategy: MissingClientsStrategy)? {
-        return message.encryptedMessagePayloadData(conversation!, externalData: nil)
+    public func encryptedPayload() -> Payload? {
+      guard let conversation = conversation else { return nil }
+      return message.encryptedPayload(for: conversation, externalData: nil)
     }
 
     public var debugInfo: String {
