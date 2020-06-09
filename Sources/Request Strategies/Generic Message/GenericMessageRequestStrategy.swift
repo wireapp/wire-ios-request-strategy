@@ -66,7 +66,7 @@ extension GenericMessageEntity: EncryptedPayloadGenerator {
     
     public func encryptedPayload() -> Payload? {
       guard let conversation = conversation else { return nil }
-      return message.encryptedPayload(for: conversation, externalData: nil)
+      return message.encryptedPayload(for: conversation)
     }
 
     public var debugInfo: String {
