@@ -81,14 +81,6 @@ extension ClientMessageRequestFactory {
     }
 }
 
-// MARK: - Testing Helper
-extension ZMClientMessage {
-    public var encryptedMessagePayloadDataOnly : Data? {
-        return self.encryptedMessagePayloadData()?.data
-    }
-}
-
-
 extension String {
 
     func pathWithMissingClientStrategy(strategy: MissingClientsStrategy) -> String {
