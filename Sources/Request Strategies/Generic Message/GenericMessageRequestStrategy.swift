@@ -30,12 +30,12 @@ import Foundation
     public var completionHandler: ((_ response: ZMTransportResponse) -> Void)?
     public var isExpired: Bool = false
 
-    private let intendedRecipients: Recipients
+    private let targetRecipients: Recipients
     
-    init(conversation: ZMConversation, message: GenericMessage, intendedRecipients: Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
+    init(conversation: ZMConversation, message: GenericMessage, targetRecipients: Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
         self.conversation = conversation
         self.message = message
-        self.intendedRecipients = intendedRecipients
+        self.targetRecipients = targetRecipients
         self.completionHandler = completionHandler
     }
     
@@ -80,7 +80,7 @@ extension GenericMessageEntity: EncryptedPayloadGenerator {
             return nil
         }
 
-        switch intendedRecipients {
+        switch targetRecipients {
         case .conversationParticipants:
             return message.encryptedPayload(for: conversation)
         case .clients(let clientsByUser):
@@ -118,8 +118,8 @@ extension GenericMessageEntity: EncryptedPayloadGenerator {
         sync = DependencyEntitySync(transcoder: self, context: context)
     }
     
-    public func schedule(message: GenericMessage, inConversation conversation: ZMConversation, intendedRecipients: GenericMessageEntity.Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
-        sync?.synchronize(entity: GenericMessageEntity(conversation: conversation, message: message, intendedRecipients: intendedRecipients, completionHandler: completionHandler))
+    public func schedule(message: GenericMessage, inConversation conversation: ZMConversation, targetRecipients: GenericMessageEntity.Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
+        sync?.synchronize(entity: GenericMessageEntity(conversation: conversation, message: message, targetRecipients: targetRecipients, completionHandler: completionHandler))
         RequestAvailableNotification.notifyNewRequestsAvailable(nil)
     }
     
