@@ -51,7 +51,7 @@ extension AvailabilityRequestStrategy: ZMUpstreamTranscoder {
         let message = GenericMessage(content: WireProtos.Availability(selfUser.availability))
         let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: context, maxCount: maximumBroadcastRecipients)
 
-        guard let dataAndMissingClientStrategy = message.encryptedPayload(forBroadcastRecipients: recipients, in: context) else {
+        guard let dataAndMissingClientStrategy = message.encryptForTransport(forBroadcastRecipients: recipients, in: context) else {
             return nil
         }
 
