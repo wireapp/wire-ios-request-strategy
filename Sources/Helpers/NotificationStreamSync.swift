@@ -95,10 +95,6 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
         appendPotentialGapSystemMessageIfNeeded(with: response)
         return lastUpdateEventID
     }
-
-    private func eventDictionariesFrom(payload: ZMTransportData?) -> [[String: Any]]? {
-        return payload?.asDictionary()?["notifications"] as? [[String: Any]]
-    }
     
     @objc(processUpdateEventsAndReturnLastNotificationIDFromPayload:)
     func processUpdateEventsAndReturnLastNotificationID(from payload: ZMTransportData?) -> UUID? {
@@ -178,5 +174,9 @@ extension NotificationStreamSync {
             return
         }
         self.managedObjectContext.serverTimeDelta = serverTimeDelta
+    }
+    
+    private func eventDictionariesFrom(payload: ZMTransportData?) -> [[String: Any]]? {
+        return payload?.asDictionary()?["notifications"] as? [[String: Any]]
     }
 }

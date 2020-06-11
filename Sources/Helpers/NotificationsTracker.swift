@@ -23,7 +23,7 @@ import WireDataModel
 
     let eventName = "notifications.processing"
 
-    enum Attributes: String {
+    public enum Attributes: String {
         case startedProcessing
         case startedFetchingStream
         case finishedFetchingStream
