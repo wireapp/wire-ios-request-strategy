@@ -139,20 +139,7 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
                 
                 timestamp = event?.timeStamp()?.addingTimeInterval(-offset)
             }
-            
-            guard let conversations = self.managedObjectContext.executeFetchRequestOrAssert(ZMConversation.sortedFetchRequest()) as? [ZMConversation] else {
-                return
-            }
-            for conversation in conversations {
-                if timestamp == nil {
-                    // In case we did not receive a payload we will add 1/10th to the last modified date of
-                    // the conversation to make sure it appears below the last message
-                    timestamp = conversation.lastModifiedDate?.addingTimeInterval(offset) ?? Date()
-                }
-                if let timestamp = timestamp {
-                    conversation.appendNewPotentialGapSystemMessage(users: conversation.localParticipants, timestamp: timestamp)
-                }
-            }
+            ZMConversation.appendNewPotentialGapSystemMessage(at: timestamp, inContext: self.managedObjectContext)
         }
     }
 }
