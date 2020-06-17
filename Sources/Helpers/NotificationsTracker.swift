@@ -21,7 +21,7 @@ import WireDataModel
 
 @objcMembers public class NotificationsTracker: NSObject {
 
-    let eventName = "notifications.processing"
+    public let eventName = "notifications.processing"
 
     public enum Attributes: String {
         case startedProcessing
@@ -32,7 +32,7 @@ import WireDataModel
         case abortedProcessing
         case tokenMismatch
 
-        var identifier: String {
+        public var identifier: String {
             return "notifications_" + rawValue
         }
     }

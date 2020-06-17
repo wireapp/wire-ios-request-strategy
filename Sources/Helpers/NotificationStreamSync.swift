@@ -30,7 +30,6 @@ public protocol NotificationStreamSyncDelegate: class {
 
 public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListRequestPaginatorSync {
     
-    private var paginator: ZMSimpleListRequestPaginator?
     private var notificationsTracker: NotificationsTracker?
     private var listPaginator: ZMSimpleListRequestPaginator!
     private var managedObjectContext: NSManagedObjectContext!
