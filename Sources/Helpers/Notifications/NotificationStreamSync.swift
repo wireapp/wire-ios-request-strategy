@@ -33,16 +33,13 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
     private var notificationsTracker: NotificationsTracker?
     private var listPaginator: ZMSimpleListRequestPaginator!
     private var managedObjectContext: NSManagedObjectContext!
-    private var previouslyReceivedEventIDsCollection: PreviouslyReceivedEventIDsCollection?
     private var notificationStreamSyncDelegate: NotificationStreamSyncDelegate?
 
     public init(moc: NSManagedObjectContext,
                 notificationsTracker: NotificationsTracker,
-                eventIDsCollection: PreviouslyReceivedEventIDsCollection,
                 delegate: NotificationStreamSyncDelegate) {
         super.init()
         managedObjectContext = moc
-        previouslyReceivedEventIDsCollection = eventIDsCollection
         listPaginator = ZMSimpleListRequestPaginator.init(basePath: "/notifications",
                                                           startKey: "since",
                                                           pageSize: 500,
@@ -85,10 +82,6 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
         
         if latestEventId != nil && response.httpStatus != 404 {
             return latestEventId
-        }
-        
-        if !listPaginator.hasMoreToFetch {
-            previouslyReceivedEventIDsCollection?.discardListOfAlreadyReceivedPushEventIDs() //Check it!
         }
         
         appendPotentialGapSystemMessageIfNeeded(with: response)
