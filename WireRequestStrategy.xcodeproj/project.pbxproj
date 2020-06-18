@@ -11,7 +11,6 @@
 		06025666248E616C00E060E1 /* ZMSimpleListRequestPaginator.m in Sources */ = {isa = PBXBuildFile; fileRef = 06025665248E616C00E060E1 /* ZMSimpleListRequestPaginator.m */; };
 		060ED6D62499F41000412C4A /* PushNotificationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060ED6D52499F41000412C4A /* PushNotificationStatus.swift */; };
 		060ED6DA2499F4A900412C4A /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060ED6D92499F4A900412C4A /* Logging.swift */; };
-		06B1C4DF2490E49C007FDA8D /* NSManagedObjectContext+LastNotificationID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B1C4DE2490E49C007FDA8D /* NSManagedObjectContext+LastNotificationID.swift */; };
 		06C394B6248E6FDA00AE736A /* ZMSimpleListRequestPaginator.h in Headers */ = {isa = PBXBuildFile; fileRef = 06025667248E617D00E060E1 /* ZMSimpleListRequestPaginator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06C394B7248E6FDE00AE736A /* ZMSimpleListRequestPaginator+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 06025669248E61BF00E060E1 /* ZMSimpleListRequestPaginator+Internal.h */; };
 		06C394C5248E851000AE736A /* NotificationsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06C394C4248E851000AE736A /* NotificationsTracker.swift */; };
@@ -250,7 +249,6 @@
 		06025669248E61BF00E060E1 /* ZMSimpleListRequestPaginator+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ZMSimpleListRequestPaginator+Internal.h"; sourceTree = "<group>"; };
 		060ED6D52499F41000412C4A /* PushNotificationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationStatus.swift; sourceTree = "<group>"; };
 		060ED6D92499F4A900412C4A /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
-		06B1C4DE2490E49C007FDA8D /* NSManagedObjectContext+LastNotificationID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContext+LastNotificationID.swift"; sourceTree = "<group>"; };
 		06C394C4248E851000AE736A /* NotificationsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsTracker.swift; sourceTree = "<group>"; };
 		1621D21F1D75A71E007108C2 /* RequestAvailableNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestAvailableNotification.swift; sourceTree = "<group>"; };
 		1621D2221D75AB2D007108C2 /* MockEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MockEntity.h; sourceTree = "<group>"; };
@@ -504,14 +502,6 @@
 				060ED6D92499F4A900412C4A /* Logging.swift */,
 			);
 			path = Utility;
-			sourceTree = "<group>";
-		};
-		06C394C6248E898800AE736A /* DataModel */ = {
-			isa = PBXGroup;
-			children = (
-				06B1C4DE2490E49C007FDA8D /* NSManagedObjectContext+LastNotificationID.swift */,
-			);
-			path = DataModel;
 			sourceTree = "<group>";
 		};
 		1621D2211D75AB2D007108C2 /* Helpers */ = {
@@ -973,7 +963,6 @@
 			isa = PBXGroup;
 			children = (
 				060ED6D72499F42200412C4A /* Notifications */,
-				06C394C6248E898800AE736A /* DataModel */,
 				F18401962073BE0800E9F4CC /* ZMStrategyConfigurationOption.h */,
 				F18401942073BE0800E9F4CC /* MessageExpirationTimer.swift */,
 				F18401972073BE0800E9F4CC /* MessageExpirationTimerTests.swift */,
@@ -1220,7 +1209,6 @@
 				06025662248E467B00E060E1 /* NotificationStreamSync.swift in Sources */,
 				06C394C5248E851000AE736A /* NotificationsTracker.swift in Sources */,
 				166901D41D7081C7000FE4AF /* ZMDownstreamObjectSync.m in Sources */,
-				06B1C4DF2490E49C007FDA8D /* NSManagedObjectContext+LastNotificationID.swift in Sources */,
 				1621D2201D75A71E007108C2 /* RequestAvailableNotification.swift in Sources */,
 				F18401C32073BE0800E9F4CC /* AssetV3DownloadRequestStrategy.swift in Sources */,
 				F18401BF2073BE0800E9F4CC /* AssetClientMessageRequestStrategy.swift in Sources */,
