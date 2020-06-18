@@ -19,8 +19,15 @@
 import Foundation
 
 /// Holds a list of received event IDs
-@objc public protocol PreviouslyReceivedEventIDsCollection: NSObjectProtocol {
+@objc
+public protocol PreviouslyReceivedEventIDsCollection: NSObjectProtocol {
     func discardListOfAlreadyReceivedPushEventIDs()
+}
+
+@objc
+public protocol UpdateEventProcessor: class {
+    @objc(processUpdateEvents:ignoreBuffer:)
+    func process(updateEvents: [ZMUpdateEvent], ignoreBuffer: Bool)
 }
 
 public protocol NotificationStreamSyncDelegate: class {
