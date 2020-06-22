@@ -60,33 +60,6 @@ class AvailabilityRequestStrategyTests: MessagingTestBase {
         }
     }
     
-    func testThatItDoesntGenerateARequestWhenAvailabilityIsModifiedAndGuestShouldntCommunicateStatus() {
-        self.syncMOC.performGroupedAndWait { moc in
-            
-            // given
-            let selfUser = ZMUser.selfUser(in: moc)
-            selfUser.needsToBeUpdatedFromBackend = false
-            selfUser.setLocallyModifiedKeys(Set(arrayLiteral: AvailabilityKey))
-            
-            let team = Team.insertNewObject(in: moc)
-            for _ in 1...(Team.membersOptimalLimit - 1) { // Saving one user to add selfuser later on
-                team.members.insert(Member.insertNewObject(in: moc))
-            }
-            
-            let membership = Member.insertNewObject(in: moc)
-            membership.user = selfUser
-            membership.team = team
-            
-            self.sut.contextChangeTrackers.forEach({ $0.addTrackedObjects(Set<NSManagedObject>(arrayLiteral: selfUser)) })
-            
-            // when
-            let request = self.sut.nextRequest()
-            
-            // then
-            XCTAssertNil(request)
-        }
-    }
-    
     func testThatItGeneratesARequestWhenAvailabilityIsModifiedAndGuestShouldCommunicateStatus() {
         self.syncMOC.performGroupedAndWait { moc in
             
@@ -96,10 +69,7 @@ class AvailabilityRequestStrategyTests: MessagingTestBase {
             selfUser.setLocallyModifiedKeys(Set(arrayLiteral: AvailabilityKey))
             
             let team = Team.insertNewObject(in: moc)
-            for _ in 1...(Team.membersOptimalLimit - 2) { // Saving one user to add selfuser later on
-                team.members.insert(Member.insertNewObject(in: moc))
-            }
-            
+          
             let membership = Member.insertNewObject(in: moc)
             membership.user = selfUser
             membership.team = team
@@ -136,10 +106,11 @@ class AvailabilityRequestStrategyTests: MessagingTestBase {
             let selfUser = ZMUser.selfUser(in: moc)
             _ = ZMConversation(remoteID: selfUser.remoteIdentifier!, createIfNeeded: true, in: moc) // create self conversation
 
-            let message = ZMGenericMessage.message(content: ZMAvailability.availability(.away))
+            let message = GenericMessage(content: WireProtos.Availability(.away))
+            let messageData = try? message.serializedData()
             let dict = ["recipient": self.selfClient.remoteIdentifier!,
                         "sender": self.selfClient.remoteIdentifier!,
-                        "text": message.data().base64String()] as NSDictionary
+                        "text": messageData?.base64String()] as NSDictionary
 
             let updateEvent = ZMUpdateEvent(fromEventStreamPayload: ([
                 "type": "conversation.otr-message-add",
@@ -157,38 +128,15 @@ class AvailabilityRequestStrategyTests: MessagingTestBase {
     }
     
     func testThatItRequestSlowSyncIfWeAreSendingToRedudantClients() {
-        self.syncMOC.performGroupedAndWait { _ in
-            // given when
-            self.sut.detectedRedundantClients()
-
-            // then
-            XCTAssertTrue(self.applicationStatus.slowSyncWasRequested)
-        }
-    }
-    
-    func testThatItRequestSlowSyncIfWeAreMissingAUser() {
         self.syncMOC.performGroupedAndWait { moc in
             // given
-            let missingUser = ZMUser(remoteID: UUID(), createIfNeeded: true, in: moc)!
-
+            let redundantUser = ZMUser(remoteID: UUID(), createIfNeeded: true, in: moc)!
+            
             // when
-            self.sut.detectedMissingClient(for: missingUser)
+            self.sut.detectedRedundantUsers([redundantUser])
 
             // then
             XCTAssertTrue(self.applicationStatus.slowSyncWasRequested)
-        }
-    }
-    
-    func testThatItDoesNotRequestSlowSyncIfWeAreNotMissingAUser() {
-        self.syncMOC.performGroupedAndWait { _ in
-            // given
-            let connectedUser = self.otherUser!
-
-            // when
-            self.sut.detectedMissingClient(for: connectedUser)
-
-            // then
-            XCTAssertFalse(self.applicationStatus.slowSyncWasRequested)
         }
     }
     

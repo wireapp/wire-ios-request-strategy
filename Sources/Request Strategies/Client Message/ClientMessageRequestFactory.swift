@@ -32,6 +32,7 @@ public final class ClientMessageRequestFactory: NSObject {
     public func upstreamRequestForFetchingClients(conversationId: UUID, selfClient: UserClient) -> ZMTransportRequest? {
         let originalPath = "/" + ["conversations", conversationId.transportString(), "otr", "messages"].joined(separator: "/")
         let newOtrMessage = NewOtrMessage(withSender: selfClient, nativePush: false, recipients: [])
+        
         let path = originalPath.pathWithMissingClientStrategy(strategy: .doNotIgnoreAnyMissingClient)
         guard let data = try? newOtrMessage.serializedData() else {
             zmLog.debug("failed to serialize message")
@@ -51,11 +52,9 @@ public final class ClientMessageRequestFactory: NSObject {
     
     fileprivate func upstreamRequestForEncryptedClientMessage(_ message: EncryptedPayloadGenerator, forConversationWithId conversationId: UUID) -> ZMTransportRequest? {
         let originalPath = "/" + ["conversations", conversationId.transportString(), "otr", "messages"].joined(separator: "/")
-        guard let dataAndMissingClientStrategy = message.encryptedMessagePayloadData() else {
-            return nil
-        }
-        let path = originalPath.pathWithMissingClientStrategy(strategy: dataAndMissingClientStrategy.strategy)
-        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: dataAndMissingClientStrategy.data, type: protobufContentType, contentDisposition: nil)
+        guard let encryptedPayload = message.encryptForTransport() else { return nil }
+        let path = originalPath.pathWithMissingClientStrategy(strategy: encryptedPayload.strategy)
+        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: encryptedPayload.data, type: protobufContentType, contentDisposition: nil)
         request.addContentDebugInformation(message.debugInfo)
         return request
     }
@@ -82,25 +81,15 @@ extension ClientMessageRequestFactory {
     }
 }
 
-// MARK: - Testing Helper
-extension ZMClientMessage {
-    public var encryptedMessagePayloadDataOnly : Data? {
-        return self.encryptedMessagePayloadData()?.data
-    }
-}
-
-
 extension String {
 
     func pathWithMissingClientStrategy(strategy: MissingClientsStrategy) -> String {
         switch strategy {
-        case .doNotIgnoreAnyMissingClient:
+        case .doNotIgnoreAnyMissingClient,
+             .ignoreAllMissingClientsNotFromUsers(_):
             return self
         case .ignoreAllMissingClients:
             return self + "?ignore_missing"
-        case .ignoreAllMissingClientsNotFromUsers(let users):
-            let userIDs = users.compactMap { $0.remoteIdentifier?.transportString() }
-            return self + "?report_missing=\(userIDs.joined(separator: ","))"
         }
     }
 }

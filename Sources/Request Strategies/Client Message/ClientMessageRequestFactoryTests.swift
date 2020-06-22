@@ -64,8 +64,8 @@ extension ClientMessageRequestFactoryTests {
             let text = "Antani"
             let message = self.oneToOneConversation.append(text: text) as! ZMClientMessage
             message.sender = self.otherUser
-            let confirmation = ZMConfirmation.confirm(messageId: message.nonce!, type: .DELIVERED)
-            let confirmationMessage = self.oneToOneConversation.appendClientMessage(with: ZMGenericMessage.message(content: confirmation), expires: false, hidden: true)!
+            let confirmation = Confirmation(messageId: message.nonce!, type: .delivered)
+            let confirmationMessage = self.oneToOneConversation.appendClientMessage(with: GenericMessage(content: confirmation), expires: false, hidden: true)!
             
             // WHEN
             guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(confirmationMessage, forConversationWithId: self.oneToOneConversation.remoteIdentifier!) else {
@@ -74,11 +74,11 @@ extension ClientMessageRequestFactoryTests {
             
             // THEN
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodPOST)
-            XCTAssertEqual(request.path, "/conversations/\(self.oneToOneConversation.remoteIdentifier!.transportString())/otr/messages?report_missing=\(self.otherUser.remoteIdentifier!.transportString())")
+            XCTAssertEqual(request.path, "/conversations/\(self.oneToOneConversation.remoteIdentifier!.transportString())/otr/messages")
             guard let receivedMessage = self.outgoingEncryptedMessage(from: request, for: self.otherClient) else {
                 return XCTFail("Invalid message")
             }
-            XCTAssertTrue(receivedMessage.hasConfirmation())
+            XCTAssertTrue(receivedMessage.hasConfirmation)
         }
     }
 }

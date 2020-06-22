@@ -37,15 +37,8 @@ extension ZMOTRMessage: OTREntity {
         return dependent ?? super.dependentObjectNeedingUpdateBeforeProcessing
     }
     
-    public func detectedRedundantClients() {
-        // if the BE tells us that these users are not in the
-        // conversation anymore, it means that we are out of sync
-        // with the list of participants
-        conversation?.needsToBeUpdatedFromBackend = true
-    }
-    
-    public func detectedMissingClient(for user: ZMUser) {
-        conversation?.addParticipantAndSystemMessageIfMissing(user, date: nil)
+    public func detectedRedundantUsers(_ users: [ZMUser]) {
+        // no-op
     }
     
 }

@@ -20,14 +20,22 @@ import Foundation
 
 @objcMembers public class GenericMessageEntity : NSObject, OTREntity {
 
-    public var message : GenericMessage
-    public var conversation : ZMConversation?
-    public var completionHandler : ((_ response: ZMTransportResponse) -> Void)?
+    public enum Recipients {
+        case conversationParticipants
+        case clients([ZMUser: Set<UserClient>])
+    }
+
+    public var message: GenericMessage
+    public var conversation: ZMConversation?
+    public var completionHandler: ((_ response: ZMTransportResponse) -> Void)?
     public var isExpired: Bool = false
+
+    private let targetRecipients: Recipients
     
-    init(conversation: ZMConversation, message: GenericMessage, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
+    init(conversation: ZMConversation, message: GenericMessage, targetRecipients: Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
         self.conversation = conversation
         self.message = message
+        self.targetRecipients = targetRecipients
         self.completionHandler = completionHandler
     }
     
@@ -45,17 +53,10 @@ import Foundation
         // no-op
     }
     
-    public func detectedRedundantClients() {
-        // if the BE tells us that these users are not in the
-        // conversation anymore, it means that we are out of sync
-        // with the list of participants
-        conversation?.needsToBeUpdatedFromBackend = true
+    public func detectedRedundantUsers(_ users: [ZMUser]) {
+        // no-op
     }
-    
-    public func detectedMissingClient(for user: ZMUser) {
-        conversation?.addParticipantAndSystemMessageIfMissing(user, date: nil)
-    }
-    
+        
     public func expire() {
         isExpired = true
     }
@@ -69,10 +70,22 @@ public func ==(lhs: GenericMessageEntity, rhs: GenericMessageEntity) -> Bool {
     return lhs === rhs
 }
 
-extension GenericMessageEntity : EncryptedPayloadGenerator {
+extension GenericMessageEntity: EncryptedPayloadGenerator {
     
-    public func encryptedMessagePayloadData() -> (data: Data, strategy: MissingClientsStrategy)? {
-        return message.zmMessage?.encryptedMessagePayloadData(conversation!, externalData: nil)
+    public func encryptForTransport() -> Payload? {
+        guard
+            let conversation = conversation,
+            let managedObjectContext = conversation.managedObjectContext
+        else {
+            return nil
+        }
+
+        switch targetRecipients {
+        case .conversationParticipants:
+            return message.encryptForTransport(for: conversation)
+        case .clients(let clientsByUser):
+            return message.encryptForTransport(for: clientsByUser, in: managedObjectContext)
+        }
     }
 
     public var debugInfo: String {
@@ -105,8 +118,8 @@ extension GenericMessageEntity : EncryptedPayloadGenerator {
         sync = DependencyEntitySync(transcoder: self, context: context)
     }
     
-    public func schedule(message: GenericMessage, inConversation conversation: ZMConversation, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
-        sync?.synchronize(entity: GenericMessageEntity(conversation: conversation, message: message, completionHandler: completionHandler))
+    public func schedule(message: GenericMessage, inConversation conversation: ZMConversation, targetRecipients: GenericMessageEntity.Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
+        sync?.synchronize(entity: GenericMessageEntity(conversation: conversation, message: message, targetRecipients: targetRecipients, completionHandler: completionHandler))
         RequestAvailableNotification.notifyNewRequestsAvailable(nil)
     }
     
