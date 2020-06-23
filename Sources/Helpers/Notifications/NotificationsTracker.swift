@@ -32,7 +32,7 @@ import WireDataModel
         case abortedProcessing
         case tokenMismatch
 
-        var identifier: String {
+        public var identifier: String {
             return "notifications_" + rawValue
         }
     }
