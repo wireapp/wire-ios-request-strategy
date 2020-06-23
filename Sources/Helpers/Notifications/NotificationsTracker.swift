@@ -21,9 +21,9 @@ import WireDataModel
 
 @objcMembers public class NotificationsTracker: NSObject {
 
-    let eventName = "notifications.processing"
+    public let eventName = "notifications.processing"
 
-    enum Attributes: String {
+    public enum Attributes: String {
         case startedProcessing
         case startedFetchingStream
         case finishedFetchingStream
