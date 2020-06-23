@@ -21,9 +21,9 @@ import WireDataModel
 
 @objcMembers public class NotificationsTracker: NSObject {
 
-    public let eventName = "notifications.processing"
+    let eventName = "notifications.processing"
 
-    public enum Attributes: String {
+    enum Attributes: String {
         case startedProcessing
         case startedFetchingStream
         case finishedFetchingStream
@@ -32,7 +32,7 @@ import WireDataModel
         case abortedProcessing
         case tokenMismatch
 
-        public var identifier: String {
+        var identifier: String {
             return "notifications_" + rawValue
         }
     }
@@ -55,19 +55,19 @@ import WireDataModel
         increment(attribute: .finishedFetchingStream)
     }
 
-    @objc public func registerStartStreamFetching() {
+    public func registerStartStreamFetching() {
         increment(attribute: .startedFetchingStream)
     }
 
-    @objc public func registerProcessingExpired() {
+    public func registerProcessingExpired() {
         increment(attribute: .processingExpired)
     }
     
-    @objc public func registerProcessingAborted() {
+    public func registerProcessingAborted() {
         increment(attribute: .abortedProcessing)
     }
 
-    @objc public func registerTokenMismatch() {
+    public func registerTokenMismatch() {
         increment(attribute: .tokenMismatch)
     }
 
@@ -96,4 +96,3 @@ extension NotificationsTracker {
         return "Current values: \(analytics?.persistedAttributes(for: eventName) ?? [:])"
     }
 }
-
