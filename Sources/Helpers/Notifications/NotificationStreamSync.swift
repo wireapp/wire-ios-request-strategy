@@ -43,7 +43,7 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
     private var notificationStreamSyncDelegate: NotificationStreamSyncDelegate?
 
     public init(moc: NSManagedObjectContext,
-                notificationsTracker: NotificationsTracker,
+                notificationsTracker: NotificationsTracker?,
                 delegate: NotificationStreamSyncDelegate) {
         super.init()
         managedObjectContext = moc
