@@ -85,7 +85,7 @@ extension Notification.Name {
 @objcMembers
 open class SyncStatus : NSObject {
 
-    public internal (set) var currentSyncPhase : SyncPhase = .done {
+    public var currentSyncPhase : SyncPhase = .done {
         didSet {
             if currentSyncPhase != oldValue {
                 zmLog.debug("did change sync phase: \(currentSyncPhase)")
@@ -152,7 +152,7 @@ open class SyncStatus : NSObject {
 // MARK: Slow Sync
 extension SyncStatus {
     
-    public func finishCurrentSyncPhase(phase : SyncPhase) {
+    open func finishCurrentSyncPhase(phase : SyncPhase) {
         precondition(phase == currentSyncPhase, "Finished syncPhase does not match currentPhase")
         
         zmLog.debug("finished sync phase: \(phase)")
@@ -180,7 +180,7 @@ extension SyncStatus {
         RequestAvailableNotification.notifyNewRequestsAvailable(self)
     }
     
-    public func failCurrentSyncPhase(phase : SyncPhase) {
+    open func failCurrentSyncPhase(phase : SyncPhase) {
         precondition(phase == currentSyncPhase, "Failed syncPhase does not match currentPhase")
         
         zmLog.debug("failed sync phase: \(phase)")

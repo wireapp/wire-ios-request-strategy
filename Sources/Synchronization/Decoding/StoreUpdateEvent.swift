@@ -24,12 +24,12 @@ public final class StoredUpdateEvent: NSManagedObject {
     
     static let entityName =  "StoredUpdateEvent"
     static let SortIndexKey = "sortIndex"
-    @NSManaged var uuidString: String?
-    @NSManaged var debugInformation: String?
-    @NSManaged var isTransient: Bool
-    @NSManaged var payload: NSDictionary
-    @NSManaged var source: Int16
-    @NSManaged var sortIndex: Int64
+    @NSManaged public var uuidString: String?
+    @NSManaged public var debugInformation: String?
+    @NSManaged public var isTransient: Bool
+    @NSManaged public var payload: NSDictionary
+    @NSManaged public var source: Int16
+    @NSManaged public var sortIndex: Int64
     
     static func insertNewObject(_ context: NSManagedObjectContext) -> StoredUpdateEvent? {
         return NSEntityDescription.insertNewObject(forEntityName: self.entityName, into: context) as? StoredUpdateEvent

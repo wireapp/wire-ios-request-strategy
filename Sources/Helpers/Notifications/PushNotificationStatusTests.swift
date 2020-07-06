@@ -19,20 +19,6 @@
 import XCTest
 @testable import WireRequestStrategy
 
-// MARK: - Mocks
-
-@objc class FakeGroupQueue : NSObject, ZMSGroupQueue {
-    
-    var dispatchGroup : ZMSDispatchGroup! {
-        return nil
-    }
-    
-    func performGroupedBlock(_ block : @escaping () -> Void) {
-        block()
-    }
-    
-}
-
 // MARK: - Tests
 
 class PushNotificationStatusTests: MessagingTestBase {
