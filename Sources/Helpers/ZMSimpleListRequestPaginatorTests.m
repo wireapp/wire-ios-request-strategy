@@ -137,11 +137,11 @@
     XCTAssertNil(self.sut.nextRequest);
 }
 
-//@end
-//
-//
-//
-//@implementation ZMSimpleListRequestPaginatorTests (Transcoder)
+@end
+
+
+
+@implementation ZMSimpleListRequestPaginatorTests (Transcoder)
 
 - (void)testThatItForwardsNextRequestToTheSingleRequestSync
 {
@@ -235,7 +235,7 @@
         }
         
         UserClient *client = [UserClient insertNewObjectInManagedObjectContext:moc];
-        client.remoteIdentifier = [NSString createAlphanumericalString];
+        client.remoteIdentifier = [NSString stringWithFormat:@"%x", arc4random()];
         client.user = selfUser;
         
         [moc setPersistentStoreMetadata:client.remoteIdentifier forKey:ZMPersistedClientIdKey];
@@ -324,11 +324,11 @@
     XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);
 }
 
-//@end
-//
-//
-//
-//@implementation ZMSimpleListRequestPaginatorTests (Pagination)
+@end
+
+
+
+@implementation ZMSimpleListRequestPaginatorTests (Pagination)
 
 
 - (void)testThatItDoesNotHaveMoreToDownloadIfTheExtractorReturnedAnEmptyArray
@@ -473,11 +473,11 @@
     XCTAssertTrue(self.sut.hasMoreToFetch);
 }
 
-//@end
-//
-//
-//
-//@implementation ZMSimpleListRequestPaginatorTests (RequestNextPage)
+@end
+
+
+
+@implementation ZMSimpleListRequestPaginatorTests (RequestNextPage)
 
 - (void)testThatAfterParsingAResponseItRequestsThePageFollowingTheLastUUIDExtracted_InitializedWithoutStartUUID
 {
