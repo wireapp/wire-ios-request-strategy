@@ -111,3 +111,11 @@ open class PushNotificationStatus: NSObject, BackgroundNotificationFetchStatusPr
     
 }
 
+extension NSString {
+    
+    /// Returns a random string with alphanumerical characters
+    @objc(createAlphanumericalString)
+    static public func createAlphanumerical() -> NSString {
+        return NSString(format: "%llx", arc4random())
+    }
+}

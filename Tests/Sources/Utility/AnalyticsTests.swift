@@ -37,7 +37,7 @@ class AnalyticsTests: ZMTBaseTest {
                 expectation.fulfill()
         }
         XCTAssert(self.waitForCustomExpectations(withTimeout: 0.5))
-        return self.directory.syncContext
+        return directory.syncContext
     }
 
     override func setUp() {
@@ -55,21 +55,23 @@ class AnalyticsTests: ZMTBaseTest {
         StorageStack.reset()
         super.tearDown()
     }
-    // FIX IT
-//    func testThatItSetsAnalyticsOnManagedObjectContext() {
-//        // given
-//
-//        let context = self.createSyncContext()
-//
-//        // when
-//        context.analytics = analytics
-//
-//        // then
-//        XCTAssertNotNil(context.analytics)
-//        XCTAssertEqual(context.analytics as? MockAnalytics, analytics)
-//        context.analytics = nil
-//        XCTAssertNil(context.analytics)
-//    }
+   
+    func testThatItSetsAnalyticsOnManagedObjectContext() {
+        // given
+        
+        let context = self.createSyncContext()
+        
+        // when
+        context.performGroupedBlockAndWait {
+            context.analytics = self.analytics
+            
+            // then
+            XCTAssertNotNil(context.analytics)
+            XCTAssertEqual(context.analytics as? MockAnalytics, self.analytics)
+            context.analytics = nil
+            XCTAssertNil(context.analytics)
+        }
+    }
 }
 
 // MARK: - Helpers
