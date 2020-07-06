@@ -22,12 +22,12 @@ import Foundation
 public final class RequestGeneratorStore {
     
     let requestGenerators: [ZMTransportRequestGenerator]
-    let changeTrackers : [ZMContextChangeTracker]
+    public let changeTrackers : [ZMContextChangeTracker]
     private var isTornDown = false
     
     private let strategies : [AnyObject]
     
-    init(strategies: [AnyObject]) {
+    public init(strategies: [AnyObject]) {
         
         self.strategies = strategies
         
@@ -66,7 +66,7 @@ public final class RequestGeneratorStore {
         precondition(isTornDown, "Need to call `tearDown` before deallocating this object")
     }
 
-    func tearDown() {
+    public func tearDown() {
         strategies.forEach {
             if $0.responds(to: #selector(ZMObjectSyncStrategy.tearDown)) {
                 ($0 as? ZMObjectSyncStrategy)?.tearDown()
