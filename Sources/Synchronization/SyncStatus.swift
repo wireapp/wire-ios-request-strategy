@@ -82,7 +82,8 @@ extension Notification.Name {
 }
 
 
-@objcMembers public class SyncStatus : NSObject {
+@objcMembers
+open class SyncStatus : NSObject {
 
     public internal (set) var currentSyncPhase : SyncPhase = .done {
         didSet {
