@@ -84,4 +84,3 @@ public final class StoredUpdateEvent: NSManagedObject {
         return events
     }
 }
-
