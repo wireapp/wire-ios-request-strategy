@@ -19,8 +19,6 @@
 		06474D6424B31CC5002C695D /* AnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474D6324B31CC5002C695D /* AnalyticsTests.swift */; };
 		06474D6624B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06474D6524B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m */; };
 		06474D7A24B32FE4002C695D /* FakeGroupQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474D7924B32FE4002C695D /* FakeGroupQueue.swift */; };
-		06474D8524B35CE4002C695D /* OperationLoop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474D8424B35CE4002C695D /* OperationLoop.swift */; };
-		06474D9324B46058002C695D /* OperationLoopTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474D9224B46058002C695D /* OperationLoopTests.swift */; };
 		06474D9E24B4A3B5002C695D /* ZMEventModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 06474D9C24B4A3B5002C695D /* ZMEventModel.xcdatamodeld */; };
 		06474DA124B4AC7B002C695D /* NSManagedObjectContext+EventDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474DA024B4AC7B002C695D /* NSManagedObjectContext+EventDecoder.swift */; };
 		06474DA624B4B1EA002C695D /* EventDecoderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474DA524B4B1EA002C695D /* EventDecoderTest.swift */; };
@@ -271,8 +269,6 @@
 		06474D6324B31CC5002C695D /* AnalyticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsTests.swift; sourceTree = "<group>"; };
 		06474D6524B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZMSimpleListRequestPaginatorTests.m; sourceTree = "<group>"; };
 		06474D7924B32FE4002C695D /* FakeGroupQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeGroupQueue.swift; sourceTree = "<group>"; };
-		06474D8424B35CE4002C695D /* OperationLoop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationLoop.swift; sourceTree = "<group>"; };
-		06474D9224B46058002C695D /* OperationLoopTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationLoopTests.swift; sourceTree = "<group>"; };
 		06474D9D24B4A3B5002C695D /* ZMEventModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ZMEventModel.xcdatamodel; sourceTree = "<group>"; };
 		06474DA024B4AC7B002C695D /* NSManagedObjectContext+EventDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContext+EventDecoder.swift"; sourceTree = "<group>"; };
 		06474DA524B4B1EA002C695D /* EventDecoderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDecoderTest.swift; sourceTree = "<group>"; };
@@ -522,8 +518,6 @@
 				06025661248E467B00E060E1 /* NotificationStreamSync.swift */,
 				060ED6D52499F41000412C4A /* PushNotificationStatus.swift */,
 				06474D5C24B30C75002C695D /* PushNotificationStatusTests.swift */,
-				06474D8424B35CE4002C695D /* OperationLoop.swift */,
-				06474D9224B46058002C695D /* OperationLoopTests.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -1260,7 +1254,6 @@
 				F184019D2073BE0800E9F4CC /* ClientMessageTranscoder.swift in Sources */,
 				F184019A2073BE0800E9F4CC /* ClientMessageRequestFactory.swift in Sources */,
 				F963E8E11D955D5500098AD3 /* SharedProtocols.swift in Sources */,
-				06474D8524B35CE4002C695D /* OperationLoop.swift in Sources */,
 				166901F21D7081C7000FE4AF /* ZMUpstreamModifiedObjectSync.m in Sources */,
 				16FFDE441DF6C668003494D6 /* DependencyEntitySync.swift in Sources */,
 				166901E41D7081C7000FE4AF /* ZMSingleRequestSync.m in Sources */,
@@ -1336,7 +1329,6 @@
 				F19561F3202A1349005347C0 /* RequestAvailableNotificationTests.swift in Sources */,
 				D5D65A062073C8F800D7F3C3 /* AssetRequestFactoryTests.swift in Sources */,
 				1621D2281D75AB2D007108C2 /* MockEntity.m in Sources */,
-				06474D9324B46058002C695D /* OperationLoopTests.swift in Sources */,
 				F18401EC2073C26700E9F4CC /* AssetV3PreviewDownloadRequestStrategyTests.swift in Sources */,
 				F18401EF2073C26C00E9F4CC /* LinkPreviewUploadRequestStrategyTests.swift in Sources */,
 				87F7288521AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift in Sources */,
