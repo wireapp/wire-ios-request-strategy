@@ -1,7 +1,7 @@
 github "wireapp/HTMLString" "fix/XCode12"
 github "wireapp/PINCache" "2.3-swift3.1"
 github "wireapp/ocmock" "v3.4.3"
-github "wireapp/swift-protobuf" "1.10.0"
+github "apple/swift-protobuf" "1.10.0"
 github "wireapp/wire-ios-cryptobox" "22.0.0"
 github "wireapp/wire-ios-data-model" "fix/xcode12"
 github "wireapp/wire-ios-images" "31.0.0"
