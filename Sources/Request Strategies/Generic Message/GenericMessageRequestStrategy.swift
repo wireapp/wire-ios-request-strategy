@@ -21,8 +21,10 @@ import Foundation
 @objcMembers public class GenericMessageEntity : NSObject, OTREntity {
 
     public enum Recipients {
+
         case conversationParticipants
         case clients([ZMUser: Set<UserClient>])
+
     }
 
     public var message: GenericMessage
@@ -32,7 +34,12 @@ import Foundation
 
     private let targetRecipients: Recipients
     
-    init(conversation: ZMConversation, message: GenericMessage, targetRecipients: Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
+    init(
+        conversation: ZMConversation,
+        message: GenericMessage,
+        targetRecipients: Recipients = .conversationParticipants,
+        completionHandler: ((_ response: ZMTransportResponse) -> Void)?
+    ) {
         self.conversation = conversation
         self.message = message
         self.targetRecipients = targetRecipients
@@ -45,7 +52,6 @@ import Foundation
     
     public var dependentObjectNeedingUpdateBeforeProcessing: NSObject? {
         guard let conversation  = conversation else { return nil }
-        
         return self.dependentObjectNeedingUpdateBeforeProcessingOTREntity(in: conversation)
     }
     
@@ -104,25 +110,31 @@ extension GenericMessageEntity: EncryptedPayloadGenerator {
     
 }
 
+public protocol GenericMessageScheduler {
+
+    func schedule(
+        message: GenericMessage,
+        inConversation conversation: ZMConversation,
+        targetRecipients: GenericMessageEntity.Recipients,
+        completionHandler: ((_ response: ZMTransportResponse) -> Void)?
+    )
+
+}
+
 /// This should not be used as a standalone strategy but either subclassed or used within another
 /// strategy. Please have a look at `CallingRequestStrategy` and `GenericMessageNotificationRequestStrategy`
 /// before modifying the behaviour of this class.
-@objcMembers public class GenericMessageRequestStrategy : OTREntityTranscoder<GenericMessageEntity>, ZMRequestGenerator, ZMContextChangeTracker {
+
+@objcMembers public class GenericMessageRequestStrategy: OTREntityTranscoder<GenericMessageEntity> {
     
-    private var sync : DependencyEntitySync<GenericMessageRequestStrategy>?
+    private var sync: DependencyEntitySync<GenericMessageRequestStrategy>?
     private var requestFactory = ClientMessageRequestFactory()
     
     public override init(context: NSManagedObjectContext, clientRegistrationDelegate: ClientRegistrationDelegate) {
         super.init(context: context, clientRegistrationDelegate: clientRegistrationDelegate)
-        
         sync = DependencyEntitySync(transcoder: self, context: context)
     }
-    
-    public func schedule(message: GenericMessage, inConversation conversation: ZMConversation, targetRecipients: GenericMessageEntity.Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
-        sync?.synchronize(entity: GenericMessageEntity(conversation: conversation, message: message, targetRecipients: targetRecipients, completionHandler: completionHandler))
-        RequestAvailableNotification.notifyNewRequestsAvailable(nil)
-    }
-    
+
     public func expireEntities(withDependency dependency: AnyObject) {
         guard let dependency = dependency as? NSManagedObject else { return }
         sync?.expireEntities(withDependency: dependency)
@@ -142,20 +154,51 @@ extension GenericMessageEntity: EncryptedPayloadGenerator {
         
         entity.completionHandler?(response)
     }
-    
+
+}
+
+extension GenericMessageRequestStrategy: GenericMessageScheduler {
+
+    public func schedule(
+        message: GenericMessage,
+        inConversation conversation: ZMConversation,
+        targetRecipients: GenericMessageEntity.Recipients = .conversationParticipants,
+        completionHandler: ((_ response: ZMTransportResponse) -> Void)?
+    ) {
+        let entity = GenericMessageEntity(
+            conversation: conversation,
+            message: message,
+            targetRecipients: targetRecipients,
+            completionHandler: completionHandler
+        )
+
+        sync?.synchronize(entity: entity)
+
+        RequestAvailableNotification.notifyNewRequestsAvailable(nil)
+    }
+
+}
+
+extension GenericMessageRequestStrategy: ZMRequestGenerator {
+
     public func nextRequest() -> ZMTransportRequest? {
         return sync?.nextRequest()
     }
-    
+
+}
+
+extension GenericMessageRequestStrategy: ZMContextChangeTracker {
+
     public func objectsDidChange(_ object: Set<NSManagedObject>) {
         sync?.objectsDidChange(object)
     }
-    
+
     public func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
         return sync?.fetchRequestForTrackedObjects()
     }
-    
+
     public func addTrackedObjects(_ objects: Set<NSManagedObject>) {
         sync?.addTrackedObjects(objects)
     }
+
 }
