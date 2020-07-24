@@ -27,14 +27,6 @@ import WireDataModel
     @objc(processEvent:)
     func process(_ event: ZMUpdateEvent)
     
-    
-    /// Creates a notification for the message if needed
-    ///
-    /// - Parameter message: message that was received
-    @objc(processMessage:)
-    func process(_ message: ZMMessage)
-    
-    
     /// Shows a notification for a failure to send
     ///
     /// - Parameter message: message that failed to send

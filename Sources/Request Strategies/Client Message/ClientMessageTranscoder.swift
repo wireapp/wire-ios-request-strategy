@@ -174,10 +174,6 @@ extension ClientMessageTranscoder {
             
             message.markAsSent()
             
-            if event.source == .pushNotification || event.source == .webSocket {
-                self.localNotificationDispatcher.process(message)
-            }
-            
         default:
             break
         }
