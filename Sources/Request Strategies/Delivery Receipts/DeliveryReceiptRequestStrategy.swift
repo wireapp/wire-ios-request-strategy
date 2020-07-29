@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2018 Wire Swiss GmbH
+// Copyright (C) 2020 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -81,40 +81,59 @@ extension DeliveryReceiptRequestStrategy: ZMContextChangeTrackerSource {
 
 extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
     
+    struct DeliveryReceipt {
+        let sender: ZMUser
+        let conversation: ZMConversation
+        let messageIDs: [UUID]
+    }
+    
     public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
         
     }
     
     public func processEventsWhileInBackground(_ events: [ZMUpdateEvent]) {
-        sendDeliveryReceipts(for: events)
+        deliveryReceipts(for: events).forEach(sendDeliveryReceipt)
+    }
+        
+    func sendDeliveryReceipt(_ deliveryReceipt: DeliveryReceipt) {
+        guard let confirmation = Confirmation.init(messageIds: deliveryReceipt.messageIDs,
+                                                   type: .delivered) else { return }
+        
+        genericMessageStrategy.schedule(message: GenericMessage(content: confirmation),
+                                        inConversation: deliveryReceipt.conversation,
+                                        targetRecipients: .users(Set(arrayLiteral: deliveryReceipt.sender)),
+                                        completionHandler: nil)
+        
     }
     
-    private func sendDeliveryReceipts(for events: [ZMUpdateEvent]) {
+    func deliveryReceipts(for events: [ZMUpdateEvent]) -> [DeliveryReceipt] {
         let messageByConversation = events.filter { (event) -> Bool in
             return event.type.isOne(of: .conversationOtrMessageAdd, .conversationOtrAssetAdd)
         }.partition(by: \.conversationID)
         
-        messageByConversation.forEach { (key: UUID, value: [ZMUpdateEvent]) in
-            guard let conversation = ZMConversation.fetch(withRemoteIdentifier: key,
+        var deliveryReceipts: [DeliveryReceipt] = []
+        
+        messageByConversation.forEach { (conversationID: UUID, events: [ZMUpdateEvent]) in
+            guard let conversation = ZMConversation.fetch(withRemoteIdentifier: conversationID,
                                                           in: managedObjectContext) else { return }
             
-            let messagesBySender = value
+            let messagesBySender = events
                 .filter({ $0.needsDeliveryConfirmation(managedObjectContext: managedObjectContext) })
                 .partition(by: \.senderID)
             
-            messagesBySender.forEach { (key: UUID, value: [ZMUpdateEvent]) in
-                guard let sender = ZMUser.fetch(withRemoteIdentifier: key,
-                                                in: managedObjectContext) else { return }
+            messagesBySender.forEach { (senderID: UUID, events: [ZMUpdateEvent]) in
+                guard let sender = ZMUser.fetchAndMerge(with: senderID,
+                                                        createIfNeeded: true,
+                                                        in: managedObjectContext) else { return }
                 
-                guard let confirmation = Confirmation.init(messageIds: value.compactMap(\.messageNonce),
-                                                           type: .delivered) else { return }
-                
-                genericMessageStrategy.schedule(message: GenericMessage(content: confirmation),
-                                                inConversation: conversation,
-                                                targetRecipients: .users(Set(arrayLiteral: sender)),
-                                                completionHandler: nil)
+                let deliveryReceipt = DeliveryReceipt(sender: sender,
+                                                      conversation: conversation,
+                                                      messageIDs: events.compactMap(\.messageNonce))
+                deliveryReceipts.append(deliveryReceipt)
             }
         }
+        
+        return deliveryReceipts
     }
     
 }
