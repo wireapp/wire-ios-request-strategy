@@ -21,23 +21,15 @@ import Foundation
 extension ZMUpdateEvent {
     
     private static let deliveryConfirmationDayThreshold = 7
-    
-    var conversationID: UUID? {
-        return conversationUUID()
-    }
-    
-    var senderID: UUID? {
-        return senderUUID()
-    }
-    
+        
     func needsDeliveryConfirmation(_ currentDate: Date = Date(),
                                    managedObjectContext: NSManagedObjectContext) -> Bool {
         guard
-            let conversationID = conversationID,
+            let conversationID = conversationUUID,
             let conversation = ZMConversation.fetch(withRemoteIdentifier: conversationID, in: managedObjectContext), conversation.conversationType == .oneOnOne,
-            let senderUUID = senderUUID(),
+            let senderUUID = senderUUID,
                 senderUUID != ZMUser.selfUser(in: managedObjectContext).remoteIdentifier,
-            let serverTimestamp = timeStamp(),
+            let serverTimestamp = timestamp,
             let daysElapsed = Calendar.current.dateComponents([.day], from: serverTimestamp, to: currentDate).day
         else { return false }
         
@@ -109,7 +101,7 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
     func deliveryReceipts(for events: [ZMUpdateEvent]) -> [DeliveryReceipt] {
         let eventsByConversation = events.filter { (event) -> Bool in
             return event.type.isOne(of: .conversationOtrMessageAdd, .conversationOtrAssetAdd)
-        }.partition(by: \.conversationID)
+        }.partition(by: \.conversationUUID)
         
         var deliveryReceipts: [DeliveryReceipt] = []
         
@@ -119,7 +111,7 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
             
             let eventsBySender = events
                 .filter({ $0.needsDeliveryConfirmation(managedObjectContext: managedObjectContext) })
-                .partition(by: \.senderID)
+                .partition(by: \.senderUUID)
             
             eventsBySender.forEach { (senderID: UUID, events: [ZMUpdateEvent]) in
                 guard let sender = ZMUser.fetchAndMerge(with: senderID,
