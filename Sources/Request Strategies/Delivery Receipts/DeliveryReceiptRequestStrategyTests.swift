@@ -166,7 +166,8 @@ class DeliveryReceiptRequestStrategyTests: MessagingTestBase {
             
             // then
             XCTAssertEqual(deliveryReceipts.count, 2)
-            XCTAssertEqual(deliveryReceipts.first?.messageIDs.count, 1)
+            XCTAssertEqual(deliveryReceipts[0].messageIDs.count, 1)
+            XCTAssertEqual(deliveryReceipts[1].messageIDs.count, 1)
         }
     }
     
