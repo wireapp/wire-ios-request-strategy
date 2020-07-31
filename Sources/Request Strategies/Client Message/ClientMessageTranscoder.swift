@@ -130,11 +130,7 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
         }
         
         request.add(completionHandler)
-        
-        if message.underlyingMessage?.hasConfirmation == true && self.applicationStatus!.deliveryConfirmation.needsToSyncMessages {
-            request.forceToVoipSession()
-        }
-        
+                
         self.messageExpirationTimer.stop(for: message)
         if let expiration = message.expirationDate {
             request.expire(at: expiration)
@@ -204,7 +200,8 @@ extension ClientMessageTranscoder {
             message.managedObjectContext?.delete(message)
         }
         if genericMessage.hasConfirmation {
-            self.applicationStatus?.deliveryConfirmation.didConfirmMessage(message.nonce!)
+            // NOTE: this will only be read confirmations since delivery confirmations
+            // are not sent using the ClientMessageTranscoder
             message.managedObjectContext?.delete(message)
         }
     }
