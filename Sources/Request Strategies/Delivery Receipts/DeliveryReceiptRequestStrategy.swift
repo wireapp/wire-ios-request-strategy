@@ -107,21 +107,21 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
     }
     
     func deliveryReceipts(for events: [ZMUpdateEvent]) -> [DeliveryReceipt] {
-        let messageByConversation = events.filter { (event) -> Bool in
+        let eventsByConversation = events.filter { (event) -> Bool in
             return event.type.isOne(of: .conversationOtrMessageAdd, .conversationOtrAssetAdd)
         }.partition(by: \.conversationID)
         
         var deliveryReceipts: [DeliveryReceipt] = []
         
-        messageByConversation.forEach { (conversationID: UUID, events: [ZMUpdateEvent]) in
+        eventsByConversation.forEach { (conversationID: UUID, events: [ZMUpdateEvent]) in
             guard let conversation = ZMConversation.fetch(withRemoteIdentifier: conversationID,
                                                           in: managedObjectContext) else { return }
             
-            let messagesBySender = events
+            let eventsBySender = events
                 .filter({ $0.needsDeliveryConfirmation(managedObjectContext: managedObjectContext) })
                 .partition(by: \.senderID)
             
-            messagesBySender.forEach { (senderID: UUID, events: [ZMUpdateEvent]) in
+            eventsBySender.forEach { (senderID: UUID, events: [ZMUpdateEvent]) in
                 guard let sender = ZMUser.fetchAndMerge(with: senderID,
                                                         createIfNeeded: true,
                                                         in: managedObjectContext) else { return }
