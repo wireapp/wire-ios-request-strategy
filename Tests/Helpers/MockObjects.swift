@@ -23,11 +23,6 @@ import WireDataModel
 
 public class MockApplicationStatus : NSObject, ApplicationStatus {
 
-    
-    public var deliveryConfirmation: DeliveryConfirmationDelegate {
-        return self.mockConfirmationStatus
-    }
-    
     public var requestCancellation : ZMRequestCancellation {
         return self.mockTaskCancellationDelegate
     }
@@ -38,7 +33,6 @@ public class MockApplicationStatus : NSObject, ApplicationStatus {
 
     public var notificationFetchStatus = BackgroundNotificationFetchStatus.done
 
-    public let mockConfirmationStatus = MockConfirmationStatus()
     public let mockTaskCancellationDelegate = MockTaskCancellationDelegate()
     public var mockClientRegistrationStatus = MockClientRegistrationStatus()
     
@@ -61,15 +55,7 @@ public class MockApplicationStatus : NSObject, ApplicationStatus {
     public var deletionCalls : Int {
         return mockClientRegistrationStatus.deletionCalls
     }
-
-    public var messagesToConfirm : Set<UUID> {
-        return mockConfirmationStatus.messagesToConfirm
-    }
-    
-    public var messagesConfirmed : Set<UUID> {
-        return mockConfirmationStatus.messagesConfirmed
-    }
-    
+        
     public var slowSyncWasRequested = false
     public func requestSlowSync() {
         slowSyncWasRequested = true
@@ -98,29 +84,6 @@ public class MockClientRegistrationStatus: NSObject, ClientRegistrationDelegate 
     
     public var clientIsReadyForRequests: Bool {
         return true
-    }
-}
-
-
-@objc public class MockConfirmationStatus : NSObject, DeliveryConfirmationDelegate {
-    
-    public private (set) var messagesToConfirm = Set<UUID>()
-    public private (set) var messagesConfirmed = Set<UUID>()
-
-    public static var sendDeliveryReceipts: Bool {
-        return true
-    }
-    
-    public var needsToSyncMessages: Bool {
-        return true
-    }
-    
-    public func needsToConfirmMessage(_ messageNonce: UUID) {
-        messagesToConfirm.insert(messageNonce)
-    }
-    
-    public func didConfirmMessage(_ messageNonce: UUID) {
-        messagesConfirmed.insert(messageNonce)
     }
 }
 
