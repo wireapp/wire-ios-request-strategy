@@ -159,13 +159,7 @@ extension ClientMessageTranscoder {
     func insertMessage(from event: ZMUpdateEvent, prefetchResult: ZMFetchRequestBatchResult?) {
         switch event.type {
         case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
-            
-            // process generic message first, b/c if there is no updateResult, then
-            // a the event from a deleted message wouldn't delete the notification.
-            if event.source == .pushNotification || event.source == .webSocket {
-                self.localNotificationDispatcher.process(event)
-            }
-            
+                        
             guard let message = ZMOTRMessage.createOrUpdate(from: event, in: managedObjectContext, prefetchResult: prefetchResult) else { return }
             
             message.markAsSent()
