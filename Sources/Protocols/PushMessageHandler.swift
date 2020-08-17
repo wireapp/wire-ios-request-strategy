@@ -20,13 +20,7 @@ import Foundation
 import WireDataModel
 
 @objc public protocol PushMessageHandler: NSObjectProtocol {
-    
-    /// Create a notification for the message if needed
-    ///
-    /// - Parameter event: the decrypted  ZMUpdateEvent 
-    @objc(processEvent:)
-    func process(_ event: ZMUpdateEvent)
-    
+        
     /// Shows a notification for a failure to send
     ///
     /// - Parameter message: message that failed to send
