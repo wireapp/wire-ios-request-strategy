@@ -144,7 +144,7 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
                 // In case we receive a payload together with the 404 we set the timestamp of the system message
                 // to be 1/10th of a second older than the oldest received notification for it to appear above it.
                 
-                timestamp = event?.timeStamp()?.addingTimeInterval(-offset)
+                timestamp = event?.timestamp?.addingTimeInterval(-offset)
             }
             ZMConversation.appendNewPotentialGapSystemMessage(at: timestamp, inContext: self.managedObjectContext)
         }
