@@ -20,8 +20,12 @@ import Foundation
 
 @objc
 public protocol UpdateEventProcessor: class {
-    @objc(processUpdateEvents:ignoreBuffer:)
-    func process(updateEvents: [ZMUpdateEvent], ignoreBuffer: Bool)
+            
+    @objc(storeUpdateEvents:ignoreBuffer:)
+    func storeUpdateEvents(_ updateEvents: [ZMUpdateEvent], ignoreBuffer: Bool)
+    
+    @objc(storeAndProcessUpdateEvents:ignoreBuffer:)
+    func storeAndProcessUpdateEvents(_ updateEvents: [ZMUpdateEvent], ignoreBuffer: Bool)
 }
 
 public protocol NotificationStreamSyncDelegate: class {
