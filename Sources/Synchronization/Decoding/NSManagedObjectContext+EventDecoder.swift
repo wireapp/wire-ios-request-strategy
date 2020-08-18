@@ -118,8 +118,12 @@ import Foundation
     fileprivate static func addPersistentStore(_ psc: NSPersistentStoreCoordinator, withSharedContainerURL sharedContainerURL: URL, userIdentifier: UUID, isSecondTry: Bool = false) {
         let storeURL = self.storeURL(withSharedContainerURL: sharedContainerURL, userIdentifier: userIdentifier)
         do {
+            let options: [String: Any] = [
+                NSMigratePersistentStoresAutomaticallyOption: true,
+                NSInferMappingModelAutomaticallyOption: true
+            ]
             let storeType = StorageStack.shared.createStorageAsInMemory ? NSInMemoryStoreType : NSSQLiteStoreType
-            try psc.addPersistentStore(ofType: storeType, configurationName: nil, at: storeURL, options: nil)
+            try psc.addPersistentStore(ofType: storeType, configurationName: nil, at: storeURL, options: options)
         } catch {
             if isSecondTry {
                 fatal("Error adding persistent store \(error)")
