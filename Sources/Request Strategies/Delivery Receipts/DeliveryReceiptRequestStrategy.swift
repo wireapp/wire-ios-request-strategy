@@ -24,6 +24,7 @@ extension ZMUpdateEvent {
         
     func needsDeliveryConfirmation(_ currentDate: Date = Date(),
                                    managedObjectContext: NSManagedObjectContext) -> Bool {
+
         guard
             let conversationID = conversationUUID,
             let conversation = ZMConversation.fetch(withRemoteIdentifier: conversationID, in: managedObjectContext), conversation.conversationType == .oneOnOne,
@@ -99,10 +100,10 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
     }
     
     func deliveryReceipts(for events: [ZMUpdateEvent]) -> [DeliveryReceipt] {
-        let eventsByConversation = events.filter { (event) -> Bool in
-            return event.type.isOne(of: .conversationOtrMessageAdd, .conversationOtrAssetAdd)
-        }.partition(by: \.conversationUUID)
-        
+        let eventsByConversation = events
+            .filter { GenericMessage(from: $0)?.requiresDeliveryReceipt ?? false }
+            .partition(by: \.conversationUUID)
+
         var deliveryReceipts: [DeliveryReceipt] = []
         
         eventsByConversation.forEach { (conversationID: UUID, events: [ZMUpdateEvent]) in
@@ -128,4 +129,12 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
         return deliveryReceipts
     }
     
+}
+
+private extension GenericMessage {
+
+    var requiresDeliveryReceipt: Bool {
+        return !hasConfirmation
+    }
+
 }
