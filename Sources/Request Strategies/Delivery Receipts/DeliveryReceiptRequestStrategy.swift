@@ -26,13 +26,18 @@ extension ZMUpdateEvent {
                                    managedObjectContext: NSManagedObjectContext) -> Bool {
 
         guard
+            let message = GenericMessage(from: self),
+            message.needsDeliveryConfirmation,
             let conversationID = conversationUUID,
-            let conversation = ZMConversation.fetch(withRemoteIdentifier: conversationID, in: managedObjectContext), conversation.conversationType == .oneOnOne,
+            let conversation = ZMConversation.fetch(withRemoteIdentifier: conversationID, in: managedObjectContext),
+            conversation.conversationType == .oneOnOne,
             let senderUUID = senderUUID,
-                senderUUID != ZMUser.selfUser(in: managedObjectContext).remoteIdentifier,
+            senderUUID != ZMUser.selfUser(in: managedObjectContext).remoteIdentifier,
             let serverTimestamp = timestamp,
             let daysElapsed = Calendar.current.dateComponents([.day], from: serverTimestamp, to: currentDate).day
-        else { return false }
+        else {
+            return false
+        }
         
         return daysElapsed <= ZMUpdateEvent.deliveryConfirmationDayThreshold
     }
@@ -100,9 +105,7 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
     }
     
     func deliveryReceipts(for events: [ZMUpdateEvent]) -> [DeliveryReceipt] {
-        let eventsByConversation = events
-            .filter { GenericMessage(from: $0)?.requiresDeliveryReceipt ?? false }
-            .partition(by: \.conversationUUID)
+        let eventsByConversation = events.partition(by: \.conversationUUID)
 
         var deliveryReceipts: [DeliveryReceipt] = []
         
@@ -133,8 +136,13 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
 
 private extension GenericMessage {
 
-    var requiresDeliveryReceipt: Bool {
-        return !hasConfirmation
+    var needsDeliveryConfirmation: Bool {
+        switch content {
+        case .text, .image, .asset, .knock, .external, .location, .ephemeral, .composite:
+            return true
+        default:
+            return false
+        }
     }
 
 }
