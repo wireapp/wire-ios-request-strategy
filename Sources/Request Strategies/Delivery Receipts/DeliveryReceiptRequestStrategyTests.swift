@@ -187,21 +187,19 @@ class DeliveryReceiptRequestStrategyTests: MessagingTestBase {
     
     // MARK: Helpers
     
-    func createTextUpdateEvent(
-        from sender: ZMUser,
-        in conversation: ZMConversation,
-        timestamp: Date = Date()
-    ) -> ZMUpdateEvent {
+    func createTextUpdateEvent(from sender: ZMUser,
+                               in conversation: ZMConversation,
+                               timestamp: Date = Date()) -> ZMUpdateEvent {
+
         let message = GenericMessage(content: WireProtos.Text(content: "Hello World"))
         return createUpdateEvent(message: message, from: sender, in: conversation, timestamp: timestamp)
     }
 
-    func createUpdateEvent(
-        message: GenericMessage,
-        from sender: ZMUser,
-        in conversation: ZMConversation,
-        timestamp: Date = Date()
-    ) -> ZMUpdateEvent {
+    func createUpdateEvent(message: GenericMessage,
+                           from sender: ZMUser,
+                           in conversation: ZMConversation,
+                           timestamp: Date = Date() ) -> ZMUpdateEvent {
+
         let dict: NSDictionary = [
             "recipient": self.selfClient.remoteIdentifier!,
             "sender": self.selfClient.remoteIdentifier!,
