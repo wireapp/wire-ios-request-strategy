@@ -31,7 +31,7 @@ public class MockApplicationStatus : NSObject, ApplicationStatus {
         return self.mockClientRegistrationStatus
     }
 
-    public var notificationFetchStatus = BackgroundNotificationFetchStatus.done
+    public var notificationStreamFetchState: NotificationStreamFetchState = .done
 
     public let mockTaskCancellationDelegate = MockTaskCancellationDelegate()
     public var mockClientRegistrationStatus = MockClientRegistrationStatus()

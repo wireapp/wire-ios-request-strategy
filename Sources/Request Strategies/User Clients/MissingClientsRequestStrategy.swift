@@ -36,7 +36,7 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         
         self.configuration =  [
-            .allowsRequestsDuringEventProcessing,
+            .allowsRequestsWhileOnline,
             .allowsRequestsWhileInBackground,
             .allowsRequestsDuringNotificationStreamFetch
         ]

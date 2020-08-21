@@ -68,21 +68,24 @@ class AbstractRequestStrategyTests : MessagingTestBase {
     
     func checkAllPermutations(on sut : RequestStrategy & TestableAbstractRequestStrategy) {
         
-        assertPass(withConfiguration: [.allowsRequestsDuringEventProcessing], operationState: .foreground, synchronizationState: .eventProcessing, sut: sut)
-        assertPass(withConfiguration: [.allowsRequestsDuringSync], operationState: .foreground, synchronizationState: .synchronizing, sut: sut)
+        assertPass(withConfiguration: [.allowsRequestsWhileOnline], operationState: .foreground, synchronizationState: .online, sut: sut)
+        assertPass(withConfiguration: [.allowsRequestsDuringSlowSync], operationState: .foreground, synchronizationState: .slowSyncing, sut: sut)
+        assertPass(withConfiguration: [.allowsRequestsDuringQuickSync], operationState: .foreground, synchronizationState: .quickSyncing, sut: sut)
         assertPass(withConfiguration: [.allowsRequestsWhileUnauthenticated], operationState: .foreground, synchronizationState: .unauthenticated, sut: sut)
         
-        assertFail(withConfiguration: [.allowsRequestsDuringEventProcessing], operationState: .foreground, synchronizationState: .synchronizing, sut: sut)
-        assertFail(withConfiguration: [.allowsRequestsDuringEventProcessing], operationState: .foreground, synchronizationState: .unauthenticated, sut: sut)
+        assertFail(withConfiguration: [.allowsRequestsWhileOnline], operationState: .foreground, synchronizationState: .slowSyncing, sut: sut)
+        assertFail(withConfiguration: [.allowsRequestsWhileOnline], operationState: .foreground, synchronizationState: .quickSyncing, sut: sut)
+        assertFail(withConfiguration: [.allowsRequestsWhileOnline], operationState: .foreground, synchronizationState: .unauthenticated, sut: sut)
         
-        assertFail(withConfiguration: [.allowsRequestsDuringSync], operationState: .foreground, synchronizationState: .eventProcessing, sut: sut)
-        assertFail(withConfiguration: [.allowsRequestsDuringSync], operationState: .foreground, synchronizationState: .unauthenticated, sut: sut)
+        assertFail(withConfiguration: [.allowsRequestsDuringSlowSync], operationState: .foreground, synchronizationState: .online, sut: sut)
+        assertFail(withConfiguration: [.allowsRequestsDuringSlowSync], operationState: .foreground, synchronizationState: .unauthenticated, sut: sut)
         
-        assertFail(withConfiguration: [.allowsRequestsWhileUnauthenticated], operationState: .foreground, synchronizationState: .eventProcessing, sut: sut)
-        assertFail(withConfiguration: [.allowsRequestsWhileUnauthenticated], operationState: .foreground, synchronizationState: .synchronizing, sut: sut)
+        assertFail(withConfiguration: [.allowsRequestsWhileUnauthenticated], operationState: .foreground, synchronizationState: .online, sut: sut)
+        assertFail(withConfiguration: [.allowsRequestsWhileUnauthenticated], operationState: .foreground, synchronizationState: .slowSyncing, sut: sut)
+        assertFail(withConfiguration: [.allowsRequestsWhileUnauthenticated], operationState: .foreground, synchronizationState: .quickSyncing, sut: sut)
         
-        assertPass(withConfiguration: [.allowsRequestsDuringEventProcessing, .allowsRequestsWhileInBackground], operationState: .background, synchronizationState: .eventProcessing, sut: sut)
-        assertPass(withConfiguration: [.allowsRequestsDuringSync, .allowsRequestsWhileInBackground], operationState: .background, synchronizationState: .synchronizing, sut: sut)
+        assertPass(withConfiguration: [.allowsRequestsWhileOnline, .allowsRequestsWhileInBackground], operationState: .background, synchronizationState: .online, sut: sut)
+        assertPass(withConfiguration: [.allowsRequestsDuringQuickSync, .allowsRequestsWhileInBackground], operationState: .background, synchronizationState: .quickSyncing, sut: sut)
         assertPass(withConfiguration: [.allowsRequestsWhileUnauthenticated, .allowsRequestsWhileInBackground], operationState: .background, synchronizationState: .unauthenticated, sut: sut)
     }
     

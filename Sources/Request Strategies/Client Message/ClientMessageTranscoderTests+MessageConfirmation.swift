@@ -51,13 +51,13 @@ extension ClientMessageTranscoderTests {
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([confirmationMessage])) }
 
             // When
-            self.mockApplicationStatus.notificationFetchStatus = .inProgress
+            self.mockApplicationStatus.notificationStreamFetchState = .inProgress
 
             // Then
             XCTAssertNil(self.sut.nextRequest())
 
             // When
-            self.mockApplicationStatus.notificationFetchStatus = .done
+            self.mockApplicationStatus.notificationStreamFetchState = .done
             // Then
             guard let request = self.sut.nextRequest() else { return XCTFail() }
 
