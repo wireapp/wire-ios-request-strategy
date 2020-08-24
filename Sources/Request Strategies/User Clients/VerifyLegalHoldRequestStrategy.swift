@@ -34,7 +34,7 @@ public final class VerifyLegalHoldRequestStrategy: AbstractRequestStrategy {
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         
         configuration = [.allowsRequestsWhileOnline,
-                         .allowsRequestsDuringNotificationStreamFetch,
+                         .allowsRequestsDuringQuickSync,
                          .allowsRequestsWhileInBackground]
         conversationSync = IdentifierObjectSync(managedObjectContext: managedObjectContext, transcoder: self)
     }

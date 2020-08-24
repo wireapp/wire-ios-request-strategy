@@ -26,8 +26,7 @@ private let zmLog = ZMSLog(tag: "Request Configuration")
     
     public let managedObjectContext : NSManagedObjectContext
     public var configuration : ZMStrategyConfigurationOption = [
-        .allowsRequestsWhileOnline,
-        .allowsRequestsDuringNotificationStreamFetch
+        .allowsRequestsWhileOnline
     ]
     
     public init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
@@ -70,7 +69,8 @@ private let zmLog = ZMSLog(tag: "Request Configuration")
             prerequisites.insert(.allowsRequestsDuringSlowSync)
         }
         
-        if applicationStatus.synchronizationState == .quickSyncing {
+        if applicationStatus.synchronizationState == .quickSyncing ||
+           applicationStatus.notificationStreamFetchState == .inProgress {
             prerequisites.insert(.allowsRequestsDuringQuickSync)
         }
         
@@ -80,13 +80,6 @@ private let zmLog = ZMSLog(tag: "Request Configuration")
         
         if applicationStatus.operationState == .background {
             prerequisites.insert(.allowsRequestsWhileInBackground)
-        }
-
-        if applicationStatus.notificationStreamFetchState == .inProgress {
-            // Don't create requests while we are still fetching the notification stream in the background.
-            // Otherwise we risk already sending out OTR messages when we have to fetch
-            // multiple pages of the stream (in case we have been offline for a while).
-            prerequisites.insert(.allowsRequestsDuringNotificationStreamFetch)
         }
 
         return prerequisites
