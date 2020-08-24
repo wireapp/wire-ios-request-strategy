@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2020 Wire Swiss GmbH
+// Copyright (C) 2016 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,7 +16,12 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
+
 import Foundation
+import WireSystem
+import WireDataModel
+
+private let zmLog = ZMSLog(tag: "EventDecoder")
 
 @objc extension NSManagedObjectContext {
     
@@ -31,7 +36,7 @@ import Foundation
         return createEventContext(at: storeURL(withSharedContainerURL: sharedContainerURL, userIdentifier: userIdentifier))
     }
     
-    public static func createEventContext(at location : URL) -> NSManagedObjectContext {
+    internal static func createEventContext(at location : URL) -> NSManagedObjectContext {
         eventPersistentStoreCoordinator = createPersistentStoreCoordinator()
         
         let managedObjectContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
@@ -83,7 +88,7 @@ import Foundation
         Swift.type(of: self).eventPersistentStoreCoordinator = nil
     }
 
-    public var isEventMOC: Bool {
+    var isEventMOC: Bool {
         set { userInfo[IsEventContextKey] = newValue }
         get { return (userInfo.object(forKey: IsEventContextKey) as? Bool) ?? false }
     }
@@ -100,8 +105,12 @@ import Foundation
     
     fileprivate static func addPersistentStore(_ psc: NSPersistentStoreCoordinator, at location: URL, isSecondTry: Bool = false) {
         do {
+            let options: [String: Any] = [
+                NSMigratePersistentStoresAutomaticallyOption: true,
+                NSInferMappingModelAutomaticallyOption: true
+            ]
             let storeType = StorageStack.shared.createStorageAsInMemory ? NSInMemoryStoreType : NSSQLiteStoreType
-            try psc.addPersistentStore(ofType: storeType, configurationName: nil, at: location, options: nil)
+            try psc.addPersistentStore(ofType: storeType, configurationName: nil, at: location, options: options)
         } catch {
             if isSecondTry {
                 fatal("Error adding persistent store \(error)")
@@ -114,16 +123,11 @@ import Foundation
         }
     }
     
-    
     fileprivate static func addPersistentStore(_ psc: NSPersistentStoreCoordinator, withSharedContainerURL sharedContainerURL: URL, userIdentifier: UUID, isSecondTry: Bool = false) {
         let storeURL = self.storeURL(withSharedContainerURL: sharedContainerURL, userIdentifier: userIdentifier)
         do {
-            let options: [String: Any] = [
-                NSMigratePersistentStoresAutomaticallyOption: true,
-                NSInferMappingModelAutomaticallyOption: true
-            ]
             let storeType = StorageStack.shared.createStorageAsInMemory ? NSInMemoryStoreType : NSSQLiteStoreType
-            try psc.addPersistentStore(ofType: storeType, configurationName: nil, at: storeURL, options: options)
+            try psc.addPersistentStore(ofType: storeType, configurationName: nil, at: storeURL, options: nil)
         } catch {
             if isSecondTry {
                 fatal("Error adding persistent store \(error)")

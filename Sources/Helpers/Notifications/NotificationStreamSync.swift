@@ -75,7 +75,12 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
     }
     
     private var lastUpdateEventID: UUID? {
-        return self.managedObjectContext.zm_lastNotificationID
+        set {
+            self.managedObjectContext.zm_lastNotificationID = newValue
+        }
+        get {
+            return self.managedObjectContext.zm_lastNotificationID
+        }
     }
     
     @objc(nextUUIDFromResponse:forListPaginator:)
@@ -91,6 +96,10 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
         
         appendPotentialGapSystemMessageIfNeeded(with: response)
         return lastUpdateEventID
+    }
+    
+    public func startUUID() -> UUID? {
+        return self.lastUpdateEventID
     }
     
     @objc(processUpdateEventsAndReturnLastNotificationIDFromPayload:)
