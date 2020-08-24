@@ -36,7 +36,7 @@ private let zmLog = ZMSLog(tag: "EventDecoder")
         return createEventContext(at: storeURL(withSharedContainerURL: sharedContainerURL, userIdentifier: userIdentifier))
     }
     
-    internal static func createEventContext(at location : URL) -> NSManagedObjectContext {
+    public static func createEventContext(at location : URL) -> NSManagedObjectContext {
         eventPersistentStoreCoordinator = createPersistentStoreCoordinator()
         
         let managedObjectContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
@@ -88,7 +88,7 @@ private let zmLog = ZMSLog(tag: "EventDecoder")
         Swift.type(of: self).eventPersistentStoreCoordinator = nil
     }
 
-    var isEventMOC: Bool {
+    public var isEventMOC: Bool {
         set { userInfo[IsEventContextKey] = newValue }
         get { return (userInfo.object(forKey: IsEventContextKey) as? Bool) ?? false }
     }
