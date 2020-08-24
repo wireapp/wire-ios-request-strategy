@@ -18,14 +18,11 @@
 
 import Foundation
 
-@objc public enum NotificationStreamFetchState: UInt8 {
-    case done, inProgress
-}
-
 @objc(ZMSynchronizationState)
 public enum SynchronizationState : UInt {
     case unauthenticated
     case slowSyncing
+    case establishingWebsocket
     case quickSyncing
     case online
 }
@@ -39,9 +36,7 @@ public enum OperationState : UInt {
 @objc(ZMApplicationStatus)
 public protocol ApplicationStatus : class {
     var synchronizationState : SynchronizationState { get }
-    var operationState : OperationState { get }
-    var notificationStreamFetchState: NotificationStreamFetchState { get }
-    
+    var operationState : OperationState { get }    
     var clientRegistrationDelegate : ClientRegistrationDelegate { get }
     var requestCancellation : ZMRequestCancellation { get }
 

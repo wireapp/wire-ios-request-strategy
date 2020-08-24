@@ -68,9 +68,12 @@ private let zmLog = ZMSLog(tag: "Request Configuration")
         if applicationStatus.synchronizationState == .slowSyncing {
             prerequisites.insert(.allowsRequestsDuringSlowSync)
         }
+                
+        if applicationStatus.synchronizationState == .establishingWebsocket {
+            prerequisites.insert(.allowsRequestsWhileWaitingForWebsocket)
+        }
         
-        if applicationStatus.synchronizationState == .quickSyncing ||
-           applicationStatus.notificationStreamFetchState == .inProgress {
+        if applicationStatus.synchronizationState == .quickSyncing {
             prerequisites.insert(.allowsRequestsDuringQuickSync)
         }
         

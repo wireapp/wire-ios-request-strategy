@@ -31,17 +31,14 @@ public class MockApplicationStatus : NSObject, ApplicationStatus {
         return self.mockClientRegistrationStatus
     }
 
-    public var notificationStreamFetchState: NotificationStreamFetchState = .done
-
+    public var mockSynchronizationState : SynchronizationState = .unauthenticated
     public let mockTaskCancellationDelegate = MockTaskCancellationDelegate()
     public var mockClientRegistrationStatus = MockClientRegistrationStatus()
-    
-    public var mockSynchronizationState : SynchronizationState = .unauthenticated
     
     public var synchronizationState: SynchronizationState {
         return mockSynchronizationState
     }
-
+    
     public var mockOperationState : OperationState = .foreground
     
     public var operationState: OperationState {

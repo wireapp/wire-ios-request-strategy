@@ -60,7 +60,7 @@ public final class DeliveryReceiptRequestStrategy: AbstractRequestStrategy {
         
         self.configuration = [.allowsRequestsWhileInBackground,
                               .allowsRequestsWhileOnline,
-                              .allowsRequestsDuringQuickSync]
+                              .allowsRequestsWhileWaitingForWebsocket]
     }
     
     // MARK: - Methods
