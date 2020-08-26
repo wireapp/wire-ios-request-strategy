@@ -17,15 +17,24 @@
 //
 
 import Foundation
+import CoreData
 
-extension String {
-    
-    internal var pushFormatString : String {
-        return Bundle(for: ZMSingleRequestSync.self).localizedString(forKey: "push.notification.\(self)", value: "", table: "Push")
-    }
+@objc(ZMKeyValueStore) public protocol KeyValueStore : NSObjectProtocol {
 
-    internal var pushActionString: String {
-        return Bundle(for: ZMSingleRequestSync.self).localizedString(forKey: "push.notification.action.\(self)", value: "", table: "Push")
-    }
+    func store(value: PersistableInMetadata?, key: String)
+    func storedValue(key: String) -> Any?
     
 }
+
+//TODO katerina: move to DM
+extension NSManagedObjectContext : ZMSynchonizableKeyValueStore {
+    
+    public func store(value: PersistableInMetadata?, key: String) {
+        self.setPersistentStoreMetadata(value, key: key)
+    }
+    
+    public func storedValue(key: String) -> Any? {
+        return self.persistentStoreMetadata(forKey: key)
+    }
+}
+
