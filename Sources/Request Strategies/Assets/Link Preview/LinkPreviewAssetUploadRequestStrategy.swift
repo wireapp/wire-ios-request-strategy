@@ -140,22 +140,27 @@ extension LinkPreviewAssetUploadRequestStrategy : ZMUpstreamTranscoder {
         guard keysToParse.contains(ZMClientMessage.linkPreviewStateKey) else { return false }
         guard let payload = response.payload?.asDictionary(), let assetKey = payload["key"] as? String else { fatal("No asset ID present in payload") }
         
-        if var linkPreview = message.underlyingMessage?.linkPreviews.first, !message.isObfuscated,
-           let messageText = message.textMessageData?.messageText,
-           let mentions = message.textMessageData?.mentions {
-            
+        if
+            var linkPreview = message.underlyingMessage?.linkPreviews.first, !message.isObfuscated,
+            let messageText = message.textMessageData?.messageText,
+            let mentions = message.textMessageData?.mentions
+        {
             linkPreview.update(withAssetKey: assetKey, assetToken: payload["token"] as? String)
+
             let updatedText = Text.with {
                 $0.content = messageText
                 $0.mentions = mentions.compactMap { WireProtos.Mention($0) }
                 $0.linkPreview = [linkPreview]
             }
+
             let genericMessage = GenericMessage(content: updatedText, nonce: message.nonce!, expiresAfter: message.deletionTimeout)
-           do {
-               message.add(try genericMessage.serializedData())
-           } catch {
-               zmLog.debug("Failure adding genericMessage")
-           }
+
+            do {
+                try message.add(genericMessage.serializedData())
+            } catch {
+                zmLog.debug("Failure adding genericMessage")
+            }
+
             zmLog.debug("did upload image for: \(message.nonce?.uuidString ?? "nil"), genericMessage: \(String(describing: message.underlyingMessage))")
             zmLog.debug("setting state to .uploaded for: \(message.nonce?.uuidString ?? "nil")")
             message.linkPreviewState = .uploaded
@@ -164,9 +169,8 @@ extension LinkPreviewAssetUploadRequestStrategy : ZMUpstreamTranscoder {
             zmLog.debug("did upload image for: \(message.nonce?.uuidString ?? "nil") but message is missing link preview: \(String(describing: message.underlyingMessage))")
             zmLog.debug("setting state to .done for: \(message.nonce?.uuidString ?? "nil")")
             message.linkPreviewState = .done
+            return false
         }
-
-        return false
     }
     
     public func updateInsertedObject(_ managedObject: ZMManagedObject, request upstreamRequest: ZMUpstreamRequest, response: ZMTransportResponse) {

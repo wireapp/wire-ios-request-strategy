@@ -97,8 +97,10 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
             if var updatedGenericMessage = message.underlyingMessage {
                 updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
                 do {
-                    message.add(try updatedGenericMessage.serializedData())
+                    try message.add(updatedGenericMessage.serializedData())
                 } catch {
+                    // Is this too extreme?
+                    // TODO: log reason?
                     fatal("Failure adding genericMessage")
                 }
             }
@@ -109,8 +111,10 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
             if var updatedGenericMessage = message.underlyingMessage {
                 updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
                 do {
-                    message.add(try updatedGenericMessage.serializedData())
+                    try message.add(updatedGenericMessage.serializedData())
                 } catch {
+                    // Is this too extreme?
+                    // TODO: log reason?
                     fatal("Failure adding genericMessage")
                 }
             }

@@ -99,14 +99,18 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
             // Update expectsReadReceipt flag to reflect the current user setting
             if var updatedGenericMessage = message.underlyingMessage {
                 updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
-                message.add(updatedGenericMessage)
+
+                // TODO: handle this?
+                try? message.add(updatedGenericMessage)
             }
         }
         
         if let legalHoldStatus = message.conversation?.legalHoldStatus {
             if var updatedGenericMessage = message.underlyingMessage {
                 updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
-                message.add(updatedGenericMessage)
+
+                // TODO: handle this?
+                try? message.add(updatedGenericMessage)
             }
         }
         

@@ -58,8 +58,9 @@ import WireUtilities
 
             let updatedText = Text(content: messageText, mentions: mentions, linkPreviews: [preview], replyingTo: nil)
             let updatedMessage = GenericMessage(content: updatedText, nonce: message.nonce!, expiresAfter: message.deletionTimeout)
+
             do {
-                message.add(try updatedMessage.serializedData())
+                try message.add(updatedMessage.serializedData())
             } catch {
                 return
             }
