@@ -75,7 +75,7 @@ public class ZMLocalNotification: NSObject {
     }
 
     /// Returns a configured concrete `UNNotificationContent` object.
-    lazy var content: UNNotificationContent = {
+    public lazy var content: UNNotificationContent = {
         let content = UNMutableNotificationContent()
         content.body = self.body
         content.categoryIdentifier = self.category
@@ -111,10 +111,10 @@ public class ZMLocalNotification: NSObject {
 
 extension ZMLocalNotification {
 
-    var selfUserID: UUID? { return userInfo?.selfUserID }
-    var senderID: UUID? { return userInfo?.senderID }
+    public var selfUserID: UUID? { return userInfo?.selfUserID }
+    public var senderID: UUID? { return userInfo?.senderID }
     public var messageNonce: UUID? { return userInfo?.messageNonce }
-    var conversationID: UUID? { return userInfo?.conversationID }
+    public var conversationID: UUID? { return userInfo?.conversationID }
 
     /// Returns true if it is a calling notification, else false.
     var isCallingNotification: Bool {
@@ -136,7 +136,7 @@ extension ZMLocalNotification {
 
 extension ZMLocalNotification {
 
-    func conversation(in moc: NSManagedObjectContext) -> ZMConversation? {
+    public func conversation(in moc: NSManagedObjectContext) -> ZMConversation? {
         return userInfo?.conversation(in: moc)
     }
     

@@ -28,7 +28,7 @@ import UserNotifications
     public let callingNotifications: ZMLocalNotificationSet
     public let failedMessageNotifications: ZMLocalNotificationSet
 
-    var notificationCenter: UserNotificationCenter = UNUserNotificationCenter.current()
+    public var notificationCenter: UserNotificationCenter = UNUserNotificationCenter.current()
 
     public let syncMOC: NSManagedObjectContext
     fileprivate var observers: [Any] = []

@@ -24,19 +24,19 @@ import UserNotifications
     
     let archivingKey : String
     let keyValueStore : ZMSynchonizableKeyValueStore
-    var notificationCenter: UserNotificationCenter = UNUserNotificationCenter.current()
+    public var notificationCenter: UserNotificationCenter = UNUserNotificationCenter.current()
     
     public var notifications = Set<ZMLocalNotification>() {
         didSet { updateArchive() }
     }
 
-    private(set) var oldNotifications = [NotificationUserInfo]()
+    public var oldNotifications = [NotificationUserInfo]()
 
     private var allNotifications: [NotificationUserInfo] {
         return notifications.compactMap { $0.userInfo } + oldNotifications
     }
     
-    init(archivingKey: String, keyValueStore: ZMSynchonizableKeyValueStore) {
+    public init(archivingKey: String, keyValueStore: ZMSynchonizableKeyValueStore) {
         self.archivingKey = archivingKey
         self.keyValueStore = keyValueStore
         super.init()
@@ -59,7 +59,8 @@ import UserNotifications
         keyValueStore.enqueueDelayedSave() // we need to save otherwise changes might not be stored
     }
     
-    @discardableResult func remove(_ notification: ZMLocalNotification) -> ZMLocalNotification? {
+    @discardableResult
+    public func remove(_ notification: ZMLocalNotification) -> ZMLocalNotification? {
         return notifications.remove(notification)
     }
     
@@ -73,7 +74,7 @@ import UserNotifications
     }
     
     /// Cancels all notifications
-    func cancelAllNotifications() {
+    public func cancelAllNotifications() {
         let ids = allNotifications.compactMap { $0.requestID?.uuidString }
         notificationCenter.removeAllNotifications(withIdentifiers: ids)
         notifications = Set()

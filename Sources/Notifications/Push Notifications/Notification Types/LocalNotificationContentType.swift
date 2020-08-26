@@ -39,7 +39,7 @@ public enum LocalNotificationContentType : Equatable {
     case participantsAdded
     case messageTimerUpdate(String?)
 
-    init?(event: ZMUpdateEvent, conversation: ZMConversation?, in moc: NSManagedObjectContext) {
+    public init?(event: ZMUpdateEvent, conversation: ZMConversation?, in moc: NSManagedObjectContext) {
         switch event.type {
         case .conversationMemberJoin:
             self = .participantsAdded
@@ -62,7 +62,7 @@ public enum LocalNotificationContentType : Equatable {
         }
     }
 
-    init?(message: GenericMessage, conversation: ZMConversation?, in moc: NSManagedObjectContext) {
+    public init?(message: GenericMessage, conversation: ZMConversation?, in moc: NSManagedObjectContext) {
         let selfUser = ZMUser.selfUser(in: moc)
 
         func getQuotedMessage(_ textMessageData: Text, conversation: ZMConversation?, in moc: NSManagedObjectContext) -> ZMOTRMessage? {
