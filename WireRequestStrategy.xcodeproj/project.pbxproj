@@ -21,6 +21,21 @@
 		06474DA124B4AC7B002C695D /* NSManagedObjectContext+EventDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474DA024B4AC7B002C695D /* NSManagedObjectContext+EventDecoder.swift */; };
 		06474DA624B4B1EA002C695D /* EventDecoderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474DA524B4B1EA002C695D /* EventDecoderTest.swift */; };
 		06474DA824B4BB01002C695D /* StoreUpdateEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474DA724B4BB01002C695D /* StoreUpdateEventTests.swift */; };
+		0649D12224F5C5EF001DDC78 /* ZMLocalNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D12124F5C5EF001DDC78 /* ZMLocalNotification.swift */; };
+		0649D13724F638D1001DDC78 /* CallState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D13624F638D1001DDC78 /* CallState.swift */; };
+		0649D13A24F63A21001DDC78 /* avs.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0649D13924F63A21001DDC78 /* avs.framework */; };
+		0649D13B24F63A21001DDC78 /* avs.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0649D13924F63A21001DDC78 /* avs.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0649D13E24F63A50001DDC78 /* CallClosedReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D13D24F63A50001DDC78 /* CallClosedReason.swift */; };
+		0649D14024F63AA0001DDC78 /* LocalNotificationContentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D13F24F63AA0001DDC78 /* LocalNotificationContentType.swift */; };
+		0649D14324F63B52001DDC78 /* NotificationUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D14224F63B52001DDC78 /* NotificationUserInfo.swift */; };
+		0649D14524F63BBD001DDC78 /* LocalNotificationType+Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D14424F63BBD001DDC78 /* LocalNotificationType+Configuration.swift */; };
+		0649D14724F63C02001DDC78 /* PushNotificationCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D14624F63C02001DDC78 /* PushNotificationCategory.swift */; };
+		0649D14924F63C51001DDC78 /* NotificationSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D14824F63C51001DDC78 /* NotificationSound.swift */; };
+		0649D14B24F63C8F001DDC78 /* NotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D14A24F63C8F001DDC78 /* NotificationAction.swift */; };
+		0649D14D24F63D3E001DDC78 /* LocalNotificationType+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D14C24F63D3E001DDC78 /* LocalNotificationType+Localization.swift */; };
+		0649D14F24F63DCC001DDC78 /* ZMSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D14E24F63DCC001DDC78 /* ZMSound.swift */; };
+		0649D15424F64335001DDC78 /* Push.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 0649D15024F64335001DDC78 /* Push.stringsdict */; };
+		0649D15524F64335001DDC78 /* Push.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0649D15224F64335001DDC78 /* Push.strings */; };
 		067A33E424EC1EB80074A81E /* ZMEventModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 067A33E124EC1EB80074A81E /* ZMEventModel.xcdatamodeld */; };
 		06C394B6248E6FDA00AE736A /* ZMSimpleListRequestPaginator.h in Headers */ = {isa = PBXBuildFile; fileRef = 06025667248E617D00E060E1 /* ZMSimpleListRequestPaginator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06C394B7248E6FDE00AE736A /* ZMSimpleListRequestPaginator+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 06025669248E61BF00E060E1 /* ZMSimpleListRequestPaginator+Internal.h */; };
@@ -229,6 +244,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		0649D13C24F63A21001DDC78 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				0649D13B24F63A21001DDC78 /* avs.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BF7D9BD21D8C312F00949267 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -270,6 +296,59 @@
 		06474DA024B4AC7B002C695D /* NSManagedObjectContext+EventDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContext+EventDecoder.swift"; sourceTree = "<group>"; };
 		06474DA524B4B1EA002C695D /* EventDecoderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDecoderTest.swift; sourceTree = "<group>"; };
 		06474DA724B4BB01002C695D /* StoreUpdateEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreUpdateEventTests.swift; sourceTree = "<group>"; };
+		0649D12124F5C5EF001DDC78 /* ZMLocalNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMLocalNotification.swift; sourceTree = "<group>"; };
+		0649D13624F638D1001DDC78 /* CallState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallState.swift; sourceTree = "<group>"; };
+		0649D13824F63953001DDC78 /* avs.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = avs.framework.dSYM; path = Carthage/Build/iOS/avs.framework.dSYM; sourceTree = "<group>"; };
+		0649D13924F63A21001DDC78 /* avs.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = avs.framework; path = Carthage/Build/iOS/avs.framework; sourceTree = "<group>"; };
+		0649D13D24F63A50001DDC78 /* CallClosedReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallClosedReason.swift; sourceTree = "<group>"; };
+		0649D13F24F63AA0001DDC78 /* LocalNotificationContentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationContentType.swift; sourceTree = "<group>"; };
+		0649D14224F63B52001DDC78 /* NotificationUserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationUserInfo.swift; sourceTree = "<group>"; };
+		0649D14424F63BBD001DDC78 /* LocalNotificationType+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalNotificationType+Configuration.swift"; sourceTree = "<group>"; };
+		0649D14624F63C02001DDC78 /* PushNotificationCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationCategory.swift; sourceTree = "<group>"; };
+		0649D14824F63C51001DDC78 /* NotificationSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSound.swift; sourceTree = "<group>"; };
+		0649D14A24F63C8F001DDC78 /* NotificationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationAction.swift; sourceTree = "<group>"; };
+		0649D14C24F63D3E001DDC78 /* LocalNotificationType+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalNotificationType+Localization.swift"; sourceTree = "<group>"; };
+		0649D14E24F63DCC001DDC78 /* ZMSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMSound.swift; sourceTree = "<group>"; };
+		0649D15124F64335001DDC78 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = Base; path = Base.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D15324F64335001DDC78 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D15824F644A9001DDC78 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D15924F644A9001DDC78 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D15A24F644B7001DDC78 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Push.strings"; sourceTree = "<group>"; };
+		0649D15B24F644B7001DDC78 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-BR"; path = "pt-BR.lproj/Push.stringsdict"; sourceTree = "<group>"; };
+		0649D15C24F644DB001DDC78 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D15D24F644DB001DDC78 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = es; path = es.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D15E24F644E7001DDC78 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D15F24F644E7001DDC78 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = uk; path = uk.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D16024F644F3001DDC78 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D16124F644F3001DDC78 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D16224F644F7001DDC78 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D16324F644F8001DDC78 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D16424F64520001DDC78 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D16524F64520001DDC78 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = it; path = it.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D16624F6452C001DDC78 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D16724F6452C001DDC78 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = nl; path = nl.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D16824F64537001DDC78 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D16924F64537001DDC78 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = tr; path = tr.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D16A24F64540001DDC78 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D16B24F64540001DDC78 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D16C24F64549001DDC78 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D16D24F6454A001DDC78 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = da; path = da.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D16E24F6454E001DDC78 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D16F24F6454E001DDC78 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ar; path = ar.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D17024F64565001DDC78 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Push.strings"; sourceTree = "<group>"; };
+		0649D17124F64565001DDC78 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/Push.stringsdict"; sourceTree = "<group>"; };
+		0649D17224F6458E001DDC78 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D17324F6458F001DDC78 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sl; path = sl.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D17424F6459F001DDC78 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D17524F6459F001DDC78 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fi; path = fi.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D17624F645B1001DDC78 /* et */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = et; path = et.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D17724F645B1001DDC78 /* et */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = et; path = et.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D17824F645C6001DDC78 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D17924F645C6001DDC78 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = pl; path = pl.lproj/Push.stringsdict; sourceTree = "<group>"; };
+		0649D17A24F645CC001DDC78 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Push.strings"; sourceTree = "<group>"; };
+		0649D17B24F645CC001DDC78 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hant"; path = "zh-Hant.lproj/Push.stringsdict"; sourceTree = "<group>"; };
+		0649D17C24F645E8001DDC78 /* lt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lt; path = lt.lproj/Push.strings; sourceTree = "<group>"; };
+		0649D17D24F645E8001DDC78 /* lt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = lt; path = lt.lproj/Push.stringsdict; sourceTree = "<group>"; };
 		067A33E224EC1EB80074A81E /* ZMEventModel2.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ZMEventModel2.0.xcdatamodel; sourceTree = "<group>"; };
 		067A33E324EC1EB80074A81E /* ZMEventModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ZMEventModel.xcdatamodel; sourceTree = "<group>"; };
 		06C394C4248E851000AE736A /* NotificationsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsTracker.swift; sourceTree = "<group>"; };
@@ -484,6 +563,7 @@
 				54E03A291E93BFDC0089AC69 /* WireCryptobox.framework in Frameworks */,
 				54E03A2C1E93BFDC0089AC69 /* WireLinkPreview.framework in Frameworks */,
 				54E03A301E93BFDC0089AC69 /* WireTransport.framework in Frameworks */,
+				0649D13A24F63A21001DDC78 /* avs.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -512,6 +592,7 @@
 		060ED6D72499F42200412C4A /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
+				0649D11F24F5C5B6001DDC78 /* Push Notifications */,
 				06C394C4248E851000AE736A /* NotificationsTracker.swift */,
 				06474D5F24B310B6002C695D /* NotificationsTrackerTests.swift */,
 				06025661248E467B00E060E1 /* NotificationStreamSync.swift */,
@@ -526,6 +607,7 @@
 			children = (
 				060ED6D92499F4A900412C4A /* Logging.swift */,
 				06474D7924B32FE4002C695D /* FakeGroupQueue.swift */,
+				0649D14E24F63DCC001DDC78 /* ZMSound.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -565,6 +647,54 @@
 				06474D6324B31CC5002C695D /* AnalyticsTests.swift */,
 			);
 			path = Utility;
+			sourceTree = "<group>";
+		};
+		0649D11F24F5C5B6001DDC78 /* Push Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				0649D12324F5C69C001DDC78 /* Notification Types */,
+			);
+			path = "Push Notifications";
+			sourceTree = "<group>";
+		};
+		0649D12024F5C5DD001DDC78 /* Content */ = {
+			isa = PBXGroup;
+			children = (
+				0649D12124F5C5EF001DDC78 /* ZMLocalNotification.swift */,
+			);
+			path = Content;
+			sourceTree = "<group>";
+		};
+		0649D12324F5C69C001DDC78 /* Notification Types */ = {
+			isa = PBXGroup;
+			children = (
+				0649D14124F63B43001DDC78 /* Helpers */,
+				0649D12024F5C5DD001DDC78 /* Content */,
+				0649D13F24F63AA0001DDC78 /* LocalNotificationContentType.swift */,
+				0649D14424F63BBD001DDC78 /* LocalNotificationType+Configuration.swift */,
+				0649D14624F63C02001DDC78 /* PushNotificationCategory.swift */,
+				0649D14A24F63C8F001DDC78 /* NotificationAction.swift */,
+				0649D14C24F63D3E001DDC78 /* LocalNotificationType+Localization.swift */,
+			);
+			path = "Notification Types";
+			sourceTree = "<group>";
+		};
+		0649D13524F638B6001DDC78 /* Calling */ = {
+			isa = PBXGroup;
+			children = (
+				0649D13624F638D1001DDC78 /* CallState.swift */,
+				0649D13D24F63A50001DDC78 /* CallClosedReason.swift */,
+			);
+			path = Calling;
+			sourceTree = "<group>";
+		};
+		0649D14124F63B43001DDC78 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				0649D14224F63B52001DDC78 /* NotificationUserInfo.swift */,
+				0649D14824F63C51001DDC78 /* NotificationSound.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		1621D2211D75AB2D007108C2 /* Helpers */ = {
@@ -624,6 +754,7 @@
 		1669016C1D707509000FE4AF /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				0649D13524F638B6001DDC78 /* Calling */,
 				06474D4824AF6825002C695D /* Synchronization */,
 				060ED6D82499F49700412C4A /* Utility */,
 				16229481221EBB8000A98679 /* Image Preprocessing */,
@@ -652,6 +783,8 @@
 		166901841D7075D7000FE4AF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				0649D15224F64335001DDC78 /* Push.strings */,
+				0649D15024F64335001DDC78 /* Push.stringsdict */,
 				166901851D7075D7000FE4AF /* Configurations */,
 				1669016F1D707509000FE4AF /* Info.plist */,
 			);
@@ -671,6 +804,8 @@
 		166902041D7082C7000FE4AF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0649D13924F63A21001DDC78 /* avs.framework */,
+				0649D13824F63953001DDC78 /* avs.framework.dSYM */,
 				F13ADE7C21B5355F00B6E736 /* SwiftProtobuf.framework */,
 				878B823320A1D080007455CA /* HTMLString.framework */,
 				54E03A201E93BFDC0089AC69 /* WireCryptobox.framework */,
@@ -1108,6 +1243,7 @@
 				166901661D707509000FE4AF /* Frameworks */,
 				166901671D707509000FE4AF /* Headers */,
 				166901681D707509000FE4AF /* Resources */,
+				0649D13C24F63A21001DDC78 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1190,6 +1326,25 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
+				"pt-BR",
+				es,
+				uk,
+				ru,
+				ja,
+				it,
+				nl,
+				tr,
+				fr,
+				da,
+				ar,
+				"zh-Hans",
+				sl,
+				fi,
+				et,
+				pl,
+				"zh-Hant",
+				lt,
 			);
 			mainGroup = 166901601D707509000FE4AF;
 			productRefGroup = 1669016B1D707509000FE4AF /* Products */;
@@ -1208,6 +1363,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0649D15524F64335001DDC78 /* Push.strings in Resources */,
+				0649D15424F64335001DDC78 /* Push.stringsdict in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1263,6 +1420,7 @@
 				166901F21D7081C7000FE4AF /* ZMUpstreamModifiedObjectSync.m in Sources */,
 				16FFDE441DF6C668003494D6 /* DependencyEntitySync.swift in Sources */,
 				166901E41D7081C7000FE4AF /* ZMSingleRequestSync.m in Sources */,
+				0649D13724F638D1001DDC78 /* CallState.swift in Sources */,
 				F18401BA2073BE0800E9F4CC /* LinkPreviewUploadRequestStrategy.swift in Sources */,
 				16A86B2722A128A800A674F8 /* IdentifierObjectSync.swift in Sources */,
 				F18401C82073BE0800E9F4CC /* AssetDownloadRequestFactory.swift in Sources */,
@@ -1273,6 +1431,7 @@
 				06474D7A24B32FE4002C695D /* FakeGroupQueue.swift in Sources */,
 				F18401D82073BE0800E9F4CC /* ZMConversation+Notifications.swift in Sources */,
 				F18401D92073BE0800E9F4CC /* EncryptionSessionDirectory+UpdateEvents.swift in Sources */,
+				0649D13E24F63A50001DDC78 /* CallClosedReason.swift in Sources */,
 				F18401C72073BE0800E9F4CC /* AssetV3PreviewDownloadStrategy.swift in Sources */,
 				F18401B52073BE0800E9F4CC /* OTREntityTranscoder.swift in Sources */,
 				BF1F52C61ECC74E5002FB553 /* Array+RequestGenerator.swift in Sources */,
@@ -1286,18 +1445,25 @@
 				F18401A32073BE0800E9F4CC /* GenericMessageNotificationRequestStrategy.swift in Sources */,
 				5E68F22722452CDC00298376 /* LinkPreprocessor.swift in Sources */,
 				06025662248E467B00E060E1 /* NotificationStreamSync.swift in Sources */,
+				0649D14924F63C51001DDC78 /* NotificationSound.swift in Sources */,
 				06C394C5248E851000AE736A /* NotificationsTracker.swift in Sources */,
+				0649D14324F63B52001DDC78 /* NotificationUserInfo.swift in Sources */,
 				166901D41D7081C7000FE4AF /* ZMDownstreamObjectSync.m in Sources */,
+				0649D14524F63BBD001DDC78 /* LocalNotificationType+Configuration.swift in Sources */,
 				F18401C32073BE0800E9F4CC /* AssetV3DownloadRequestStrategy.swift in Sources */,
 				F18401BF2073BE0800E9F4CC /* AssetClientMessageRequestStrategy.swift in Sources */,
+				0649D14724F63C02001DDC78 /* PushNotificationCategory.swift in Sources */,
 				547D47171E7C1B0D002EEA15 /* DependentObjects.swift in Sources */,
 				F18401AF2073BE0800E9F4CC /* AvailabilityRequestStrategy.swift in Sources */,
 				F18401D12073BE0800E9F4CC /* ApplicationStatus.swift in Sources */,
+				0649D14D24F63D3E001DDC78 /* LocalNotificationType+Localization.swift in Sources */,
 				F18401D32073BE0800E9F4CC /* ZMMessage+Dependency.swift in Sources */,
 				D5D65A072074C23D00D7F3C3 /* AssetRequestFactory.swift in Sources */,
 				166901E61D7081C7000FE4AF /* ZMSyncOperationSet.m in Sources */,
+				0649D14B24F63C8F001DDC78 /* NotificationAction.swift in Sources */,
 				166901D91D7081C7000FE4AF /* ZMLocallyInsertedObjectSet.m in Sources */,
 				F18401B02073BE0800E9F4CC /* AbstractRequestStrategy.swift in Sources */,
+				0649D14F24F63DCC001DDC78 /* ZMSound.swift in Sources */,
 				F18401C22073BE0800E9F4CC /* AssetV2DownloadRequestStrategy.swift in Sources */,
 				F18401D22073BE0800E9F4CC /* OTREntity.swift in Sources */,
 				1621D22F1D75AC36007108C2 /* ZMChangeTrackerBootstrap.m in Sources */,
@@ -1306,7 +1472,9 @@
 				F18401D02073BE0800E9F4CC /* PushMessageHandler.swift in Sources */,
 				F14B7AEA222009BA00458624 /* UserRichProfileRequestStrategy.swift in Sources */,
 				16D0E07F1DF88B430075DF8F /* EntityTranscoder.swift in Sources */,
+				0649D14024F63AA0001DDC78 /* LocalNotificationContentType.swift in Sources */,
 				F18401A62073BE0800E9F4CC /* MissingClientsRequestStrategy.swift in Sources */,
+				0649D12224F5C5EF001DDC78 /* ZMLocalNotification.swift in Sources */,
 				166901DD1D7081C7000FE4AF /* ZMLocallyModifiedObjectSyncStatus.m in Sources */,
 				F18401BB2073BE0800E9F4CC /* LinkPreviewAssetDownloadRequestStrategy.swift in Sources */,
 				16751E8524CF72970099AE09 /* DeliveryReceiptRequestStrategy.swift in Sources */,
@@ -1408,11 +1576,69 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		0649D15024F64335001DDC78 /* Push.stringsdict */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0649D15124F64335001DDC78 /* Base */,
+				0649D15924F644A9001DDC78 /* de */,
+				0649D15B24F644B7001DDC78 /* pt-BR */,
+				0649D15D24F644DB001DDC78 /* es */,
+				0649D15F24F644E7001DDC78 /* uk */,
+				0649D16124F644F3001DDC78 /* ru */,
+				0649D16324F644F8001DDC78 /* ja */,
+				0649D16524F64520001DDC78 /* it */,
+				0649D16724F6452C001DDC78 /* nl */,
+				0649D16924F64537001DDC78 /* tr */,
+				0649D16B24F64540001DDC78 /* fr */,
+				0649D16D24F6454A001DDC78 /* da */,
+				0649D16F24F6454E001DDC78 /* ar */,
+				0649D17124F64565001DDC78 /* zh-Hans */,
+				0649D17324F6458F001DDC78 /* sl */,
+				0649D17524F6459F001DDC78 /* fi */,
+				0649D17724F645B1001DDC78 /* et */,
+				0649D17924F645C6001DDC78 /* pl */,
+				0649D17B24F645CC001DDC78 /* zh-Hant */,
+				0649D17D24F645E8001DDC78 /* lt */,
+			);
+			name = Push.stringsdict;
+			sourceTree = "<group>";
+		};
+		0649D15224F64335001DDC78 /* Push.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0649D15324F64335001DDC78 /* Base */,
+				0649D15824F644A9001DDC78 /* de */,
+				0649D15A24F644B7001DDC78 /* pt-BR */,
+				0649D15C24F644DB001DDC78 /* es */,
+				0649D15E24F644E7001DDC78 /* uk */,
+				0649D16024F644F3001DDC78 /* ru */,
+				0649D16224F644F7001DDC78 /* ja */,
+				0649D16424F64520001DDC78 /* it */,
+				0649D16624F6452C001DDC78 /* nl */,
+				0649D16824F64537001DDC78 /* tr */,
+				0649D16A24F64540001DDC78 /* fr */,
+				0649D16C24F64549001DDC78 /* da */,
+				0649D16E24F6454E001DDC78 /* ar */,
+				0649D17024F64565001DDC78 /* zh-Hans */,
+				0649D17224F6458E001DDC78 /* sl */,
+				0649D17424F6459F001DDC78 /* fi */,
+				0649D17624F645B1001DDC78 /* et */,
+				0649D17824F645C6001DDC78 /* pl */,
+				0649D17A24F645CC001DDC78 /* zh-Hant */,
+				0649D17C24F645E8001DDC78 /* lt */,
+			);
+			name = Push.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		1669017C1D707509000FE4AF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F1E47FED207E0B72008D4299 /* project-debug.xcconfig */;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 			};
 			name = Debug;
@@ -1421,6 +1647,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F1E47FE9207E0B72008D4299 /* project.xcconfig */;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 			};
 			name = Release;
