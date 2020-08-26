@@ -164,7 +164,7 @@ extension NotificationUserInfo {
      * - returns: The conversation, if found.
      */
 
-    func conversation(in managedObjectContext: NSManagedObjectContext) -> ZMConversation? {
+    public func conversation(in managedObjectContext: NSManagedObjectContext) -> ZMConversation? {
         guard let remoteID = conversationID else {
             return nil
         }
@@ -180,7 +180,7 @@ extension NotificationUserInfo {
      * - returns: The message, if found.
      */
 
-    func message(in conversation: ZMConversation, managedObjectContext: NSManagedObjectContext) -> ZMMessage? {
+    public func message(in conversation: ZMConversation, managedObjectContext: NSManagedObjectContext) -> ZMMessage? {
         guard let nonce = messageNonce else {
             return nil
         }

@@ -24,13 +24,13 @@ import UserNotifications
 
     public static let ZMShouldHideNotificationContentKey = "ZMShouldHideNotificationContentKey"
 
-    let eventNotifications: ZMLocalNotificationSet
-    let callingNotifications: ZMLocalNotificationSet
-    let failedMessageNotifications: ZMLocalNotificationSet
+    public let eventNotifications: ZMLocalNotificationSet
+    public let callingNotifications: ZMLocalNotificationSet
+    public let failedMessageNotifications: ZMLocalNotificationSet
 
     var notificationCenter: UserNotificationCenter = UNUserNotificationCenter.current()
 
-    let syncMOC: NSManagedObjectContext
+    public let syncMOC: NSManagedObjectContext
     fileprivate var observers: [Any] = []
 
     var localNotificationBuffer = [ZMLocalNotification]()
@@ -49,7 +49,7 @@ import UserNotifications
         )
     }
     
-    func scheduleLocalNotification(_ note: ZMLocalNotification) {
+    public func scheduleLocalNotification(_ note: ZMLocalNotification) {
         Logging.push.safePublic("Scheduling local notification with id=\(note.id)")
         
         notificationCenter.add(note.request, withCompletionHandler: nil)
@@ -58,7 +58,7 @@ import UserNotifications
     /// Determines if the notification content should be hidden as reflected in the store
     /// metatdata for the given managed object context.
     ///
-    static func shouldHideNotificationContent(moc: NSManagedObjectContext?) -> Bool {
+    public static func shouldHideNotificationContent(moc: NSManagedObjectContext?) -> Bool {
         let value = moc?.persistentStoreMetadata(forKey: ZMShouldHideNotificationContentKey) as? NSNumber
         return value?.boolValue ?? false
     }
@@ -86,7 +86,7 @@ extension LocalNotificationDispatcher {
         self.allNotificationSets.forEach { $0.cancelNotifications(conversation) }
     }
     
-    func cancelMessageForEditingMessage(_ genericMessage: GenericMessage) {
+    public func cancelMessageForEditingMessage(_ genericMessage: GenericMessage) {
         var idToDelete : UUID?
         
         if genericMessage.hasEdited {

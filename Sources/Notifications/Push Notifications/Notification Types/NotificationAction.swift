@@ -104,7 +104,7 @@ extension NotificationAction {
 
 // MARK: - Concrete Actions
 
-enum ConversationNotificationAction: String, NotificationAction {
+public enum ConversationNotificationAction: String, NotificationAction {
     case open = "conversationOpenAction"
     case reply = "conversationDirectReplyAction"
     case mute = "conversationMuteAction"
@@ -152,7 +152,7 @@ enum ConversationNotificationAction: String, NotificationAction {
     }
 }
 
-enum CallNotificationAction: String, NotificationAction {
+public enum CallNotificationAction: String, NotificationAction {
     case ignore = "ignoreCallAction"
     case accept = "acceptCallAction"
     case callBack = "callbackCallAction"

@@ -57,7 +57,7 @@ public enum CallClosedReason : Int32 {
      * - returns: The decoded reason, or `.unknown` if the flag couldn't be processed.
      */
 
-    init(wcall_reason: Int32) {
+    public init(wcall_reason: Int32) {
         switch wcall_reason {
         case WCALL_REASON_NORMAL:
             self = .normal

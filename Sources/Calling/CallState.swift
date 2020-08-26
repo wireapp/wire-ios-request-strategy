@@ -51,7 +51,7 @@ public enum CallState: Equatable {
      * Logs the current state to the calling logs.
      */
 
-    func logState() {
+    public func logState() {
         switch self {
         case .answered(degraded: let degraded):
             zmLog.debug("answered call, degraded: \(degraded)")
@@ -80,7 +80,7 @@ public enum CallState: Equatable {
      * - returns: The current status, updated with the appropriate degradation information.
      */
 
-    func update(withSecurityLevel securityLevel: ZMConversationSecurityLevel) -> CallState {
+    public func update(withSecurityLevel securityLevel: ZMConversationSecurityLevel) -> CallState {
         let degraded = securityLevel == .secureWithIgnored
 
         switch self {

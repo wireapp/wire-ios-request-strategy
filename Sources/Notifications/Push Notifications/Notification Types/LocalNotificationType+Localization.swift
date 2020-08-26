@@ -174,7 +174,7 @@ extension LocalNotificationType {
         return .localizedStringWithFormat(localizationKey.pushFormatString, arguments: arguments)
     }
     
-    func titleText(selfUser: ZMUser, conversation : ZMConversation? = nil) -> String? {
+    public func titleText(selfUser: ZMUser, conversation : ZMConversation? = nil) -> String? {
         
         if case .message(let contentType) = self {
             switch contentType {
@@ -201,7 +201,7 @@ extension LocalNotificationType {
         return nil
     }
     
-    func alertTitleText(team: Team?) -> String? {
+    public func alertTitleText(team: Team?) -> String? {
         guard case .availabilityBehaviourChangeAlert(let availability) = self, availability.isOne(of: .away, .busy) else { return nil }
         
         let teamName = team?.name
@@ -211,7 +211,7 @@ extension LocalNotificationType {
         return .localizedStringWithFormat(localizationKey.pushFormatString, arguments: [teamName].compactMap({ $0 }))
     }
     
-    func alertMessageBodyText() -> String {
+    public func alertMessageBodyText() -> String {
         guard case .availabilityBehaviourChangeAlert(let availability) = self, availability.isOne(of: .away, .busy) else { return "" }
         
         let availabilityKey = availability == .away ? "away" : "busy"
@@ -227,7 +227,7 @@ extension LocalNotificationType {
         }
     }
     
-    func messageBodyText(sender: ZMUser?, conversation: ZMConversation?) -> String {
+    public func messageBodyText(sender: ZMUser?, conversation: ZMConversation?) -> String {
         
         if case LocalNotificationType.event(let eventType) = self {
             return messageBodyText(eventType: eventType, senderName: sender?.name)
@@ -295,13 +295,13 @@ extension LocalNotificationType {
     
 }
 
-extension String {
+public extension String {
     
-    internal var pushFormatString : String {
+    var pushFormatString : String {
         return Bundle(for: ZMSingleRequestSync.self).localizedString(forKey: "push.notification.\(self)", value: "", table: "Push")
     }
 
-    internal var pushActionString: String {
+    var pushActionString: String {
         return Bundle(for: ZMSingleRequestSync.self).localizedString(forKey: "push.notification.action.\(self)", value: "", table: "Push")
     }
     

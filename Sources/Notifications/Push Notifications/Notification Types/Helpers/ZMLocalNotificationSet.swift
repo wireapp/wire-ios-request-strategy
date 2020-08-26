@@ -20,18 +20,13 @@ import UIKit
 import WireTransport
 import UserNotifications
 
-
-@objc public protocol ZMSynchonizableKeyValueStore : KeyValueStore {
-    func enqueueDelayedSave()
-}
-
-@objc final class ZMLocalNotificationSet : NSObject  {
+@objc public class ZMLocalNotificationSet : NSObject  {
     
     let archivingKey : String
     let keyValueStore : ZMSynchonizableKeyValueStore
     var notificationCenter: UserNotificationCenter = UNUserNotificationCenter.current()
     
-    fileprivate(set) var notifications = Set<ZMLocalNotification>() {
+    public var notifications = Set<ZMLocalNotification>() {
         didSet { updateArchive() }
     }
 
@@ -68,7 +63,7 @@ import UserNotifications
         return notifications.remove(notification)
     }
     
-    func addObject(_ notification: ZMLocalNotification) {
+    public func addObject(_ notification: ZMLocalNotification) {
         notifications.insert(notification)
     }
     
@@ -86,7 +81,7 @@ import UserNotifications
     }
     
     /// This cancels all notifications of a specific conversation
-    func cancelNotifications(_ conversation: ZMConversation) {
+    public func cancelNotifications(_ conversation: ZMConversation) {
         cancelOldNotifications(conversation)
         cancelCurrentNotifications(conversation)
     }
@@ -115,7 +110,7 @@ import UserNotifications
     }
     
     /// Cancal all notifications with the given message nonce
-    func cancelCurrentNotifications(messageNonce: UUID) {
+    public func cancelCurrentNotifications(messageNonce: UUID) {
         guard notifications.count > 0 else { return }
         let toRemove = notifications.filter { $0.messageNonce == messageNonce }
         notificationCenter.removeAllNotifications(withIdentifiers: toRemove.map { $0.id.uuidString })

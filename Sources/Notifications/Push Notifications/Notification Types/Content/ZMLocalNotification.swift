@@ -113,7 +113,7 @@ extension ZMLocalNotification {
 
     var selfUserID: UUID? { return userInfo?.selfUserID }
     var senderID: UUID? { return userInfo?.senderID }
-    var messageNonce: UUID? { return userInfo?.messageNonce }
+    public var messageNonce: UUID? { return userInfo?.messageNonce }
     var conversationID: UUID? { return userInfo?.conversationID }
 
     /// Returns true if it is a calling notification, else false.

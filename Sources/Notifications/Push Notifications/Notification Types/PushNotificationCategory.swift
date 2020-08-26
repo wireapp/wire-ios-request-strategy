@@ -24,7 +24,7 @@ import UserNotifications
  * The categories of notifications supported by the app.
  */
 
-enum PushNotificationCategory: String, CaseIterable {
+public enum PushNotificationCategory: String, CaseIterable {
     
     case incomingCall = "incomingCallCategory"
     case missedCall = "missedCallCategory"
@@ -36,7 +36,7 @@ enum PushNotificationCategory: String, CaseIterable {
     case alert = "alertCategory"
 
     /// All the supported categories.
-    static var allCategories: Set<UNNotificationCategory> {
+    public static var allCategories: Set<UNNotificationCategory> {
         let categories = PushNotificationCategory.allCases.map(\.userNotificationCategory)
 
         return Set(categories)
