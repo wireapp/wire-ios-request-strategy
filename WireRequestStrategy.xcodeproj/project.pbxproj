@@ -37,7 +37,6 @@
 		0649D15424F64335001DDC78 /* Push.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 0649D15024F64335001DDC78 /* Push.stringsdict */; };
 		0649D15524F64335001DDC78 /* Push.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0649D15224F64335001DDC78 /* Push.strings */; };
 		0649D19B24F66E9E001DDC78 /* ZMLocalNotification+Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D19A24F66E9E001DDC78 /* ZMLocalNotification+Events.swift */; };
-		0649D19D24F670D0001DDC78 /* LocalNotificationDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D19C24F670D0001DDC78 /* LocalNotificationDispatcher.swift */; };
 		0649D19F24F6717C001DDC78 /* ZMLocalNotificationSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D19E24F6717C001DDC78 /* ZMLocalNotificationSet.swift */; };
 		0649D1A124F671E6001DDC78 /* UserNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D1A024F671E6001DDC78 /* UserNotificationCenter.swift */; };
 		0649D1A624F673E7001DDC78 /* UUID+SafeLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D1A524F673E7001DDC78 /* UUID+SafeLogging.swift */; };
@@ -355,7 +354,6 @@
 		0649D17C24F645E8001DDC78 /* lt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lt; path = lt.lproj/Push.strings; sourceTree = "<group>"; };
 		0649D17D24F645E8001DDC78 /* lt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = lt; path = lt.lproj/Push.stringsdict; sourceTree = "<group>"; };
 		0649D19A24F66E9E001DDC78 /* ZMLocalNotification+Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMLocalNotification+Events.swift"; sourceTree = "<group>"; };
-		0649D19C24F670D0001DDC78 /* LocalNotificationDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationDispatcher.swift; sourceTree = "<group>"; };
 		0649D19E24F6717C001DDC78 /* ZMLocalNotificationSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMLocalNotificationSet.swift; sourceTree = "<group>"; };
 		0649D1A024F671E6001DDC78 /* UserNotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationCenter.swift; sourceTree = "<group>"; };
 		0649D1A524F673E7001DDC78 /* UUID+SafeLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+SafeLogging.swift"; sourceTree = "<group>"; };
@@ -664,7 +662,6 @@
 			isa = PBXGroup;
 			children = (
 				0649D12324F5C69C001DDC78 /* Notification Types */,
-				0649D19C24F670D0001DDC78 /* LocalNotificationDispatcher.swift */,
 			);
 			path = "Push Notifications";
 			sourceTree = "<group>";
@@ -1468,7 +1465,6 @@
 				F18401C32073BE0800E9F4CC /* AssetV3DownloadRequestStrategy.swift in Sources */,
 				0649D19B24F66E9E001DDC78 /* ZMLocalNotification+Events.swift in Sources */,
 				F18401BF2073BE0800E9F4CC /* AssetClientMessageRequestStrategy.swift in Sources */,
-				0649D19D24F670D0001DDC78 /* LocalNotificationDispatcher.swift in Sources */,
 				0649D14724F63C02001DDC78 /* PushNotificationCategory.swift in Sources */,
 				547D47171E7C1B0D002EEA15 /* DependentObjects.swift in Sources */,
 				F18401AF2073BE0800E9F4CC /* AvailabilityRequestStrategy.swift in Sources */,

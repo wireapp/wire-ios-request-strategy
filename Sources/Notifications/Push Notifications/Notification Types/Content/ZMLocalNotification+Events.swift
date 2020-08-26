@@ -20,6 +20,13 @@ import WireDataModel
 
 public extension ZMLocalNotification {
     
+    static let ZMShouldHideNotificationContentKey = "ZMShouldHideNotificationContentKey"
+    
+    static func shouldHideNotificationContent(moc: NSManagedObjectContext?) -> Bool {
+        let value = moc?.persistentStoreMetadata(forKey: ZMShouldHideNotificationContentKey) as? NSNumber
+        return value?.boolValue ?? false
+    }
+    
     // for each supported event type, use the corresponding notification builder.
     //
     convenience init?(event: ZMUpdateEvent, conversation: ZMConversation?, managedObjectContext moc: NSManagedObjectContext) {
@@ -137,7 +144,7 @@ private class ReactionEventNotificationBuilder: EventNotificationBuilder {
     private let message: GenericMessage
     
     override var notificationType: LocalNotificationType {
-        if LocalNotificationDispatcher.shouldHideNotificationContent(moc: self.moc) {
+        if ZMLocalNotification.shouldHideNotificationContent(moc: self.moc) {
             return LocalNotificationType.message(.hidden)
         } else {
             return LocalNotificationType.message(.reaction(emoji: emoji))
@@ -309,7 +316,7 @@ private class NewMessageNotificationBuilder: EventNotificationBuilder {
         case .ephemeral:
             return false
         default:
-            return LocalNotificationDispatcher.shouldHideNotificationContent(moc: moc)
+            return ZMLocalNotification.shouldHideNotificationContent(moc: moc)
         }
     }
 
