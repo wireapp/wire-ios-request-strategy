@@ -19,45 +19,46 @@
 import Foundation
 import UserNotifications
 
-@objc class UserNotificationCenterMock: NSObject, UserNotificationCenter {
+@objc
+public class UserNotificationCenterMock: NSObject, UserNotificationCenter {
     
-    weak var delegate: UNUserNotificationCenterDelegate?
+    weak public var delegate: UNUserNotificationCenterDelegate?
     
     /// Identifiers of scheduled notification requests.
-    @objc var scheduledRequests = [UNNotificationRequest]()
+    @objc public var scheduledRequests = [UNNotificationRequest]()
 
     /// Identifiers of removed notifications.
-    @objc var removedNotifications = Set<String>()
+    @objc public var removedNotifications = Set<String>()
     
     /// The registered notification categories for the app.
-    @objc var registeredNotificationCategories = Set<UNNotificationCategory>()
+    @objc public var registeredNotificationCategories = Set<UNNotificationCategory>()
     
     /// The requested authorization options for the app.
-    @objc var requestedAuthorizationOptions: UNAuthorizationOptions = []
+    @objc public var requestedAuthorizationOptions: UNAuthorizationOptions = []
     
-    func setNotificationCategories(_ categories: Set<UNNotificationCategory>) {
+    public func setNotificationCategories(_ categories: Set<UNNotificationCategory>) {
         registeredNotificationCategories.formUnion(categories)
     }
     
-    func requestAuthorization(options: UNAuthorizationOptions,
+    public func requestAuthorization(options: UNAuthorizationOptions,
                               completionHandler: @escaping (Bool, Error?) -> Void)
     {
         requestedAuthorizationOptions.insert(options)
     }
     
-    func add(_ request: UNNotificationRequest, withCompletionHandler: ((Error?) -> Void)?) {
+    public func add(_ request: UNNotificationRequest, withCompletionHandler: ((Error?) -> Void)?) {
         scheduledRequests.append(request)
     }
     
-    func removePendingNotificationRequests(withIdentifiers identifiers: [String]) {
+    public func removePendingNotificationRequests(withIdentifiers identifiers: [String]) {
         removedNotifications.formUnion(identifiers)
     }
     
-    func removeDeliveredNotifications(withIdentifiers identifiers: [String]) {
+    public func removeDeliveredNotifications(withIdentifiers identifiers: [String]) {
         removedNotifications.formUnion(identifiers)
     }
     
-    func removeAllNotifications(withIdentifiers identifiers: [String]) {
+    public func removeAllNotifications(withIdentifiers identifiers: [String]) {
         removePendingNotificationRequests(withIdentifiers: identifiers)
         removeDeliveredNotifications(withIdentifiers: identifiers)
     }
