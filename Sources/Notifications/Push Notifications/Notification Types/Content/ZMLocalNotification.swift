@@ -56,16 +56,24 @@ public class ZMLocalNotification: NSObject {
     public let type: LocalNotificationType
     public var title: String?
     public var body: String
-    public var category: String
+    public var category: PushNotificationCategory
     public var sound: NotificationSound
     public var userInfo: NotificationUserInfo?
 
-    public init?(conversation: ZMConversation?, builder: NotificationBuilder) {
+    public init?(builder: NotificationBuilder, moc: NSManagedObjectContext) {
         guard builder.shouldCreateNotification() else { return nil }
         self.type = builder.notificationType
         self.title = builder.titleText()
         self.body = builder.bodyText()
-        self.category = builder.notificationType.category(hasTeam: builder.userInfo()?.teamName != nil)
+
+        let hasTeam = ZMUser.selfUser(in: moc).hasTeam
+        let encryptionAtRestEnabled = moc.encryptMessagesAtRest
+
+        self.category = builder.notificationType.category(
+            hasTeam: hasTeam,
+            encryptionAtRestEnabled: encryptionAtRestEnabled
+        )
+        
         self.sound = builder.notificationType.sound
         self.userInfo = builder.userInfo()
         self.id = userInfo?.messageNonce ?? UUID()
@@ -78,7 +86,7 @@ public class ZMLocalNotification: NSObject {
     public lazy var content: UNNotificationContent = {
         let content = UNMutableNotificationContent()
         content.body = self.body
-        content.categoryIdentifier = self.category
+        content.categoryIdentifier = self.category.rawValue
         content.sound = UNNotificationSound(named: convertToUNNotificationSoundName(sound.name))
 
         if let title = self.title {
@@ -108,7 +116,6 @@ public class ZMLocalNotification: NSObject {
 }
 
 // MARK: - Properties
-
 extension ZMLocalNotification {
 
     public var selfUserID: UUID? { return userInfo?.selfUserID }
@@ -133,7 +140,6 @@ extension ZMLocalNotification {
 }
 
 // MARK: - Lookup
-
 extension ZMLocalNotification {
 
     public func conversation(in moc: NSManagedObjectContext) -> ZMConversation? {

@@ -103,7 +103,6 @@ extension NotificationAction {
 }
 
 // MARK: - Concrete Actions
-
 public enum ConversationNotificationAction: String, NotificationAction {
     case open = "conversationOpenAction"
     case reply = "conversationDirectReplyAction"

@@ -450,7 +450,6 @@ class ZMLocalNotificationTests_Message : ZMLocalNotificationTests {
 
 
 // MARK: - Image Asset Messages
-
 extension ZMLocalNotificationTests_Message {
 
     // MARK: Helpers
@@ -499,7 +498,6 @@ extension ZMLocalNotificationTests_Message {
 }
 
 // MARK: - File Asset Messages
-
 enum FileType {
     case txt, video, audio
 
@@ -528,7 +526,6 @@ enum FileType {
 extension ZMLocalNotificationTests_Message {
     
     // MARK: Helpers
-
     func assetNote(_ fileType: FileType, conversation: ZMConversation, sender: ZMUser, isEphemeral: Bool = false) -> ZMLocalNotification? {
         var asset: WireProtos.Asset
         switch fileType {
@@ -605,7 +602,6 @@ extension ZMLocalNotificationTests_Message {
 }
 
 // MARK: - Knock Messages
-
 extension ZMLocalNotificationTests_Message {
 
     // MARK: Helpers
@@ -651,7 +647,6 @@ extension ZMLocalNotificationTests_Message {
 }
 
 // MARK: - Editing Message
-
 extension ZMLocalNotificationTests_Message {
 
     func editNote(_ message: ZMOTRMessage, sender: ZMUser, text: String) -> ZMLocalNotification? {
@@ -685,7 +680,12 @@ extension ZMLocalNotificationTests_Message {
         XCTAssertEqual(bodyForEditNote(groupConversationWithoutName, sender: sender, text: "Edited Text"), "Super User in a conversation: Edited Text")
         XCTAssertEqual(bodyForEditNote(invalidConversation, sender: sender, text: "Edited Text"), "Super User in a conversation: Edited Text")
     }
-    
+
+}
+
+// MARK: - Categories
+extension ZMLocalNotificationTests_Message {
+
     func testThatItGeneratesTheNotificationWithoutMuteInTheTeam() {
         // GIVEN
         let team = Team.insertNewObject(in: self.uiMOC)
@@ -695,21 +695,53 @@ extension ZMLocalNotificationTests_Message {
             _ = Member.getOrCreateMember(for: user, in: team, context: self.uiMOC)
         }
         self.uiMOC.saveOrRollback()
-        
+
         // WHEN
         let note = textNotification(self.oneOnOneConversation, sender: sender, text: "Hello", isEphemeral: false)!
-        
+
         // THEN
-        XCTAssertEqual(note.category, "conversationCategoryWithLike")
-    
+        XCTAssertEqual(note.category, .conversationWithLike)
+
     }
-    
+
     func testThatItGeneratesTheNotificationWithMuteForNormalUser() {
         // WHEN
         let note = textNotification(oneOnOneConversation, sender: sender, text: "Hello", isEphemeral: false)!
-        
-        // THEN
-        XCTAssertEqual(note.category, "conversationCategoryWithLikeAndMute")
-    }
-}
 
+        // THEN
+        XCTAssertEqual(note.category, .conversationWithLikeAndMute)
+    }
+
+    func testThatItGeneratesCorrectCategoryIfEncryptionAtRestIsEnabledForTeamUser() {
+        // GIVEN
+        uiMOC.encryptMessagesAtRest = true
+
+        // WHEN
+        let note = textNotification(oneOnOneConversation, sender: sender, text: "Hello", isEphemeral: false)!
+
+        // THEN
+        XCTAssertEqual(note.category, .conversationUnderEncryptionAtRestWithMute)
+    }
+
+    func testThatItGeneratesCorrectCategoryIfEncryptionAtRestIsEnabledForNormalUser() {
+        // GIVEN
+        uiMOC.encryptMessagesAtRest = true
+
+        let team = Team.insertNewObject(in: uiMOC)
+        team.name = "Wire Amazing Team"
+
+        let user = ZMUser.selfUser(in: uiMOC)
+        self.performPretendingUiMocIsSyncMoc {
+            _ = Member.getOrCreateMember(for: user, in: team, context: self.uiMOC)
+        }
+
+        uiMOC.saveOrRollback()
+
+        // When
+        let note = textNotification(oneOnOneConversation, sender: sender, text: "Hello", isEphemeral: false)!
+
+        // THEN
+        XCTAssertEqual(note.category, .conversationUnderEncryptionAtRest)
+    }
+
+}

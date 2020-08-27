@@ -27,7 +27,6 @@ private let ZMPushStringEphemeral           = "ephemeral"
 
 // Title with team name
 private let ZMPushStringTitle               = "title"                // "[conversationName] in [teamName]
-
 // 1 user, 1 conversation, 1 string
 // %1$@    %2$@            %3$@
 //
@@ -37,36 +36,26 @@ private let ZMPushStringVideoAdd            = "add.video"            // "[sender
 private let ZMPushStringAudioAdd            = "add.audio"            // "[senderName] shared an audio message"
 private let ZMPushStringFileAdd             = "add.file"             // "[senderName] shared a file"
 private let ZMPushStringLocationAdd         = "add.location"         // "[senderName] shared a location"
-
 // currently disabled
 //public let ZMPushStringMessageAddMany      = "add.message.many"    // "x new messages in [conversationName] / from [senderName]"
-
 private let ZMPushStringFailedToSend        = "failed.message"       // "Unable to send a message"
-
 private let ZMPushStringAlertAvailability   = "alert.availability"   // "Availability now affects notifications"
-
 private let ZMPushStringMemberJoin          = "member.join"          // "[senderName] added you"
 private let ZMPushStringMemberLeave         = "member.leave"         // "[senderName] removed you"
 private let ZMPushStringMessageTimerUpdate  = "message-timer.update" // "[senderName] set the message timer to [duration]
 private let ZMPushStringMessageTimerOff     = "message-timer.off"    // "[senderName] turned off the message timer
-
 private let ZMPushStringKnock               = "knock"                // "pinged"
 private let ZMPushStringReaction            = "reaction"             // "[emoji] your message"
-
 private let ZMPushStringVideoCallStarts     = "call.started.video"   // "is video calling"
 private let ZMPushStringCallStarts          = "call.started"         // "is calling"
 private let ZMPushStringCallMissed          = "call.missed"          // "called"
-
 // currently disabled
 //public let ZMPushStringCallMissedMany      = "call.missed.many"    // "You have x missed calls in a conversation"
-
 private let ZMPushStringConnectionRequest   = "connection.request"   // "[senderName] wants to connect"
 private let ZMPushStringConnectionAccepted  = "connection.accepted"  // "You and [senderName] are now connected"
-
 private let ZMPushStringConversationCreate  = "conversation.create"  // "[senderName] created a group"
 private let ZMPushStringConversationDelete  = "conversation.delete"  // "[senderName] deleted the group"
 private let ZMPushStringNewConnection       = "new_user"             // "[senderName] just joined Wire"
-
 private let OneOnOneKey = "oneonone"
 private let GroupKey = "group"
 private let SelfKey = "self"

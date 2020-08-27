@@ -58,7 +58,7 @@ public extension ZMLocalNotification {
         }
 
         if let builder = builderType?.init(event: event, conversation: conversation, managedObjectContext: moc) {
-            self.init(conversation: conversation, builder: builder)
+            self.init(builder: builder, moc: moc)
         } else {
             return nil
         }
@@ -136,7 +136,6 @@ fileprivate class EventNotificationBuilder: NotificationBuilder {
 
 
 // MARK: - Reaction Event
-
 private class ReactionEventNotificationBuilder: EventNotificationBuilder {
     
     private let emoji: String
@@ -190,7 +189,6 @@ private class ReactionEventNotificationBuilder: EventNotificationBuilder {
 
 
 // MARK: - Conversation Create Event
-
 private class ConversationCreateEventNotificationBuilder: EventNotificationBuilder {
     
     override var notificationType: LocalNotificationType {
@@ -204,7 +202,6 @@ private class ConversationCreateEventNotificationBuilder: EventNotificationBuild
 }
 
 // MARK: - Conversation Delete Event
-
 private class ConversationDeleteEventNotificationBuilder: EventNotificationBuilder {
     
     override var notificationType: LocalNotificationType {
@@ -219,7 +216,6 @@ private class ConversationDeleteEventNotificationBuilder: EventNotificationBuild
 
 
 // MARK: - User Connection Event
-
 private class UserConnectionEventNotificationBuilder: EventNotificationBuilder {
     
     var eventType : LocalNotificationEventType
@@ -260,7 +256,6 @@ private class UserConnectionEventNotificationBuilder: EventNotificationBuilder {
 
 
 // MARK: - New User Event
-
 private class NewUserEventNotificationBuilder: EventNotificationBuilder {
     
     override var notificationType: LocalNotificationType {
@@ -278,7 +273,6 @@ private class NewUserEventNotificationBuilder: EventNotificationBuilder {
 }
 
 // MARK: - Message
-
 private class NewMessageNotificationBuilder: EventNotificationBuilder {
 
     private let message: GenericMessage
@@ -341,7 +335,6 @@ private class NewMessageNotificationBuilder: EventNotificationBuilder {
 }
 
 // MARK: - System Message
-
 private class NewSystemMessageNotificationBuilder : EventNotificationBuilder {
     let contentType: LocalNotificationContentType
     
