@@ -132,3 +132,28 @@ extension ZMLocalNotificationSet {
     }
 }
 
+extension ZMConversation {
+    func localizedCallerName(with user: ZMUser) -> String {
+        
+        let conversationName = self.userDefinedName
+        let callerName : String? = user.name
+        var result : String? = nil
+        
+        switch conversationType {
+        case .group:
+            if let conversationName = conversationName, let callerName = callerName {
+                result = String.localizedStringWithFormat("callkit.call.started.group".pushFormatString, callerName, conversationName)
+            } else if let conversationName = conversationName {
+                result = String.localizedStringWithFormat("callkit.call.started.group.nousername".pushFormatString, conversationName)
+            } else if let callerName = callerName {
+                result = String.localizedStringWithFormat("callkit.call.started.group.noconversationname".pushFormatString, callerName)
+            }
+        case .oneOnOne:
+            result = connectedUser?.name
+        default:
+            break
+        }
+        
+        return result ?? String.localizedStringWithFormat("callkit.call.started.group.nousername.noconversationname".pushFormatString)
+    }
+}
