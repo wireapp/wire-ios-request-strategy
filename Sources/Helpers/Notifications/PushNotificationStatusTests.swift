@@ -19,8 +19,19 @@
 import XCTest
 @testable import WireRequestStrategy
 
-// MARK: - Tests
+@objc class FakeGroupQueue : NSObject, ZMSGroupQueue {
+    
+    var dispatchGroup : ZMSDispatchGroup! {
+        return nil
+    }
+    
+    func performGroupedBlock(_ block : @escaping () -> Void) {
+        block()
+    }
+    
+}
 
+// MARK: - Tests
 class PushNotificationStatusTests: MessagingTestBase {
     
     var sut: PushNotificationStatus!
@@ -50,7 +61,7 @@ class PushNotificationStatusTests: MessagingTestBase {
         }
 
         // then
-        XCTAssertEqual(sut.status, .inProgress)
+        XCTAssertTrue(sut.hasEventsToFetch)
     }
 
     func testThatStatusIsInProgressWhenNotAllEventsIdsHaveBeenFetched() {
@@ -64,10 +75,12 @@ class PushNotificationStatusTests: MessagingTestBase {
         }
         
         // when
-        sut.didFetch(eventIds: [eventId1], lastEventId: eventId1, finished: true)
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            self.sut.didFetch(eventIds: [eventId1], lastEventId: eventId1, finished: true)
+        }
         
         // then
-        XCTAssertEqual(sut.status, .inProgress)
+        XCTAssertTrue(sut.hasEventsToFetch)
     }
 
     func testThatStatusIsDoneAfterEventIdIsFetched() {
@@ -81,7 +94,7 @@ class PushNotificationStatusTests: MessagingTestBase {
         sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: true)
         
         // then
-        XCTAssertEqual(sut.status, .done)
+        XCTAssertFalse(sut.hasEventsToFetch)
     }
 
     func testThatStatusIsDoneAfterEventIdIsFetchedEvenIfMoreEventsWillBeFetched() {
@@ -95,7 +108,7 @@ class PushNotificationStatusTests: MessagingTestBase {
         sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: false)
 
         // then
-        XCTAssertEqual(sut.status, .done)
+        XCTAssertFalse(sut.hasEventsToFetch)
     }
 
     func testThatStatusIsDoneAfterEventIdIsFetchedEvenIfNoEventsWereDownloaded() {
@@ -109,7 +122,7 @@ class PushNotificationStatusTests: MessagingTestBase {
         sut.didFetch(eventIds: [], lastEventId: eventId, finished: true)
 
         // then
-        XCTAssertEqual(sut.status, .done)
+        XCTAssertFalse(sut.hasEventsToFetch)
     }
 
     func testThatStatusIsDoneIfEventsCantBeFetched() {
@@ -123,7 +136,7 @@ class PushNotificationStatusTests: MessagingTestBase {
         sut.didFailToFetchEvents()
 
         // then
-        XCTAssertEqual(sut.status, .done)
+        XCTAssertFalse(sut.hasEventsToFetch)
     }
 
     func testThatCompletionHandlerIsNotCalledIfAllEventsHaveNotBeenFetched() {
@@ -141,7 +154,7 @@ class PushNotificationStatusTests: MessagingTestBase {
         sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: false)
 
         // then
-        XCTAssertEqual(sut.status, .done)
+        XCTAssertFalse(sut.hasEventsToFetch)
     }
 
     func testThatCompletionHandlerIsCalledAfterAllEventsHaveBeenFetched() {
@@ -160,7 +173,7 @@ class PushNotificationStatusTests: MessagingTestBase {
         sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: true)
 
         // then
-        XCTAssertEqual(sut.status, .done)
+        XCTAssertFalse(sut.hasEventsToFetch)
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
     }
 
@@ -180,7 +193,7 @@ class PushNotificationStatusTests: MessagingTestBase {
         sut.didFetch(eventIds: [], lastEventId: eventId, finished: true)
 
         // then
-        XCTAssertEqual(sut.status, .done)
+        XCTAssertFalse(sut.hasEventsToFetch)
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
     }
 
@@ -192,14 +205,13 @@ class PushNotificationStatusTests: MessagingTestBase {
             syncMOC.zm_lastNotificationID = eventId
             
             // when
-            
             self.sut.fetch(eventId: eventId) {
                 expectation.fulfill()
             }
         }
 
         // then
-        XCTAssertEqual(sut.status, .done)
+        XCTAssertFalse(sut.hasEventsToFetch)
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
     }
     
