@@ -37,13 +37,15 @@ class EventDecoderTest: MessagingTestBase {
         eventMOC = NSManagedObjectContext.createEventContext(withSharedContainerURL: sharedContainerURL, userIdentifier: accountIdentifier)
         sut = EventDecoder(eventMOC: eventMOC, syncMOC: syncMOC)
         eventMOC.add(dispatchGroup)
-
-        let selfUser = ZMUser.selfUser(in: syncMOC)
-        selfUser.remoteIdentifier = accountIdentifier
-        let selfConversation = ZMConversation.insertNewObject(in: syncMOC)
-        selfConversation.remoteIdentifier = accountIdentifier
-        selfConversation.conversationType = .self
-        syncMOC.saveOrRollback()
+        
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            let selfUser = ZMUser.selfUser(in: syncMOC)
+            selfUser.remoteIdentifier = self.accountIdentifier
+            let selfConversation = ZMConversation.insertNewObject(in: syncMOC)
+            selfConversation.remoteIdentifier = self.accountIdentifier
+            selfConversation.conversationType = .self
+            syncMOC.saveOrRollback()
+        }
     }
     
     override func tearDown() {

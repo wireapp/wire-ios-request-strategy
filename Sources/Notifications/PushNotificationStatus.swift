@@ -22,28 +22,23 @@ import WireDataModel
 
 private let zmLog = ZMSLog(tag: "PushNotificationStatus")
 
-extension BackgroundNotificationFetchStatus: CustomStringConvertible {
-
-    public var description: String {
-        switch self {
-        case .done: return "done"
-        case .inProgress: return "inProgress"
-        }
+extension UUID {
+    func compare(withType1 uuid: UUID) -> ComparisonResult {
+        return (self as NSUUID).compare(withType1UUID: uuid as NSUUID)
     }
-
 }
 
 @objcMembers
-open class PushNotificationStatus: NSObject, BackgroundNotificationFetchStatusProvider {
+open class PushNotificationStatus: NSObject {
 
     private var eventIdRanking = NSMutableOrderedSet()
     private var completionHandlers: [UUID: () -> Void] = [:]
     private let managedObjectContext: NSManagedObjectContext
     
-    public var status: BackgroundNotificationFetchStatus {
-        return eventIdRanking.count == 0 ? .done : .inProgress
+    public var hasEventsToFetch: Bool {
+        return eventIdRanking.count > 0
     }
-    
+        
     public init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
     }
