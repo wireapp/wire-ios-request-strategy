@@ -156,9 +156,10 @@ extension LinkPreviewAssetUploadRequestStrategy : ZMUpstreamTranscoder {
             let genericMessage = GenericMessage(content: updatedText, nonce: message.nonce!, expiresAfter: message.deletionTimeout)
 
             do {
-                try message.add(genericMessage.serializedData())
+                try message.setUnderlyingMessage(genericMessage)
             } catch {
-                zmLog.debug("Failure adding genericMessage")
+                zmLog.warn("Failed to update genericMessage. Reason: \(error.localizedDescription)")
+                return true
             }
 
             zmLog.debug("did upload image for: \(message.nonce?.uuidString ?? "nil"), genericMessage: \(String(describing: message.underlyingMessage))")
