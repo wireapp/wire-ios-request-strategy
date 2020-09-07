@@ -60,8 +60,10 @@ import WireUtilities
             let updatedMessage = GenericMessage(content: updatedText, nonce: message.nonce!, expiresAfter: message.deletionTimeout)
 
             do {
-                try message.add(updatedMessage.serializedData())
+                try message.setUnderlyingMessage(updatedMessage)
             } catch {
+                zmLog.warn("Failed to set link preview on client message. Reason: \(error.localizedDescription) Resetting state to try again later.")
+                message.linkPreviewState = .waitingToBeProcessed
                 return
             }
 
