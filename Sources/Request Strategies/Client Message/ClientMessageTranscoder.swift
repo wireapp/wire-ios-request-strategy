@@ -97,11 +97,10 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
             if var updatedGenericMessage = message.underlyingMessage {
                 updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
                 do {
-                    try message.add(updatedGenericMessage.serializedData())
+                    try message.setUnderlyingMessage(updatedGenericMessage)
                 } catch {
-                    // Is this too extreme?
-                    // TODO: log reason?
-                    fatal("Failure adding genericMessage")
+                    Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
+                    return nil
                 }
             }
         }
@@ -111,11 +110,10 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
             if var updatedGenericMessage = message.underlyingMessage {
                 updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
                 do {
-                    try message.add(updatedGenericMessage.serializedData())
+                    try message.setUnderlyingMessage(updatedGenericMessage)
                 } catch {
-                    // Is this too extreme?
-                    // TODO: log reason?
-                    fatal("Failure adding genericMessage")
+                    Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
+                    return nil
                 }
             }
         }
