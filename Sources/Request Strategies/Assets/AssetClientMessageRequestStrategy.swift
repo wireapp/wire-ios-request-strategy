@@ -100,8 +100,12 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
             if var updatedGenericMessage = message.underlyingMessage {
                 updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
 
-                // TODO: handle this?
-                try? message.add(updatedGenericMessage)
+                do {
+                    try message.setUnderlyingMessage(updatedGenericMessage)
+                } catch {
+                    Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
+                    return nil
+                }
             }
         }
         
@@ -109,8 +113,12 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
             if var updatedGenericMessage = message.underlyingMessage {
                 updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
 
-                // TODO: handle this?
-                try? message.add(updatedGenericMessage)
+                do {
+                    try message.setUnderlyingMessage(updatedGenericMessage)
+                } catch {
+                    Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
+                    return nil
+                }
             }
         }
         
