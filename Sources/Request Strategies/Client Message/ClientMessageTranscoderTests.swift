@@ -118,7 +118,7 @@ extension ClientMessageTranscoderTests {
             
             // GIVEN
             let text = "Lorem ipsum"
-            let message = self.groupConversation.appendText(content: text) as! ZMClientMessage
+            let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
             message.sender = self.otherUser
             self.syncMOC.saveOrRollback()
             
@@ -136,7 +136,7 @@ extension ClientMessageTranscoderTests {
             // GIVEN
             ZMUser.selfUser(in: self.syncMOC).readReceiptsEnabled = true
             let text = "Lorem ipsum"
-            let message = self.oneToOneConversation.appendText(content: text) as! ZMClientMessage
+            let message = try! self.oneToOneConversation.appendText(content: text) as! ZMClientMessage
             self.syncMOC.saveOrRollback()
             
             // WHEN
@@ -162,7 +162,7 @@ extension ClientMessageTranscoderTests {
             // GIVEN
             ZMUser.selfUser(in: self.syncMOC).readReceiptsEnabled = true
             let text = "Lorem ipsum"
-            let message = self.groupConversation.appendText(content: text) as! ZMClientMessage
+            let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
             self.syncMOC.saveOrRollback()
             
             // WHEN
@@ -188,7 +188,7 @@ extension ClientMessageTranscoderTests {
             // GIVEN
             ZMUser.selfUser(in: self.syncMOC).readReceiptsEnabled = false
             let text = "Lorem ipsum"
-            let message = self.oneToOneConversation.appendText(content: text) as! ZMClientMessage
+            let message = try! self.oneToOneConversation.appendText(content: text) as! ZMClientMessage
             var genericMessage = message.underlyingMessage!
             genericMessage.setExpectsReadConfirmation(true)
             do {
@@ -224,7 +224,7 @@ extension ClientMessageTranscoderTests {
             XCTAssertTrue(conversation.isUnderLegalHold)
 
             let text = "Lorem ipsum"
-            let message = conversation.appendText(content: text) as! ZMClientMessage
+            let message = try! conversation.appendText(content: text) as! ZMClientMessage
             var genericMessage = message.underlyingMessage!
             genericMessage.setLegalHoldStatus(.disabled)
             do {
@@ -254,7 +254,7 @@ extension ClientMessageTranscoderTests {
             XCTAssertFalse(conversation.isUnderLegalHold)
 
             let text = "Lorem ipsum"
-            let message = conversation.appendText(content: text) as! ZMClientMessage
+            let message = try! conversation.appendText(content: text) as! ZMClientMessage
             var genericMessage = message.underlyingMessage!
             genericMessage.setLegalHoldStatus(.enabled)
             do {
@@ -281,7 +281,7 @@ extension ClientMessageTranscoderTests {
             
             // GIVEN
             let text = "Lorem ipsum"
-            let message = self.groupConversation.appendText(content: text) as! ZMClientMessage
+            let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
             self.syncMOC.saveOrRollback()
             
             // WHEN
@@ -309,7 +309,7 @@ extension ClientMessageTranscoderTests {
             
             // GIVEN
             let text = String(repeating: "Hi", count: 100000)
-            let message = self.groupConversation.appendText(content: text) as! ZMClientMessage
+            let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
             self.syncMOC.saveOrRollback()
             
             // WHEN
@@ -349,7 +349,7 @@ extension ClientMessageTranscoderTests {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let text = String(repeating: "Hi", count: 100000)
-            let message = self.groupConversation.appendText(content: text) as! ZMClientMessage
+            let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
 
             // WHEN
             self.syncMOC.saveOrRollback()

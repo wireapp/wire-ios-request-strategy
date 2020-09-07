@@ -51,7 +51,7 @@ class LinkPreviewAssetUploadRequestStrategyTests: MessagingTestBase {
         if isEphemeral {
             conversation.messageDestructionTimeout = .local(.tenSeconds)
         }
-        let message = conversation.appendText(content: text) as! ZMClientMessage
+        let message = try! conversation.appendText(content: text) as! ZMClientMessage
         message.linkPreviewState = linkPreviewState
         if isEphemeral {
             XCTAssertTrue(message.isEphemeral)

@@ -90,10 +90,10 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         let targetConversation = conversation ?? groupConversation!
         let message: ZMAssetClientMessage!
         if isImage {
-            message = targetConversation.appendImage(from: imageData) as? ZMAssetClientMessage
+            message = try! targetConversation.appendImage(from: imageData) as? ZMAssetClientMessage
         } else {
             let url = Bundle(for: AssetClientMessageRequestStrategyTests.self).url(forResource: "Lorem Ipsum", withExtension: "txt")!
-            message = targetConversation.appendFile(with: ZMFileMetadata(fileURL: url, thumbnail: nil)) as? ZMAssetClientMessage
+            message = try! targetConversation.appendFile(with: ZMFileMetadata(fileURL: url, thumbnail: nil)) as? ZMAssetClientMessage
         }
 
         if isImage {

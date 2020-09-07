@@ -81,7 +81,7 @@ class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
         let nonce = UUID.create()
         let fileURL = Bundle(for: ImageV2DownloadRequestStrategyTests.self).url(forResource: "Lorem Ipsum", withExtension: "txt")!
         let metadata = ZMFileMetadata(fileURL: fileURL)
-        let message = conversation.appendFile(with: metadata, nonce: nonce) as! ZMAssetClientMessage
+        let message = try! conversation.appendFile(with: metadata, nonce: nonce) as! ZMAssetClientMessage
         
         syncMOC.saveOrRollback()
         

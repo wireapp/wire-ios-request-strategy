@@ -63,7 +63,7 @@ class LinkPreviewPreprocessorTests: MessagingTestBase {
         if isEphemeral {
             conversation.messageDestructionTimeout = .local(.tenSeconds)
         }
-        let message = conversation.appendText(content: text, mentions: mentions) as! ZMClientMessage
+        let message = try! conversation.appendText(content: text, mentions: mentions) as! ZMClientMessage
         message.linkPreviewState = state
         return message
     }

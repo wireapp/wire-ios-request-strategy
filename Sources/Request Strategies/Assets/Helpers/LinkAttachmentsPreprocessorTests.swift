@@ -63,7 +63,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
         if isEphemeral {
             conversation.messageDestructionTimeout = .local(.tenSeconds)
         }
-        let message = conversation.appendText(content: text, mentions: mentions) as! ZMClientMessage
+        let message = try! conversation.appendText(content: text, mentions: mentions) as! ZMClientMessage
         message.needsLinkAttachmentsUpdate = needsUpdate
         return message
     }
