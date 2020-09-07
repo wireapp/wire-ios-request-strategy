@@ -90,10 +90,10 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         let targetConversation = conversation ?? groupConversation!
         let message: ZMAssetClientMessage!
         if isImage {
-            message = targetConversation.append(imageFromData: imageData) as? ZMAssetClientMessage
+            message = targetConversation.appendImage(from: imageData) as? ZMAssetClientMessage
         } else {
             let url = Bundle(for: AssetClientMessageRequestStrategyTests.self).url(forResource: "Lorem Ipsum", withExtension: "txt")!
-            message = targetConversation.append(file: ZMFileMetadata(fileURL: url, thumbnail: nil)) as? ZMAssetClientMessage
+            message = targetConversation.appendFile(with: ZMFileMetadata(fileURL: url, thumbnail: nil)) as? ZMAssetClientMessage
         }
 
         if isImage {
@@ -121,8 +121,13 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
                 nonce: message.nonce!,
                 expiresAfter: targetConversation.messageDestructionTimeoutValue
             )
-            
-            message.add(previewMessage)
+
+            do {
+                try message.setUnderlyingMessage(previewMessage)
+            } catch {
+                XCTFail()
+            }
+
             XCTAssertTrue(message.underlyingMessage!.assetData!.hasPreview, line: line)
             XCTAssertEqual(message.underlyingMessage!.assetData!.preview.remote.hasAssetID, previewAssetId, line: line)
             XCTAssertEqual(message.isEphemeral, targetConversation.messageDestructionTimeoutValue != 0, line: line)
@@ -138,7 +143,13 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             if assetId {
                 uploaded.updateUploaded(assetId: UUID.create().transportString(), token: nil)
             }
-            message.add(uploaded)
+
+            do {
+                try message.setUnderlyingMessage(uploaded)
+            } catch {
+                XCTFail()
+            }
+
             message.updateTransferState(.uploaded, synchronize: true)
             XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded, line: line)
             XCTAssertEqual(message.isEphemeral, self.groupConversation.messageDestructionTimeoutValue != 0, line: line)
@@ -283,7 +294,12 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.oneToOneConversation)
             var genericMessage = message.underlyingMessage!
             genericMessage.setExpectsReadConfirmation(true)
-            message.add(genericMessage)
+
+            do {
+                try message.setUnderlyingMessage(genericMessage)
+            } catch {
+                XCTFail()
+            }
             
             // WHEN
             XCTAssertNotNil(self.sut.nextRequest())
@@ -300,7 +316,12 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.oneToOneConversation)
             var genericMessage = message.underlyingMessage!
             genericMessage.setExpectsReadConfirmation(true)
-            message.add(genericMessage)
+
+            do {
+                try message.setUnderlyingMessage(genericMessage)
+            } catch {
+                XCTFail()
+            }
 
             // WHEN
             XCTAssertNotNil(self.sut.nextRequest())
@@ -326,7 +347,13 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.groupConversation)
             var genericMessage = message.underlyingMessage!
             genericMessage.setLegalHoldStatus(.enabled)
-            message.add(genericMessage)
+
+            do {
+                try message.setUnderlyingMessage(genericMessage)
+            } catch {
+                XCTFail()
+            }
+
             self.syncMOC.saveOrRollback()
 
             // WHEN
@@ -351,7 +378,13 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.groupConversation)
             var genericMessage = message.underlyingMessage!
             genericMessage.setLegalHoldStatus(.enabled)
-            message.add(genericMessage)
+
+            do {
+                try message.setUnderlyingMessage(genericMessage)
+            } catch {
+                XCTFail()
+            }
+            
             self.syncMOC.saveOrRollback()
 
             // WHEN
