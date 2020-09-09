@@ -122,11 +122,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
                 expiresAfter: targetConversation.messageDestructionTimeoutValue
             )
 
-            do {
-                try message.setUnderlyingMessage(previewMessage)
-            } catch {
-                XCTFail()
-            }
+            XCTAssertNoThrow(try message.setUnderlyingMessage(previewMessage))
 
             XCTAssertTrue(message.underlyingMessage!.assetData!.hasPreview, line: line)
             XCTAssertEqual(message.underlyingMessage!.assetData!.preview.remote.hasAssetID, previewAssetId, line: line)
@@ -144,11 +140,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
                 uploaded.updateUploaded(assetId: UUID.create().transportString(), token: nil)
             }
 
-            do {
-                try message.setUnderlyingMessage(uploaded)
-            } catch {
-                XCTFail()
-            }
+            XCTAssertNoThrow(try message.setUnderlyingMessage(uploaded))
 
             message.updateTransferState(.uploaded, synchronize: true)
             XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded, line: line)
