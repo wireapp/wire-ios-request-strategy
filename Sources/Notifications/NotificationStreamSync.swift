@@ -39,10 +39,12 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
     private var listPaginator: ZMSimpleListRequestPaginator!
     private var managedObjectContext: NSManagedObjectContext!
     private var notificationStreamSyncDelegate: NotificationStreamSyncDelegate?
+    private var pushNotificationStatus: PushNotificationStatus!
 
     public init(moc: NSManagedObjectContext,
                 notificationsTracker: NotificationsTracker?,
-                delegate: NotificationStreamSyncDelegate) {
+                delegate: NotificationStreamSyncDelegate,
+                pushNotificationStatus: PushNotificationStatus) {
         super.init()
         managedObjectContext = moc
         listPaginator = ZMSimpleListRequestPaginator.init(basePath: "/notifications",
@@ -53,25 +55,31 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
                                                           transcoder: self)
         self.notificationsTracker = notificationsTracker
         notificationStreamSyncDelegate = delegate
+        self.pushNotificationStatus = pushNotificationStatus
     }
     
     public func nextRequest() -> ZMTransportRequest? {
         
-       // We only reset the paginator if it is neither in progress nor has more pages to fetch.
-        if listPaginator.status != ZMSingleRequestProgress.inProgress && !listPaginator.hasMoreToFetch {
-            listPaginator.resetFetching()
-        }
-        
-        guard let request = listPaginator.nextRequest() else {
+        if isFetchingStreamForAPNS /*|| isFetchingStreamInBackground*/ {
+            // We only reset the paginator if it is neither in progress nor has more pages to fetch.
+            if listPaginator.status != ZMSingleRequestProgress.inProgress && !listPaginator.hasMoreToFetch {
+                listPaginator.resetFetching()
+            }
+            
+            guard let request = listPaginator.nextRequest() else {
+                return nil
+            }
+            if isFetchingStreamForAPNS {
+                request.forceToVoipSession()
+                notificationsTracker?.registerStartStreamFetching()
+                request.add(ZMCompletionHandler(on: self.managedObjectContext, block: { (response) in
+                    self.notificationsTracker?.registerFinishStreamFetching()
+                }))
+            }
+            return request
+        } else {
             return nil
         }
-        request.forceToVoipSession()
-        notificationsTracker?.registerStartStreamFetching()
-        request.add(ZMCompletionHandler(on: self.managedObjectContext, block: { (response) in
-            self.notificationsTracker?.registerFinishStreamFetching()
-        }))
-
-        return request
     }
     
     private var lastUpdateEventID: UUID? {
@@ -82,6 +90,14 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
             return self.managedObjectContext.zm_lastNotificationID
         }
     }
+    
+    public var isFetchingStreamForAPNS: Bool {
+        return self.pushNotificationStatus.hasEventsToFetch
+    }
+    
+//    public var isFetchingStreamInBackground: Bool {
+//        return self.operationStatus.operationState == OperationState.background
+//    }
     
     @objc(nextUUIDFromResponse:forListPaginator:)
     public func nextUUID(from response: ZMTransportResponse!, forListPaginator paginator: ZMSimpleListRequestPaginator!) -> UUID! {
@@ -108,7 +124,7 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
         let tp = ZMSTimePoint.init(interval: 10, label: NSStringFromClass(type(of: self)))
         
         var latestEventId: UUID? = nil
-        let source = ZMUpdateEventSource.pushNotification
+        let source = self.isFetchingStreamForAPNS/* || self.isFetchingStreamInBackground*/ ? ZMUpdateEventSource.pushNotification : ZMUpdateEventSource.download
         
         guard let eventsDictionaries = eventDictionariesFrom(payload: payload) else {
             return nil
