@@ -148,6 +148,7 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
     @objc(shouldParseErrorForResponse:)
     public func shouldParseError(for response: ZMTransportResponse) -> Bool {
         notificationStreamSyncDelegate?.failedFetchingEvents()
+        pushNotificationStatus.didFailToFetchEvents()
         return response.httpStatus == 404 ? true : false
     }
     
