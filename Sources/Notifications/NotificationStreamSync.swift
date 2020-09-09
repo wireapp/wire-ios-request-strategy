@@ -123,6 +123,7 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
         
         let tp = ZMSTimePoint.init(interval: 10, label: NSStringFromClass(type(of: self)))
         
+        var eventIds: [UUID] = []
         var latestEventId: UUID? = nil
         let source = self.isFetchingStreamForAPNS/* || self.isFetchingStreamInBackground*/ ? ZMUpdateEventSource.pushNotification : ZMUpdateEventSource.download
         
@@ -135,10 +136,11 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
             }
             notificationStreamSyncDelegate?.fetchedEvents(events, hasMoreToFetch: !self.listPaginator.hasMoreToFetch)
             latestEventId = events.last(where: { !$0.isTransient })?.uuid
+            eventIds += events.compactMap { $0.uuid }
         }
         
         //        ZMLogWithLevelAndTag(ZMLogLevelInfo, ZMTAG_EVENT_PROCESSING, @"Downloaded %lu event(s)", (unsigned long)parsedEvents.count);
-        
+        pushNotificationStatus.didFetch(eventIds: eventIds, lastEventId: latestEventId, finished: !self.listPaginator.hasMoreToFetch)
         tp?.warnIfLongerThanInterval()
         return latestEventId
     }
