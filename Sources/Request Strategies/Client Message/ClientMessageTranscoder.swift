@@ -100,7 +100,7 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
                 do {
                     try message.setUnderlyingMessage(updatedGenericMessage)
                 } catch {
-                    Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
+                    WireDataModel.Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
                     return nil
                 }
             }
@@ -113,7 +113,7 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
                 do {
                     try message.setUnderlyingMessage(updatedGenericMessage)
                 } catch {
-                    Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
+                    WireDataModel.Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
                     return nil
                 }
             }
