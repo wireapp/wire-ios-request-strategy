@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		06025662248E467B00E060E1 /* NotificationStreamSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06025661248E467B00E060E1 /* NotificationStreamSync.swift */; };
 		06025666248E616C00E060E1 /* ZMSimpleListRequestPaginator.m in Sources */ = {isa = PBXBuildFile; fileRef = 06025665248E616C00E060E1 /* ZMSimpleListRequestPaginator.m */; };
+		0605DB8D251154FF00443219 /* avs.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0649D13924F63A21001DDC78 /* avs.framework */; };
+		0605DB8E2511550F00443219 /* avs.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0649D13924F63A21001DDC78 /* avs.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		060ED6D62499F41000412C4A /* PushNotificationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060ED6D52499F41000412C4A /* PushNotificationStatus.swift */; };
 		060ED6DA2499F4A900412C4A /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060ED6D92499F4A900412C4A /* Logging.swift */; };
 		06474D4B24AF6858002C695D /* EventDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474D4A24AF6858002C695D /* EventDecoder.swift */; };
@@ -261,6 +263,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				0605DB8E2511550F00443219 /* avs.framework in CopyFiles */,
 				F13ADE8021B5449400B6E736 /* SwiftProtobuf.framework in CopyFiles */,
 				878B823620A1D19D007455CA /* HTMLString.framework in CopyFiles */,
 				54E03A321E93BFE10089AC69 /* WireCryptobox.framework in CopyFiles */,
@@ -298,7 +301,6 @@
 		06474DA724B4BB01002C695D /* StoreUpdateEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreUpdateEventTests.swift; sourceTree = "<group>"; };
 		0649D12124F5C5EF001DDC78 /* ZMLocalNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMLocalNotification.swift; sourceTree = "<group>"; };
 		0649D13624F638D1001DDC78 /* CallState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallState.swift; sourceTree = "<group>"; };
-		0649D13824F63953001DDC78 /* avs.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = avs.framework.dSYM; path = Carthage/Build/iOS/avs.framework.dSYM; sourceTree = "<group>"; };
 		0649D13924F63A21001DDC78 /* avs.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = avs.framework; path = Carthage/Build/iOS/avs.framework; sourceTree = "<group>"; };
 		0649D13D24F63A50001DDC78 /* CallClosedReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallClosedReason.swift; sourceTree = "<group>"; };
 		0649D13F24F63AA0001DDC78 /* LocalNotificationContentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationContentType.swift; sourceTree = "<group>"; };
@@ -584,6 +586,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F13ADE7D21B5355F00B6E736 /* SwiftProtobuf.framework in Frameworks */,
+				0605DB8D251154FF00443219 /* avs.framework in Frameworks */,
 				878B823520A1D092007455CA /* HTMLString.framework in Frameworks */,
 				BF7D9BEA1D8C353A00949267 /* OCMock.framework in Frameworks */,
 				BF7D9BED1D8C353A00949267 /* PINCache.framework in Frameworks */,
@@ -846,7 +849,6 @@
 			isa = PBXGroup;
 			children = (
 				0649D13924F63A21001DDC78 /* avs.framework */,
-				0649D13824F63953001DDC78 /* avs.framework.dSYM */,
 				F13ADE7C21B5355F00B6E736 /* SwiftProtobuf.framework */,
 				878B823320A1D080007455CA /* HTMLString.framework */,
 				54E03A201E93BFDC0089AC69 /* WireCryptobox.framework */,

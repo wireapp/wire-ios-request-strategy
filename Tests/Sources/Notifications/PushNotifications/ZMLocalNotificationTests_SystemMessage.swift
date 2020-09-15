@@ -26,13 +26,13 @@ class ZMLocalNotificationTests_SystemMessage : ZMLocalNotificationTests {
     func noteForParticipantAdded(_ conversation: ZMConversation, aSender: ZMUser, otherUsers: Set<ZMUser>) -> ZMLocalNotification? {
         let event = createMemberJoinUpdateEvent(UUID.create(), conversationID: conversation.remoteIdentifier!, users: Array(otherUsers), senderID: aSender.remoteIdentifier)
         
-        return ZMLocalNotification(event: event, conversation: conversation, managedObjectContext: syncMOC)
+        return ZMLocalNotification(event: event, conversation: conversation, managedObjectContext: uiMOC)
     }
 
     func noteForParticipantsRemoved(_ conversation: ZMConversation, aSender: ZMUser, otherUsers: Set<ZMUser>) -> ZMLocalNotification? {
         let event = createMemberLeaveUpdateEvent(UUID.create(), conversationID: conversation.remoteIdentifier!, users: Array(otherUsers), senderID: aSender.remoteIdentifier)
         
-        return ZMLocalNotification(event: event, conversation: conversation, managedObjectContext: syncMOC)
+        return ZMLocalNotification(event: event, conversation: conversation, managedObjectContext: uiMOC)
     }
     
     // MARK: - Tests
@@ -90,7 +90,7 @@ class ZMLocalNotificationTests_SystemMessage : ZMLocalNotificationTests {
         let event = createMemberLeaveUpdateEvent(UUID.create(), conversationID: self.groupConversation.remoteIdentifier!, users: [otherUser1], senderID: otherUser1.remoteIdentifier)
         
         // when
-        let note = ZMLocalNotification(event: event, conversation: groupConversation, managedObjectContext: syncMOC)
+        let note = ZMLocalNotification(event: event, conversation: groupConversation, managedObjectContext: uiMOC)
         
         // then
         XCTAssertNil(note)
