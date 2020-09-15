@@ -24,7 +24,6 @@
 		0649D12224F5C5EF001DDC78 /* ZMLocalNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D12124F5C5EF001DDC78 /* ZMLocalNotification.swift */; };
 		0649D13724F638D1001DDC78 /* CallState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D13624F638D1001DDC78 /* CallState.swift */; };
 		0649D13A24F63A21001DDC78 /* avs.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0649D13924F63A21001DDC78 /* avs.framework */; };
-		0649D13B24F63A21001DDC78 /* avs.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0649D13924F63A21001DDC78 /* avs.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0649D13E24F63A50001DDC78 /* CallClosedReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D13D24F63A50001DDC78 /* CallClosedReason.swift */; };
 		0649D14024F63AA0001DDC78 /* LocalNotificationContentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D13F24F63AA0001DDC78 /* LocalNotificationContentType.swift */; };
 		0649D14324F63B52001DDC78 /* NotificationUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D14224F63B52001DDC78 /* NotificationUserInfo.swift */; };
@@ -256,17 +255,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		0649D13C24F63A21001DDC78 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				0649D13B24F63A21001DDC78 /* avs.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		BF7D9BD21D8C312F00949267 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1295,7 +1283,6 @@
 				166901661D707509000FE4AF /* Frameworks */,
 				166901671D707509000FE4AF /* Headers */,
 				166901681D707509000FE4AF /* Resources */,
-				0649D13C24F63A21001DDC78 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
