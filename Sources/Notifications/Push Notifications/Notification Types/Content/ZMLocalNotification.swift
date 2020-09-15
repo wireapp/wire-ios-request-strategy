@@ -155,7 +155,7 @@ extension ZMLocalNotification {
 
 extension ZMLocalNotification {
             
-    func increaseEstimatedUnreadCount(on conversation: ZMConversation?) {
+    public func increaseEstimatedUnreadCount(on conversation: ZMConversation?) {
                 
         if type.shouldIncreaseUnreadCount {
             conversation?.internalEstimatedUnreadCount += 1
