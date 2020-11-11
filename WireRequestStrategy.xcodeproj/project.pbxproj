@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		06B280442559ACC300DF29AD /* FeatureConfigRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B280432559ACC300DF29AD /* FeatureConfigRequestStrategy.swift */; };
 		1621D2281D75AB2D007108C2 /* MockEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2231D75AB2D007108C2 /* MockEntity.m */; };
 		1621D2291D75AB2D007108C2 /* MockEntity2.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2251D75AB2D007108C2 /* MockEntity2.m */; };
 		1621D22A1D75AB2D007108C2 /* MockModelObjectContextFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2271D75AB2D007108C2 /* MockModelObjectContextFactory.m */; };
@@ -237,6 +238,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		06B280432559ACC300DF29AD /* FeatureConfigRequestStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureConfigRequestStrategy.swift; sourceTree = "<group>"; };
 		1621D2221D75AB2D007108C2 /* MockEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MockEntity.h; sourceTree = "<group>"; };
 		1621D2231D75AB2D007108C2 /* MockEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MockEntity.m; sourceTree = "<group>"; };
 		1621D2241D75AB2D007108C2 /* MockEntity2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MockEntity2.h; sourceTree = "<group>"; };
@@ -474,6 +476,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		06B280422559AC6900DF29AD /* Feature configurations */ = {
+			isa = PBXGroup;
+			children = (
+				06B280432559ACC300DF29AD /* FeatureConfigRequestStrategy.swift */,
+			);
+			path = "Feature configurations";
+			sourceTree = "<group>";
+		};
 		1621D2211D75AB2D007108C2 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -641,6 +651,7 @@
 		F184014D2073BE0800E9F4CC /* Request Strategies */ = {
 			isa = PBXGroup;
 			children = (
+				06B280422559AC6900DF29AD /* Feature configurations */,
 				16751E8324CF724F0099AE09 /* Delivery Receipts */,
 				F14B7AD5222006A100458624 /* User */,
 				F184014E2073BE0800E9F4CC /* Client Message */,
@@ -1149,6 +1160,7 @@
 				F18401AA2073BE0800E9F4CC /* FetchingClientRequestStrategy.swift in Sources */,
 				166901D61D7081C7000FE4AF /* ZMDownstreamObjectSyncWithWhitelist.m in Sources */,
 				F18401D42073BE0800E9F4CC /* MessageExpirationTimer.swift in Sources */,
+				06B280442559ACC300DF29AD /* FeatureConfigRequestStrategy.swift in Sources */,
 				1622946B221C18BE00A98679 /* AssetV3UploadRequestStrategy.swift in Sources */,
 				1662ADB322B0E8B300D84071 /* VerifyLegalHoldRequestStrategy.swift in Sources */,
 				166901EC1D7081C7000FE4AF /* ZMTimedSingleRequestSync.m in Sources */,
