@@ -145,9 +145,6 @@ extension FeatureConfigRequestStrategy {
     }
     
     private func updateAppLockFeature(with schema: AppLockFeatureConfigResponse) {
-        AppLock.isActive = schema.status
-        AppLock.rules.forceAppLock = schema.config.enforceAppLock
-        AppLock.rules.appLockTimeout = schema.config.inactivityTimeoutSecs
     }
 }
 
