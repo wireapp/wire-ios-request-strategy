@@ -20,35 +20,47 @@ import Foundation
 
 public enum Feature: String, Equatable {
   case applock = "applock"
-  case digitalSignature = "digital-signatures"
 }
 
 @objcMembers
 public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
-    private(set) var feature: Feature?
-    private(set) var fetchSingleConfigSync: ZMSingleRequestSync?
-    private(set) var fetchAllConfigsSync: ZMSingleRequestSync?
+    public static let needsToUpdateFeatureConfigNotificationName = Notification.Name("ZMNeedsToUpdateFeatureConfigNotification")
+    
+    private var observers: [Any] = []
+    private var fetchSingleConfigSync: ZMSingleRequestSync?
+    private var fetchAllConfigsSync: ZMSingleRequestSync?
+    private var feature: Feature?
     
     // MARK: - Init
-    public init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
-                         applicationStatus: ApplicationStatus,
-                         feature: Feature? = nil) {
+    public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
+                         applicationStatus: ApplicationStatus) {
         
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         
-        self.feature = feature
+        self.configuration = [.allowsRequestsWhileOnline,
+                              .allowsRequestsDuringQuickSync,
+                              .allowsRequestsWhileInBackground]
+        
         self.fetchSingleConfigSync = ZMSingleRequestSync(singleRequestTranscoder: self,
                                                      groupQueue: managedObjectContext)
         self.fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self,
                                                        groupQueue: managedObjectContext)
+        self.observers.append(NotificationInContext.addObserver(
+            name: FeatureConfigRequestStrategy.needsToUpdateFeatureConfigNotificationName,
+            context: self.managedObjectContext.notificationContext,
+            object: nil) { [weak self] in
+                self?.requestConfig(with: $0)
+        })
     }
     
-    // MARK: - Methods
+    private func requestConfig(with note: NotificationInContext) {
+        feature = note.object as? Feature
+        RequestAvailableNotification.notifyNewRequestsAvailable(self)
+    }
+    
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return (feature != nil)
-            ? fetchSingleConfigSync?.nextRequest()
-            : fetchAllConfigsSync?.nextRequest()
+        return (feature == nil) ? fetchAllConfigsSync?.nextRequest() : fetchSingleConfigSync?.nextRequest()
     }
 }
 
@@ -69,19 +81,24 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
     }
     
     public func didReceive(_ response: ZMTransportResponse, forSingleRequest sync: ZMSingleRequestSync) {
-        guard response.result == .permanentError || response.result == .success else {
+        guard let responseData = response.rawData,
+            (response.result == .permanentError || response.result == .success) else {
             return
         }
+
         switch sync {
         case fetchSingleConfigSync:
-            processFeatureFlagResponseSuccess(with: response.rawData)
+            processFeatureConfigResponseSuccess(with: responseData)
         case fetchAllConfigsSync:
-            processFeatureFlagResponseSuccess(with: response.rawData)
+            processAllConfigsResponseSuccess(with: responseData)
         default:
             break
         }
     }
-    
+}
+
+// MARK: - Private methods
+extension FeatureConfigRequestStrategy {
     private func fetchAllConfigsRequest() -> ZMTransportRequest? {
         guard let teamId = ZMUser.selfUser(in: managedObjectContext).teamIdentifier?.uuidString else {
             return nil
@@ -96,75 +113,101 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
         return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features/\(feature)")
     }
     
-    private func processFeatureFlagResponseSuccess(with data: Data?) {
-        guard let responseData = data else {
-            return
+    private func processAllConfigsResponseSuccess(with data: Data) {
+        if let response = try? JSONDecoder().decode(FeatureConfigsResponse.self, from: data) {
+            updateAppLockFeature(with: response.applock)
         }
+    }
+    
+    private func processFeatureConfigResponseSuccess(with data: Data) {
+        var decodedResponse: BaseFeatureConfig?
         switch feature {
         case .applock:
-            break
+            decodedResponse = try? JSONDecoder().decode(AppLockFeatureConfigResponse.self, from: data)
+        default:
+            decodedResponse = nil
+        }
+        
+        if let decodedResponse = decodedResponse {
+            update(with: decodedResponse)
+        }
+    }
+    
+    private func update(with decodedResponse: BaseFeatureConfig) {
+        switch feature {
+        case .applock:
+            if let responce = decodedResponse as? AppLockFeatureConfigResponse {
+                updateAppLockFeature(with: responce)
+            }
         default:
             break
         }
-        
-        do {
-            let decodedResponse = try JSONDecoder().decode(FeatureFlagResponse.self,
-                                                           from: responseData)
-            //            update(with: decodedResponse)
-        } catch {
+    }
+    
+    private func updateAppLockFeature(with schema: AppLockFeatureConfigResponse) {
+        AppLock.isActive = schema.status
+        AppLock.rules.forceAppLock = schema.config.enforceAppLock
+        AppLock.rules.appLockTimeout = schema.config.inactivityTimeoutSecs
+    }
+}
+
+// MARK: - FeatureConfigResponses
+//protocol FeatureConfig: Decodable {}
+
+protocol BaseFeatureConfig: Decodable {
+    var status: Bool { get set }
+    func convertToBool(_ statusStr: String) -> Bool
+}
+
+extension BaseFeatureConfig {
+    func convertToBool(_ statusStr: String) -> Bool {
+        switch statusStr {
+        case "enabled":
+            return true
+        case "disabled":
+            return false
+        default:
+            return false
         }
     }
 }
 
-// MARK: - AppLockFeatureFlagResponse
-//"status": "disabled",
-//"config": {
-//   "enforce_app_lock": true,
-//   "inactivity_timeout_secs": 30
+//"applock": {
+//  "status": "disabled",
+//  "config": {
+//     "enforce_app_lock": true,
+//     "inactivity_timeout_secs": 30
+//  }
 //}
-
-struct FeatureFlagResponse: Decodable {
-    struct AppLockConfig: Decodable {
-        let enforceAppLock: Bool
-        let inactivityTimeoutSecs: Int
-        
-        public init(enforceAppLock: Bool, inactivityTimeoutSecs: Int) {
-           self.enforceAppLock = enforceAppLock
-           self.inactivityTimeoutSecs = inactivityTimeoutSecs
-        }
-        
-        private enum CodingKeys: String, CodingKey {
-            case enforceAppLock = "enforce_app_lock"
-            case inactivityTimeoutSecs = "inactivity_timeout_secs"
-        }
-    }
-    
-    public let status: Bool
-    public let config: AppLockConfig? // TODO: should be required
-    
-    public init(status: Bool, config: AppLockConfig) {
-       self.status = status
-       self.config = config
-    }
+struct FeatureConfigsResponse: Decodable {
+    public var applock: AppLockFeatureConfigResponse
     
     private enum CodingKeys: String, CodingKey {
-        case status
-        case config
+        case applock
     }
-    
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let statusStr = try container.decodeIfPresent(String.self, forKey: .status)
-        switch statusStr {
-        case "enabled":
-            status = true
-        case "disabled":
-            status = false
-        default:
-            status = false
+}
+
+struct AppLockFeatureConfigResponse: BaseFeatureConfig {
+    private var statusStr: String {
+        didSet {
+            self.status = convertToBool(statusStr)
         }
-        
-        self.config = try container.decodeIfPresent(AppLockConfig.self, forKey: .config)
     }
+    public var status: Bool = false
+    public var config: AppLockConfig
     
+    private enum CodingKeys: String, CodingKey {
+        case statusStr = "status"
+        case config = "config"
+    }
+}
+
+struct AppLockConfig: Decodable {
+    let enforceAppLock: Bool
+    let inactivityTimeoutSecs: UInt
+    
+    private enum CodingKeys: String, CodingKey {
+        case enforceAppLock = "enforce_app_lock"
+        case inactivityTimeoutSecs = "inactivity_timeout_secs"
+    }
 }
