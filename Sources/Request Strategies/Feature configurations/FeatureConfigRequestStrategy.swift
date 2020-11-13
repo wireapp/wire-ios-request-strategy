@@ -18,10 +18,6 @@
 
 import Foundation
 
-public enum Feature: String, Equatable {
-  case applock = "applock"
-}
-
 @objcMembers
 public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
@@ -30,7 +26,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     private var observers: [Any] = []
     private var fetchSingleConfigSync: ZMSingleRequestSync?
     private var fetchAllConfigsSync: ZMSingleRequestSync?
-    private var feature: Feature?
+    private var feature: FeatureName?
     
     // MARK: - Init
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
@@ -55,7 +51,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     }
     
     private func requestConfig(with note: NotificationInContext) {
-        feature = note.object as? Feature
+        feature = note.object as? FeatureName
         RequestAvailableNotification.notifyNewRequestsAvailable(self)
     }
     
@@ -88,9 +84,11 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
 
         switch sync {
         case fetchSingleConfigSync:
-            processFeatureConfigResponseSuccess(with: responseData)
+            break
+//            processFeatureConfigResponseSuccess(with: responseData)
         case fetchAllConfigsSync:
-            processAllConfigsResponseSuccess(with: responseData)
+            break
+//            processAllConfigsResponseSuccess(with: responseData)
         default:
             break
         }
@@ -106,105 +104,11 @@ extension FeatureConfigRequestStrategy {
         return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features")
     }
     
-    private func fetchConfigRequestFor(_ feature: Feature) -> ZMTransportRequest? {
+    private func fetchConfigRequestFor(_ feature: FeatureName) -> ZMTransportRequest? {
         guard let teamId = ZMUser.selfUser(in: managedObjectContext).teamIdentifier?.uuidString else {
             return nil
         }
-        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features/\(feature)")
-    }
-    
-    private func processAllConfigsResponseSuccess(with data: Data) {
-        if let response = try? JSONDecoder().decode(FeatureConfigsResponse.self, from: data) {
-            updateAppLockFeature(with: response.applock)
-        }
-    }
-    
-    private func processFeatureConfigResponseSuccess(with data: Data) {
-        var decodedResponse: BaseFeatureConfig?
-        switch feature {
-        case .applock:
-            decodedResponse = try? JSONDecoder().decode(AppLockFeatureConfigResponse.self, from: data)
-        default:
-            decodedResponse = nil
-        }
-        
-        if let decodedResponse = decodedResponse {
-            update(with: decodedResponse)
-        }
-    }
-    
-    private func update(with decodedResponse: BaseFeatureConfig) {
-        switch feature {
-        case .applock:
-            if let responce = decodedResponse as? AppLockFeatureConfigResponse {
-                updateAppLockFeature(with: responce)
-            }
-        default:
-            break
-        }
-    }
-    
-    private func updateAppLockFeature(with schema: AppLockFeatureConfigResponse) {
+        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features/\(feature.rawValue)")
     }
 }
 
-// MARK: - FeatureConfigResponses
-//protocol FeatureConfig: Decodable {}
-
-protocol BaseFeatureConfig: Decodable {
-    var status: Bool { get set }
-    func convertToBool(_ statusStr: String) -> Bool
-}
-
-extension BaseFeatureConfig {
-    func convertToBool(_ statusStr: String) -> Bool {
-        switch statusStr {
-        case "enabled":
-            return true
-        case "disabled":
-            return false
-        default:
-            return false
-        }
-    }
-}
-
-//"applock": {
-//  "status": "disabled",
-//  "config": {
-//     "enforce_app_lock": true,
-//     "inactivity_timeout_secs": 30
-//  }
-//}
-struct FeatureConfigsResponse: Decodable {
-    public var applock: AppLockFeatureConfigResponse
-    
-    private enum CodingKeys: String, CodingKey {
-        case applock
-    }
-}
-
-struct AppLockFeatureConfigResponse: BaseFeatureConfig {
-    private var statusStr: String {
-        didSet {
-            self.status = convertToBool(statusStr)
-        }
-    }
-    public var status: Bool = false
-    public var config: AppLockConfig
-    
-    private enum CodingKeys: String, CodingKey {
-        case statusStr = "status"
-        case config = "config"
-    }
-}
-
-struct AppLockConfig: Decodable {
-    let enforceAppLock: Bool
-    let inactivityTimeoutSecs: UInt
-    
-    private enum CodingKeys: String, CodingKey {
-        case enforceAppLock = "enforce_app_lock"
-        case inactivityTimeoutSecs = "inactivity_timeout_secs"
-    }
-}

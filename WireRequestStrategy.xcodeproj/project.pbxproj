@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		064F8E0A255E70690040371D /* FeatureConfigController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064F8E09255E70690040371D /* FeatureConfigController.swift */; };
 		06B280442559ACC300DF29AD /* FeatureConfigRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B280432559ACC300DF29AD /* FeatureConfigRequestStrategy.swift */; };
 		1621D2281D75AB2D007108C2 /* MockEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2231D75AB2D007108C2 /* MockEntity.m */; };
 		1621D2291D75AB2D007108C2 /* MockEntity2.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2251D75AB2D007108C2 /* MockEntity2.m */; };
@@ -238,6 +239,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		064F8E09255E70690040371D /* FeatureConfigController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureConfigController.swift; sourceTree = "<group>"; };
 		06B280432559ACC300DF29AD /* FeatureConfigRequestStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureConfigRequestStrategy.swift; sourceTree = "<group>"; };
 		1621D2221D75AB2D007108C2 /* MockEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MockEntity.h; sourceTree = "<group>"; };
 		1621D2231D75AB2D007108C2 /* MockEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MockEntity.m; sourceTree = "<group>"; };
@@ -963,6 +965,7 @@
 				F963E8D91D955D4600098AD3 /* AssetRequestFactory.swift */,
 				D5D65A052073C8F800D7F3C3 /* AssetRequestFactoryTests.swift */,
 				EE997A17250654B0008336D2 /* Logging.swift */,
+				064F8E09255E70690040371D /* FeatureConfigController.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1183,6 +1186,7 @@
 				5E9EA4DE2243C10400D401B2 /* LinkAttachmentsPreprocessor.swift in Sources */,
 				166901E01D7081C7000FE4AF /* ZMRemoteIdentifierObjectSync.m in Sources */,
 				F18401A42073BE0800E9F4CC /* GenericMessageRequestStrategy.swift in Sources */,
+				064F8E0A255E70690040371D /* FeatureConfigController.swift in Sources */,
 				1621D2751D7715EA007108C2 /* ZMObjectSyncStrategy.m in Sources */,
 				166901E21D7081C7000FE4AF /* ZMRequestGenerator.m in Sources */,
 				F18401A32073BE0800E9F4CC /* GenericMessageNotificationRequestStrategy.swift in Sources */,
