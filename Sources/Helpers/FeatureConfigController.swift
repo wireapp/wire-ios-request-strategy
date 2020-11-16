@@ -21,14 +21,16 @@ import Foundation
 public class FeatureConfigController: NSObject {
     
     public func saveSingleConfig(for featureName: FeatureName, data: Data) {
-        
-        if let features = try? JSONDecoder().decode(FeatureConfigResponse<AppLockConfig>.self, from: data) {
+        let newType = FeatureConfigResponse<AppLockConfig>.self
+        if let features = try? JSONDecoder().decode(newType, from: data) {
         }
     }
     
     public func saveConfigs(_ data: Data) {
         if let features = try? JSONDecoder().decode(FeatureConfigsResponse.self, from: data) {
         }
+        
+       
     }
     
     struct FeatureConfigsResponse: Decodable {
