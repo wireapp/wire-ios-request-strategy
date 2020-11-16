@@ -16,12 +16,16 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
+import Foundation
+
 public protocol Configurable {
     associatedtype Config: Codable
+    static var name: String { get }
 }
 
 enum FeatureModel {
     enum AppLock: Configurable {
+        static var name: String = "applock"
         struct Config: Codable {
             let enforceAppLock: Bool
             let inactivityTimeoutSecs: UInt
@@ -34,9 +38,9 @@ enum FeatureModel {
     }
 }
 
-struct FeatureResponse<ConfigType: Decodable>: Decodable {
+struct FeatureConfigResponse<T: Configurable>: Decodable {
     var status: String
-    var config: ConfigType?
+    var config: T.Config?
     
     private enum CodingKeys: String, CodingKey {
         case status
@@ -44,19 +48,24 @@ struct FeatureResponse<ConfigType: Decodable>: Decodable {
     }
 }
 
-struct FeatureConfigsResponse: Decodable {
-    var applock: FeatureResponse<FeatureModel.AppLock.Config>
+extension FeatureConfigResponse {
+    var configData: Data? {
+        return try? JSONEncoder().encode(config)
+    }
+}
+
+struct AllFeatureConfigsResponse: Decodable {
+    var applock: FeatureConfigResponse<FeatureModel.AppLock>
     
     private enum CodingKeys: String, CodingKey {
         case applock
     }
 }
 
-import Foundation
-
 public class FeatureController {
     
-//    var observers: [[String : ((T.Config) -> Void)]]? = []
+    public static let needsToUpdateFeatureNotificationName = Notification.Name("needsToUpdateFeatureConfiguration")
+
     private(set) var moc: NSManagedObjectContext
     
     init(managedObjectContext: NSManagedObjectContext) {
@@ -64,23 +73,17 @@ public class FeatureController {
     }
     
     func status<T: Configurable>(for feature: T.Type) -> Bool {
-        guard let featureName = getName(for: feature),
-            let feature = Feature.fetch(featureName, context: moc) else {
+        guard let feature = Feature.fetch(feature.name, context: moc) else {
                 return false
         }
-        return feature.status.boolStatus()
+        return Bool(statusStr: feature.status)
     }
     
     func configuration<T: Configurable>(for feature: T.Type) -> T.Config? {
-        guard let featureName = getName(for: feature),
-            let configData = Feature.fetch(featureName, context: moc)?.config else {
+        guard let configData = Feature.fetch(feature.name, context: moc)?.config else {
                 return nil
         }
         return try? JSONDecoder().decode(feature.Config, from: configData)
-    }
-    
-    func addObserver<T: Configurable>(for feature: T.Type, onChange: @escaping (T.Config) -> Void) {
-//        observers?.append(featureName : onChange)
     }
 }
 
@@ -88,43 +91,47 @@ public class FeatureController {
 // MARK: - Internal
 extension FeatureController {
     func save<T: Configurable>(_ feature: T.Type, data: Data) {
-        let features = try? JSONDecoder().decode(FeatureResponse<>, from: data)
+        do {
+            let configuration = try JSONDecoder().decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: data)
+            let appLockFeature = Feature.createOrUpdate(feature.name,
+                                                        status: configuration.status,
+                                                        config: configuration.configData,
+                                                        context: moc)
+            moc.saveOrRollback()
+            
+            if let appLockFeature = appLockFeature  {
+                NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
+            }
+            
+        } catch {}
     }
     
-//    internal func saveAllConfigs(_ data: Data) {
-//        if let features = try? JSONDecoder().decode(FeatureConfigsResponse.self, from: data) {
-//            //?
-//        }
-//    }
-}
-
-// MARK: - Private
-extension FeatureController {
-    private func getName<T: Configurable>(for feature: T.Type) -> String? {
-//        if T.self == FeatureModel.AppLock.self {
-//            return "applock"
-//        }
-//        return nil
-        
-        switch feature {
-        case is FeatureModel.AppLock.Type:
-            return "appLock"
-        default:
-            return nil
-        }
+    func saveAllFeatures(_ data: Data) {
+        do {
+            let allConfigs = try JSONDecoder().decode(AllFeatureConfigsResponse.self, from: data)
+            let appLock = (name: FeatureModel.AppLock.name, schema: allConfigs.applock)
+            let appLockFeature = Feature.createOrUpdate(appLock.name,
+                                                        status: appLock.schema.status,
+                                                        config: appLock.schema.configData,
+                                                        context: moc)
+            moc.saveOrRollback()
+            
+            if let appLockFeature = appLockFeature  {
+                NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
+            }
+        } catch {}
     }
 }
 
-private extension String {
-    func boolStatus() -> Bool {
-        switch self {
+private extension Bool {
+    init(statusStr: String) {
+        switch statusStr {
         case "enabled":
-            return true
+            self = true
         case "disabled":
-            return false
+            self = false
         default:
-            return false
+            self = false
         }
     }
 }
-
