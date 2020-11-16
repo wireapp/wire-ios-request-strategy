@@ -21,12 +21,14 @@ import Foundation
 @objcMembers
 public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
-    public static let needsToUpdateFeatureConfigNotificationName = Notification.Name("ZMNeedsToUpdateFeatureConfigNotification")
+    public static let needsToFetchFeatureConfigNotificationName = Notification.Name("needsToFetchFeatureConfiguration")
     
     private var observers: [Any] = []
     private var fetchSingleConfigSync: ZMSingleRequestSync?
     private var fetchAllConfigsSync: ZMSingleRequestSync?
-    private var feature: FeatureName?
+    
+    // Have a queue feature names.
+    private var feature: String?
     
     // MARK: - Init
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
@@ -43,7 +45,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
         self.fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self,
                                                        groupQueue: managedObjectContext)
         self.observers.append(NotificationInContext.addObserver(
-            name: FeatureConfigRequestStrategy.needsToUpdateFeatureConfigNotificationName,
+            name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
             context: self.managedObjectContext.notificationContext,
             object: nil) { [weak self] in
                 self?.requestConfig(with: $0)
@@ -51,7 +53,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     }
     
     private func requestConfig(with note: NotificationInContext) {
-        feature = note.object as? FeatureName
+        feature = note.object as? String
         RequestAvailableNotification.notifyNewRequestsAvailable(self)
     }
     
@@ -76,19 +78,54 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
         }
     }
     
+    /*
+     "status": "disabled",
+     "config": {
+        "enforce_app_lock": true,
+         "inactivity_timeout_secs": 30
+     }
+     */
+    
     public func didReceive(_ response: ZMTransportResponse, forSingleRequest sync: ZMSingleRequestSync) {
         guard let responseData = response.rawData,
             (response.result == .permanentError || response.result == .success) else {
-            return
+             return
         }
-
+        
+        let decoder = JSONDecoder()
+        
         switch sync {
         case fetchSingleConfigSync:
+            // Decode
+            
+            
+//            do {
+//                let config = try decoder.decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: responseData)
+//
+//                // Feature entity
+//                // let feature = Feature.createNewObject(...)
+//                // moc.saveOrRollback()
+//
+//                // NotificationCenter.default.post....
+//
+//            } catch {
+//
+//            }
             break
-//            processFeatureConfigResponseSuccess(with: responseData)
+            
         case fetchAllConfigsSync:
+//            do {
+//                let allConfigs = try decoder.decode(AllFeatureConfigsResponse.self, from: responseData)
+//                //let appLockFeature = Feature.createNew
+//                //appLockfeature.name = "applock"
+//                //appLockFeature.status = ...
+//
+//
+//
+//            } catch {
+//
+//            }
             break
-//            processAllConfigsResponseSuccess(with: responseData)
         default:
             break
         }
@@ -104,11 +141,12 @@ extension FeatureConfigRequestStrategy {
         return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features")
     }
     
-    private func fetchConfigRequestFor(_ feature: FeatureName) -> ZMTransportRequest? {
+    private func fetchConfigRequestFor(_ feature: String) -> ZMTransportRequest? {
         guard let teamId = ZMUser.selfUser(in: managedObjectContext).teamIdentifier?.uuidString else {
             return nil
         }
-        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features/\(feature.rawValue)")
+        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features/\(feature)")
     }
 }
+
 
