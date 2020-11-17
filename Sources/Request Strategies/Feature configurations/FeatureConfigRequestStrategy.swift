@@ -41,7 +41,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
                               .allowsRequestsDuringQuickSync,
                               .allowsRequestsWhileInBackground]
         
-        featureController = FeatureController(managedObjectContext: managedObjectContext)
+        self.featureController = FeatureController(managedObjectContext: managedObjectContext)
         self.fetchSingleConfigSync = ZMSingleRequestSync(singleRequestTranscoder: self,
                                                      groupQueue: managedObjectContext)
         self.fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self,
@@ -94,14 +94,11 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
              return
         }
         
-        let decoder = JSONDecoder()
-        
         switch sync {
         case fetchSingleConfigSync:
-            break
-            
+            featureController?.save(FeatureModel.AppLock.self, data: responseData)
         case fetchAllConfigsSync:
-            break
+            featureController?.saveAllFeatures(responseData)
         default:
             break
         }
