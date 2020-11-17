@@ -23,10 +23,10 @@ public protocol Configurable {
     static var name: String { get }
 }
 
-enum FeatureModel {
-    enum AppLock: Configurable {
-        static var name: String = "applock"
-        struct Config: Codable {
+public enum FeatureModel {
+    public enum AppLock: Configurable {
+        public static var name: String = "applock"
+        public struct Config: Codable {
             let enforceAppLock: Bool
             let inactivityTimeoutSecs: UInt
             
@@ -38,7 +38,7 @@ enum FeatureModel {
     }
 }
 
-struct FeatureConfigResponse<T: Configurable>: Decodable {
+public struct FeatureConfigResponse<T: Configurable>: Decodable {
     var status: String
     var config: T.Config?
     
@@ -68,18 +68,18 @@ public class FeatureController {
 
     private(set) var moc: NSManagedObjectContext
     
-    init(managedObjectContext: NSManagedObjectContext) {
+    public init(managedObjectContext: NSManagedObjectContext) {
         moc = managedObjectContext
     }
     
-    func status<T: Configurable>(for feature: T.Type) -> Bool {
+    public func status<T: Configurable>(for feature: T.Type) -> Bool {
         guard let feature = Feature.fetch(feature.name, context: moc) else {
                 return false
         }
         return Bool(statusStr: feature.status)
     }
     
-    func configuration<T: Configurable>(for feature: T.Type) -> T.Config? {
+    public func configuration<T: Configurable>(for feature: T.Type) -> T.Config? {
         guard let configData = Feature.fetch(feature.name, context: moc)?.config else {
                 return nil
         }
@@ -90,7 +90,7 @@ public class FeatureController {
 
 // MARK: - Internal
 extension FeatureController {
-    func save<T: Configurable>(_ feature: T.Type, data: Data) {
+    public func save<T: Configurable>(_ feature: T.Type, data: Data) {
         do {
             let configuration = try JSONDecoder().decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: data)
             let appLockFeature = Feature.createOrUpdate(feature.name,
@@ -106,7 +106,7 @@ extension FeatureController {
         } catch {}
     }
     
-    func saveAllFeatures(_ data: Data) {
+    public func saveAllFeatures(_ data: Data) {
         do {
             let allConfigs = try JSONDecoder().decode(AllFeatureConfigsResponse.self, from: data)
             let appLock = (name: FeatureModel.AppLock.name, schema: allConfigs.applock)

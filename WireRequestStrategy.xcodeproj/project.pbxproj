@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		069D07BA2562793E00DBA592 /* FeatureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 069D07B92562793E00DBA592 /* FeatureController.swift */; };
+		06D0651A256340470057836B /* FeatureControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06D06519256340470057836B /* FeatureControllerTest.swift */; };
 		1621D2281D75AB2D007108C2 /* MockEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2231D75AB2D007108C2 /* MockEntity.m */; };
 		1621D2291D75AB2D007108C2 /* MockEntity2.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2251D75AB2D007108C2 /* MockEntity2.m */; };
 		1621D22A1D75AB2D007108C2 /* MockModelObjectContextFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2271D75AB2D007108C2 /* MockModelObjectContextFactory.m */; };
@@ -239,6 +240,7 @@
 
 /* Begin PBXFileReference section */
 		069D07B92562793E00DBA592 /* FeatureController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureController.swift; sourceTree = "<group>"; };
+		06D06519256340470057836B /* FeatureControllerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureControllerTest.swift; sourceTree = "<group>"; };
 		1621D2221D75AB2D007108C2 /* MockEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MockEntity.h; sourceTree = "<group>"; };
 		1621D2231D75AB2D007108C2 /* MockEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MockEntity.m; sourceTree = "<group>"; };
 		1621D2241D75AB2D007108C2 /* MockEntity2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MockEntity2.h; sourceTree = "<group>"; };
@@ -480,6 +482,7 @@
 			isa = PBXGroup;
 			children = (
 				F18401F82073C2E600E9F4CC /* MessagingTest+Encryption.swift */,
+				06D06519256340470057836B /* FeatureControllerTest.swift */,
 				F18401F62073C2E500E9F4CC /* MessagingTestBase.swift */,
 				F18401F92073C2E600E9F4CC /* MockObjects.swift */,
 				F18401F72073C2E600E9F4CC /* RequestStrategyTestBase.swift */,
@@ -643,7 +646,6 @@
 		F184014D2073BE0800E9F4CC /* Request Strategies */ = {
 			isa = PBXGroup;
 			children = (
-				06B280422559AC6900DF29AD /* Feature configurations */,
 				16751E8324CF724F0099AE09 /* Delivery Receipts */,
 				F14B7AD5222006A100458624 /* User */,
 				F184014E2073BE0800E9F4CC /* Client Message */,
@@ -1213,6 +1215,7 @@
 			files = (
 				F18401E12073C25900E9F4CC /* ClientMessageTranscoderTests+Depedency.swift in Sources */,
 				547D47191E7C2F6C002EEA15 /* DependentObjectsTests.swift in Sources */,
+				06D0651A256340470057836B /* FeatureControllerTest.swift in Sources */,
 				F19561F5202A1361005347C0 /* ZMUpstreamModifiedObjectSyncTests.m in Sources */,
 				164D007622256C6E00A8F264 /* AssetV3UploadRequestStrategyTests.swift in Sources */,
 				BFF9446620F5F79F00531BC3 /* ImageV2DownloadRequestStrategyTests.swift in Sources */,
