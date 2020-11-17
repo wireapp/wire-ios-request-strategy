@@ -36,43 +36,71 @@ class FeatureControllerTest: MessagingTestBase {
     
     func testThatItSavesAllFeatures() {
         // Given
-        let json: [String : Any] = ["applock": [
-            "status": "disabled",
-            "config": [
-            "enforce_app_lock": true,
-            "inactivity_timeout_secs": 30
-            ]
-            ]
-            ]
-        
-        let data = try? JSONSerialization.data(withJSONObject: json, options: JSONSerialization.WritingOptions.prettyPrinted)
+        let json = """
+        {
+          "applock": {
+              "status": "disabled",
+               "config": {
+                "enforce_app_lock": true,
+                "inactivity_timeout_secs": 30
+               }
+            }
+        }
+        """
+        let data = json.data(using: .utf8)!
         
         // When
-        sut.saveAllFeatures(data!)
+        sut.saveAllFeatures(data)
        
         // Then
-        let featureStatus = sut.status(for: FeatureModel.AppLock.self)
-        XCTAssertEqual(featureStatus, false)
+        let fechedFeature = Feature.fetch("applock",
+                                          context: self.uiMOC)
+        XCTAssertNotNil(fechedFeature)
     }
     
     func testThatItSavesSingleFeature() {
         // Given
-        let json: [String : Any] = [
-            "status": "enabled",
-            "config": [
-                "enforce_app_lock": true,
-                "inactivity_timeout_secs": 30
-            ]
-        ]
+        let json = """
+               {
+                "status": "enabled",
+                    "config": {
+                       "enforce_app_lock": true,
+                       "inactivity_timeout_secs": 30
+                    }
+               }
+               """
         
-        let data = try? JSONSerialization.data(withJSONObject: json, options: JSONSerialization.WritingOptions.prettyPrinted)
+        let data = json.data(using: .utf8)!
         
         // When
-        sut.save(FeatureModel.AppLock.self, data: data!)
+        sut.save(FeatureModel.AppLock.self, data: data)
+        
+        // Then
+        let fechedFeature = Feature.fetch("applock",
+                                          context: self.uiMOC)
+        XCTAssertNotNil(fechedFeature)
+    }
+    
+    func testThatItFetchesAFeatureStatus() {
+        // Given
+        let json = """
+               {
+                "status": "enabled",
+                    "config": {
+                       "enforce_app_lock": true,
+                       "inactivity_timeout_secs": 30
+                    }
+               }
+               """
+        
+        let data = json.data(using: .utf8)!
+        
+        // When
+        sut.save(FeatureModel.AppLock.self, data: data)
         
         // Then
         let featureStatus = sut.status(for: FeatureModel.AppLock.self)
-        XCTAssertEqual(featureStatus, true)
+        XCTAssertEqual(featureStatus, .enabled)
         
     }
 }

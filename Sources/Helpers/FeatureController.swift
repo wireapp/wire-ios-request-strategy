@@ -98,7 +98,6 @@ extension FeatureController {
                                                         status: configuration.status,
                                                         config: configuration.configData,
                                                         context: moc)
-            moc.saveOrRollback()
             
             // TODO: Katerina make it more general for all features
             if let appLockFeature = feature  {
@@ -118,7 +117,6 @@ extension FeatureController {
                                                         status: appLock.schema.status,
                                                         config: appLock.schema.configData,
                                                         context: moc)
-            moc.saveOrRollback()
             
             if let appLockFeature = appLockFeature  {
                 NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
