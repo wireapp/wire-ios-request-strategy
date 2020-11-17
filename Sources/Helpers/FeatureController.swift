@@ -18,9 +18,12 @@
 
 import Foundation
 
-public protocol Configurable {
+public protocol Named {
+  static var name: String { get }
+}
+
+public protocol Configurable: Named {
     associatedtype Config: Codable
-    static var name: String { get }
 }
 
 public enum FeatureModel {
@@ -74,7 +77,7 @@ public class FeatureController {
         moc = managedObjectContext
     }
     
-    public func status<T: Configurable>(for feature: T.Type) -> Feature.Status {
+    public func status<T: Named>(for feature: T.Type) -> Feature.Status {
         guard let feature = Feature.fetch(T.name, context: moc) else {
             return .disabled
         }
