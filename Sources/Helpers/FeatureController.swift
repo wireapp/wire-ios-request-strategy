@@ -18,9 +18,12 @@
 
 import Foundation
 
-public protocol Configurable {
+public protocol Named {
+  static var name: String { get }
+}
+
+public protocol Configurable: Named {
     associatedtype Config: Codable
-    static var name: String { get }
 }
 
 public enum FeatureModel {
@@ -31,15 +34,15 @@ public enum FeatureModel {
             let inactivityTimeoutSecs: UInt
             
             private enum CodingKeys: String, CodingKey {
-                case enforceAppLock = "enforce_app_lock"
-                case inactivityTimeoutSecs = "inactivity_timeout_secs"
+                case enforceAppLock = "enforceAppLock"
+                case inactivityTimeoutSecs = "inactivityTimeoutSecs"
             }
         }
     }
 }
 
 public struct FeatureConfigResponse<T: Configurable>: Decodable {
-    var status: String
+    var status: Feature.Status
     var config: T.Config?
     
     private enum CodingKeys: String, CodingKey {
@@ -62,6 +65,8 @@ struct AllFeatureConfigsResponse: Decodable {
     }
 }
 
+private let zmLog = ZMSLog(tag: "feature configurations")
+
 public class FeatureController {
     
     public static let needsToUpdateFeatureNotificationName = Notification.Name("needsToUpdateFeatureConfiguration")
@@ -72,38 +77,37 @@ public class FeatureController {
         moc = managedObjectContext
     }
     
-    public func status<T: Configurable>(for feature: T.Type) -> Bool {
-        guard let feature = Feature.fetch(feature.name, context: moc) else {
-                return false
+    public func status<T: Named>(for feature: T.Type) -> Feature.Status {
+        guard let feature = Feature.fetch(T.name, context: moc) else {
+            return .disabled
         }
-        return Bool(statusStr: feature.status)
+        return feature.status
     }
     
     public func configuration<T: Configurable>(for feature: T.Type) -> T.Config? {
-        guard let configData = Feature.fetch(feature.name, context: moc)?.config else {
+        guard let configData = Feature.fetch(T.name, context: moc)?.config else {
                 return nil
         }
-        return try? JSONDecoder().decode(feature.Config, from: configData)
+        return try? JSONDecoder().decode(T.Config.self, from: configData)
     }
 }
 
-
-// MARK: - Internal
+// MARK: - Save to Core Data
 extension FeatureController {
     public func save<T: Configurable>(_ feature: T.Type, data: Data) {
         do {
-            let configuration = try JSONDecoder().decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: data)
-            let appLockFeature = Feature.createOrUpdate(feature.name,
-                                                        status: configuration.status,
-                                                        config: configuration.configData,
-                                                        context: moc)
-            moc.saveOrRollback()
+            let configuration = try JSONDecoder().decode(FeatureConfigResponse<T>.self, from: data)
+            let feature = Feature.createOrUpdate(feature.name,
+                                                 status: configuration.status,
+                                                 config: configuration.configData,
+                                                 context: moc)
             
-            if let appLockFeature = appLockFeature  {
-                NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
-            }
+            // TODO: Katerina make it more general for all features
+            NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : feature])
             
-        } catch {}
+        } catch {
+            zmLog.error("Failed to decode response: \(error)")
+        }
     }
     
     public func saveAllFeatures(_ data: Data) {
@@ -114,24 +118,10 @@ extension FeatureController {
                                                         status: appLock.schema.status,
                                                         config: appLock.schema.configData,
                                                         context: moc)
-            moc.saveOrRollback()
             
-            if let appLockFeature = appLockFeature  {
-                NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
-            }
-        } catch {}
-    }
-}
-
-private extension Bool {
-    init(statusStr: String) {
-        switch statusStr {
-        case "enabled":
-            self = true
-        case "disabled":
-            self = false
-        default:
-            self = false
+            NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
+        } catch {
+            zmLog.error("Failed to decode response: \(error)")
         }
     }
 }
