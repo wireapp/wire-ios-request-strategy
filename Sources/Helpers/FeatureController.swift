@@ -31,15 +31,15 @@ public enum FeatureModel {
             let inactivityTimeoutSecs: UInt
             
             private enum CodingKeys: String, CodingKey {
-                case enforceAppLock = "enforce_app_lock"
-                case inactivityTimeoutSecs = "inactivity_timeout_secs"
+                case enforceAppLock = "enforceAppLock"
+                case inactivityTimeoutSecs = "inactivityTimeoutSecs"
             }
         }
     }
 }
 
 public struct FeatureConfigResponse<T: Configurable>: Decodable {
-    var status: FeatureStatus
+    var status: Feature.Status
     var config: T.Config?
     
     private enum CodingKeys: String, CodingKey {
@@ -74,7 +74,7 @@ public class FeatureController {
         moc = managedObjectContext
     }
     
-    public func status<T: Configurable>(for feature: T.Type) -> FeatureStatus {
+    public func status<T: Configurable>(for feature: T.Type) -> Feature.Status {
         guard let feature = Feature.fetch(T.name, context: moc) else {
             return .disabled
         }
@@ -95,17 +95,15 @@ extension FeatureController {
         do {
             let configuration = try JSONDecoder().decode(FeatureConfigResponse<T>.self, from: data)
             let feature = Feature.createOrUpdate(feature.name,
-                                                        status: configuration.status,
-                                                        config: configuration.configData,
-                                                        context: moc)
+                                                 status: configuration.status,
+                                                 config: configuration.configData,
+                                                 context: moc)
             
             // TODO: Katerina make it more general for all features
-            if let appLockFeature = feature  {
-                NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
-            }
+            NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : feature])
             
         } catch {
-            zmLog.error("Failed to decode response: \(error)"); return
+            zmLog.error("Failed to decode response: \(error)")
         }
     }
     
@@ -118,11 +116,9 @@ extension FeatureController {
                                                         config: appLock.schema.configData,
                                                         context: moc)
             
-            if let appLockFeature = appLockFeature  {
-                NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
-            }
+            NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
         } catch {
-            zmLog.error("Failed to decode response: \(error)"); return
+            zmLog.error("Failed to decode response: \(error)")
         }
     }
 }

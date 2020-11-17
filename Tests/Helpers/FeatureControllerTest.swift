@@ -41,8 +41,8 @@ class FeatureControllerTest: MessagingTestBase {
           "applock": {
               "status": "disabled",
                "config": {
-                "enforce_app_lock": true,
-                "inactivity_timeout_secs": 30
+                "enforceAppLock": true,
+                "inactivityTimeoutSecs": 30
                }
             }
         }
@@ -56,6 +56,8 @@ class FeatureControllerTest: MessagingTestBase {
         let fechedFeature = Feature.fetch("applock",
                                           context: self.uiMOC)
         XCTAssertNotNil(fechedFeature)
+        XCTAssertEqual(fechedFeature?.name, "applock")
+        XCTAssertEqual(fechedFeature?.status, .disabled)
     }
     
     func testThatItSavesSingleFeature() {
@@ -64,8 +66,8 @@ class FeatureControllerTest: MessagingTestBase {
                {
                 "status": "enabled",
                     "config": {
-                       "enforce_app_lock": true,
-                       "inactivity_timeout_secs": 30
+                       "enforceAppLock": true,
+                       "inactivityTimeoutSecs": 30
                     }
                }
                """
@@ -79,6 +81,8 @@ class FeatureControllerTest: MessagingTestBase {
         let fechedFeature = Feature.fetch("applock",
                                           context: self.uiMOC)
         XCTAssertNotNil(fechedFeature)
+        XCTAssertEqual(fechedFeature?.name, "applock")
+        XCTAssertEqual(fechedFeature?.status, .enabled)
     }
     
     func testThatItFetchesAFeatureStatus() {
@@ -87,8 +91,8 @@ class FeatureControllerTest: MessagingTestBase {
                {
                 "status": "enabled",
                     "config": {
-                       "enforce_app_lock": true,
-                       "inactivity_timeout_secs": 30
+                       "enforceAppLock": true,
+                       "inactivityTimeoutSecs": 30
                     }
                }
                """
@@ -97,10 +101,9 @@ class FeatureControllerTest: MessagingTestBase {
         
         // When
         sut.save(FeatureModel.AppLock.self, data: data)
+        let featureStatus = sut.status(for: FeatureModel.AppLock.self)
         
         // Then
-        let featureStatus = sut.status(for: FeatureModel.AppLock.self)
         XCTAssertEqual(featureStatus, .enabled)
-        
     }
 }
