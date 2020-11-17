@@ -26,6 +26,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     private var observers: [Any] = []
     private var fetchSingleConfigSync: ZMSingleRequestSync?
     private var fetchAllConfigsSync: ZMSingleRequestSync?
+    private var featureController: FeatureController?
     
     // Have a queue feature names.
     private var feature: String?
@@ -40,6 +41,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
                               .allowsRequestsDuringQuickSync,
                               .allowsRequestsWhileInBackground]
         
+        featureController = FeatureController(managedObjectContext: managedObjectContext)
         self.fetchSingleConfigSync = ZMSingleRequestSync(singleRequestTranscoder: self,
                                                      groupQueue: managedObjectContext)
         self.fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self,
@@ -96,35 +98,9 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
         
         switch sync {
         case fetchSingleConfigSync:
-            // Decode
-            
-            
-//            do {
-//                let config = try decoder.decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: responseData)
-//
-//                // Feature entity
-//                // let feature = Feature.createNewObject(...)
-//                // moc.saveOrRollback()
-//
-//                // NotificationCenter.default.post....
-//
-//            } catch {
-//
-//            }
             break
             
         case fetchAllConfigsSync:
-//            do {
-//                let allConfigs = try decoder.decode(AllFeatureConfigsResponse.self, from: responseData)
-//                //let appLockFeature = Feature.createNew
-//                //appLockfeature.name = "applock"
-//                //appLockFeature.status = ...
-//
-//
-//
-//            } catch {
-//
-//            }
             break
         default:
             break
