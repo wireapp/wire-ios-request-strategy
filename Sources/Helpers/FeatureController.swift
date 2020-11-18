@@ -26,6 +26,7 @@ public protocol Configurable {
     associatedtype Config: Codable
 }
 
+// MARK: - Feature configurations and names
 public enum FeatureModel {
     public enum AppLock: Configurable, Named {
         public static var name: String = "applock"
@@ -34,13 +35,14 @@ public enum FeatureModel {
             let inactivityTimeoutSecs: UInt
             
             private enum CodingKeys: String, CodingKey {
-                case enforceAppLock = "enforceAppLock"
-                case inactivityTimeoutSecs = "inactivityTimeoutSecs"
+                case enforceAppLock
+                case inactivityTimeoutSecs
             }
         }
     }
 }
 
+// MARK: - Feature Responses
 public struct FeatureConfigResponse<T: Configurable>: Decodable {
     var status: Feature.Status
     var config: T.Config?
