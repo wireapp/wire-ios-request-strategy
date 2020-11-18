@@ -30,7 +30,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
     private let zmLog = ZMSLog(tag: "feature configurations")
     
-    private var notificationToken: Any?
+    private var observerToken: Any?
     private var pendingItems: [PendingItem] = []
     private var featureNames: [String] = []
     private var fetchSingleConfigSync: ZMSingleRequestSync!
@@ -52,7 +52,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
                                                          groupQueue: managedObjectContext)
         self.fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self,
                                                        groupQueue: managedObjectContext)
-        self.notificationToken = NotificationInContext.addObserver(
+        self.observerToken = NotificationInContext.addObserver(
             name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
             context: self.managedObjectContext.notificationContext,
             object: nil) { [weak self] in
