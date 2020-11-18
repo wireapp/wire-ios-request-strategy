@@ -60,6 +60,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
         }
     }
     
+    // MARK: - Overrides
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
         guard let _ = pendingItems.first else {
             return nil
