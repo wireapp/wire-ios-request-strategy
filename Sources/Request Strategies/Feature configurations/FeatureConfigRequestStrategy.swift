@@ -22,6 +22,8 @@ import Foundation
 public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
     public static let needsToFetchFeatureConfigNotificationName = Notification.Name("needsToFetchFeatureConfiguration")
+
+    private let zmLog = ZMSLog(tag: "feature configurations")
     
     private var notificationToken: Any?
     private var fetchSingleConfigSync: ZMSingleRequestSync!
@@ -81,18 +83,30 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
     }
     
     public func didReceive(_ response: ZMTransportResponse, forSingleRequest sync: ZMSingleRequestSync) {
-        guard let responseData = response.rawData,
-            (response.result == .permanentError || response.result == .success) else {
-             return
+        guard response.result == .permanentError || response.result == .success else {
+            zmLog.debug("error downloading feature configuration (\(response.httpStatus))")
+            return
+        }
+        guard let responseData = response.rawData else {
+            return
         }
         
         switch sync {
         case fetchSingleConfigSync:
-           // let configuration = try JSONDecoder().decode(FeatureConfigResponse<T>.self, from: data)
-            featureController.save(FeatureModel.AppLock.self, data: responseData)
+            do {
+                //TODO Katerina make it more general for all kind of features
+                let configuration = try JSONDecoder().decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: responseData)
+                featureController.save(FeatureModel.AppLock.self, configuration: configuration)
+            } catch {
+                zmLog.error("Failed to decode feature config response: \(error)")
+            }
         case fetchAllConfigsSync:
-            //let allConfigs = try JSONDecoder().decode(AllFeatureConfigsResponse.self, from: data)
-            featureController.saveAllFeatures(responseData)
+            do {
+                let allConfigs = try JSONDecoder().decode(AllFeatureConfigsResponse.self, from: responseData)
+                featureController.saveAllFeatures(allConfigs)
+            } catch {
+                zmLog.error("Failed to decode feature config response: \(error)")
+            }
         default:
             break
         }
