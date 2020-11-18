@@ -48,13 +48,13 @@ class FeatureControllerTest: MessagingTestBase {
         }
         """
         let data = json.data(using: .utf8)!
+        let allConfigs = try! JSONDecoder().decode(AllFeatureConfigsResponse.self, from: data)
         
         // When
-        sut.saveAllFeatures(data)
+        sut.saveAllFeatures(allConfigs)
        
         // Then
-        let fechedFeature = Feature.fetch("applock",
-                                          context: self.uiMOC)
+        let fechedFeature = Feature.fetch("applock", context: self.uiMOC)
         XCTAssertNotNil(fechedFeature)
         XCTAssertEqual(fechedFeature?.name, "applock")
         XCTAssertEqual(fechedFeature?.status, .disabled)
@@ -73,13 +73,13 @@ class FeatureControllerTest: MessagingTestBase {
                """
         
         let data = json.data(using: .utf8)!
+        let configuration = try! JSONDecoder().decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: data)
         
         // When
-        sut.save(FeatureModel.AppLock.self, data: data)
+        sut.save(FeatureModel.AppLock.self, configuration: configuration)
         
         // Then
-        let fechedFeature = Feature.fetch("applock",
-                                          context: self.uiMOC)
+        let fechedFeature = Feature.fetch("applock", context: self.uiMOC)
         XCTAssertNotNil(fechedFeature)
         XCTAssertEqual(fechedFeature?.name, "applock")
         XCTAssertEqual(fechedFeature?.status, .enabled)
@@ -98,10 +98,11 @@ class FeatureControllerTest: MessagingTestBase {
                """
         
         let data = json.data(using: .utf8)!
+        let configuration = try! JSONDecoder().decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: data)
+        sut.save(FeatureModel.AppLock.self, configuration: configuration)
         
         // When
-        sut.save(FeatureModel.AppLock.self, data: data)
-        let featureStatus = sut.status(for: FeatureModel.AppLock.self)
+        let featureStatus = FeatureController.status(for: FeatureModel.AppLock.self, context: self.uiMOC)
         
         // Then
         XCTAssertEqual(featureStatus, .enabled)
