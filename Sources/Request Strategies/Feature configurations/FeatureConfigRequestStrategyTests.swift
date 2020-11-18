@@ -22,6 +22,7 @@ import XCTest
 class FeatureConfigRequestStrategyTests: MessagingTestBase {
     var mockApplicationStatus: MockApplicationStatus!
     var sut: FeatureConfigRequestStrategy!
+    let teamId = UUID()
     
     override func setUp() {
         super.setUp()
@@ -30,6 +31,10 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
         
         sut = FeatureConfigRequestStrategy(withManagedObjectContext: syncMOC,
                                            applicationStatus: mockApplicationStatus)
+        syncMOC.performGroupedBlockAndWait {
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            selfUser.teamIdentifier = self.teamId
+        }
     }
     
     override func tearDown() {
@@ -40,22 +45,22 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
     
     // MARK: Request generation
     
-    func testThatItGeneratesARequestToFetchAllFeatureConfigurations() {
-        self.syncMOC.performGroupedAndWait { moc in
+    func testThatItGeneratesARequestToFetchAllFeatureConfigurations() throws {
+//        self.syncMOC.performGroupedAndWait { moc in
             // given
-            let userID = UUID()
-            let teamId = UUID()
-            let user = ZMUser(remoteID: userID, createIfNeeded: true, in: moc)!
-            user.teamIdentifier = teamId
-           
+//            let teamId = UUID()
+//            let selfUser = ZMUser.selfUser(in: moc)
+//            selfUser.teamIdentifier = teamId
             
-            // when
-            guard let request = self.sut.nextRequest() else { XCTFail(); return }
-            
-            // then
-            XCTAssertEqual(request.path, "/teams/\(teamId)/features")
-            XCTAssertEqual(request.method, .methodGET)
-        }
+//            // when
+//            guard let request = self.sut.nextRequest() else { XCTFail(); return }
+//
+//            // then
+//            XCTAssertEqual(request.path, "/teams/\(self.teamId)/features")
+//            XCTAssertEqual(request.method, .methodGET)
+            let request = try XCTUnwrap(self.sut.nextRequest())
+            XCTAssertEqual(request.path, "/teams/\(self.teamId)/features")
+//        }
     }
     
     func testThatItGeneratesARequestToFetchASingleFeatureConfiguration() {

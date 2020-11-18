@@ -23,10 +23,10 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
     public static let needsToFetchFeatureConfigNotificationName = Notification.Name("needsToFetchFeatureConfiguration")
     
-    private var observers: [Any] = []
-    private var fetchSingleConfigSync: ZMSingleRequestSync?
-    private var fetchAllConfigsSync: ZMSingleRequestSync?
-    private var featureController: FeatureController?
+    private var notificationToken: Any?
+    private var fetchSingleConfigSync: ZMSingleRequestSync!
+    private var fetchAllConfigsSync: ZMSingleRequestSync!
+    private var featureController: FeatureController!
     
     // Have a queue feature names.
     private var feature: String?
@@ -46,12 +46,12 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
                                                      groupQueue: managedObjectContext)
         self.fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self,
                                                        groupQueue: managedObjectContext)
-        self.observers.append(NotificationInContext.addObserver(
+        self.notificationToken = NotificationInContext.addObserver(
             name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
             context: self.managedObjectContext.notificationContext,
             object: nil) { [weak self] in
                 self?.requestConfig(with: $0)
-        })
+        }
     }
     
     private func requestConfig(with note: NotificationInContext) {
@@ -60,7 +60,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     }
     
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return (feature == nil) ? fetchAllConfigsSync?.nextRequest() : fetchSingleConfigSync?.nextRequest()
+        return (feature == nil) ? fetchAllConfigsSync.nextRequest() : fetchSingleConfigSync.nextRequest()
     }
 }
 
@@ -80,14 +80,6 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
         }
     }
     
-    /*
-     "status": "disabled",
-     "config": {
-        "enforce_app_lock": true,
-         "inactivity_timeout_secs": 30
-     }
-     */
-    
     public func didReceive(_ response: ZMTransportResponse, forSingleRequest sync: ZMSingleRequestSync) {
         guard let responseData = response.rawData,
             (response.result == .permanentError || response.result == .success) else {
@@ -96,9 +88,11 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
         
         switch sync {
         case fetchSingleConfigSync:
-            featureController?.save(FeatureModel.AppLock.self, data: responseData)
+           // let configuration = try JSONDecoder().decode(FeatureConfigResponse<T>.self, from: data)
+            featureController.save(FeatureModel.AppLock.self, data: responseData)
         case fetchAllConfigsSync:
-            featureController?.saveAllFeatures(responseData)
+            //let allConfigs = try JSONDecoder().decode(AllFeatureConfigsResponse.self, from: data)
+            featureController.saveAllFeatures(responseData)
         default:
             break
         }
