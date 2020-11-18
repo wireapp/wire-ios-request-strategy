@@ -19,7 +19,7 @@
 import Foundation
 import XCTest
 import WireTesting
-import WireRequestStrategy
+@testable import WireRequestStrategy
 
 class FeatureControllerTest: MessagingTestBase {
     var sut: FeatureController!
@@ -102,7 +102,7 @@ class FeatureControllerTest: MessagingTestBase {
         sut.save(FeatureModel.AppLock.self, configuration: configuration)
         
         // When
-        let featureStatus = FeatureController.status(for: FeatureModel.AppLock.self, context: self.uiMOC)
+        let featureStatus = FeatureController.status(for: FeatureModel.AppLock.self, managedObjectContext: self.uiMOC)
         
         // Then
         XCTAssertEqual(featureStatus, .enabled)
