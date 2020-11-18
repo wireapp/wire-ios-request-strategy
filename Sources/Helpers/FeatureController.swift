@@ -22,12 +22,12 @@ public protocol Named {
   static var name: String { get }
 }
 
-public protocol Configurable: Named {
+public protocol Configurable {
     associatedtype Config: Codable
 }
 
 public enum FeatureModel {
-    public enum AppLock: Configurable {
+    public enum AppLock: Configurable, Named {
         public static var name: String = "applock"
         public struct Config: Codable {
             let enforceAppLock: Bool
@@ -57,15 +57,13 @@ extension FeatureConfigResponse {
     }
 }
 
-struct AllFeatureConfigsResponse: Decodable {
+public struct AllFeatureConfigsResponse: Decodable {
     var applock: FeatureConfigResponse<FeatureModel.AppLock>
     
     private enum CodingKeys: String, CodingKey {
         case applock
     }
 }
-
-private let zmLog = ZMSLog(tag: "feature configurations")
 
 public class FeatureController {
     
@@ -77,14 +75,14 @@ public class FeatureController {
         moc = managedObjectContext
     }
     
-    public func status<T: Named>(for feature: T.Type) -> Feature.Status {
-        guard let feature = Feature.fetch(T.name, context: moc) else {
+    public static func status<T: Named>(for feature: T.Type, context: NSManagedObjectContext) -> Feature.Status {
+        guard let feature = Feature.fetch(T.name, context: context) else {
             return .disabled
         }
         return feature.status
     }
     
-    public func configuration<T: Configurable>(for feature: T.Type) -> T.Config? {
+    public func configuration<T: Configurable & Named>(for feature: T.Type) -> T.Config? {
         guard let configData = Feature.fetch(T.name, context: moc)?.config else {
                 return nil
         }
@@ -94,34 +92,23 @@ public class FeatureController {
 
 // MARK: - Save to Core Data
 extension FeatureController {
-    public func save<T: Configurable>(_ feature: T.Type, data: Data) {
-        do {
-            let configuration = try JSONDecoder().decode(FeatureConfigResponse<T>.self, from: data)
-            let feature = Feature.createOrUpdate(feature.name,
-                                                 status: configuration.status,
-                                                 config: configuration.configData,
-                                                 context: moc)
-            
-            // TODO: Katerina make it more general for all features
-            NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : feature])
-            
-        } catch {
-            zmLog.error("Failed to decode response: \(error)")
-        }
+    public func save<T: Configurable & Named>(_ feature: T.Type, configuration: FeatureConfigResponse<T>) {
+        let feature = Feature.createOrUpdate(feature.name,
+                                             status: configuration.status,
+                                             config: configuration.configData,
+                                             context: moc)
+        
+        // TODO: Katerina make it more general for all features
+        NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : feature])
     }
     
-    public func saveAllFeatures(_ data: Data) {
-        do {
-            let allConfigs = try JSONDecoder().decode(AllFeatureConfigsResponse.self, from: data)
-            let appLock = (name: FeatureModel.AppLock.name, schema: allConfigs.applock)
-            let appLockFeature = Feature.createOrUpdate(appLock.name,
-                                                        status: appLock.schema.status,
-                                                        config: appLock.schema.configData,
-                                                        context: moc)
-            
-            NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
-        } catch {
-            zmLog.error("Failed to decode response: \(error)")
-        }
+    public func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
+        let appLock = (name: FeatureModel.AppLock.name, schema: configurations.applock)
+        let appLockFeature = Feature.createOrUpdate(appLock.name,
+                                                    status: appLock.schema.status,
+                                                    config: appLock.schema.configData,
+                                                    context: moc)
+        
+        NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
     }
 }
