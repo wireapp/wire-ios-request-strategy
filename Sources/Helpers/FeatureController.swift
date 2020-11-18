@@ -75,16 +75,16 @@ public class FeatureController {
         moc = managedObjectContext
     }
     
-    public static func status<T: Named>(for feature: T.Type, context: NSManagedObjectContext) -> Feature.Status {
-        guard let feature = Feature.fetch(T.name, context: context) else {
+    public static func status<T: Named>(for feature: T.Type, managedObjectContext: NSManagedObjectContext) -> Feature.Status {
+        guard let feature = Feature.fetch(T.name, context: managedObjectContext) else {
             return .disabled
         }
         return feature.status
     }
     
-    public func configuration<T: Configurable & Named>(for feature: T.Type) -> T.Config? {
-        guard let configData = Feature.fetch(T.name, context: moc)?.config else {
-                return nil
+    public static func configuration<T: Configurable & Named>(for feature: T.Type, managedObjectContext: NSManagedObjectContext) -> T.Config? {
+        guard let configData = Feature.fetch(T.name, context: managedObjectContext)?.config else {
+            return nil
         }
         return try? JSONDecoder().decode(T.Config.self, from: configData)
     }
@@ -92,7 +92,7 @@ public class FeatureController {
 
 // MARK: - Save to Core Data
 extension FeatureController {
-    public func save<T: Configurable & Named>(_ feature: T.Type, configuration: FeatureConfigResponse<T>) {
+    internal func save<T: Configurable & Named>(_ feature: T.Type, configuration: FeatureConfigResponse<T>) {
         let feature = Feature.createOrUpdate(feature.name,
                                              status: configuration.status,
                                              config: configuration.configData,
@@ -102,7 +102,7 @@ extension FeatureController {
         NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : feature])
     }
     
-    public func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
+    internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
         let appLock = (name: FeatureModel.AppLock.name, schema: configurations.applock)
         let appLockFeature = Feature.createOrUpdate(appLock.name,
                                                     status: appLock.schema.status,
