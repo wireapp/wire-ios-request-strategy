@@ -21,17 +21,21 @@ import Foundation
 @objcMembers
 public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
+    enum PendingItem {
+        case singleFeature(name: String)
+        case allFeatures
+    }
+    
     public static let needsToFetchFeatureConfigNotificationName = Notification.Name("needsToFetchFeatureConfiguration")
-
+    
     private let zmLog = ZMSLog(tag: "feature configurations")
     
     private var notificationToken: Any?
+    private var pendingItems: [PendingItem] = []
+    private var featureNames: [String] = []
     private var fetchSingleConfigSync: ZMSingleRequestSync!
     private var fetchAllConfigsSync: ZMSingleRequestSync!
     private var featureController: FeatureController!
-    
-    // Have a queue feature names.
-    private var feature: String?
     
     // MARK: - Init
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
@@ -45,7 +49,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
         
         self.featureController = FeatureController(managedObjectContext: managedObjectContext)
         self.fetchSingleConfigSync = ZMSingleRequestSync(singleRequestTranscoder: self,
-                                                     groupQueue: managedObjectContext)
+                                                         groupQueue: managedObjectContext)
         self.fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self,
                                                        groupQueue: managedObjectContext)
         self.notificationToken = NotificationInContext.addObserver(
@@ -56,13 +60,19 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
         }
     }
     
-    private func requestConfig(with note: NotificationInContext) {
-        feature = note.object as? String
-        RequestAvailableNotification.notifyNewRequestsAvailable(self)
-    }
-    
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return (feature == nil) ? fetchAllConfigsSync.nextRequest() : fetchSingleConfigSync.nextRequest()
+        guard let _ = pendingItems.first else {
+            return nil
+        }
+        
+        let pendingItem = pendingItems.removeFirst()
+        switch pendingItem {
+        case let .singleFeature(featureName):
+            featureNames.append(featureName)
+            return fetchSingleConfigSync.nextRequest()
+        case .allFeatures:
+            return fetchAllConfigsSync.nextRequest()
+        }
     }
 }
 
@@ -71,10 +81,8 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
     public func request(for sync: ZMSingleRequestSync) -> ZMTransportRequest? {
         switch sync {
         case fetchSingleConfigSync:
-            guard let feature = feature else {
-                return nil
-            }
-            return fetchConfigRequestFor(feature)
+            let featureName = featureNames.removeFirst()
+            return fetchConfigRequestFor(featureName)
         case fetchAllConfigsSync:
             return fetchAllConfigsRequest()
         default:
@@ -113,7 +121,7 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
     }
 }
 
-// MARK: - Private methods
+// MARK: - Fetch configurations
 extension FeatureConfigRequestStrategy {
     private func fetchAllConfigsRequest() -> ZMTransportRequest? {
         guard let teamId = ZMUser.selfUser(in: managedObjectContext).teamIdentifier?.uuidString else {
@@ -130,4 +138,15 @@ extension FeatureConfigRequestStrategy {
     }
 }
 
+// MARK: - Private methods
+extension FeatureConfigRequestStrategy {
+    private func requestConfig(with note: NotificationInContext) {
+        if let featureName = note.object as? String {
+            pendingItems.append(.singleFeature(name: featureName))
+        } else {
+            pendingItems.append(.allFeatures)
+        }
+        RequestAvailableNotification.notifyNewRequestsAvailable(self)
+    }
+}
 
