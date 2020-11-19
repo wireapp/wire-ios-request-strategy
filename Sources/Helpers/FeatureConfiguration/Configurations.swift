@@ -37,7 +37,7 @@ extension Feature {
 }
 
 // MARK: - Feature Responses
-public struct FeatureConfigResponse<T: Configurable>: Decodable {
+struct FeatureConfigResponse<T: Configurable>: Decodable {
     var status: Feature.Status
     var config: T.Config?
     
@@ -46,6 +46,6 @@ public struct FeatureConfigResponse<T: Configurable>: Decodable {
     }
 }
 
-public struct AllFeatureConfigsResponse: Decodable {
+struct AllFeatureConfigsResponse: Decodable {
     var applock: FeatureConfigResponse<Feature.AppLock>
 }
