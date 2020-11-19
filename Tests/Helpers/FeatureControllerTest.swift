@@ -73,10 +73,10 @@ class FeatureControllerTest: MessagingTestBase {
                """
         
         let data = json.data(using: .utf8)!
-        let configuration = try! JSONDecoder().decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: data)
+        let configuration = try! JSONDecoder().decode(FeatureConfigResponse<Feature.AppLock>.self, from: data)
         
         // When
-        sut.save(FeatureModel.AppLock.self, configuration: configuration)
+        sut.save(Feature.AppLock.self, configuration: configuration)
         
         // Then
         let fechedFeature = Feature.fetch("applock", context: self.uiMOC)
@@ -98,11 +98,11 @@ class FeatureControllerTest: MessagingTestBase {
                """
         
         let data = json.data(using: .utf8)!
-        let configuration = try! JSONDecoder().decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: data)
-        sut.save(FeatureModel.AppLock.self, configuration: configuration)
+        let configuration = try! JSONDecoder().decode(FeatureConfigResponse<Feature.AppLock>.self, from: data)
+        sut.save(Feature.AppLock.self, configuration: configuration)
         
         // When
-        let featureStatus = FeatureController.status(for: FeatureModel.AppLock.self, managedObjectContext: self.uiMOC)
+        let featureStatus = FeatureController.status(for: Feature.AppLock.self, managedObjectContext: self.uiMOC)
         
         // Then
         XCTAssertEqual(featureStatus, .enabled)

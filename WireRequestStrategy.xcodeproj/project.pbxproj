@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0630670D2566765E00A9942E /* Configurations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630670C2566765E00A9942E /* Configurations.swift */; };
 		069D07BA2562793E00DBA592 /* FeatureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 069D07B92562793E00DBA592 /* FeatureController.swift */; };
 		06D0651A256340470057836B /* FeatureControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06D06519256340470057836B /* FeatureControllerTest.swift */; };
 		1621D2281D75AB2D007108C2 /* MockEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2231D75AB2D007108C2 /* MockEntity.m */; };
@@ -239,6 +240,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0630670C2566765E00A9942E /* Configurations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configurations.swift; sourceTree = "<group>"; };
 		069D07B92562793E00DBA592 /* FeatureController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureController.swift; sourceTree = "<group>"; };
 		06D06519256340470057836B /* FeatureControllerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureControllerTest.swift; sourceTree = "<group>"; };
 		1621D2221D75AB2D007108C2 /* MockEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MockEntity.h; sourceTree = "<group>"; };
@@ -478,6 +480,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0630670B2566763900A9942E /* FeatureConfiguration */ = {
+			isa = PBXGroup;
+			children = (
+				069D07B92562793E00DBA592 /* FeatureController.swift */,
+				0630670C2566765E00A9942E /* Configurations.swift */,
+			);
+			path = FeatureConfiguration;
+			sourceTree = "<group>";
+		};
 		1621D2211D75AB2D007108C2 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -946,6 +957,7 @@
 		F963E8D81D955D4600098AD3 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				0630670B2566763900A9942E /* FeatureConfiguration */,
 				F18401962073BE0800E9F4CC /* ZMStrategyConfigurationOption.h */,
 				F18401942073BE0800E9F4CC /* MessageExpirationTimer.swift */,
 				F18401972073BE0800E9F4CC /* MessageExpirationTimerTests.swift */,
@@ -957,7 +969,6 @@
 				F963E8D91D955D4600098AD3 /* AssetRequestFactory.swift */,
 				D5D65A052073C8F800D7F3C3 /* AssetRequestFactoryTests.swift */,
 				EE997A17250654B0008336D2 /* Logging.swift */,
-				069D07B92562793E00DBA592 /* FeatureController.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1158,6 +1169,7 @@
 				F18401D42073BE0800E9F4CC /* MessageExpirationTimer.swift in Sources */,
 				1622946B221C18BE00A98679 /* AssetV3UploadRequestStrategy.swift in Sources */,
 				1662ADB322B0E8B300D84071 /* VerifyLegalHoldRequestStrategy.swift in Sources */,
+				0630670D2566765E00A9942E /* Configurations.swift in Sources */,
 				166901EC1D7081C7000FE4AF /* ZMTimedSingleRequestSync.m in Sources */,
 				F184019D2073BE0800E9F4CC /* ClientMessageTranscoder.swift in Sources */,
 				F184019A2073BE0800E9F4CC /* ClientMessageRequestFactory.swift in Sources */,

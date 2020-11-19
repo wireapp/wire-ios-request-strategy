@@ -18,39 +18,6 @@
 
 import Foundation
 
-public protocol Named {
-  static var name: String { get }
-}
-
-public protocol Configurable {
-    associatedtype Config: Codable
-}
-
-// MARK: - Feature configurations and names
-public enum FeatureModel {
-    public enum AppLock: Configurable, Named {
-        public static var name: String = "applock"
-        public struct Config: Codable {
-            let enforceAppLock: Bool
-            let inactivityTimeoutSecs: UInt
-        }
-    }
-}
-
-// MARK: - Feature Responses
-public struct FeatureConfigResponse<T: Configurable>: Decodable {
-    var status: Feature.Status
-    var config: T.Config?
-    
-    var configData: Data? {
-        return try? JSONEncoder().encode(config)
-    }
-}
-
-public struct AllFeatureConfigsResponse: Decodable {
-    var applock: FeatureConfigResponse<FeatureModel.AppLock>
-}
-
 public class FeatureController {
     
     public static let needsToUpdateFeatureNotificationName = Notification.Name("needsToUpdateFeatureConfiguration")
@@ -93,7 +60,7 @@ extension FeatureController {
     }
     
     internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
-        let appLock = (name: FeatureModel.AppLock.name, schema: configurations.applock)
+        let appLock = (name: Feature.AppLock.name, schema: configurations.applock)
         let appLockFeature = Feature.createOrUpdate(appLock.name,
                                                     status: appLock.schema.status,
                                                     config: appLock.schema.configData,
