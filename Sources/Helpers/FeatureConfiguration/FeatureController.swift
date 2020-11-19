@@ -56,7 +56,7 @@ extension FeatureController {
                                              context: moc)
         
         // TODO: Katerina make it more general for all features
-        NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : feature])
+        NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: [Feature.AppLock.name : feature])
     }
     
     internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
