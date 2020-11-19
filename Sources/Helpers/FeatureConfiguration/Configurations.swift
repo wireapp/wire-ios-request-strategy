@@ -46,6 +46,6 @@ public struct FeatureConfigResponse<T: Configurable>: Decodable {
     }
 }
 
-public struct AllFeatureConfigsResponse: Decodable {
+struct AllFeatureConfigsResponse: Decodable {
     var applock: FeatureConfigResponse<Feature.AppLock>
 }

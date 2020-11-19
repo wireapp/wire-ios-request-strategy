@@ -20,11 +20,11 @@ import Foundation
 
 public class FeatureController {
     
-    public static let needsToUpdateFeatureNotificationName = Notification.Name("needsToUpdateFeatureConfiguration")
+    public static let featureConfigDidChange = Notification.Name("FeatureConfigDidChange")
 
     private(set) var moc: NSManagedObjectContext
     
-    public init(managedObjectContext: NSManagedObjectContext) {
+    init(managedObjectContext: NSManagedObjectContext) {
         moc = managedObjectContext
     }
     
@@ -56,7 +56,7 @@ extension FeatureController {
                                              context: moc)
         
         // TODO: Katerina make it more general for all features
-        NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: [Feature.AppLock.name : feature])
+        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [Feature.AppLock.name : feature])
     }
     
     internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
@@ -66,6 +66,6 @@ extension FeatureController {
                                                     config: appLock.schema.configData,
                                                     context: moc)
         
-        NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : appLockFeature])
+        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [appLock.name : appLockFeature])
     }
 }
