@@ -112,4 +112,22 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
             XCTAssertNil(request)
         }
     }
+    
+    func testThatItConsumesPendingItems() {
+        self.syncMOC.performGroupedAndWait { moc in
+            // given
+            NotificationInContext(name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
+                                  context: moc.notificationContext,
+                                  object: nil).post()
+            
+            
+            // when
+            let firstRequest = self.sut.nextRequestIfAllowed()
+            XCTAssertNotNil(firstRequest)
+            let secondRequest = self.sut.nextRequestIfAllowed()
+            
+            // then
+            XCTAssertNil(secondRequest)
+        }
+    }
 }
