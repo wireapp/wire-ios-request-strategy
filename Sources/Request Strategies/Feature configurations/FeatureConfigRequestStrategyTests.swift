@@ -120,7 +120,6 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
                                   context: moc.notificationContext,
                                   object: nil).post()
             
-            
             // when
             let firstRequest = self.sut.nextRequestIfAllowed()
             XCTAssertNotNil(firstRequest)
