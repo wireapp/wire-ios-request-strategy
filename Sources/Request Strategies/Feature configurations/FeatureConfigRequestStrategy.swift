@@ -32,7 +32,6 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
     private var observerToken: Any?
     private var pendingItems: [PendingItem] = []
-    private var featureNames: [String] = []
     private var fetchSingleConfigSync: ZMSingleRequestSync!
     private var fetchAllConfigsSync: ZMSingleRequestSync!
     private var featureController: FeatureController!
@@ -62,31 +61,21 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
     // MARK: - Overrides
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        guard !pendingItems.isEmpty else {
-            return nil
-        }
-        
-        let pendingItem = pendingItems.removeFirst()
-        switch pendingItem {
-        case let .singleFeature(featureName):
-            featureNames.append(featureName)
-            fetchSingleConfigSync.readyForNextRequestIfNotBusy()
-            return fetchSingleConfigSync.nextRequest()
-        case .allFeatures:
-            fetchAllConfigsSync.readyForNextRequestIfNotBusy()
-            return fetchAllConfigsSync.nextRequest()
-        }
+        return fetchSingleConfigSync.nextRequest() ?? fetchAllConfigsSync.nextRequest()
     }
 }
 
 // MARK: - ZMSingleRequestTranscoder
 extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
     public func request(for sync: ZMSingleRequestSync) -> ZMTransportRequest? {
-        switch sync {
-        case fetchSingleConfigSync:
-            let featureName = featureNames.removeFirst()
+        guard !pendingItems.isEmpty else {
+            return nil
+        }
+        let pendingItem = pendingItems.removeFirst()
+        switch (sync, pendingItem) {
+        case (fetchSingleConfigSync, let .singleFeature(name: featureName)):
             return fetchConfigRequestFor(featureName)
-        case fetchAllConfigsSync:
+        case (fetchAllConfigsSync, .allFeatures):
             return fetchAllConfigsRequest()
         default:
             return nil
@@ -147,8 +136,10 @@ extension FeatureConfigRequestStrategy {
     private func requestConfig(with note: NotificationInContext) {
         if let featureName = note.object as? String {
             pendingItems.append(.singleFeature(name: featureName))
+            fetchSingleConfigSync.readyForNextRequestIfNotBusy()
         } else {
             pendingItems.append(.allFeatures)
+            fetchAllConfigsSync.readyForNextRequestIfNotBusy()
         }
         RequestAvailableNotification.notifyNewRequestsAvailable(self)
     }
