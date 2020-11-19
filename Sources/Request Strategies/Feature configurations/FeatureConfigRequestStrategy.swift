@@ -62,7 +62,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
     
     // MARK: - Overrides
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        guard let _ = pendingItems.first else {
+        guard !pendingItems.isEmpty else {
             return nil
         }
         
@@ -94,11 +94,12 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
     }
     
     public func didReceive(_ response: ZMTransportResponse, forSingleRequest sync: ZMSingleRequestSync) {
-        guard response.result == .permanentError || response.result == .success else {
-            zmLog.debug("error downloading feature configuration (\(response.httpStatus))")
+        guard response.result == .success else {
+            zmLog.error("error downloading feature configuration (\(response.httpStatus))")
             return
         }
         guard let responseData = response.rawData else {
+            zmLog.error("response has no rawData")
             return
         }
         

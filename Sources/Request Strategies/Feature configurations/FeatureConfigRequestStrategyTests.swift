@@ -103,7 +103,7 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
         }
     }
     
-    func testThatItDoesNotGenerateARequestWithoutPostingNotification() {
+    func testThatItDoesNotGenerateARequestIfThereAreNoPendingItems() {
         self.syncMOC.performGroupedAndWait { moc in
             // when
             let request = self.sut.nextRequestIfAllowed()
