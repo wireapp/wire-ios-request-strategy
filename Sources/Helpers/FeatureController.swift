@@ -33,11 +33,6 @@ public enum FeatureModel {
         public struct Config: Codable {
             let enforceAppLock: Bool
             let inactivityTimeoutSecs: UInt
-            
-            private enum CodingKeys: String, CodingKey {
-                case enforceAppLock
-                case inactivityTimeoutSecs
-            }
         }
     }
 }
@@ -47,13 +42,6 @@ public struct FeatureConfigResponse<T: Configurable>: Decodable {
     var status: Feature.Status
     var config: T.Config?
     
-    private enum CodingKeys: String, CodingKey {
-        case status
-        case config
-    }
-}
-
-extension FeatureConfigResponse {
     var configData: Data? {
         return try? JSONEncoder().encode(config)
     }
@@ -61,10 +49,6 @@ extension FeatureConfigResponse {
 
 public struct AllFeatureConfigsResponse: Decodable {
     var applock: FeatureConfigResponse<FeatureModel.AppLock>
-    
-    private enum CodingKeys: String, CodingKey {
-        case applock
-    }
 }
 
 public class FeatureController {
@@ -78,17 +62,21 @@ public class FeatureController {
     }
     
     public static func status<T: Named>(for feature: T.Type, managedObjectContext: NSManagedObjectContext) -> Feature.Status {
-        guard let feature = Feature.fetch(T.name, context: managedObjectContext) else {
-            return .disabled
+        managedObjectContext.performGroupedAndWait { _ in
+            guard let feature = Feature.fetch(T.name, context: managedObjectContext) else {
+                return .disabled
+            }
+            return feature.status
         }
-        return feature.status
     }
     
     public static func configuration<T: Configurable & Named>(for feature: T.Type, managedObjectContext: NSManagedObjectContext) -> T.Config? {
-        guard let configData = Feature.fetch(T.name, context: managedObjectContext)?.config else {
-            return nil
+        managedObjectContext.performGroupedAndWait { _ in
+            guard let configData = Feature.fetch(T.name, context: managedObjectContext)?.config else {
+                return nil
+            }
+            return try? JSONDecoder().decode(T.Config.self, from: configData)
         }
-        return try? JSONDecoder().decode(T.Config.self, from: configData)
     }
 }
 
