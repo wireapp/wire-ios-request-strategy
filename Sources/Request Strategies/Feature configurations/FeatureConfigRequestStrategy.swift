@@ -70,8 +70,10 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
         switch pendingItem {
         case let .singleFeature(featureName):
             featureNames.append(featureName)
+            fetchSingleConfigSync.readyForNextRequestIfNotBusy()
             return fetchSingleConfigSync.nextRequest()
         case .allFeatures:
+            fetchAllConfigsSync.readyForNextRequestIfNotBusy()
             return fetchAllConfigsSync.nextRequest()
         }
     }
