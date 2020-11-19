@@ -18,55 +18,6 @@
 
 import Foundation
 
-public protocol Named {
-  static var name: String { get }
-}
-
-public protocol Configurable {
-    associatedtype Config: Codable
-}
-
-// MARK: - Feature configurations and names
-public enum FeatureModel {
-    public enum AppLock: Configurable, Named {
-        public static var name: String = "applock"
-        public struct Config: Codable {
-            let enforceAppLock: Bool
-            let inactivityTimeoutSecs: UInt
-            
-            private enum CodingKeys: String, CodingKey {
-                case enforceAppLock
-                case inactivityTimeoutSecs
-            }
-        }
-    }
-}
-
-// MARK: - Feature Responses
-public struct FeatureConfigResponse<T: Configurable>: Decodable {
-    var status: Feature.Status
-    var config: T.Config?
-    
-    private enum CodingKeys: String, CodingKey {
-        case status
-        case config
-    }
-}
-
-extension FeatureConfigResponse {
-    var configData: Data? {
-        return try? JSONEncoder().encode(config)
-    }
-}
-
-public struct AllFeatureConfigsResponse: Decodable {
-    var applock: FeatureConfigResponse<FeatureModel.AppLock>
-    
-    private enum CodingKeys: String, CodingKey {
-        case applock
-    }
-}
-
 public class FeatureController {
     
     public static let needsToUpdateFeatureNotificationName = Notification.Name("needsToUpdateFeatureConfiguration")
@@ -78,17 +29,21 @@ public class FeatureController {
     }
     
     public static func status<T: Named>(for feature: T.Type, managedObjectContext: NSManagedObjectContext) -> Feature.Status {
-        guard let feature = Feature.fetch(T.name, context: managedObjectContext) else {
-            return .disabled
+        managedObjectContext.performGroupedAndWait { _ in
+            guard let feature = Feature.fetch(T.name, context: managedObjectContext) else {
+                return .disabled
+            }
+            return feature.status
         }
-        return feature.status
     }
     
     public static func configuration<T: Configurable & Named>(for feature: T.Type, managedObjectContext: NSManagedObjectContext) -> T.Config? {
-        guard let configData = Feature.fetch(T.name, context: managedObjectContext)?.config else {
-            return nil
+        managedObjectContext.performGroupedAndWait { _ in
+            guard let configData = Feature.fetch(T.name, context: managedObjectContext)?.config else {
+                return nil
+            }
+            return try? JSONDecoder().decode(T.Config.self, from: configData)
         }
-        return try? JSONDecoder().decode(T.Config.self, from: configData)
     }
 }
 
@@ -101,11 +56,11 @@ extension FeatureController {
                                              context: moc)
         
         // TODO: Katerina make it more general for all features
-        NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: ["appLock" : feature])
+        NotificationCenter.default.post(name: FeatureController.needsToUpdateFeatureNotificationName, object: nil, userInfo: [Feature.AppLock.name : feature])
     }
     
     internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
-        let appLock = (name: FeatureModel.AppLock.name, schema: configurations.applock)
+        let appLock = (name: Feature.AppLock.name, schema: configurations.applock)
         let appLockFeature = Feature.createOrUpdate(appLock.name,
                                                     status: appLock.schema.status,
                                                     config: appLock.schema.configData,

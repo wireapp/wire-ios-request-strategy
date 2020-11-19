@@ -106,8 +106,8 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
         case fetchSingleConfigSync:
             do {
                 //TODO Katerina make it more general for all kind of features
-                let configuration = try JSONDecoder().decode(FeatureConfigResponse<FeatureModel.AppLock>.self, from: responseData)
-                featureController.save(FeatureModel.AppLock.self, configuration: configuration)
+                let configuration = try JSONDecoder().decode(FeatureConfigResponse<Feature.AppLock>.self, from: responseData)
+                featureController.save(Feature.AppLock.self, configuration: configuration)
             } catch {
                 zmLog.error("Failed to decode feature config response: \(error)")
             }
