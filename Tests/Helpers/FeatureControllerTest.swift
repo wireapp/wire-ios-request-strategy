@@ -22,18 +22,9 @@ import WireTesting
 @testable import WireRequestStrategy
 
 class FeatureControllerTest: MessagingTestBase {
+
     var sut: FeatureController!
-    
-    let json = """
-    {
-     "status": "enabled",
-         "config": {
-            "enforceAppLock": true,
-            "inactivityTimeoutSecs": 30
-         }
-    }
-    """
-    
+
     override func setUp() {
         super.setUp()
         sut = FeatureController(managedObjectContext: self.uiMOC)
@@ -43,72 +34,22 @@ class FeatureControllerTest: MessagingTestBase {
         sut = nil
         super.tearDown()
     }
-    
-    func testThatItSavesAllFeatures() {
-        // Given
-        let json = """
-        {
-          "applock": {
-              "status": "disabled",
-               "config": {
-                "enforceAppLock": true,
-                "inactivityTimeoutSecs": 30
-               }
-            }
-        }
-        """
-        let data = json.data(using: .utf8)!
-        let allConfigs = try! JSONDecoder().decode(AllFeatureConfigsResponse.self, from: data)
-        
-        // When
-        sut.saveAllFeatures(allConfigs)
-       
-        // Then
-        let fechedFeature = Feature.fetch("applock", context: self.uiMOC)
-        XCTAssertNotNil(fechedFeature)
-        XCTAssertEqual(fechedFeature?.name, "applock")
-        XCTAssertEqual(fechedFeature?.status, .disabled)
-    }
-    
+
     func testThatItSavesSingleFeature() {
         // Given
-        let data = json.data(using: .utf8)!
-        let configuration = try! JSONDecoder().decode(FeatureConfigResponse<Feature.AppLock>.self, from: data)
-        
+        let feature = Feature.AppLock(
+            status: .enabled,
+            config: .init(enforceAppLock: true, inactivityTimeoutSecs: 10)
+        )
+
         // When
-        sut.save(Feature.AppLock.self, configuration: configuration)
+        sut.store(feature: feature)
         
         // Then
-        let fechedFeature = Feature.fetch("applock", context: self.uiMOC)
+        let fechedFeature = Feature.fetch(name: .appLock, context: self.uiMOC)
         XCTAssertNotNil(fechedFeature)
-        XCTAssertEqual(fechedFeature?.name, "applock")
+        XCTAssertEqual(fechedFeature?.name, .appLock)
         XCTAssertEqual(fechedFeature?.status, .enabled)
     }
-    
-    func testThatItFetchesAFeatureStatus() {
-        // Given
-        let data = json.data(using: .utf8)!
-        let configuration = try! JSONDecoder().decode(FeatureConfigResponse<Feature.AppLock>.self, from: data)
-        sut.save(Feature.AppLock.self, configuration: configuration)
-        
-        // When
-        let featureStatus = FeatureController.status(for: Feature.AppLock.self, managedObjectContext: self.uiMOC)
-        
-        // Then
-        XCTAssertEqual(featureStatus, .enabled)
-    }
-    
-    func testThatItFetchesAFeatureConfig() {
-        // Given
-        let data = json.data(using: .utf8)!
-        let configuration = try! JSONDecoder().decode(FeatureConfigResponse<Feature.AppLock>.self, from: data)
-        sut.save(Feature.AppLock.self, configuration: configuration)
-        
-        // When
-        let featureConfig = FeatureController.configuration(for: Feature.AppLock.self, managedObjectContext: self.uiMOC)
-        
-        // Then
-        XCTAssertEqual(featureConfig?.enforceAppLock, true)
-        XCTAssertEqual(featureConfig?.inactivityTimeoutSecs, 30)
-    }
+
 }

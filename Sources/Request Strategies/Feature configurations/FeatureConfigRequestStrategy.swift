@@ -95,19 +95,21 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
         switch sync {
         case fetchSingleConfigSync:
             do {
-                //TODO Katerina make it more general for all kind of features
-                let configuration = try JSONDecoder().decode(FeatureConfigResponse<Feature.AppLock>.self, from: responseData)
-                featureController.save(Feature.AppLock.self, configuration: configuration)
+                // TODO: Katerina make it more general for all kind of features
+                let config = try JSONDecoder().decode(ConfigResponse<Feature.AppLock>.self, from: responseData)
+                featureController.store(feature: config.asFeature)
             } catch {
-                zmLog.error("Failed to decode feature config response: \(error)")
+                zmLog.error("Failed to decode feature config response: \(error.localizedDescription)")
             }
+
         case fetchAllConfigsSync:
             do {
-                let allConfigs = try JSONDecoder().decode(AllFeatureConfigsResponse.self, from: responseData)
-                featureController.saveAllFeatures(allConfigs)
+                let allConfigs = try JSONDecoder().decode(AllConfigsResponse.self, from: responseData)
+                featureController.store(feature: allConfigs.applock.asFeature)
             } catch {
                 zmLog.error("Failed to decode feature config response: \(error)")
             }
+
         default:
             break
         }
@@ -145,3 +147,22 @@ extension FeatureConfigRequestStrategy {
     }
 }
 
+private extension FeatureConfigRequestStrategy {
+
+    struct ConfigResponse<T: FeatureLike>: Decodable {
+
+        let status: Feature.Status
+        let config: T.Config
+
+        var asFeature: T {
+            return T(status: status, config: config)
+        }
+    }
+
+    struct AllConfigsResponse: Decodable {
+
+        var applock: ConfigResponse<Feature.AppLock>
+
+    }
+
+}

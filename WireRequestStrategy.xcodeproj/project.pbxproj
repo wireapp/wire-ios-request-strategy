@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		068084962563B6940047899C /* FeatureConfigRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068084952563B6940047899C /* FeatureConfigRequestStrategy.swift */; };
 		068084982563B7310047899C /* FeatureConfigRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068084972563B7310047899C /* FeatureConfigRequestStrategyTests.swift */; };
-		0630670D2566765E00A9942E /* Configurations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630670C2566765E00A9942E /* Configurations.swift */; };
 		069D07BA2562793E00DBA592 /* FeatureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 069D07B92562793E00DBA592 /* FeatureController.swift */; };
 		06D0651A256340470057836B /* FeatureControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06D06519256340470057836B /* FeatureControllerTest.swift */; };
 		1621D2281D75AB2D007108C2 /* MockEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1621D2231D75AB2D007108C2 /* MockEntity.m */; };
@@ -244,7 +243,6 @@
 /* Begin PBXFileReference section */
 		068084952563B6940047899C /* FeatureConfigRequestStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeatureConfigRequestStrategy.swift; sourceTree = "<group>"; };
 		068084972563B7310047899C /* FeatureConfigRequestStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureConfigRequestStrategyTests.swift; sourceTree = "<group>"; };
-		0630670C2566765E00A9942E /* Configurations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configurations.swift; sourceTree = "<group>"; };
 		069D07B92562793E00DBA592 /* FeatureController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureController.swift; sourceTree = "<group>"; };
 		06D06519256340470057836B /* FeatureControllerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureControllerTest.swift; sourceTree = "<group>"; };
 		1621D2221D75AB2D007108C2 /* MockEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MockEntity.h; sourceTree = "<group>"; };
@@ -484,6 +482,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0630670B2566763900A9942E /* FeatureConfiguration */ = {
+			isa = PBXGroup;
+			children = (
+				069D07B92562793E00DBA592 /* FeatureController.swift */,
+			);
+			path = FeatureConfiguration;
+			sourceTree = "<group>";
+		};
 		068084942563B6940047899C /* Feature configurations */ = {
 			isa = PBXGroup;
 			children = (
@@ -491,15 +497,6 @@
 				068084972563B7310047899C /* FeatureConfigRequestStrategyTests.swift */,
 			);
 			path = "Feature configurations";
-			sourceTree = "<group>";
-		};
-		0630670B2566763900A9942E /* FeatureConfiguration */ = {
-			isa = PBXGroup;
-			children = (
-				069D07B92562793E00DBA592 /* FeatureController.swift */,
-				0630670C2566765E00A9942E /* Configurations.swift */,
-			);
-			path = FeatureConfiguration;
 			sourceTree = "<group>";
 		};
 		1621D2211D75AB2D007108C2 /* Helpers */ = {
@@ -545,7 +542,9 @@
 				1669016B1D707509000FE4AF /* Products */,
 				166902041D7082C7000FE4AF /* Frameworks */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		1669016B1D707509000FE4AF /* Products */ = {
 			isa = PBXGroup;
@@ -1184,7 +1183,6 @@
 				F18401D42073BE0800E9F4CC /* MessageExpirationTimer.swift in Sources */,
 				1622946B221C18BE00A98679 /* AssetV3UploadRequestStrategy.swift in Sources */,
 				1662ADB322B0E8B300D84071 /* VerifyLegalHoldRequestStrategy.swift in Sources */,
-				0630670D2566765E00A9942E /* Configurations.swift in Sources */,
 				166901EC1D7081C7000FE4AF /* ZMTimedSingleRequestSync.m in Sources */,
 				F184019D2073BE0800E9F4CC /* ClientMessageTranscoder.swift in Sources */,
 				F184019A2073BE0800E9F4CC /* ClientMessageRequestFactory.swift in Sources */,
