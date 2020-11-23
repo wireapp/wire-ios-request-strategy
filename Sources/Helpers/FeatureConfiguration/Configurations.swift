@@ -30,19 +30,24 @@ extension Feature {
     public enum AppLock: Configurable, Named {
         public static var name: String = "applock"
         public struct Config: Codable {
-            let enforceAppLock: Bool
-            let inactivityTimeoutSecs: UInt
+            public let enforceAppLock: Bool
+            public let inactivityTimeoutSecs: UInt
         }
     }
 }
 
 // MARK: - Feature Responses
-struct FeatureConfigResponse<T: Configurable>: Decodable {
-    var status: Feature.Status
-    var config: T.Config?
+public struct FeatureConfigResponse<T: Configurable>: Decodable {
+    public var status: Feature.Status
+    public var config: T.Config?
     
     var configData: Data? {
         return try? JSONEncoder().encode(config)
+    }
+    
+    init(status: Feature.Status, config: T.Config?) {
+        self.status = status
+        self.config = config
     }
 }
 

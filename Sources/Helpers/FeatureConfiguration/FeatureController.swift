@@ -56,7 +56,12 @@ extension FeatureController {
                                              context: moc)
         
         // TODO: Katerina make it more general for all features
-        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [Feature.AppLock.name : feature])
+        var config: Feature.AppLock.Config?
+        if let featureConfig = feature.config {
+            config = try? JSONDecoder().decode(Feature.AppLock.Config.self, from: featureConfig)
+        }
+        let featureInfo = FeatureConfigResponse<Feature.AppLock>(status: feature.status, config: config)
+        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [Feature.AppLock.name : featureInfo])
     }
     
     internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
@@ -66,6 +71,11 @@ extension FeatureController {
                                                     config: appLock.schema.configData,
                                                     context: moc)
         
-        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [appLock.name : appLockFeature])
+        var config: Feature.AppLock.Config?
+        if let featureConfig = appLockFeature.config {
+            config = try? JSONDecoder().decode(Feature.AppLock.Config.self, from: featureConfig)
+        }
+        let featureInfo = FeatureConfigResponse<Feature.AppLock>(status: appLockFeature.status, config: config)
+        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [appLock.name : featureInfo])
     }
 }
