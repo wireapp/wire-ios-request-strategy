@@ -55,13 +55,18 @@ extension FeatureController {
                                              config: configuration.configData,
                                              context: moc)
         
+        var userInfo = [
+            "nameKey": feature.name,
+            "statusKey": feature.status
+            ] as [String : Any]
+        
         // TODO: Katerina make it more general for all features
-        var config: Feature.AppLock.Config?
-        if let featureConfig = feature.config {
-            config = try? JSONDecoder().decode(Feature.AppLock.Config.self, from: featureConfig)
+        if let featureConfig = feature.config,
+            let config = try? JSONDecoder().decode(Feature.AppLock.Config.self, from: featureConfig) {
+            userInfo["configKey"] = config
         }
-        let featureInfo = FeatureConfigResponse<Feature.AppLock>(status: feature.status, config: config)
-        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [Feature.AppLock.name : featureInfo])
+        
+        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [Feature.AppLock.name : userInfo])
     }
     
     internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
@@ -71,11 +76,15 @@ extension FeatureController {
                                                     config: appLock.schema.configData,
                                                     context: moc)
         
-        var config: Feature.AppLock.Config?
-        if let featureConfig = appLockFeature.config {
-            config = try? JSONDecoder().decode(Feature.AppLock.Config.self, from: featureConfig)
+        var userInfo = [
+            "nameKey": appLockFeature.name,
+            "statusKey": appLockFeature.status
+            ] as [String : Any]
+        
+        if let featureConfig = appLockFeature.config,
+            let config = try? JSONDecoder().decode(Feature.AppLock.Config.self, from: featureConfig) {
+            userInfo["configKey"] = config
         }
-        let featureInfo = FeatureConfigResponse<Feature.AppLock>(status: appLockFeature.status, config: config)
-        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [appLock.name : featureInfo])
+        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [appLockFeature.name : userInfo])
     }
 }
