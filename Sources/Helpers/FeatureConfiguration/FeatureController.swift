@@ -66,7 +66,7 @@ extension FeatureController {
             userInfo["configKey"] = config
         }
         
-        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [Feature.AppLock.name : userInfo])
+        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: userInfo)
     }
     
     internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
@@ -85,6 +85,6 @@ extension FeatureController {
             let config = try? JSONDecoder().decode(Feature.AppLock.Config.self, from: featureConfig) {
             userInfo["configKey"] = config
         }
-        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [appLockFeature.name : userInfo])
+        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: userInfo)
     }
 }
