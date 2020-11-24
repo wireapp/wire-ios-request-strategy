@@ -37,19 +37,27 @@ class FeatureControllerTest: MessagingTestBase {
 
     func testThatItSavesSingleFeature() {
         // Given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+
+        let membership = Member.insertNewObject(in: uiMOC)
+        membership.team = team
+        membership.user = ZMUser.selfUser(in: uiMOC)
+
         let feature = Feature.AppLock(
             status: .enabled,
             config: .init(enforceAppLock: true, inactivityTimeoutSecs: 10)
         )
 
         // When
-        sut.store(feature: feature)
+        sut.store(feature: feature, in: team)
         
         // Then
-        let fechedFeature = Feature.fetch(name: .appLock, context: self.uiMOC)
-        XCTAssertNotNil(fechedFeature)
-        XCTAssertEqual(fechedFeature?.name, .appLock)
-        XCTAssertEqual(fechedFeature?.status, .enabled)
+        let fetchedFeature = Feature.fetch(name: .appLock, context: self.uiMOC)
+        XCTAssertNotNil(fetchedFeature)
+        XCTAssertEqual(fetchedFeature?.name, .appLock)
+        XCTAssertEqual(fetchedFeature?.status, .enabled)
+        XCTAssertEqual(fetchedFeature?.team?.remoteIdentifier, team.remoteIdentifier!)
     }
 
 }

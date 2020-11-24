@@ -35,9 +35,9 @@ public class FeatureController {
 // MARK: - Save to Core Data
 extension FeatureController {
 
-    func store<T: FeatureLike>(feature: T) {
+    func store<T: FeatureLike>(feature: T, in team: Team) {
         do {
-            try feature.store(in: moc)
+            try feature.store(for: team, in: moc)
         }
         catch {
             zmLog.error("Failed to store feature config in Core Data: \(error.localizedDescription)")
