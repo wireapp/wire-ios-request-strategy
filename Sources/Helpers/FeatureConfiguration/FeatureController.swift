@@ -38,17 +38,17 @@ extension FeatureController {
     func store<T: FeatureLike>(feature: T, in team: Team) {
         do {
             try feature.store(for: team, in: moc)
+
+            // TODO: Katerina make it more general for all features
+            NotificationCenter.default.post(
+                name: FeatureController.featureConfigDidChange,
+                object: nil,
+                userInfo: [Feature.AppLock.name : feature]
+            )
         }
         catch {
             zmLog.error("Failed to store feature config in Core Data: \(error.localizedDescription)")
         }
-
-        // TODO: Katerina make it more general for all features
-        NotificationCenter.default.post(
-            name: FeatureController.featureConfigDidChange,
-            object: nil,
-            userInfo: [Feature.AppLock.name : feature]
-        )
     }
     
 }
