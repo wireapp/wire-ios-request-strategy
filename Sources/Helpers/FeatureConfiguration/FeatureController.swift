@@ -49,7 +49,7 @@ public class FeatureController {
 
 // MARK: - Save to Core Data
 extension FeatureController {
-    internal func save<T: Configurable & Named>(_ feature: T.Type, configuration: FeatureConfigResponse<T>) {
+    func save<T: Configurable & Named>(_ feature: T.Type, configuration: FeatureConfigResponse<T>) {
         let feature = Feature.createOrUpdate(feature.name,
                                              status: configuration.status,
                                              config: configuration.configData,
@@ -69,7 +69,7 @@ extension FeatureController {
         NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: userInfo)
     }
     
-    internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
+    func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
         let appLock = (name: Feature.AppLock.name, schema: configurations.applock)
         let appLockFeature = Feature.createOrUpdate(appLock.name,
                                                     status: appLock.schema.status,
