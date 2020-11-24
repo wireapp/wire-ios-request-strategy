@@ -18,6 +18,8 @@
 
 import Foundation
 
+private let zmLog = ZMSLog(tag: "feature configurations")
+
 public class FeatureController {
     
     public static let featureConfigDidChange = Notification.Name("FeatureConfigDidChange")
@@ -27,45 +29,26 @@ public class FeatureController {
     init(managedObjectContext: NSManagedObjectContext) {
         moc = managedObjectContext
     }
-    
-    public static func status<T: Named>(for feature: T.Type, managedObjectContext: NSManagedObjectContext) -> Feature.Status {
-        managedObjectContext.performGroupedAndWait { _ in
-            guard let feature = Feature.fetch(T.name, context: managedObjectContext) else {
-                return .disabled
-            }
-            return feature.status
-        }
-    }
-    
-    public static func configuration<T: Configurable & Named>(for feature: T.Type, managedObjectContext: NSManagedObjectContext) -> T.Config? {
-        managedObjectContext.performGroupedAndWait { _ in
-            guard let configData = Feature.fetch(T.name, context: managedObjectContext)?.config else {
-                return nil
-            }
-            return try? JSONDecoder().decode(T.Config.self, from: configData)
-        }
-    }
+
 }
 
 // MARK: - Save to Core Data
 extension FeatureController {
-    internal func save<T: Configurable & Named>(_ feature: T.Type, configuration: FeatureConfigResponse<T>) {
-        let feature = Feature.createOrUpdate(feature.name,
-                                             status: configuration.status,
-                                             config: configuration.configData,
-                                             context: moc)
-        
-        // TODO: Katerina make it more general for all features
-        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [Feature.AppLock.name : feature])
+
+    func store<T: FeatureLike>(feature: T, in team: Team) {
+        do {
+            try feature.store(for: team, in: moc)
+
+            // TODO: Katerina make it more general for all features
+            NotificationCenter.default.post(
+                name: FeatureController.featureConfigDidChange,
+                object: nil,
+                userInfo: [Feature.AppLock.name : feature]
+            )
+        }
+        catch {
+            zmLog.error("Failed to store feature config in Core Data: \(error.localizedDescription)")
+        }
     }
     
-    internal func saveAllFeatures(_ configurations: AllFeatureConfigsResponse) {
-        let appLock = (name: Feature.AppLock.name, schema: configurations.applock)
-        let appLockFeature = Feature.createOrUpdate(appLock.name,
-                                                    status: appLock.schema.status,
-                                                    config: appLock.schema.configData,
-                                                    context: moc)
-        
-        NotificationCenter.default.post(name: FeatureController.featureConfigDidChange, object: nil, userInfo: [appLock.name : appLockFeature])
-    }
 }
