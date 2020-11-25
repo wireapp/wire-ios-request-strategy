@@ -97,11 +97,8 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
             // given
             let teamId = self.createTeam(for: .selfUser(in: moc)).remoteIdentifier!
 
-            NotificationInContext(name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
-                                  context: moc.notificationContext,
-                                  object: nil).post()
-
             // when
+            Feature.triggerBackendRefreshForAllConfigs()
             guard let request = self.sut.nextRequestIfAllowed() else { return XCTFail() }
 
             // then
@@ -115,11 +112,8 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
             // given
             XCTAssertNil(ZMUser.selfUser(in: moc).team)
 
-            NotificationInContext(name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
-                                  context: moc.notificationContext,
-                                  object: nil).post()
-
             // when
+            Feature.triggerBackendRefreshForAllConfigs()
             let request = self.sut.nextRequestIfAllowed()
 
             // then

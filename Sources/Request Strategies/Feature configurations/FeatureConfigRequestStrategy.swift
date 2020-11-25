@@ -26,8 +26,6 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
 
     // MARK: - Properties
 
-    public static let needsToFetchFeatureConfigNotificationName = Notification.Name("needsToFetchFeatureConfiguration")
-
     private var needsToFetchAllConfigs = false {
         didSet {
             guard needsToFetchAllConfigs else { return }
@@ -76,7 +74,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
         fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self, groupQueue: managedObjectContext)
 
         observerToken = NotificationCenter.default.addObserver(
-            forName: Self.needsToFetchFeatureConfigNotificationName,
+            forName: Self.fetchAllConfigsTriggerNotification,
             object: nil,
             queue: nil,
             using: { [weak self] _ in self?.needsToFetchAllConfigs = true }
@@ -215,5 +213,22 @@ private extension Feature {
             return "appLock"
         }
     }
+
+}
+
+public extension Feature {
+
+    static func triggerBackendRefreshForAllConfigs() {
+        NotificationCenter.default.post(
+            name: FeatureConfigRequestStrategy.fetchAllConfigsTriggerNotification,
+            object: nil
+        )
+    }
+
+}
+
+private extension FeatureConfigRequestStrategy {
+
+    static let fetchAllConfigsTriggerNotification = Notification.Name("fetchAlLConfigsTriggerNotification")
 
 }
