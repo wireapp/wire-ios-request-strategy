@@ -87,13 +87,6 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
         return fetchAllConfigsSync.nextRequest() ?? fetchSingleConfigSync.nextRequest()
     }
 
-    // MARK: - Methods
-
-    private func requestAllConfig() {
-        needsToFetchAllConfigs = true
-        fetchAllConfigsSync.readyForNextRequestIfNotBusy()
-        RequestAvailableNotification.notifyNewRequestsAvailable(self)
-    }
 }
 
 // MARK: - Single config transcoder
