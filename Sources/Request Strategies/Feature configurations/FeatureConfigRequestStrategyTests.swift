@@ -143,15 +143,13 @@ private extension FeatureConfigRequestStrategyTests {
     }
 
     private func createFeature(_ name: Feature.Name, in context: NSManagedObjectContext) -> Feature {
-        let feature = Feature.createOrUpdate(
+        return Feature.createOrUpdate(
             name: name,
             status: .enabled,
             config: nil,
+            team: createTeam(for: .selfUser(in: context)),
             context: context
         )
-
-        feature.team = createTeam(for: .selfUser(in: context))
-        return feature
     }
 
     func boostrapChangeTrackers(with objects: ZMManagedObject...) {
