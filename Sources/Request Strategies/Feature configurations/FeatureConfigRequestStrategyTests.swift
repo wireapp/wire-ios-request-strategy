@@ -20,6 +20,7 @@ import XCTest
 @testable import WireRequestStrategy
 
 class FeatureConfigRequestStrategyTests: MessagingTestBase {
+
     var mockApplicationStatus: MockApplicationStatus!
     var sut: FeatureConfigRequestStrategy!
     
@@ -27,8 +28,7 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
         super.setUp()
         mockApplicationStatus = MockApplicationStatus()
         mockApplicationStatus.mockSynchronizationState = .slowSyncing
-        
-        RequestAvailableNotification.notifyNewRequestsAvailable(self)
+
         sut = FeatureConfigRequestStrategy(withManagedObjectContext: syncMOC,
                                            applicationStatus: mockApplicationStatus)
     }
@@ -38,6 +38,94 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
         sut = nil
         super.tearDown()
     }
+    
+    // MARK: Single configuration
+
+    func test_ItGeneratesARequest_ToFetchASingleConfig() {
+        self.syncMOC.performGroupedAndWait { moc in
+            // given
+            let feature = self.createFeature(.appLock, in: moc)
+            feature.needsToBeUpdatedFromBackend = true
+
+            // when
+            self.boostrapChangeTrackers(with: feature)
+            guard let request = self.sut.nextRequestIfAllowed() else { return XCTFail() }
+
+            // then
+            XCTAssertEqual(request.path, "/teams/\(feature.team!.remoteIdentifier!.transportString())/features/appLock")
+            return
+        }
+    }
+
+    func test_ItDoesNotGenerateARequest_ToFetchASingleConfig_WhenNotNeeded() {
+        self.syncMOC.performGroupedAndWait { moc in
+            // given
+            let feature = self.createFeature(.appLock, in: moc)
+            feature.needsToBeUpdatedFromBackend = false
+
+            // when
+            self.boostrapChangeTrackers(with: feature)
+            let request = self.sut.nextRequestIfAllowed()
+
+            // then
+            XCTAssertNil(request)
+            return
+        }
+    }
+    
+    func test_ItDoesNotGenerateARequest_ToFetchASingleConfig_WithoutATeam() {
+        self.syncMOC.performGroupedAndWait { moc in
+            // given
+            let feature = self.createFeature(.appLock, in: moc)
+            feature.team = nil
+            feature.needsToBeUpdatedFromBackend = true
+
+            // when
+            self.boostrapChangeTrackers(with: feature)
+            let request = self.sut.nextRequestIfAllowed()
+
+            // then
+            XCTAssertNil(request)
+            return
+        }
+    }
+
+    // MARK: - All configurations
+
+    func test_ItGeneratesARequest_ToFetchAllConfigs() {
+        self.syncMOC.performGroupedAndWait { moc in
+            // given
+            let teamId = self.createTeam(for: .selfUser(in: moc)).remoteIdentifier!
+
+            // when
+            Feature.triggerBackendRefreshForAllConfigs()
+            guard let request = self.sut.nextRequestIfAllowed() else { return XCTFail() }
+
+            // then
+            XCTAssertEqual(request.path, "/teams/\(teamId.transportString())/features")
+            return
+        }
+    }
+
+    func test_ItDoesNotGenerateARequest_ToFetchAllConfigs_WithoutATeam() {
+        self.syncMOC.performGroupedAndWait { moc in
+            // given
+            XCTAssertNil(ZMUser.selfUser(in: moc).team)
+
+            // when
+            Feature.triggerBackendRefreshForAllConfigs()
+            let request = self.sut.nextRequestIfAllowed()
+
+            // then
+            XCTAssertNil(request)
+        }
+    }
+
+}
+
+// MARK: - Helpers
+
+private extension FeatureConfigRequestStrategyTests {
 
     @discardableResult
     func createTeam(for user: ZMUser) -> Team {
@@ -53,88 +141,22 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
 
         return team
     }
-    
-    // MARK: Request generation
-    func testThatItGeneratesARequestToFetchAllFeatureConfigurations() {
-        self.syncMOC.performGroupedAndWait { (moc: NSManagedObjectContext) -> Void in
-            // given
-            let teamId = self.createTeam(for: .selfUser(in: moc)).remoteIdentifier!
 
-            NotificationInContext(name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
-                                  context: moc.notificationContext,
-                                  object: nil).post()
-            
-            // when
-            guard let request = self.sut.nextRequestIfAllowed() else { return XCTFail() }
-            
-            // then
-            XCTAssertEqual(request.path, "/teams/\(teamId)/features")
-        }
+    private func createFeature(_ name: Feature.Name, in context: NSManagedObjectContext) -> Feature {
+        return Feature.createOrUpdate(
+            name: name,
+            status: .enabled,
+            config: nil,
+            team: createTeam(for: .selfUser(in: context)),
+            context: context
+        )
     }
-    
-    func testThatItGeneratesARequestToFetchASingleFeatureConfiguration() {
-        self.syncMOC.performGroupedAndWait { (moc: NSManagedObjectContext) -> Void in
-            // given
-            let teamId = self.createTeam(for: .selfUser(in: moc)).remoteIdentifier!
 
-            NotificationInContext(name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
-                                  context: moc.notificationContext,
-                                  object: "applock" as AnyObject).post()
-            
-            // when
-            guard let request = self.sut.nextRequestIfAllowed() else { return XCTFail() }
-            
-            // then
-            XCTAssertEqual(request.path, "/teams/\(teamId)/features/applock")
+    func boostrapChangeTrackers(with objects: ZMManagedObject...) {
+        sut.contextChangeTrackers.forEach {
+            $0.objectsDidChange(Set(objects))
         }
-    }
-    
-    func testThatItDoesNotGenerateARequestForNonTeamUser() {
-        self.syncMOC.performGroupedAndWait { moc in
-            // given
-            XCTAssertNil(ZMUser.selfUser(in: moc).team)
 
-            NotificationInContext(name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
-                                  context: moc.notificationContext,
-                                  object: nil).post()
+    }
 
-            // when
-            let request = self.sut.nextRequestIfAllowed()
-            
-            // then
-            XCTAssertNil(request)
-        }
-    }
-    
-    func testThatItDoesNotGenerateARequestIfThereAreNoPendingItems() {
-        self.syncMOC.performGroupedAndWait { moc in
-            // given
-            self.createTeam(for: .selfUser(in: moc))
-
-            // when
-            let request = self.sut.nextRequestIfAllowed()
-            
-            // then
-            XCTAssertNil(request)
-        }
-    }
-    
-    func testThatItConsumesPendingItems() {
-        self.syncMOC.performGroupedAndWait { moc in
-            // given
-            self.createTeam(for: .selfUser(in: moc))
-            
-            NotificationInContext(name: FeatureConfigRequestStrategy.needsToFetchFeatureConfigNotificationName,
-                                  context: moc.notificationContext,
-                                  object: nil).post()
-            
-            // when
-            let firstRequest = self.sut.nextRequestIfAllowed()
-            XCTAssertNotNil(firstRequest)
-            let secondRequest = self.sut.nextRequestIfAllowed()
-            
-            // then
-            XCTAssertNil(secondRequest)
-        }
-    }
 }
