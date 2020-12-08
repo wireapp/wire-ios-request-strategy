@@ -69,10 +69,8 @@ class KeyPathObjectSync<Transcoder: KeyPathObjectSyncTranscoder>: NSObject, ZMCo
                         mutableObject[keyPath: self.keyPath] = false
                     }
                 }
-            } else {
-                if pending.contains(object) {
-                    pending.remove(object)
-                }
+            } else if pending.contains(object) {
+                 pending.remove(object)
             }
         }
     }
