@@ -120,7 +120,35 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
             XCTAssertNil(request)
         }
     }
-
+    
+    func testThatItParsesAResponse() {
+        self.syncMOC.performGroupedAndWait { moc -> () in
+            // given
+            let feature = self.createFeature(.appLock, in: moc)
+            feature.needsToBeUpdatedFromBackend = true
+            XCTAssertFalse(feature.needsToNotifyUser)
+            
+            self.boostrapChangeTrackers(with: feature)
+            guard let request = self.sut.nextRequestIfAllowed() else { return XCTFail() }
+            XCTAssertNotNil(request)
+            
+            // when
+            let payload = [
+                "status": "enabled",
+                "config" : [
+                    "enforceAppLock" : true,
+                    "inactivityTimeoutSecs" : 30
+                ]
+                ] as [String : Any]
+            
+            let response = ZMTransportResponse(payload: payload as NSDictionary as ZMTransportData, httpStatus: 200, transportSessionError: nil)
+            
+            self.sut.update(feature, with: response, downstreamSync: self.sut.fetchSingleConfigSync)
+            
+            // then
+            XCTAssertTrue(feature.needsToNotifyUser)
+        }
+    }
 }
 
 // MARK: - Helpers
@@ -143,11 +171,20 @@ private extension FeatureConfigRequestStrategyTests {
     }
 
     private func createFeature(_ name: Feature.Name, in context: NSManagedObjectContext) -> Feature {
+        let json = """
+        {
+           "enforceAppLock": false,
+            "inactivityTimeoutSecs": 30
+        }
+        """
+        let data = json.data(using: .utf8)!
+        
         return Feature.createOrUpdate(
             name: name,
             status: .enabled,
-            config: nil,
+            config: data,
             team: createTeam(for: .selfUser(in: context)),
+            needsToNotifyUser: false,
             context: context
         )
     }
