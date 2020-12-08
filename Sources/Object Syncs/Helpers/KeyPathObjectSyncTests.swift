@@ -25,8 +25,16 @@ class MockKeyPathObjectSyncTranscoder: KeyPathObjectSyncTranscoder {
     typealias T = MockEntity
     
     var objectsAskedToBeSynchronized: Set<MockEntity> = Set()
-    func synchronize(_ object: MockEntity, keyPath: WritableKeyPath<MockEntity, Bool>) {
+    
+    var completionBlock: (() -> Void)?
+    func synchronize(_ object: MockEntity, completion: @escaping () -> Void) {
         objectsAskedToBeSynchronized.insert(object)
+        completionBlock = completion
+    }
+    
+    func completeSynchronization() {
+        completionBlock?()
+        completionBlock = nil
     }
     
 }
@@ -99,6 +107,19 @@ class KeyPathObjectSyncTests: ZMTBaseTest {
         
         // then
         XCTAssertTrue(transcoder.objectsAskedToBeSynchronized.isEmpty)
+    }
+    
+    func testSyncSetsKeyPathToFalse_WhenSynchronizationCompletes() {
+        // given
+        let mockEntity = MockEntity.insertNewObject(in: moc)
+        mockEntity.needsToBeUpdatedFromBackend = true
+        sut.objectsDidChange(Set(arrayLiteral: mockEntity))
+        
+        // when
+        transcoder.completeSynchronization()
+        
+        // then
+        XCTAssertFalse(mockEntity.needsToBeUpdatedFromBackend)
     }
     
     func testFetchRequestForTrackedObjects() throws {

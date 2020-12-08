@@ -52,11 +52,9 @@ public class ResetSessionRequestStrategy: AbstractRequestStrategy, ZMContextChan
 extension ResetSessionRequestStrategy: KeyPathObjectSyncTranscoder {
 
     typealias T = UserClient
-        
-    func synchronize(_ userClient: UserClient, keyPath: WritableKeyPath<UserClient, Bool>) {
-        
-        var mutableUserClient = userClient
-        
+            
+    func synchronize(_ userClient: UserClient, completion: @escaping () -> Void) {
+                
         guard let converation = userClient.user?.oneToOneConversation else {
             return
         }
@@ -67,7 +65,7 @@ extension ResetSessionRequestStrategy: KeyPathObjectSyncTranscoder {
             
             switch response.result {
             case .success, .permanentError:
-                mutableUserClient[keyPath: keyPath] = false
+                completion()
             default:
                 break
             }

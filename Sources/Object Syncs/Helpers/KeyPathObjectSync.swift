@@ -26,8 +26,8 @@ protocol KeyPathObjectSyncTranscoder: class {
     ///
     /// - parameters:
     ///   - object: Object which should be synchronized
-    ///   - keyPath: KeyPath which should be synchronized
-    func synchronize(_ object: T, keyPath: WritableKeyPath<T, Bool>)
+    ///   - completion: called when the object as been synchronized
+    func synchronize(_ object: T, completion: @escaping () -> Void)
     
 }
 
@@ -60,10 +60,14 @@ class KeyPathObjectSync<Transcoder: KeyPathObjectSyncTranscoder>: NSObject, ZMCo
         let objects = objects.compactMap({ $0 as? Transcoder.T })
     
         objects.forEach { object in
+            var mutableObject = object
+            
             if object[keyPath: keyPath] {
                 if !pending.contains(object) {
                     pending.insert(object)
-                    transcoder?.synchronize(object, keyPath: keyPath)
+                    transcoder?.synchronize(object) {
+                        mutableObject[keyPath: self.keyPath] = false
+                    }
                 }
             } else {
                 if pending.contains(object) {
