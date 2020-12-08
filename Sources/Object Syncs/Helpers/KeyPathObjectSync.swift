@@ -22,7 +22,7 @@ protocol KeyPathObjectSyncTranscoder: class {
     
     associatedtype T: Hashable
         
-    /// Called when a object needs to be synchchronized. It's the transcoder's responsibllity to update the value of the KeyPath when synchronization is successfull.
+    /// Called when a object needs to be synchchronized. It's the transcoder's responsibillity to call the `completion` handler when the synchronization is successfull or cancel.
     ///
     /// - parameters:
     ///   - object: Object which should be synchronized
