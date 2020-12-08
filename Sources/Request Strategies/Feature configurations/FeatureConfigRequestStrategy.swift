@@ -119,9 +119,10 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
 
             switch feature.name {
             case .appLock:
-                let config = try decoder.decode(ConfigResponse<Feature.AppLock>.self, from: responseData)
-                feature.status = config.status
-                feature.configData = try encoder.encode(config.config)
+                let response = try decoder.decode(ConfigResponse<Feature.AppLock>.self, from: responseData)
+                feature.needsToNotifyUser = mandatoryAppLockHasBeenChanged(lastConfigData: feature.configData, newConfig: response.config)
+                feature.status = response.status
+                feature.configData = try encoder.encode(response.config)
             }
 
             feature.needsToBeUpdatedFromBackend = false
@@ -131,6 +132,15 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
         }
     }
 
+    private func mandatoryAppLockHasBeenChanged(lastConfigData: Data?, newConfig: Feature.AppLock.Config) -> Bool {
+        let decoder = JSONDecoder()
+        guard let data = lastConfigData,
+            let lastConfig = try? decoder.decode(Feature.AppLock.Config.self, from: data) else {
+                return false
+        }
+        return lastConfig.enforceAppLock != newConfig.enforceAppLock
+    }
+    
     public func delete(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
         // No op
     }
@@ -181,7 +191,7 @@ private extension FeatureConfigRequestStrategy {
         let config: T.Config
 
         var asFeature: T {
-            return T(status: status, config: config)
+            return T(status: status, config: config, needsToNotifyUser: false)
         }
 
     }
