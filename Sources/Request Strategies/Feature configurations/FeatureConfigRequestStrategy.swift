@@ -181,7 +181,7 @@ private extension FeatureConfigRequestStrategy {
         let config: T.Config
 
         var asFeature: T {
-            return T(status: status, config: config, needsToNotifyUser: false)
+            return T(status: status, config: config)
         }
 
     }
