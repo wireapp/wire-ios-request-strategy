@@ -121,7 +121,7 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
             case .appLock:
                 let config = try decoder.decode(ConfigResponse<Feature.AppLock>.self, from: responseData)
                 feature.status = config.status
-                feature.configData = try encoder.encode(config.config)
+                feature.config = try encoder.encode(config.config)
             }
 
             feature.needsToBeUpdatedFromBackend = false
