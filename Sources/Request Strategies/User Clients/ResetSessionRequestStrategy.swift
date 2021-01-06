@@ -65,6 +65,7 @@ extension ResetSessionRequestStrategy: KeyPathObjectSyncTranscoder {
             
             switch response.result {
             case .success, .permanentError:
+                userClient.resolveDecryptionFailedSystemMessages()
                 completion()
             default:
                 break
