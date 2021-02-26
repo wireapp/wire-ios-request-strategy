@@ -147,8 +147,6 @@ extension FetchClientRequestStrategyTests {
             let payload = [
                 "example.com": [clientUUID.transportString(): [
                     Payload.UserClient(id: clientUUID.transportString(),
-                                       type: "permanent",
-                                       creationDate: Date(),
                                        deviceClass: "phone")
                     ]]
             ]
@@ -213,8 +211,6 @@ extension FetchClientRequestStrategyTests {
             let payload = [
                 "example.com": [userID.transportString(): [
                     Payload.UserClient(id: newClientID.transportString(),
-                                       type: "permanent",
-                                       creationDate: Date(),
                                        deviceClass: "phone")
                     ]]
             ]
@@ -247,7 +243,8 @@ extension FetchClientRequestStrategyTests {
 extension FetchClientRequestStrategyTests {
     
     func payloadForOtherClients(_ identifiers: String...) -> ZMTransportData {
-        return identifiers.reduce([]) { $0 + [["id": $1, "class" : "phone"]] } as ZMTransportData
+        return identifiers.reduce([]) { $0 + [["id": $1,
+                                               "class": "phone"]] } as ZMTransportData
     }
     
     func testThatItCreatesOtherUsersClientsCorrectly() {
@@ -255,12 +252,12 @@ extension FetchClientRequestStrategyTests {
         let (firstIdentifier, secondIdentifier) = (UUID.create().transportString(), UUID.create().transportString())
         let payload = [
             [
-                "id" : firstIdentifier,
-                "class" : "phone"
+                "id": firstIdentifier,
+                "class": "phone",
             ],
             [
                 "id" : secondIdentifier,
-                "class": "tablet"
+                "class": "tablet",
             ]
         ]
         
@@ -392,7 +389,7 @@ extension FetchClientRequestStrategyTests {
         self.syncMOC.performGroupedBlockAndWait {
             let user = self.otherClient.user
             user?.fetchUserClients()
-            payload = [["id" : self.otherClient.remoteIdentifier!]] as NSArray
+            payload = [["id" : self.otherClient.remoteIdentifier!, "class": "phone"]] as NSArray
         }
         let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -417,7 +414,7 @@ extension FetchClientRequestStrategyTests {
         let remoteIdentifier = "aabbccdd0011"
         self.syncMOC.performGroupedBlockAndWait {
             self.otherUser.fetchUserClients()
-            payload = [["id" : remoteIdentifier]] as NSArray
+            payload = [["id" : remoteIdentifier, "class": "phone"]] as NSArray
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.2))
         let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
@@ -445,7 +442,7 @@ extension FetchClientRequestStrategyTests {
             client = self.createClient(user: self.otherUser)
             XCTAssertFalse(client.hasSessionWithSelfClient)
             self.otherUser.fetchUserClients()
-            payload = [["id" : client.remoteIdentifier!]] as NSArray
+            payload = [["id" : client.remoteIdentifier!, "class": "phone"]] as NSArray
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.2))
         let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
@@ -473,7 +470,7 @@ extension FetchClientRequestStrategyTests {
         self.syncMOC.performGroupedBlockAndWait {
             sessionIdentifier = EncryptionSessionIdentifier(userId: self.otherUser!.remoteIdentifier.uuidString, clientId: remoteIdentifier)
             self.otherUser.fetchUserClients()
-            payload = [["id" : remoteIdentifier]] as NSArray
+            payload = [["id" : remoteIdentifier, "class": "phone"]] as NSArray
             self.selfClient.keysStore.encryptionContext.perform {
                 try! $0.createClientSession(sessionIdentifier, base64PreKeyString: self.selfClient.keysStore.lastPreKey()) // just a bogus key is OK
             }
@@ -499,7 +496,7 @@ extension FetchClientRequestStrategyTests {
         
         // GIVEN
         let remoteID = "otherRemoteID"
-        let payload: [[String:Any]] = [["id": remoteID]]
+        let payload: [[String:Any]] = [["id": remoteID, "class": "phone"]]
         self.syncMOC.performGroupedBlockAndWait {
             XCTAssertNotEqual(self.otherClient.remoteIdentifier, remoteID)
             let user = self.otherClient.user

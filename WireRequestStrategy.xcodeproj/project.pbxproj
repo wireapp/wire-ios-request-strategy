@@ -76,6 +76,7 @@
 		16824633257A2B47002AF17B /* ResetSessionRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16824632257A2B47002AF17B /* ResetSessionRequestStrategyTests.swift */; };
 		168414192228365D00FCB9BC /* AssetsPreprocessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168414182228365D00FCB9BC /* AssetsPreprocessorTests.swift */; };
 		169BA1CB25E9507600374343 /* Payload+Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169BA1CA25E9507600374343 /* Payload+Decoding.swift */; };
+		169BA1CD25E95DC900374343 /* Payload+Processing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169BA1CC25E95DC900374343 /* Payload+Processing.swift */; };
 		16A86B2722A128A800A674F8 /* IdentifierObjectSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A86B2622A128A800A674F8 /* IdentifierObjectSync.swift */; };
 		16A86B4622A5485E00A674F8 /* IdentifierObjectSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A86B4522A5485E00A674F8 /* IdentifierObjectSyncTests.swift */; };
 		16D0E07F1DF88B430075DF8F /* EntityTranscoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */; };
@@ -332,6 +333,7 @@
 		16824632257A2B47002AF17B /* ResetSessionRequestStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetSessionRequestStrategyTests.swift; sourceTree = "<group>"; };
 		168414182228365D00FCB9BC /* AssetsPreprocessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetsPreprocessorTests.swift; sourceTree = "<group>"; };
 		169BA1CA25E9507600374343 /* Payload+Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Payload+Decoding.swift"; sourceTree = "<group>"; };
+		169BA1CC25E95DC900374343 /* Payload+Processing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Payload+Processing.swift"; sourceTree = "<group>"; };
 		16A86B2622A128A800A674F8 /* IdentifierObjectSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifierObjectSync.swift; sourceTree = "<group>"; };
 		16A86B4522A5485E00A674F8 /* IdentifierObjectSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifierObjectSyncTests.swift; sourceTree = "<group>"; };
 		16D0E07C1DF872FD0075DF8F /* DependencyEntitySyncTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyEntitySyncTests.swift; sourceTree = "<group>"; };
@@ -642,6 +644,7 @@
 			isa = PBXGroup;
 			children = (
 				16DABDA125D69335005F4C3A /* Payload.swift */,
+				169BA1CC25E95DC900374343 /* Payload+Processing.swift */,
 				169BA1CA25E9507600374343 /* Payload+Decoding.swift */,
 			);
 			path = Payloads;
@@ -729,11 +732,11 @@
 			children = (
 				F18401632073BE0800E9F4CC /* Helpers */,
 				F184015D2073BE0800E9F4CC /* MissingClientsRequestStrategy.swift */,
-				F184015E2073BE0800E9F4CC /* FetchingClientRequestStrategyTests.swift */,
+				F18401622073BE0800E9F4CC /* MissingClientsRequestStrategyTests.swift */,
 				F184015F2073BE0800E9F4CC /* MissingClientsMapTests.swift */,
 				F18401602073BE0800E9F4CC /* MissingClientsRequestFactory.swift */,
 				F18401612073BE0800E9F4CC /* FetchingClientRequestStrategy.swift */,
-				F18401622073BE0800E9F4CC /* MissingClientsRequestStrategyTests.swift */,
+				F184015E2073BE0800E9F4CC /* FetchingClientRequestStrategyTests.swift */,
 				166A22902577C06B00EF313D /* ResetSessionRequestStrategy.swift */,
 				16824632257A2B47002AF17B /* ResetSessionRequestStrategyTests.swift */,
 				1662ADB222B0E8B300D84071 /* VerifyLegalHoldRequestStrategy.swift */,
@@ -1217,6 +1220,7 @@
 				F18401C82073BE0800E9F4CC /* AssetDownloadRequestFactory.swift in Sources */,
 				166901F51D7081C7000FE4AF /* ZMUpstreamRequest.m in Sources */,
 				F18401B42073BE0800E9F4CC /* ZMAbstractRequestStrategy.m in Sources */,
+				169BA1CD25E95DC900374343 /* Payload+Processing.swift in Sources */,
 				F18401D82073BE0800E9F4CC /* ZMConversation+Notifications.swift in Sources */,
 				F18401D92073BE0800E9F4CC /* EncryptionSessionDirectory+UpdateEvents.swift in Sources */,
 				F18401C72073BE0800E9F4CC /* AssetV3PreviewDownloadStrategy.swift in Sources */,

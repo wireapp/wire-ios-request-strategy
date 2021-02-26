@@ -216,19 +216,7 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
         for (_, users) in payload {
             for (userID, clientPayloads) in users {
                 let user = ZMUser.fetchAndMerge(with: UUID(uuidString: userID)!, createIfNeeded: true, in: managedObjectContext)!
-                let clients: [UserClient] = clientPayloads.map { $0.createOrUpdateClient(for: user) }
-
-                // Remove clients that have not been included in the response
-                let deletedClients = user.clients.subtracting(clients)
-                deletedClients.forEach {
-                    $0.deleteClientAndEndSession()
-                }
-                
-                // Mark new clients as missed and ignore them
-                let newClients = Set(clients.filter({ !$0.hasSessionWithSelfClient }))
-                selfClient.missesClients(newClients)
-                selfClient.addNewClientsToIgnored(newClients)
-                selfClient.updateSecurityLevelAfterDiscovering(newClients)
+                clientPayloads.updateClients(for: user, selfClient: selfClient)
             }
         }
     }
@@ -257,44 +245,14 @@ fileprivate final class UserClientByUserIDTranscoder: IdentifierObjectSyncTransc
     }
     
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
+
+
+        let payload = Payload.UserClients(response.rawData!)!
         
         guard let identifier = identifiers.first,
               let user = ZMUser(remoteID: identifier, createIfNeeded: true, in: managedObjectContext),
               let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient() else { return }
-        
-        // Create clients from the response
-        var newClients = Set<UserClient>()
-        guard let arrayPayload = response.payload?.asArray() else { return }
-        
-        let clients: [UserClient] = arrayPayload.compactMap {
-            guard let payload = $0 as? [String: AnyObject], let remoteIdentifier = payload["id"] as? String else { return nil }
-            guard let client = UserClient.fetchUserClient(withRemoteId: remoteIdentifier, forUser:user, createIfNeeded: true) else { return nil }
-            
-            if client.isInserted {
-                newClients.insert(client)
-            }
-            
-            client.update(with: payload)
-            return client
-        }
-        
-        // Remove clients that have not been included in the response
-        let deletedClients = Set(user.clients).subtracting(Set(clients))
-        deletedClients.forEach {
-            $0.deleteClientAndEndSession()
-        }
-        
-        for client in clients {
-            if client.hasSessionWithSelfClient { continue }
-            // Add clients without a session to missed clients
-            newClients.insert(client)
-        }
-        
-        guard newClients.count > 0 else { return }
-        selfClient.missesClients(Set(newClients))
-        
-        // add missing clients to ignored clients
-        selfClient.addNewClientsToIgnored(newClients)
-        selfClient.updateSecurityLevelAfterDiscovering(newClients)
+
+        payload.updateClients(for: user, selfClient: selfClient)
     }
 }

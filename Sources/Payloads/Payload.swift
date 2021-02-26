@@ -19,6 +19,7 @@ import Foundation
 
 enum Payload {
 
+    typealias UserClients = [Payload.UserClient]
     typealias UserClientByUserID = [String: [Payload.UserClient]]
     typealias UserClientByDomain = [String: UserClientByUserID]
     
@@ -52,24 +53,24 @@ enum Payload {
             case creationDate = "time"
             case label
             case location
-            case deviceClass = "device"
+            case deviceClass = "class"
             case deviceModel = "model"
         }
         
         let id: String
-        let type: String
-        let creationDate: Date
+        let type: String?
+        let creationDate: Date?
         let label: String?
         let location: Location?
-        let deviceClass: String?
+        let deviceClass: String
         let deviceModel: String?
 
         init(id: String,
-             type: String,
-             creationDate: Date,
+             deviceClass: String,
+             type: String? = nil,
+             creationDate: Date? = nil,
              label: String? = nil,
              location: Location? = nil,
-             deviceClass: String? = nil,
              deviceModel: String? = nil) {
             self.id = id
             self.type = type
@@ -83,8 +84,8 @@ enum Payload {
         func update(_ client: WireDataModel.UserClient) {
             client.needsToBeUpdatedFromBackend = false
             
-            guard client.user?.isSelfUser == false, let deviceClass = deviceClass else { return }
-            
+            guard client.user?.isSelfUser == false else { return }
+
             client.deviceClass = DeviceClass(rawValue: deviceClass)
         }
         
