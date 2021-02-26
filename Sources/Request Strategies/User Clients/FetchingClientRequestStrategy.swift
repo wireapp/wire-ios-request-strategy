@@ -27,55 +27,6 @@ private let zmLog = ZMSLog(tag: "fetchClientRS")
 
 public let ZMNeedsToUpdateUserClientsNotificationUserObjectIDKey = "userObjectID"
 
-extension Decodable {
-    
-    
-    /// Initialize object from JSON Data
-    ///
-    /// - parameter jsonData: JSON data as raw bytes
-    
-    init?(_ jsonData: Data) {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
-            let container = try decoder.singleValueContainer()
-            let rawDate = try container.decode(String.self)
-            
-            if let date = NSDate(transport: rawDate) {
-                return date as Date
-            } else {
-                throw DecodingError.dataCorruptedError(in: container,
-                                                       debugDescription: "Expected date string to be ISO8601-formatted with fractional seconds")
-            }
-        })
-        
-        do {
-            self = try decoder.decode(Self.self, from: jsonData)
-        } catch {
-            print("Failed to decode payload: \(error)")
-            return nil
-        }
-    }
-    
-}
-
-extension Encodable {
-    
-    
-    /// Initialize object from JSON Data
-    ///
-    /// - parameter jsonData: JSON data as raw bytes
-    
-    var jsonData: Data? {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .custom({ (date, encoder) in
-            var container = encoder.singleValueContainer()
-            try container.encode((date as NSDate).transportString())
-        })
-        
-        return try? encoder.encode(self)
-    }
-    
-}
 
 @objc public extension ZMUser {
     
@@ -227,6 +178,8 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
     public typealias T = Payload.QualifiedUserID
     
     var managedObjectContext: NSManagedObjectContext
+    let decoder: JSONDecoder = .defaultDecoder
+    let encoder: JSONEncoder = .defaultEncoder
     
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
@@ -237,7 +190,13 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
     }
     
     public func request(for identifiers: Set<Payload.QualifiedUserID>) -> ZMTransportRequest? {
-        let payloadAsString = String(bytes: identifiers.jsonData!, encoding: .utf8)
+
+        guard
+            let payloadData = identifiers.payloadData(encoder: encoder),
+            let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+        else {
+            return nil
+        }
     
         // POST /users/list-clients
         let path = NSString.path(withComponents: ["/users/list-clients"])
@@ -246,9 +205,14 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
     
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<Payload.QualifiedUserID>) {
         
-        let payload = Payload.UserClientByDomain(response.rawData!)!
-        let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()!
-                
+        guard
+            let payload = Payload.UserClientByDomain(response.rawData!, decoder: decoder),
+            let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
+        else {
+            Logging.network.warn("Can't process response, aborting.")
+            return
+        }
+
         for (_, users) in payload {
             for (userID, clientPayloads) in users {
                 let user = ZMUser.fetchAndMerge(with: UUID(uuidString: userID)!, createIfNeeded: true, in: managedObjectContext)!

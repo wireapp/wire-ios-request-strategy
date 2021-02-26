@@ -152,7 +152,7 @@ extension FetchClientRequestStrategyTests {
                                        deviceClass: "phone")
                     ]]
             ]
-            let payloadAsString = String(bytes: payload.jsonData!, encoding: .utf8)!
+            let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
             client = UserClient.fetchUserClient(withRemoteId: clientUUID.transportString(), forUser: self.otherUser, createIfNeeded: true)!
             self.otherUser.domain = "example.com"
 
@@ -183,7 +183,7 @@ extension FetchClientRequestStrategyTests {
             let payload: Payload.UserClientByDomain = [
                 "example.com": [userID: []]
             ]
-            let payloadAsString = String(bytes: payload.jsonData!, encoding: .utf8)!
+            let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
             client = UserClient.fetchUserClient(withRemoteId: clientUUID.transportString(), forUser: self.otherUser, createIfNeeded: true)!
             self.otherUser.domain = "example.com"
 
@@ -218,7 +218,7 @@ extension FetchClientRequestStrategyTests {
                                        deviceClass: "phone")
                     ]]
             ]
-            let payloadAsString = String(bytes: payload.jsonData!, encoding: .utf8)!
+            let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
             existingClient = UserClient.fetchUserClient(withRemoteId: UUID().transportString(), forUser: self.otherUser, createIfNeeded: true)!
             self.otherUser.domain = "example.com"
 
