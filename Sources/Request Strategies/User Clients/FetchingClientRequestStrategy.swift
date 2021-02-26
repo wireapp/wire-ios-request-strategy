@@ -27,6 +27,56 @@ private let zmLog = ZMSLog(tag: "fetchClientRS")
 
 public let ZMNeedsToUpdateUserClientsNotificationUserObjectIDKey = "userObjectID"
 
+extension Decodable {
+    
+    
+    /// Initialize object from JSON Data
+    ///
+    /// - parameter jsonData: JSON data as raw bytes
+    
+    init?(_ jsonData: Data) {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
+            let container = try decoder.singleValueContainer()
+            let rawDate = try container.decode(String.self)
+            
+            if let date = NSDate(transport: rawDate) {
+                return date as Date
+            } else {
+                throw DecodingError.dataCorruptedError(in: container,
+                                                       debugDescription: "Expected date string to be ISO8601-formatted with fractional seconds")
+            }
+        })
+        
+        do {
+            self = try decoder.decode(Self.self, from: jsonData)
+        } catch {
+            print("Failed to decode payload: \(error)")
+            return nil
+        }
+    }
+    
+}
+
+extension Encodable {
+    
+    
+    /// Initialize object from JSON Data
+    ///
+    /// - parameter jsonData: JSON data as raw bytes
+    
+    var jsonData: Data? {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .custom({ (date, encoder) in
+            var container = encoder.singleValueContainer()
+            try container.encode((date as NSDate).transportString())
+        })
+        
+        return try? encoder.encode(self)
+    }
+    
+}
+
 @objc public extension ZMUser {
     
     func fetchUserClients() {
@@ -44,17 +94,21 @@ public final class FetchingClientRequestStrategy : AbstractRequestStrategy {
     fileprivate var userClientsObserverToken: Any? = nil
     fileprivate var userClientsByUserID: IdentifierObjectSync<UserClientByUserIDTranscoder>
     fileprivate var userClientsByUserClientID: IdentifierObjectSync<UserClientByUserClientIDTranscoder>
+    fileprivate var userClientsByQualifiedUserID: IdentifierObjectSync<UserClientByQualifiedUserIDTranscoder>
     
     fileprivate var userClientByUserIDTranscoder: UserClientByUserIDTranscoder
     fileprivate var userClientByUserClientIDTranscoder: UserClientByUserClientIDTranscoder
+    fileprivate var userClientByQualifiedUserIDTranscoder: UserClientByQualifiedUserIDTranscoder
     
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         
         self.userClientByUserIDTranscoder = UserClientByUserIDTranscoder(managedObjectContext: managedObjectContext)
         self.userClientByUserClientIDTranscoder = UserClientByUserClientIDTranscoder(managedObjectContext: managedObjectContext)
+        self.userClientByQualifiedUserIDTranscoder = UserClientByQualifiedUserIDTranscoder(managedObjectContext: managedObjectContext)
         
         self.userClientsByUserID = IdentifierObjectSync(managedObjectContext: managedObjectContext, transcoder: userClientByUserIDTranscoder)
         self.userClientsByUserClientID = IdentifierObjectSync(managedObjectContext: managedObjectContext, transcoder: userClientByUserClientIDTranscoder)
+        self.userClientsByQualifiedUserID = IdentifierObjectSync(managedObjectContext: managedObjectContext, transcoder: userClientByQualifiedUserIDTranscoder)
         
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         
@@ -75,7 +129,10 @@ public final class FetchingClientRequestStrategy : AbstractRequestStrategy {
     }
     
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return userClientsByUserClientID.nextRequest() ?? userClientsByUserID.nextRequest()
+        return
+            userClientsByUserClientID.nextRequest() ??
+            userClientsByUserID.nextRequest() ??
+            userClientsByQualifiedUserID.nextRequest()
     }
     
 }
@@ -96,7 +153,6 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
         fetch(userClients: clientsNeedingToBeUpdated)
     }
     
-    
     public func objectsDidChange(_ object: Set<NSManagedObject>) {
         let clientsNeedingToBeUpdated = object.compactMap({ $0 as? UserClient}).filter(\.needsToBeUpdatedFromBackend)
         
@@ -104,13 +160,20 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
     }
     
     private func fetch(userClients: [UserClient]) {
-        let userClientIdentifiers: [UserClientByUserClientIDTranscoder.UserClientID] = userClients.compactMap({
-            guard let userId = $0.user?.remoteIdentifier, let clientId = $0.remoteIdentifier else { return nil }
-            
-            return UserClientByUserClientIDTranscoder.UserClientID(userId: userId, clientId: clientId)
-        })
-        
-        userClientsByUserClientID.sync(identifiers: userClientIdentifiers)
+        let initialResult: ([Payload.QualifiedUserID], [UserClientByUserClientIDTranscoder.UserClientID]) = ([], [])
+        let result = userClients.reduce(into: initialResult) { (result, userClient) in
+
+            // We prefer to by qualifiedUserID since can be done in batches and is more efficent, but if the server
+            // does not support it we need to fallback to fetching by userClientID
+            if let userID = userClient.user?.remoteIdentifier, let domain = userClient.user?.domain {
+                result.0.append(Payload.QualifiedUserID(uuid: userID, domain: domain))
+            } else if let userID = userClient.user?.remoteIdentifier, let clientID = userClient.remoteIdentifier {
+                result.1.append(UserClientByUserClientIDTranscoder.UserClientID(userId: userID, clientId: clientID))
+            }
+        }
+
+        userClientsByQualifiedUserID.sync(identifiers: Set(result.0))
+        userClientsByUserClientID.sync(identifiers: Set(result.1))
     }
     
 }
@@ -155,6 +218,54 @@ fileprivate final class UserClientByUserClientIDTranscoder: IdentifierObjectSync
             let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
             
             selfClient?.updateSecurityLevelAfterDiscovering(Set(arrayLiteral: client))
+        }
+    }
+}
+
+fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscoder {
+                
+    public typealias T = Payload.QualifiedUserID
+    
+    var managedObjectContext: NSManagedObjectContext
+    
+    init(managedObjectContext: NSManagedObjectContext) {
+        self.managedObjectContext = managedObjectContext
+    }
+    
+    var fetchLimit: Int {
+        return 100
+    }
+    
+    public func request(for identifiers: Set<Payload.QualifiedUserID>) -> ZMTransportRequest? {
+        let payloadAsString = String(bytes: identifiers.jsonData!, encoding: .utf8)
+    
+        // POST /users/list-clients
+        let path = NSString.path(withComponents: ["/users/list-clients"])
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?)
+    }
+    
+    public func didReceive(response: ZMTransportResponse, for identifiers: Set<Payload.QualifiedUserID>) {
+        
+        let payload = Payload.UserClientByDomain(response.rawData!)!
+        let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()!
+                
+        for (_, users) in payload {
+            for (userID, clientPayloads) in users {
+                let user = ZMUser.fetchAndMerge(with: UUID(uuidString: userID)!, createIfNeeded: true, in: managedObjectContext)!
+                let clients: [UserClient] = clientPayloads.map { $0.createOrUpdateClient(for: user) }
+
+                // Remove clients that have not been included in the response
+                let deletedClients = user.clients.subtracting(clients)
+                deletedClients.forEach {
+                    $0.deleteClientAndEndSession()
+                }
+                
+                // Mark new clients as missed and ignore them
+                let newClients = Set(clients.filter({ !$0.hasSessionWithSelfClient }))
+                selfClient.missesClients(newClients)
+                selfClient.addNewClientsToIgnored(newClients)
+                selfClient.updateSecurityLevelAfterDiscovering(newClients)
+            }
         }
     }
 }

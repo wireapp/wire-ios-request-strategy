@@ -78,6 +78,7 @@
 		16A86B2722A128A800A674F8 /* IdentifierObjectSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A86B2622A128A800A674F8 /* IdentifierObjectSync.swift */; };
 		16A86B4622A5485E00A674F8 /* IdentifierObjectSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A86B4522A5485E00A674F8 /* IdentifierObjectSyncTests.swift */; };
 		16D0E07F1DF88B430075DF8F /* EntityTranscoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */; };
+		16DABDA225D69335005F4C3A /* Payloads.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DABDA125D69335005F4C3A /* Payloads.swift */; };
 		16FFDE441DF6C668003494D6 /* DependencyEntitySync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FFDE431DF6C668003494D6 /* DependencyEntitySync.swift */; };
 		547D47171E7C1B0D002EEA15 /* DependentObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 547D47161E7C1B0D002EEA15 /* DependentObjects.swift */; };
 		547D47191E7C2F6C002EEA15 /* DependentObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 547D47181E7C2F6C002EEA15 /* DependentObjectsTests.swift */; };
@@ -333,6 +334,7 @@
 		16A86B4522A5485E00A674F8 /* IdentifierObjectSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifierObjectSyncTests.swift; sourceTree = "<group>"; };
 		16D0E07C1DF872FD0075DF8F /* DependencyEntitySyncTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyEntitySyncTests.swift; sourceTree = "<group>"; };
 		16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EntityTranscoder.swift; sourceTree = "<group>"; };
+		16DABDA125D69335005F4C3A /* Payloads.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Payloads.swift; sourceTree = "<group>"; };
 		16FFDE431DF6C668003494D6 /* DependencyEntitySync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyEntitySync.swift; sourceTree = "<group>"; };
 		547D47161E7C1B0D002EEA15 /* DependentObjects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependentObjects.swift; sourceTree = "<group>"; };
 		547D47181E7C2F6C002EEA15 /* DependentObjectsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependentObjectsTests.swift; sourceTree = "<group>"; };
@@ -563,6 +565,7 @@
 		1669016C1D707509000FE4AF /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				16DABDA025D69306005F4C3A /* Payloads */,
 				16229481221EBB8000A98679 /* Image Preprocessing */,
 				F963E8D81D955D4600098AD3 /* Helpers */,
 				F1CD5D842024C259008C574E /* Protocols */,
@@ -631,6 +634,14 @@
 				16751EBA24D1BDA00099AE09 /* DeliveryReceiptRequestStrategyTests.swift */,
 			);
 			path = "Delivery Receipts";
+			sourceTree = "<group>";
+		};
+		16DABDA025D69306005F4C3A /* Payloads */ = {
+			isa = PBXGroup;
+			children = (
+				16DABDA125D69335005F4C3A /* Payloads.swift */,
+			);
+			path = Payloads;
 			sourceTree = "<group>";
 		};
 		F12CD7932035FC4400EAAEBC /* Resources */ = {
@@ -1224,6 +1235,7 @@
 				F18401D32073BE0800E9F4CC /* ZMMessage+Dependency.swift in Sources */,
 				D5D65A072074C23D00D7F3C3 /* AssetRequestFactory.swift in Sources */,
 				166901E61D7081C7000FE4AF /* ZMSyncOperationSet.m in Sources */,
+				16DABDA225D69335005F4C3A /* Payloads.swift in Sources */,
 				166901D91D7081C7000FE4AF /* ZMLocallyInsertedObjectSet.m in Sources */,
 				F18401B02073BE0800E9F4CC /* AbstractRequestStrategy.swift in Sources */,
 				F18401C22073BE0800E9F4CC /* AssetV2DownloadRequestStrategy.swift in Sources */,
