@@ -17,6 +17,26 @@
 
 import Foundation
 
+extension Payload.UserClient {
+
+    func update(_ client: WireDataModel.UserClient) {
+        client.needsToBeUpdatedFromBackend = false
+
+        guard client.user?.isSelfUser == false else { return }
+
+        client.deviceClass = DeviceClass(rawValue: deviceClass)
+    }
+
+    func createOrUpdateClient(for user: ZMUser) -> WireDataModel.UserClient {
+        let client = WireDataModel.UserClient.fetchUserClient(withRemoteId: id, forUser: user, createIfNeeded: true)!
+
+        update(client)
+
+        return client
+    }
+    
+}
+
 extension Array where Array.Element == Payload.UserClient {
 
     func updateClients(for user: ZMUser, selfClient: UserClient) {

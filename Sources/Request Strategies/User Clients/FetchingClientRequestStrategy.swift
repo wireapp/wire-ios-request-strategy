@@ -22,11 +22,7 @@ import WireUtilities
 import WireCryptobox
 import WireDataModel
 
-private let zmLog = ZMSLog(tag: "fetchClientRS")
-
-
 public let ZMNeedsToUpdateUserClientsNotificationUserObjectIDKey = "userObjectID"
-
 
 @objc public extension ZMUser {
     
@@ -139,6 +135,7 @@ fileprivate final class UserClientByUserClientIDTranscoder: IdentifierObjectSync
     public typealias T = UserClientID
     
     var managedObjectContext: NSManagedObjectContext
+    let decoder: JSONDecoder = .defaultDecoder
     
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
@@ -157,17 +154,20 @@ fileprivate final class UserClientByUserClientIDTranscoder: IdentifierObjectSync
     
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UserClientID>) {
 
-        guard let identifier = identifiers.first,
-              let user = ZMUser(remoteID: identifier.userId, createIfNeeded: true, in: managedObjectContext),
-              let client = UserClient.fetchUserClient(withRemoteId: identifier.clientId, forUser:user, createIfNeeded: true) else { return }
+        guard
+            let identifier = identifiers.first,
+            let user = ZMUser(remoteID: identifier.userId, createIfNeeded: true, in: managedObjectContext),
+            let client = UserClient.fetchUserClient(withRemoteId: identifier.clientId, forUser:user, createIfNeeded: true)
+        else {
+            Logging.network.warn("Can't process response, aborting.")
+            return
+        }
         
         if response.result == .permanentError {
             client.deleteClientAndEndSession()
-        } else if let payload = response.payload as? [String: AnyObject] {
-            client.update(with: payload)
-            
+        } else if let payload = Payload.UserClient(response.rawData!, decoder: decoder) {
+            payload.update(client)
             let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
-            
             selfClient?.updateSecurityLevelAfterDiscovering(Set(arrayLiteral: client))
         }
     }
@@ -227,6 +227,7 @@ fileprivate final class UserClientByUserIDTranscoder: IdentifierObjectSyncTransc
     public typealias T = UUID
     
     var managedObjectContext: NSManagedObjectContext
+    let decoder: JSONDecoder = .defaultDecoder
     
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
@@ -246,12 +247,15 @@ fileprivate final class UserClientByUserIDTranscoder: IdentifierObjectSyncTransc
     
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
 
-
-        let payload = Payload.UserClients(response.rawData!)!
-        
-        guard let identifier = identifiers.first,
-              let user = ZMUser(remoteID: identifier, createIfNeeded: true, in: managedObjectContext),
-              let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient() else { return }
+        guard
+            let payload = Payload.UserClients(response.rawData!, decoder: decoder),
+            let identifier = identifiers.first,
+            let user = ZMUser(remoteID: identifier, createIfNeeded: true, in: managedObjectContext),
+            let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
+        else {
+            Logging.network.warn("Can't process response, aborting.")
+            return
+        }
 
         payload.updateClients(for: user, selfClient: selfClient)
     }
