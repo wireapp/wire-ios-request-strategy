@@ -20,7 +20,7 @@ import Foundation
 enum Payload {
 
     typealias UserClients = [Payload.UserClient]
-    typealias UserClientByUserID = [String: [Payload.UserClient]]
+    typealias UserClientByUserID = [String: UserClients]
     typealias UserClientByDomain = [String: UserClientByUserID]
     
     struct QualifiedUserID: Codable, Hashable {
