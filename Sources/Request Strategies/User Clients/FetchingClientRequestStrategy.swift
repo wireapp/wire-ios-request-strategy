@@ -112,9 +112,12 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
 
             // We prefer to by qualifiedUserID since can be done in batches and is more efficent, but if the server
             // does not support it we need to fallback to fetching by userClientID
-            if let userID = userClient.user?.remoteIdentifier, let domain = userClient.user?.domain {
+            if userClientsByQualifiedUserID.isAvailable,
+               let userID = userClient.user?.remoteIdentifier,
+               let domain = userClient.user?.domain {
                 result.0.append(Payload.QualifiedUserID(uuid: userID, domain: domain))
-            } else if let userID = userClient.user?.remoteIdentifier, let clientID = userClient.remoteIdentifier {
+            } else if let userID = userClient.user?.remoteIdentifier,
+                      let clientID = userClient.remoteIdentifier {
                 result.1.append(UserClientByUserClientIDTranscoder.UserClientID(userId: userID, clientId: clientID))
             }
         }
@@ -139,6 +142,10 @@ fileprivate final class UserClientByUserClientIDTranscoder: IdentifierObjectSync
     
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
+    }
+
+    var isAvailable: Bool {
+        return true
     }
     
     var fetchLimit: Int {
@@ -184,6 +191,8 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
     }
+
+    var isAvailable: Bool = true
     
     var fetchLimit: Int {
         return 100
@@ -204,6 +213,12 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
     }
     
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<Payload.QualifiedUserID>) {
+
+        guard response.httpStatus != 404 else {
+            Logging.network.warn("Endpoint not available, deactivating.")
+            isAvailable = false
+            return
+        }
         
         guard
             let payload = Payload.UserClientByDomain(response.rawData!, decoder: decoder),
@@ -231,6 +246,10 @@ fileprivate final class UserClientByUserIDTranscoder: IdentifierObjectSyncTransc
     
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
+    }
+
+    var isAvailable: Bool {
+        return true
     }
     
     var fetchLimit: Int {
