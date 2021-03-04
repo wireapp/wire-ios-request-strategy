@@ -237,6 +237,35 @@ extension FetchClientRequestStrategyTests {
         }
     }
 
+    func testThatItDeactivatesBatchFetching_WhenTheEndpointIsNotAvailable() {
+        var client: UserClient!
+        let clientUUID = UUID()
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            client = UserClient.fetchUserClient(withRemoteId: clientUUID.transportString(),
+                                                forUser: self.otherUser,
+                                                createIfNeeded: true)!
+            self.otherUser.domain = "example.com"
+
+            // WHEN
+            client.needsToBeUpdatedFromBackend = true
+            self.sut.objectsDidChange(Set(arrayLiteral: client))
+            let request = self.sut.nextRequest()
+            let response = ZMTransportResponse(payload: nil,
+                                               httpStatus: 404,
+                                               transportSessionError: nil)
+
+            request?.complete(with: response)
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
+
+        syncMOC.performGroupedBlockAndWait {
+            // THEN
+            self.sut.objectsDidChange(Set(arrayLiteral: client))
+            XCTAssertEqual(self.sut.nextRequest()?.path, "/users/\(self.otherUser.remoteIdentifier!.transportString())/clients/\(clientUUID.transportString())")
+        }
+    }
+
 }
 
 // MARK: - Fetching Other Users Clients

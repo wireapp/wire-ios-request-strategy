@@ -215,6 +215,7 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
     
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<Payload.QualifiedUserID>) {
 
+        // NOTE should be removed or replaced once the BE exposes a version number.
         guard response.httpStatus != 404 else {
             Logging.network.warn("Endpoint not available, deactivating.")
             isAvailable = false
