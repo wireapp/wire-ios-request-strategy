@@ -173,7 +173,8 @@ fileprivate final class UserClientByUserClientIDTranscoder: IdentifierObjectSync
         
         if response.result == .permanentError {
             client.deleteClientAndEndSession()
-        } else if let payload = Payload.UserClient(response.rawData!, decoder: decoder) {
+        } else if let rawData = response.rawData,
+                  let payload = Payload.UserClient(rawData, decoder: decoder) {
             payload.update(client)
             let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
             selfClient?.updateSecurityLevelAfterDiscovering(Set(arrayLiteral: client))
@@ -223,7 +224,8 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
         }
         
         guard
-            let payload = Payload.UserClientByDomain(response.rawData!, decoder: decoder),
+            let rawData = response.rawData,
+            let payload = Payload.UserClientByDomain(rawData, decoder: decoder),
             let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
         else {
             Logging.network.warn("Can't process response, aborting.")
@@ -232,7 +234,15 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
 
         for (_, users) in payload {
             for (userID, clientPayloads) in users {
-                let user = ZMUser.fetchAndMerge(with: UUID(uuidString: userID)!, createIfNeeded: true, in: managedObjectContext)!
+                guard
+                    let userID = UUID(uuidString: userID),
+                    let user = ZMUser.fetchAndMerge(with: userID,
+                                                    createIfNeeded: true,
+                                                    in: managedObjectContext)
+                else {
+                    continue
+                }
+
                 clientPayloads.updateClients(for: user, selfClient: selfClient)
             }
         }
@@ -269,7 +279,8 @@ fileprivate final class UserClientByUserIDTranscoder: IdentifierObjectSyncTransc
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
 
         guard
-            let payload = Payload.UserClients(response.rawData!, decoder: decoder),
+            let rawData = response.rawData,
+            let payload = Payload.UserClients(rawData, decoder: decoder),
             let identifier = identifiers.first,
             let user = ZMUser(remoteID: identifier, createIfNeeded: true, in: managedObjectContext),
             let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
