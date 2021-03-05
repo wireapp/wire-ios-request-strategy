@@ -142,7 +142,7 @@ extension FetchClientRequestStrategyTests {
     func testThatItUpdatesTheClient_WhenReceivingTheBatchResponse() {
         var client: UserClient!
         syncMOC.performGroupedBlockAndWait {
-            // GIVE
+            // GIVEN
             let clientUUID = UUID()
             let payload = [
                 "example.com": [clientUUID.transportString(): [
