@@ -63,6 +63,7 @@ public final class FetchingClientRequestStrategy : AbstractRequestStrategy {
                               .allowsRequestsDuringQuickSync,
                               .allowsRequestsWhileWaitingForWebsocket,
                               .allowsRequestsWhileInBackground]
+        self.userClientByQualifiedUserIDTranscoder.contextChangedTracker = self
         self.userClientsObserverToken = NotificationInContext.addObserver(name: FetchingClientRequestStrategy.needsToUpdateUserClientsNotificationName,
                                                                           context: self.managedObjectContext.notificationContext,
                                                                           object: nil)
@@ -185,7 +186,8 @@ fileprivate final class UserClientByUserClientIDTranscoder: IdentifierObjectSync
 fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscoder {
                 
     public typealias T = Payload.QualifiedUserID
-    
+
+    weak var contextChangedTracker: ZMContextChangeTracker?
     var managedObjectContext: NSManagedObjectContext
     let decoder: JSONDecoder = .defaultDecoder
     let encoder: JSONEncoder = .defaultEncoder
@@ -220,6 +222,14 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
         guard response.httpStatus != 404 else {
             Logging.network.warn("Endpoint not available, deactivating.")
             isAvailable = false
+
+            // Re-schedule to fetch clients with the clients with the fallback
+            if let users = ZMUser.fetchObjects(withRemoteIdentifiers: Set(identifiers.map(\.uuid)),
+                                                     in: managedObjectContext) as? Set<ZMUser> {
+
+                let clients = users.flatMap(\.clients)
+                contextChangedTracker?.objectsDidChange(Set(clients))
+            }
             return
         }
         

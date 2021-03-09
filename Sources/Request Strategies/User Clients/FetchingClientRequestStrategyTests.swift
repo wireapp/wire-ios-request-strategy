@@ -237,7 +237,7 @@ extension FetchClientRequestStrategyTests {
         }
     }
 
-    func testThatItDeactivatesBatchFetching_WhenTheEndpointIsNotAvailable() {
+    func testThatItDeactivatesBatchFetchingAndSwitchesToFallback_WhenTheEndpointIsNotAvailable() {
         var client: UserClient!
         let clientUUID = UUID()
         syncMOC.performGroupedBlockAndWait {
@@ -261,7 +261,6 @@ extension FetchClientRequestStrategyTests {
 
         syncMOC.performGroupedBlockAndWait {
             // THEN
-            self.sut.objectsDidChange(Set(arrayLiteral: client))
             XCTAssertEqual(self.sut.nextRequest()?.path, "/users/\(self.otherUser.remoteIdentifier!.transportString())/clients/\(clientUUID.transportString())")
         }
     }
