@@ -14,7 +14,9 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see http://www.gnu.org/licenses/.
-// 
+//
+
+#import "WireRequestStrategyTests-Swift.h"
 
 @import WireDataModel;
 @import WireTesting;
@@ -27,7 +29,8 @@ static NSString * Key2;
 
 @interface ZMLocallyModifiedObjectSyncStatusTests : ZMTBaseTest
 
-@property (nonatomic) ZMTestSession *testSession;
+//@property (nonatomic) ZMTestSession *testSession;
+@property (nonatomic) CoreDataStack *coreDataStack;
 @property (nonatomic) ZMConversation *conversation;
 @property (nonatomic) NSSet *trackedKeys;
 @property (nonatomic) NSSet *trackedKeysB;
@@ -39,22 +42,20 @@ static NSString * Key2;
 
 - (void)setUp {
     [super setUp];
-    
-    self.testSession = [[ZMTestSession alloc] initWithDispatchGroup:self.dispatchGroup];
-    [self.testSession prepareForTestNamed:self.name];
+
+    self.coreDataStack = [self createCoreDataStack];
 
     Key1 = ZMConversationSilencedChangedTimeStampKey;
     Key2 = ZMConversationUserDefinedNameKey;
     
     self.trackedKeys = [NSSet setWithObjects:Key1, Key2, nil];
-    self.conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.testSession.uiMOC];
+    self.conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.coreDataStack.viewContext];
 
     self.trackedKeysB = [NSSet setWithObject:Key1];
 }
 
 - (void)tearDown {
-
-    [self.testSession tearDown];
+    self.coreDataStack = nil;
     self.conversation = nil;
     self.trackedKeys = nil;
     self.trackedKeysB = nil;
