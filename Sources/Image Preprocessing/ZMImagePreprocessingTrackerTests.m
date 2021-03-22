@@ -48,7 +48,8 @@
 - (void)setUp {
     [super setUp];
 
-    self.coreDataStack = [self createCoreDataStack];
+    self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
+                                                       inMemoryStore:YES];
     [self setupCachesIn:self.coreDataStack];
     
     self.linkPreviewMessage1 = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.coreDataStack.viewContext];

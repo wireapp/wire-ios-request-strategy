@@ -75,7 +75,8 @@
 {
     [super setUp];
 
-    self.coreDataStack = [self createCoreDataStack];
+    self.coreDataStack = self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
+                                                                            inMemoryStore:YES];
     
     self.user1 = [ZMUser insertNewObjectInManagedObjectContext:self.coreDataStack.viewContext];
     self.user1.name = @"Hans";

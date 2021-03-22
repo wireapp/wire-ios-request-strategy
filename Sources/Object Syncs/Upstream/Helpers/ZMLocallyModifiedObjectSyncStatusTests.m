@@ -43,7 +43,8 @@ static NSString * Key2;
 - (void)setUp {
     [super setUp];
 
-    self.coreDataStack = [self createCoreDataStack];
+    self.coreDataStack = self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
+                                                                            inMemoryStore:YES];
 
     Key1 = ZMConversationSilencedChangedTimeStampKey;
     Key2 = ZMConversationUserDefinedNameKey;

@@ -21,14 +21,17 @@ import WireTesting
 
 extension ZMTBaseTest {
 
+    var sharedContainerURL: URL {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+    }
+    
     @objc
-    func createCoreDataStack() -> CoreDataStack {
-        let account = Account(userName: "", userIdentifier: UUID())
-        let storageDirectory = FileManager.default.urls(for: .documentDirectory,
-                                                        in: .userDomainMask).first!
+    func createCoreDataStack(userIdentifier: UUID = UUID(),
+                             inMemoryStore: Bool = true) -> CoreDataStack {
+        let account = Account(userName: "", userIdentifier: userIdentifier)
         let stack = CoreDataStack(account: account,
-                                  applicationContainer: storageDirectory,
-                                  inMemoryStore: true,
+                                  applicationContainer: sharedContainerURL,
+                                  inMemoryStore: inMemoryStore,
                                   dispatchGroup: dispatchGroup)
 
         stack.loadStore { (error) in
@@ -49,6 +52,12 @@ extension ZMTBaseTest {
         coreDataStack.syncContext.performGroupedBlockAndWait {
             coreDataStack.syncContext.zm_userImageCache = userImageCache
             coreDataStack.syncContext.zm_fileAssetCache = fileAssetCache
+        }
+    }
+
+    func removeFilesInSharedContainer() {
+        try? FileManager.default.contentsOfDirectory(at: sharedContainerURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles).forEach {
+            try? FileManager.default.removeItem(at: $0)
         }
     }
 

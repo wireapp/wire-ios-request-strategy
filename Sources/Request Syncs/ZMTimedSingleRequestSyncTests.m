@@ -55,7 +55,8 @@
 - (void)setUp {
     [super setUp];
 
-    self.coreDataStack = [self createCoreDataStack];
+    self.coreDataStack = self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
+                                                                            inMemoryStore:YES];
     self.dummyRequest = [ZMTransportRequest requestGetFromPath:self.name];
     self.dummyResponse = [ZMTransportResponse responseWithPayload:nil HTTPStatus:200 transportSessionError:nil];
     self.transcoderCallsToRequest = 0;
