@@ -310,36 +310,6 @@ extension MessagingTestBase {
 // MARK: - Contexts
 extension MessagingTestBase {
 
-//    fileprivate func setupManagedObjectContexes() {
-//        StorageStack.reset()
-//        StorageStack.shared.createStorageAsInMemory = true
-//
-//        StorageStack.shared.createManagedObjectContextDirectory(
-//            accountIdentifier: accountIdentifier,
-//            applicationContainer: sharedContainerURL,
-//            dispatchGroup: dispatchGroup,
-//            completionHandler: { self.contextDirectory = $0 }
-//        )
-//
-//        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.1))
-//
-//        let fileAssetCache = FileAssetCache(location: nil)
-//        self.uiMOC.userInfo["TestName"] = self.name
-//
-//        self.syncMOC.performGroupedBlockAndWait {
-//            self.syncMOC.userInfo["TestName"] = self.name
-//            self.syncMOC.saveOrRollback()
-//
-//            self.syncMOC.zm_userInterface = self.uiMOC
-//            self.syncMOC.zm_fileAssetCache = fileAssetCache
-//        }
-//
-//        self.uiMOC.zm_sync = self.syncMOC
-//        self.uiMOC.zm_fileAssetCache = fileAssetCache
-//
-//        setupTimers()
-//    }
-
     override var allDispatchGroups: [ZMSDispatchGroup] {
         return super.allDispatchGroups + [self.syncMOC?.dispatchGroup, self.uiMOC?.dispatchGroup].compactMap { $0 }
     }
