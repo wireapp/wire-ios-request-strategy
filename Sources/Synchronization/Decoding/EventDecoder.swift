@@ -31,7 +31,6 @@ private let previouslyReceivedEventIDsKey = "zm_previouslyReceivedEventIDsKey"
 }
 
 
-
 /// Decodes and stores events from various sources to be processed later
 @objcMembers public final class EventDecoder: NSObject {
     
