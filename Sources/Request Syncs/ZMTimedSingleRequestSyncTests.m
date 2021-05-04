@@ -28,7 +28,6 @@
 
 @interface ZMTimedSingleRequestSyncTests : ZMTBaseTest <ZMSingleRequestTranscoder>
 
-//@property (nonatomic) ZMTestSession *testSession;
 @property (nonatomic) CoreDataStack *coreDataStack;
 @property (nonatomic) ZMTransportRequest *dummyRequest;
 @property (nonatomic) ZMTransportResponse *dummyResponse;

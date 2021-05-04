@@ -42,8 +42,8 @@
 {
     [super setUp];
 
-    self.coreDataStack = self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
-                                                                            inMemoryStore:YES];
+    self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
+                                                       inMemoryStore:YES];
 
     self.conversation1 = [ZMConversation insertNewObjectInManagedObjectContext:self.coreDataStack.viewContext];
     self.conversation1.conversationType = ZMConversationTypeGroup;

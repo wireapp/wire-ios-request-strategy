@@ -54,7 +54,6 @@
 
 @property (nonatomic) ZMChangeTrackerBootstrap *sut;
 @property (nonatomic) CoreDataStack *coreDataStack;
-//@property (nonatomic) ZMTestSession *testSession;
 @property (nonatomic) ZMUser *user1;
 @property (nonatomic) ZMUser *user2;
 @property (nonatomic) ZMUser *selfUser;
@@ -75,8 +74,8 @@
 {
     [super setUp];
 
-    self.coreDataStack = self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
-                                                                            inMemoryStore:YES];
+    self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
+                                                       inMemoryStore:YES];
     
     self.user1 = [ZMUser insertNewObjectInManagedObjectContext:self.coreDataStack.viewContext];
     self.user1.name = @"Hans";
@@ -110,8 +109,6 @@
     self.connection1 = nil;
     self.conversation2 = nil;
     self.coreDataStack = nil;
-//    [self.testSession tearDown];
-//    self.testSession = nil;
     [super tearDown];
 }
 

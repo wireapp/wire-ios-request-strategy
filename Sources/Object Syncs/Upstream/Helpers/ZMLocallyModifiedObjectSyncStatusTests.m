@@ -29,7 +29,6 @@ static NSString * Key2;
 
 @interface ZMLocallyModifiedObjectSyncStatusTests : ZMTBaseTest
 
-//@property (nonatomic) ZMTestSession *testSession;
 @property (nonatomic) CoreDataStack *coreDataStack;
 @property (nonatomic) ZMConversation *conversation;
 @property (nonatomic) NSSet *trackedKeys;
