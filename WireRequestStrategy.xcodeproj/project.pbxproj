@@ -36,7 +36,6 @@
 		0649D19F24F6717C001DDC78 /* ZMLocalNotificationSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D19E24F6717C001DDC78 /* ZMLocalNotificationSet.swift */; };
 		0649D1A124F671E6001DDC78 /* UserNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D1A024F671E6001DDC78 /* UserNotificationCenter.swift */; };
 		0649D1A624F673E7001DDC78 /* UUID+SafeLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D1A524F673E7001DDC78 /* UUID+SafeLogging.swift */; };
-		067A33E424EC1EB80074A81E /* ZMEventModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 067A33E124EC1EB80074A81E /* ZMEventModel.xcdatamodeld */; };
 		068084962563B6940047899C /* FeatureConfigRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068084952563B6940047899C /* FeatureConfigRequestStrategy.swift */; };
 		068084982563B7310047899C /* FeatureConfigRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068084972563B7310047899C /* FeatureConfigRequestStrategyTests.swift */; };
 		0693114A24F799F400D14DF5 /* ZMLocalNotificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0693113F24F7995F00D14DF5 /* ZMLocalNotificationTests.swift */; };
@@ -356,8 +355,6 @@
 		0649D19E24F6717C001DDC78 /* ZMLocalNotificationSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMLocalNotificationSet.swift; sourceTree = "<group>"; };
 		0649D1A024F671E6001DDC78 /* UserNotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationCenter.swift; sourceTree = "<group>"; };
 		0649D1A524F673E7001DDC78 /* UUID+SafeLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+SafeLogging.swift"; sourceTree = "<group>"; };
-		067A33E224EC1EB80074A81E /* ZMEventModel2.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ZMEventModel2.0.xcdatamodel; sourceTree = "<group>"; };
-		067A33E324EC1EB80074A81E /* ZMEventModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ZMEventModel.xcdatamodel; sourceTree = "<group>"; };
 		068084952563B6940047899C /* FeatureConfigRequestStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeatureConfigRequestStrategy.swift; sourceTree = "<group>"; };
 		068084972563B7310047899C /* FeatureConfigRequestStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureConfigRequestStrategyTests.swift; sourceTree = "<group>"; };
 		0693113F24F7995F00D14DF5 /* ZMLocalNotificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMLocalNotificationTests.swift; sourceTree = "<group>"; };
@@ -656,7 +653,6 @@
 		06474D4924AF683E002C695D /* Decoding */ = {
 			isa = PBXGroup;
 			children = (
-				067A33E124EC1EB80074A81E /* ZMEventModel.xcdatamodeld */,
 				06474D4A24AF6858002C695D /* EventDecoder.swift */,
 				06474DA524B4B1EA002C695D /* EventDecoderTest.swift */,
 				06474D4C24AF68AD002C695D /* StoreUpdateEvent.swift */,
@@ -1479,7 +1475,6 @@
 				166901DB1D7081C7000FE4AF /* ZMLocallyModifiedObjectSet.m in Sources */,
 				8792F55721AD944100795027 /* UserPropertyRequestStrategy.swift in Sources */,
 				F18401A92073BE0800E9F4CC /* MissingClientsRequestFactory.swift in Sources */,
-				067A33E424EC1EB80074A81E /* ZMEventModel.xcdatamodeld in Sources */,
 				F18401AD2073BE0800E9F4CC /* ZMOTRMessage+Missing.swift in Sources */,
 				06474D4D24AF68AD002C695D /* StoreUpdateEvent.swift in Sources */,
 				068084962563B6940047899C /* FeatureConfigRequestStrategy.swift in Sources */,
@@ -1851,20 +1846,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCVersionGroup section */
-		067A33E124EC1EB80074A81E /* ZMEventModel.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				067A33E224EC1EB80074A81E /* ZMEventModel2.0.xcdatamodel */,
-				067A33E324EC1EB80074A81E /* ZMEventModel.xcdatamodel */,
-			);
-			currentVersion = 067A33E224EC1EB80074A81E /* ZMEventModel2.0.xcdatamodel */;
-			path = ZMEventModel.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 166901611D707509000FE4AF /* Project object */;
 }
