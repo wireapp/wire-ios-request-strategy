@@ -1,2 +1,1 @@
-github "wireapp/avs-ios-binaries" ~> 6.0.223
-github "wireapp/wire-ios-data-model" ~> 227.0
+github "wireapp/wire-ios-data-model" ~> 255.0.0

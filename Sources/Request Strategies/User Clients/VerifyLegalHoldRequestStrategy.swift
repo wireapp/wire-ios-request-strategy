@@ -35,6 +35,7 @@ public final class VerifyLegalHoldRequestStrategy: AbstractRequestStrategy {
         
         configuration = [.allowsRequestsWhileOnline,
                          .allowsRequestsDuringQuickSync,
+                         .allowsRequestsWhileWaitingForWebsocket,
                          .allowsRequestsWhileInBackground]
         conversationSync = IdentifierObjectSync(managedObjectContext: managedObjectContext, transcoder: self)
     }
@@ -73,6 +74,10 @@ extension VerifyLegalHoldRequestStrategy: IdentifierObjectSyncTranscoder {
     
     public var fetchLimit: Int {
         return 1
+    }
+
+    public var isAvailable: Bool {
+        return true
     }
     
     public func request(for identifiers: Set<ZMConversation>) -> ZMTransportRequest? {
