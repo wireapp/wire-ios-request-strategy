@@ -18,7 +18,6 @@
 
 import Foundation
 import AudioToolbox
-import avs
 
 public enum ZMSound: String, CustomStringConvertible {
     case None       = "silence"

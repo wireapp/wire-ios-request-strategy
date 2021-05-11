@@ -29,13 +29,8 @@ extension LocalNotificationType {
     
     var sound: NotificationSound {
         switch self {
-        case .calling(let callState):
-            switch callState {
-            case .incoming:
-                return .call
-            default:
-                return .newMessage
-            }
+        case .incomingCall:
+            return .call
         case .event:
             return .newMessage
         case .message(let contentType):
@@ -56,8 +51,8 @@ private extension PushNotificationCategory {
 
     init(notificationType: LocalNotificationType) {
         switch notificationType {
-        case .calling(let callState):
-            self.init(callState: callState)
+        case .incomingCall:
+            self = .incomingCall
         case .event(let eventType):
             self.init(eventType: eventType)
         case .message(let contentType):
@@ -66,17 +61,6 @@ private extension PushNotificationCategory {
             self = .conversation
         case .availabilityBehaviourChangeAlert:
             self = .alert
-        }
-    }
-
-    init(callState: CallState) {
-        switch (callState) {
-        case .incoming:
-            self = .incomingCall
-        case .terminating(reason: .timeout):
-            self = .missedCall
-        default :
-            self = .conversation
         }
     }
 
