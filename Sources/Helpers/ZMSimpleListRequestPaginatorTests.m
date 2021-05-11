@@ -44,7 +44,7 @@
 @implementation ZMSimpleListRequestPaginatorTests
 
 - (void)setUp {
-    
+
     [super setUp];
 
     self.basePath = @"/base-path";
@@ -54,12 +54,12 @@
     self.syncMOC = [self.testSession syncMOC];//[MockModelObjectContextFactory testContext];
     self.transcoder = [OCMockObject niceMockForProtocol:@protocol(ZMSimpleListRequestPaginatorSync)];
     [self verifyMockLater:self.transcoder];
-    
+
     self.sut = [[ZMSimpleListRequestPaginator alloc] initWithBasePath:self.basePath startKey:@"start" pageSize:self.pageSize managedObjectContext:self.syncMOC includeClientID:NO transcoder:self.transcoder];
-    
+
     self.singleRequestSync = [OCMockObject mockForClass:ZMSingleRequestSync.class];
     [self verifyMockLater:self.singleRequestSync];
-    
+
     self.sut.singleRequestSync = self.singleRequestSync;
 }
 
@@ -89,7 +89,7 @@
 {
     // when
     ZMSimpleListRequestPaginator *sut = [[ZMSimpleListRequestPaginator alloc] initWithBasePath:@"foo" startKey:@"bar" pageSize:10 managedObjectContext:self.syncMOC includeClientID:NO transcoder:nil];
-    
+
     // then
     XCTAssertNotNil(sut.singleRequestSync);
     XCTAssertEqual(sut.singleRequestSync.groupQueue, self.syncMOC);
@@ -101,10 +101,10 @@
 {
     // expect
     [[self.singleRequestSync expect] readyForNextRequest];
-    
+
     // when
     [self.sut resetFetching];
-    
+
     // then
     [self.singleRequestSync verify];
 }
@@ -113,7 +113,7 @@
 {
     // when
     BOOL hasMore = self.sut.hasMoreToFetch;
-    
+
     // then
     XCTAssertFalse(hasMore);
     [self.singleRequestSync verify];
@@ -124,10 +124,10 @@
     // given
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     // when
     BOOL hasMore = self.sut.hasMoreToFetch;
-    
+
     // then
     XCTAssertTrue(hasMore);
 }
@@ -148,14 +148,14 @@
     // given
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     // expect
     ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"baa"];
     [[[self.singleRequestSync expect] andReturn:expectedRequest] nextRequest];
-    
+
     // when
     ZMTransportRequest *request = [self.sut nextRequest];
-    
+
     // then
     XCTAssertEqual(expectedRequest, request);
     [self.singleRequestSync verify];
@@ -166,10 +166,10 @@
     // given
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     // when
     ZMTransportRequest *request = [self.sut requestForSingleRequestSync:self.singleRequestSync];
-    
+
     // after
     NSString *expectedURL = [NSString stringWithFormat:@"%@?size=%lu", self.basePath, (unsigned long) self.pageSize];
     XCTAssertNotNil(request);
@@ -183,18 +183,18 @@
     // given
     NSUUID *startUUID = [NSUUID createUUID];
     NSString *startKey = @"foo";
-    
+
     id transcoder = [OCMockObject niceMockForProtocol:@protocol(ZMSimpleListRequestPaginatorSync)];
     [[[transcoder expect] andReturn:startUUID] startUUID];
-    
+
     self.sut = [[ZMSimpleListRequestPaginator alloc] initWithBasePath:self.basePath startKey:startKey pageSize:self.pageSize  managedObjectContext:self.syncMOC includeClientID:NO transcoder:transcoder];
 
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     // when
     ZMTransportRequest *request = [self.sut requestForSingleRequestSync:self.singleRequestSync];
-    
+
     // after
     NSString *expectedURL = [NSString stringWithFormat:@"%@?size=%lu&%@=%@", self.basePath, (unsigned long) self.pageSize, startKey, startUUID.transportString];
     XCTAssertNotNil(request);
@@ -209,15 +209,15 @@
     [self.syncMOC performBlockAndWait:^{
         [self createSelfClient];
         NSString *selfClientID = [ZMUser selfUserInContext:self.syncMOC].selfClient.remoteIdentifier;
-        
+
         self.sut = [[ZMSimpleListRequestPaginator alloc] initWithBasePath:self.basePath startKey:@"foo" pageSize:self.pageSize managedObjectContext:self.syncMOC includeClientID:YES transcoder:nil];
-        
+
         [[self.singleRequestSync stub] readyForNextRequest];
         [self.sut resetFetching];
-        
+
         // when
         ZMTransportRequest *request = [self.sut requestForSingleRequestSync:self.singleRequestSync];
-        
+
         // after
         NSString *expectedURL = [NSString stringWithFormat:@"%@?size=%lu&%@=%@", self.basePath, (unsigned long) self.pageSize, @"client", selfClientID];
         XCTAssertNotNil(request);
@@ -233,15 +233,15 @@
         if (selfUser.remoteIdentifier == nil) {
             selfUser.remoteIdentifier = [NSUUID createUUID];
         }
-        
+
         UserClient *client = [UserClient insertNewObjectInManagedObjectContext:moc];
         client.remoteIdentifier = [NSString stringWithFormat:@"%x", arc4random()];
         client.user = selfUser;
-        
+
         [moc setPersistentStoreMetadata:client.remoteIdentifier forKey:ZMPersistedClientIdKey];
         [moc saveOrRollback];
         return client;
-        
+
     }
 
 - (UserClient *)createSelfClient
@@ -250,7 +250,7 @@
     NSDictionary *payload = @{@"id": selfClient.remoteIdentifier, @"type": @"permanent", @"time": [[NSDate date] transportString]};
     NOT_USED([UserClient createOrUpdateSelfUserClient:payload context:self.syncMOC]);
     [self.syncMOC saveOrRollback];
-    
+
     return selfClient;
 }
 
@@ -263,10 +263,10 @@
     // expect
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:expectedPayload HTTPStatus:200 transportSessionError:nil];
     [[[self.transcoder expect] andReturn:[NSUUID createUUID]] nextUUIDFromResponse:response forListPaginator:OCMOCK_ANY];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
-    
+
 }
 
 - (void)testThatItResetsTheSingleRequestAfterEachSuccessfulResponse
@@ -274,15 +274,15 @@
     // given
     [[self.singleRequestSync expect] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     // expect
     [[self.singleRequestSync expect] readyForNextRequest];
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:200 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
-    
+
     // then
     XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);
 }
@@ -292,15 +292,15 @@
     // given
     [[self.singleRequestSync expect] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     // expect
     [[self.singleRequestSync expect] readyForNextRequest];
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:404 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
-    
+
     // then
     XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);
 }
@@ -311,15 +311,15 @@
     // given
     [[self.singleRequestSync expect] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     // expect
     [[self.singleRequestSync expect] readyForNextRequest];
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:500 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
-    
+
     // then
     XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);
 }
@@ -339,10 +339,10 @@
 
     [[[self.transcoder expect] andReturn:[NSUUID createUUID]] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:200 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
-    
+
     // then
     XCTAssertFalse(self.sut.hasMoreToFetch);
 }
@@ -352,13 +352,13 @@
     // given
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     [[[self.transcoder expect] andReturn:[NSUUID createUUID]] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:200 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
-    
+
     // then
     XCTAssertFalse(self.sut.hasMoreToFetch);
 }
@@ -369,12 +369,12 @@
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
     NSDictionary *payload = @{@"has_more": @(YES)};
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:200 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
-    
+
     // then
     XCTAssertTrue(self.sut.hasMoreToFetch);
 }
@@ -385,12 +385,12 @@
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
     NSDictionary *payload = @{@"has_more": @(NO)};
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:200 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
-    
+
     // then
     XCTAssertFalse(self.sut.hasMoreToFetch);
 }
@@ -400,14 +400,14 @@
     // given
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     [[self.transcoder reject] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{@"has_more" : @1} HTTPStatus:400 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
     WaitForAllGroupsToBeEmpty(0.5);
-    
+
     // then
     XCTAssertFalse(self.sut.hasMoreToFetch);
 }
@@ -417,17 +417,17 @@
     // given
     id transcoder = [OCMockObject niceMockForProtocol:@protocol(ZMSimpleListRequestPaginatorSync)];
     [[transcoder reject] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
-    
+
     self.sut = [[ZMSimpleListRequestPaginator alloc] initWithBasePath:self.basePath startKey:@"start" pageSize:self.pageSize  managedObjectContext:self.syncMOC includeClientID:NO transcoder:transcoder];
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{@"has_more" : @1} HTTPStatus:400 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
     WaitForAllGroupsToBeEmpty(0.5);
-    
+
     // then
     XCTAssertFalse(self.sut.hasMoreToFetch);
     [transcoder verify];
@@ -438,17 +438,17 @@
     // given
     id transcoder = [OCMockObject niceMockForProtocol:@protocol(ZMSimpleListRequestPaginatorSync)];
     [[transcoder expect] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
-    
+
     self.sut = [[ZMSimpleListRequestPaginator alloc] initWithBasePath:self.basePath startKey:@"start" pageSize:self.pageSize  managedObjectContext:self.syncMOC includeClientID:NO transcoder:transcoder];
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{@"has_more" : @1} HTTPStatus:404 transportSessionError:nil];
     [[[transcoder expect] andReturnValue:OCMOCK_VALUE(YES)] shouldParseErrorForResponse:response];
 
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
-    
+
     // then
     XCTAssertTrue(self.sut.hasMoreToFetch);
     [transcoder verify];
@@ -460,15 +460,15 @@
     // given
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     [[self.transcoder reject] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
 
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:nil HTTPStatus:500 transportSessionError:nil];
-    
+
     // when
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
     WaitForAllGroupsToBeEmpty(0.5);
-    
+
     // then
     XCTAssertTrue(self.sut.hasMoreToFetch);
 }
@@ -485,17 +485,17 @@
     NSUUID *lastIdentifier = [NSUUID createUUID];
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     NSDictionary *payload = @{@"has_more" : @(YES)};
     [[[self.transcoder expect] andReturn:[self returnFullPageWithLastIdentifier:lastIdentifier]] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:200 transportSessionError:nil];
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
     WaitForAllGroupsToBeEmpty(0.5);
-    
+
     // when
     ZMTransportRequest *followingRequest = [self.sut requestForSingleRequestSync:self.singleRequestSync];
-    
+
     // then
     NSString *expectedURL = [NSString stringWithFormat:@"%@?size=%lu&start=%@", self.basePath, (unsigned long)self.pageSize, lastIdentifier.transportString];
     XCTAssertEqualObjects(followingRequest.path, expectedURL);
@@ -507,13 +507,13 @@
     NSUUID *startIdentifier = [NSUUID createUUID];
     NSUUID *lastIdentifier = [NSUUID createUUID];
     [[self.singleRequestSync stub] readyForNextRequest];
-    
+
     NSDictionary *payload = @{@"has_more" : @(YES)};
 
     id transcoder = [OCMockObject niceMockForProtocol:@protocol(ZMSimpleListRequestPaginatorSync)];
     [[[transcoder expect] andReturn:[self returnFullPageWithLastIdentifier:lastIdentifier]] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
     [[[transcoder expect] andReturn:startIdentifier] startUUID];
-    
+
     self.sut = [[ZMSimpleListRequestPaginator alloc] initWithBasePath:self.basePath startKey:@"start" pageSize:self.pageSize  managedObjectContext:self.syncMOC includeClientID:NO transcoder:transcoder];
     self.sut.singleRequestSync = self.singleRequestSync;
 
@@ -521,18 +521,18 @@
 
     // when
     ZMTransportRequest *firstRequest = [self.sut requestForSingleRequestSync:self.singleRequestSync];
-    
+
     // then
     NSString *expectedURL1 = [NSString stringWithFormat:@"%@?size=%lu&start=%@", self.basePath, (unsigned long)self.pageSize, startIdentifier.transportString];
     XCTAssertEqualObjects(firstRequest.path, expectedURL1);
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:200 transportSessionError:nil];
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
     WaitForAllGroupsToBeEmpty(0.5);
-    
+
     // when
     ZMTransportRequest *followingRequest = [self.sut requestForSingleRequestSync:self.singleRequestSync];
-    
+
     // then
     NSString *expectedURL2 = [NSString stringWithFormat:@"%@?size=%lu&start=%@", self.basePath, (unsigned long)self.pageSize, lastIdentifier.transportString];
     XCTAssertEqualObjects(followingRequest.path, expectedURL2);
@@ -544,15 +544,15 @@
     // given
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     [[[self.transcoder expect] andReturn:nil] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:200 transportSessionError:nil];
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
     WaitForAllGroupsToBeEmpty(0.5);
-    
+
     // when
     ZMTransportRequest *followingRequest = [self.sut requestForSingleRequestSync:self.singleRequestSync];
-    
+
     // then
     XCTAssertNil(followingRequest);
 }
@@ -563,17 +563,17 @@
     // given
     [[self.singleRequestSync stub] readyForNextRequest];
     [self.sut resetFetching];
-    
+
     [[[self.transcoder expect] andReturn:[NSUUID UUID]] nextUUIDFromResponse:OCMOCK_ANY forListPaginator:OCMOCK_ANY];
-    
+
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:200 transportSessionError:nil];
     [self.sut didReceiveResponse:response forSingleRequest:self.singleRequestSync];
     WaitForAllGroupsToBeEmpty(0.5);
-    
+
     // when
     [self.sut resetFetching];
     ZMTransportRequest *followingRequest = [self.sut requestForSingleRequestSync:self.singleRequestSync];
-    
+
     // then
     NSString *expectedURL = [NSString stringWithFormat:@"%@?size=%lu", self.basePath, (unsigned long) self.pageSize];
     XCTAssertNotNil(followingRequest);
