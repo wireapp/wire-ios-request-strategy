@@ -24,6 +24,7 @@ import UserNotifications
 ///
 public enum LocalNotificationType {
     case event(LocalNotificationEventType)
+//    case calling(CallState)
     case message(LocalNotificationContentType)
     case incomingCall(video: Bool)
     case failedMessage
