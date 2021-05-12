@@ -29,29 +29,22 @@ public enum EventConversation {
 
 class EventDecoderTest: MessagingTestBase {
     
-    var eventMOC: NSManagedObjectContext!
     var sut : EventDecoder!
     
     override func setUp() {
         super.setUp()
-        eventMOC = NSManagedObjectContext.createEventContext(withSharedContainerURL: sharedContainerURL, userIdentifier: accountIdentifier)
         sut = EventDecoder(eventMOC: eventMOC, syncMOC: syncMOC)
-        eventMOC.add(dispatchGroup)
-        
-        self.syncMOC.performGroupedAndWait { syncMOC in
-            let selfUser = ZMUser.selfUser(in: syncMOC)
-            selfUser.remoteIdentifier = self.accountIdentifier
-            let selfConversation = ZMConversation.insertNewObject(in: syncMOC)
-            selfConversation.remoteIdentifier = self.accountIdentifier
-            selfConversation.conversationType = .self
-            syncMOC.saveOrRollback()
-        }
+
+        let selfUser = ZMUser.selfUser(in: syncMOC)
+        selfUser.remoteIdentifier = self.accountIdentifier
+        let selfConversation = ZMConversation.insertNewObject(in: syncMOC)
+        selfConversation.remoteIdentifier = self.accountIdentifier
+        selfConversation.conversationType = .self
+        syncMOC.saveOrRollback()
     }
     
     override func tearDown() {
         EventDecoder.testingBatchSize = nil
-        eventMOC.tearDownEventMOC()
-        eventMOC = nil
         sut = nil
         super.tearDown()
     }
@@ -430,47 +423,5 @@ extension EventDecoderTest {
             XCTAssert(self.eventMOC.saveOrRollback())
         }
     }
-    
-    
-//    fileprivate func payloadForMessage(in conversation: ZMConversation?,
-//                                       type: String,
-//                                       data: NSDictionary) -> NSMutableDictionary? {
-//        return payloadForMessage(in: conversation!, type: type, data: data, time: nil)
-//    }
-//    
-//    fileprivate func payloadForMessage(in conversation: ZMConversation,
-//                                       type: String,
-//                                       data: NSDictionary,
-//                                       time: Date?) -> NSMutableDictionary? {
-//        //      {
-//        //         "conversation" : "8500be67-3d7c-4af0-82a6-ef2afe266b18",
-//        //         "data" : {
-//        //            "content" : "test test",
-//        //            "nonce" : "c61a75f3-285b-2495-d0f6-6f0e17f0c73a"
-//        //         },
-//        //         "from" : "39562cc3-717d-4395-979c-5387ae17f5c3",
-//        //         "id" : "11.800122000a4ab4f0",
-//        //         "time" : "2014-06-22T19:57:50.948Z",
-//        //         "type" : "conversation.message-add"
-//        //      }
-//        let user = ZMUser.insertNewObject(in: conversation.managedObjectContext!)
-//        user.remoteIdentifier = UUID.create()
-//        
-//        return payloadForMessage(in: conversation, type: type, data: data, time: time, from: user)
-//    }
-//    
-//    fileprivate func payloadForMessage(in conversation: ZMConversation,
-//                                         type: String,
-//                                         data: NSDictionary,
-//                                         time: Date?,
-//                                         from: ZMUser) -> NSMutableDictionary? {
-//        
-//        return ["conversation" : conversation.remoteIdentifier?.transportString() ?? "",
-//                "data" : data,
-//                "from" : from.remoteIdentifier.transportString(),
-//                "time" : time?.transportString() ?? "",
-//                "type" : type
-//        ]
-//    }
-}
 
+}
