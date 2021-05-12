@@ -24,9 +24,9 @@ import UserNotifications
 ///
 public enum LocalNotificationType {
     case event(LocalNotificationEventType)
-//    case calling(CallState)
+/// TODO Katerina to fix calling state
+    case calling//calling(CallState)
     case message(LocalNotificationContentType)
-    case incomingCall(video: Bool)
     case failedMessage
     case availabilityBehaviourChangeAlert(Availability)
 }
@@ -127,7 +127,7 @@ extension ZMLocalNotification {
     /// Returns true if it is a calling notification, else false.
     var isCallingNotification: Bool {
         switch type {
-        case .incomingCall: return true
+        case .calling: return true
         default: return false
         }
     }

@@ -82,14 +82,15 @@ public enum LocalNotificationContentType: Equatable {
             self = .image
 
         case .ephemeral:
-            if let textMessageData = message.textData {
+            if message.ephemeral.hasText {
+                let textMessageData = message.ephemeral.text
                 let quotedMessage = getQuotedMessage(textMessageData, conversation: conversation, in: moc)
                 self = .ephemeral(isMention: textMessageData.isMentioningSelf(selfUser), isReply: textMessageData.isQuotingSelf(quotedMessage))
             } else {
                 self = .ephemeral(isMention: false, isReply: false)
             }
 
-        case .text, .edited:
+        case .text:
             guard
                 let textMessageData = message.textData,
                 let text = message.textData?.content.removingExtremeCombiningCharacters, !text.isEmpty
