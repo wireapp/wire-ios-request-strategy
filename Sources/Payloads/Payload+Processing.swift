@@ -59,3 +59,86 @@ extension Array where Array.Element == Payload.UserClient {
     }
 
 }
+
+extension Payload.PrekeyByUserID {
+
+    func establishSessions(with selfClient: UserClient, context: NSManagedObjectContext) -> Bool {
+        for (userID, prekeyByClientID) in self {
+            for (clientID, prekey) in prekeyByClientID {
+                guard
+                    let userID = UUID(uuidString: userID),
+                    let user = ZMUser(remoteID: userID, createIfNeeded: false, in: context),
+                    let missingClient = UserClient.fetchUserClient(withRemoteId: clientID,
+                                                                   forUser: user,
+                                                                   createIfNeeded: true)
+                else {
+                    continue
+                }
+
+                if let prekey = prekey {
+                    missingClient.establishSessionAndUpdateMissingClients(prekey: prekey,
+                                                                          selfClient: selfClient)
+                } else {
+                    missingClient.markClientAsInvalidAfterFailingToRetrievePrekey(selfClient: selfClient)
+                }
+
+
+            }
+        }
+
+        return (selfClient.missingClients?.count ?? 0) > 0
+    }
+
+}
+
+extension Payload.Prekey {
+
+     /// Creates session and update missing clients and messages that depend on those clients
+    func establishSessionAndUpdateMissingClients(_ clientId: String,
+                                                 selfClient: UserClient,
+                                                 missingClient: UserClient) {
+
+        let sessionCreated = selfClient.establishSessionWithClient(missingClient, usingPreKey: key)
+
+        // If the session creation failed, the client probably has corrupted prekeys,
+        // we mark the client in order to send him a bogus message and not block all requests
+        missingClient.failedToEstablishSession = !sessionCreated
+        missingClient.clearMessagesMissingRecipient()
+        selfClient.removeMissingClient(missingClient)
+    }
+
+}
+
+extension UserClient {
+
+    /// Creates session and update missing clients and messages that depend on those clients
+    fileprivate func establishSessionAndUpdateMissingClients(prekey: Payload.Prekey,
+                                                             selfClient: UserClient) {
+
+        let sessionCreated = selfClient.establishSessionWithClient(self,
+                                                                   usingPreKey: prekey.key)
+
+       // If the session creation failed, the client probably has corrupted prekeys,
+       // we mark the client in order to send him a bogus message and not block all requests
+       failedToEstablishSession = !sessionCreated
+       clearMessagesMissingRecipient()
+       selfClient.removeMissingClient(self)
+   }
+
+    fileprivate func markClientAsInvalidAfterFailingToRetrievePrekey(selfClient: UserClient) {
+        failedToEstablishSession = true
+        clearMessagesMissingRecipient()
+        selfClient.removeMissingClient(self)
+    }
+
+    fileprivate func clearMessagesMissingRecipient() {
+        messagesMissingRecipient.forEach {
+            if let message = $0 as? ZMOTRMessage {
+                message.doesNotMissRecipient(self)
+            } else {
+                mutableSetValue(forKey: "messagesMissingRecipient").remove($0)
+            }
+        }
+    }
+
+}

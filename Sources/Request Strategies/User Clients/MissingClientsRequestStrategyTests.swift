@@ -61,14 +61,20 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.selfClient.missesClient(firstMissingClient)
             self.selfClient.missesClient(secondMissingClient)
 
-            guard let request = self.sut.requestsFactory.fetchMissingClientKeysRequest(self.selfClient.missingClients!) else { XCTFail(); return }
+            let request = self.sut.requestsFactory.fetchPrekeys(for: self.selfClient.missingClients!)
 
             // THEN
             XCTAssertEqual(request.transportRequest.method, ZMTransportRequestMethod.methodPOST)
             XCTAssertEqual(request.transportRequest.path, "/users/prekeys")
-                guard let recipientsPayload = request.transportRequest.payload as? [String: [String]] else { XCTFail(); return  }
-                guard let userPayload = recipientsPayload[missingUser.remoteIdentifier!.transportString()] else { XCTFail(); return }
-            XCTAssertEqual(userPayload.sorted(), [firstMissingClient.remoteIdentifier!, secondMissingClient.remoteIdentifier!].sorted())
+
+            guard let payloadData = (request.transportRequest.payload as? String)?.data(using: .utf8),
+                  let payload = Payload.ClientListByUserID(payloadData),
+                  let clientList = payload[missingUser.remoteIdentifier.transportString()] else {
+                XCTFail(); return
+            }
+
+            XCTAssertEqual(clientList.sorted(), [firstMissingClient.remoteIdentifier!,
+                                                 secondMissingClient.remoteIdentifier!].sorted())
         }
         
     }
@@ -149,8 +155,10 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
-            guard let firstRequest = self.sut.nextRequest(),
-                let firstPayload = firstRequest.payload as? [String: [String]] else {
+            guard
+                let firstRequest = self.sut.nextRequest(),
+                let payloadData = (firstRequest.payload as? String)?.data(using: .utf8),
+                let firstPayload = Payload.ClientListByUserID(payloadData) else {
                 XCTFail(); return
             }
 
@@ -162,15 +170,15 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
                 XCTFail(); return
             }
             firstEntry = first
-
-            firstRequest.complete(with: ZMTransportResponse(payload: NSDictionary(), httpStatus: 200, transportSessionError: nil))
+            firstRequest.complete(with: self.response(for: firstPayload))
         }
 
         var secondEntry: (key: String, value: [String])!
         self.syncMOC.performGroupedAndWait { syncMOC in
             // and when
             guard let secondRequest = self.sut.nextRequest(),
-                let secondPayload = secondRequest.payload as? [String: [String]] else {
+                  let payloadData = (secondRequest.payload as? String)?.data(using: .utf8),
+                  let secondPayload = Payload.ClientListByUserID(payloadData) else {
                 XCTFail(); return
             }
 
@@ -182,7 +190,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
                 XCTFail(); return
             }
             secondEntry = second
-            secondRequest.complete(with: ZMTransportResponse(payload: NSDictionary(), httpStatus: 200, transportSessionError: nil))
+            secondRequest.complete(with: self.response(for: secondPayload))
         }
 
         self.syncMOC.performGroupedAndWait { syncMOC in
@@ -222,22 +230,6 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    func testThatItRemovesMissingClientWhenResponseDoesNotContainItsKey() {
-        self.syncMOC.performGroupedAndWait { syncMOC in
-            // GIVEN
-            let request = self.missingClientsRequest(missingClients: [self.otherClient])
-
-            // WHEN
-            let _ = self.sut.updateUpdatedObject(self.selfClient,
-                                                 requestUserInfo: request.userInfo,
-                                                 response: ZMTransportResponse(payload: [String: [String: AnyObject]]() as NSDictionary, httpStatus: 200, transportSessionError: nil),
-                                                 keysToParse: request.keys)
-
-            // THEN
-            XCTAssertEqual(self.selfClient.missingClients!.count, 0)
-        }
-    }
-
     func testThatItRemovesOtherMissingClientsEvenIfOneOfThemHasANilValue() {
         self.syncMOC.performGroupedAndWait { syncMOC in
             // GIVEN
@@ -266,10 +258,12 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
     func testThatItRemovesMissingClientsIfTheRequestForThoseClientsDidNotGiveUsAnyPrekey() {
         self.syncMOC.performGroupedAndWait { syncMOC in
             // GIVEN
-            let payload : [ String : [String : AnyObject]] = [
-                self.otherUser.remoteIdentifier!.transportString() : [:]
-            ]
             let otherClient2 = self.createClient(user: self.otherUser)
+            let payload : [ String : [String : AnyObject]] = [
+                self.otherUser.remoteIdentifier!.transportString(): [
+                    self.otherClient.remoteIdentifier!: NSNull(),
+                    otherClient2.remoteIdentifier!: NSNull()]
+            ]
             let request = self.missingClientsRequest(missingClients: [self.otherClient, otherClient2])
 
             // WHEN
@@ -286,7 +280,9 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
     func testThatItAddsMissingClientToCorruptedClientsStoreIfTheRequestForTheClientDidNotGiveUsAnyPrekey() {
         self.syncMOC.performGroupedAndWait { syncMOC in
             // GIVEN
-            let payload = [self.otherUser.remoteIdentifier!.transportString() : [self.otherClient.remoteIdentifier!: ""]] as [String: [String : Any]]
+            let payload = [self.otherUser.remoteIdentifier!.transportString(): [
+                            self.otherClient.remoteIdentifier!: NSNull()]
+            ] as [String: [String : Any]]
             let request = self.missingClientsRequest(missingClients: [self.otherClient])
 
             // WHEN
@@ -323,28 +319,6 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
         }
         
     }
-
-    func testThatItDoesNotRemovesMissingClientsThatWereNotInTheOriginalRequestWhenThePayloadDoesNotContainAnyPrekey() {
-        self.syncMOC.performGroupedAndWait { syncMOC in
-            // GIVEN
-            let payload : [ String : [String : AnyObject]] = [
-                self.otherUser.remoteIdentifier!.transportString() : [:]
-            ]
-            let otherClient2 = self.createClient(user: self.otherUser)
-            let request = self.missingClientsRequest(missingClients: [self.otherClient])
-
-            // WHEN
-            self.selfClient.missesClient(otherClient2)
-            let _ = self.sut.updateUpdatedObject(self.selfClient,
-                                                 requestUserInfo: request.userInfo,
-                                                 response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil),
-                                                 keysToParse: request.keys)
-
-            // THEN
-            XCTAssertEqual(self.selfClient.missingClients, Set(arrayLiteral: otherClient2))
-        }
-    }
-    
 
     func testThatItRemovesMessagesMissingClientWhenEstablishedSessionWithClient() {
         self.syncMOC.performGroupedAndWait { syncMOC in
@@ -426,15 +400,20 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
     func testThatItRemovesMessagesMissingClientWhenClientHasNoKey() {
         self.syncMOC.performGroupedAndWait { syncMOC in
             // GIVEN
-            let payload = [String: [String: AnyObject]]()
             let message = self.message(missingRecipient: self.otherClient)
-            let request = self.missingClientsRequest(missingClients: [self.otherClient])
+            let payload: Payload.PrekeyByUserID = [
+                self.otherClient.user!.remoteIdentifier.transportString(): [
+                    self.otherClient.remoteIdentifier!: nil
+                ]
+            ]
+            let responseString = String(bytes: payload.payloadData()!, encoding: .utf8)
+            let response = ZMTransportResponse(payload: responseString! as ZMTransportData, httpStatus: 200, transportSessionError: nil)
 
             // WHEN
             let _ = self.sut.updateUpdatedObject(self.selfClient,
-                                                 requestUserInfo: request.userInfo,
-                                                 response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil),
-                                                 keysToParse: request.keys)
+                                                 requestUserInfo: nil,
+                                                 response: response,
+                                                 keysToParse: Set(arrayLiteral: ZMUserClientMissingKey))
 
             // THEN
             XCTAssertEqual(message.missingRecipients.count, 0)
@@ -445,14 +424,19 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedAndWait { syncMOC in
             // GIVEN
             let message = self.message(missingRecipient: self.otherClient)
-            let payload = [String: [String: AnyObject]]()
-            let request = self.missingClientsRequest(missingClients: [self.otherClient])
+            let payload: Payload.PrekeyByUserID = [
+                self.otherClient.user!.remoteIdentifier.transportString(): [
+                    self.otherClient.remoteIdentifier!: nil
+                ]
+            ]
+            let responseString = String(bytes: payload.payloadData()!, encoding: .utf8)
+            let response = ZMTransportResponse(payload: responseString! as ZMTransportData, httpStatus: 200, transportSessionError: nil)
 
             // WHEN
             let _ = self.sut.updateUpdatedObject(self.selfClient,
-                                                 requestUserInfo: request.userInfo,
-                                                 response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil),
-                                                 keysToParse: request.keys)
+                                                 requestUserInfo: nil,
+                                                 response: response,
+                                                 keysToParse: Set(arrayLiteral: ZMUserClientMissingKey))
 
             // THEN
             XCTAssertFalse(message.isExpired)
@@ -486,11 +470,10 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             // THEN
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodPOST)
             XCTAssertEqual(request.path, "/users/prekeys")
-            let payloadDictionary = request.payload!.asDictionary()!
-            guard let userPayload = payloadDictionary[payloadDictionary.keys.first!] as? NSArray else {
-                XCTFail(); return
-            }
-            XCTAssertTrue(userPayload.contains(identifier))
+
+            let payloadData = (request.payload as? String)?.data(using: .utf8)
+            let payload = Payload.ClientListByUserID(payloadData!)!
+            XCTAssertTrue(payload.first!.value.contains(identifier))
         }
     }
 
@@ -536,9 +519,13 @@ extension MissingClientsRequestStrategyTests {
                                        expectedClients: [UserClient],
                                        file: StaticString = #file,
                                        line: UInt = #line) {
-        guard let payload = request.payload as? [String: [String]] else {
+
+        guard let payloadString = request.payload as? String,
+              let payloadAsData = payloadString.data(using: .utf8),
+              let payload = Payload.ClientListByUserID(payloadAsData) else {
             return XCTFail("Request should contain payload", file: file, line: line)
         }
+
         XCTAssertEqual(request.method, .methodPOST, file: file, line: line)
         XCTAssertEqual(request.path, "/users/prekeys", file: file, line: line)
         expectedClients.forEach {
@@ -548,8 +535,27 @@ extension MissingClientsRequestStrategyTests {
             guard let userPayload = payload[userKey] else {
                 return XCTFail("No such user in payload \(userKey)", file: file, line: line)
             }
+
             XCTAssertTrue(userPayload.contains($0.remoteIdentifier!), file: file, line: line)
         }
+    }
+
+    func response(for prekeyRequest: Payload.ClientListByUserID) -> ZMTransportResponse {
+        var responsePayload = Payload.PrekeyByUserID()
+
+        for entry in prekeyRequest {
+            responsePayload[entry.key] = entry.value.reduce(into: Payload.PrekeyByClientID(), { (result, clientID) in
+                result[clientID] = Payload.Prekey(key: validPrekey, id: 1)
+            })
+        }
+
+        let payloadData = responsePayload.payloadData()!
+        let payloadString = String(bytes: payloadData, encoding: .utf8)!
+        let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
+                                           httpStatus: 200,
+                                           transportSessionError: nil)
+
+        return response
     }
     
     /// Returns response for missing clients
@@ -574,7 +580,7 @@ extension MissingClientsRequestStrategyTests {
         for missingClient in missingClients {
             self.selfClient.missesClient(missingClient)
         }
-        return sut.requestsFactory.fetchMissingClientKeysRequest(selfClient.missingClients!)
+        return sut.requestsFactory.fetchPrekeys(for: selfClient.missingClients!)
     }
     
     /// Creates a message missing a client
