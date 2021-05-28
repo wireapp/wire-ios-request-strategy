@@ -91,24 +91,6 @@ extension Payload.PrekeyByUserID {
 
 }
 
-extension Payload.Prekey {
-
-     /// Creates session and update missing clients and messages that depend on those clients
-    func establishSessionAndUpdateMissingClients(_ clientId: String,
-                                                 selfClient: UserClient,
-                                                 missingClient: UserClient) {
-
-        let sessionCreated = selfClient.establishSessionWithClient(missingClient, usingPreKey: key)
-
-        // If the session creation failed, the client probably has corrupted prekeys,
-        // we mark the client in order to send him a bogus message and not block all requests
-        missingClient.failedToEstablishSession = !sessionCreated
-        missingClient.clearMessagesMissingRecipient()
-        selfClient.removeMissingClient(missingClient)
-    }
-
-}
-
 extension UserClient {
 
     /// Creates session and update missing clients and messages that depend on those clients
