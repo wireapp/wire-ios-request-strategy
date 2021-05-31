@@ -104,14 +104,14 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
         guard let missing = client.missingClients, missing.count > 0
         else { fatal("no missing clients found") }
 
-        let request: ZMUpstreamRequest
+        let request: ZMUpstreamRequest?
         if isFederationEndpointAvailable {
             request = requestsFactory.fetchPrekeysFederated(for: missing)
         } else {
             request = requestsFactory.fetchPrekeys(for: missing)
         }
 
-        request.transportRequest.forceToVoipSession()
+        request?.transportRequest.forceToVoipSession()
         return request
     }
     

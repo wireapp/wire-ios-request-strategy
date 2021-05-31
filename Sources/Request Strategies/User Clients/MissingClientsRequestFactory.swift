@@ -56,14 +56,20 @@ extension Collection where Element == UserClient {
 public final class MissingClientsRequestFactory {
     
     let pageSize : Int
+    let defaultEncoder = JSONEncoder.defaultEncoder
 
     public init(pageSize: Int = 128) {
         self.pageSize = pageSize
     }
 
-    public func fetchPrekeys(for missingClients: Set<UserClient>) -> ZMUpstreamRequest {
-        let payloadData = missingClients.prefix(pageSize).clientListByUserID.payloadData()!
-        let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+    public func fetchPrekeys(for missingClients: Set<UserClient>) -> ZMUpstreamRequest? {
+        guard
+            let payloadData = missingClients.prefix(pageSize).clientListByUserID.payloadData(encoder: defaultEncoder),
+            let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+        else {
+            return nil
+        }
+
         let request = ZMTransportRequest(path: "/users/prekeys",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?)
@@ -72,9 +78,14 @@ public final class MissingClientsRequestFactory {
                                  userInfo: nil)
     }
 
-    public func fetchPrekeysFederated(for missingClients: Set<UserClient>) -> ZMUpstreamRequest {
-        let payloadData = missingClients.prefix(pageSize).clientListByDomain.payloadData()!
-        let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+    public func fetchPrekeysFederated(for missingClients: Set<UserClient>) -> ZMUpstreamRequest? {
+        guard
+            let payloadData = missingClients.prefix(pageSize).clientListByDomain.payloadData(encoder: defaultEncoder),
+            let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+        else {
+            return nil
+        }
+
         let request = ZMTransportRequest(path: "/users/list-prekeys",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?)
