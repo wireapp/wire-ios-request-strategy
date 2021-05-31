@@ -48,11 +48,7 @@ extension Collection where Element == UserClient {
                 return
             }
 
-            var users = result[domain] ?? Payload.ClientListByUserID()
-            var clientList = users[userID] ?? []
-            clientList.append(clientID)
-            users[userID] = clientList
-            result[domain] = users
+            result[domain, default: Payload.ClientListByUserID()][userID, default: []].append(clientID)
         }
     }
 }
