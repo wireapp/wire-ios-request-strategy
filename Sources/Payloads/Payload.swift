@@ -24,10 +24,10 @@ enum Payload {
     typealias UserClientByDomain = [String: UserClientByUserID]
     typealias PrekeyByClientID = [String: Prekey?]
     typealias PrekeyByUserID = [String: PrekeyByClientID]
-    typealias PrekeyByDomain = [String: PrekeyByUserID]
+    typealias PrekeyByQualifiedUserID = [String: PrekeyByUserID]
     typealias ClientList = [String]
     typealias ClientListByUserID = [String: ClientList]
-    typealias ClientListByDomain = [String: ClientListByUserID]
+    typealias ClientListByQualifiedUserID = [String: ClientListByUserID]
 
     struct Prekey: Codable {
         let key: String

@@ -124,7 +124,7 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
         if keysToParse.contains(ZMUserClientMissingKey) {
             if isFederationEndpointAvailable {
                 guard let rawData = response.rawData,
-                      let prekeys = Payload.PrekeyByDomain(rawData),
+                      let prekeys = Payload.PrekeyByQualifiedUserID(rawData),
                       let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
                 else {
                     return false

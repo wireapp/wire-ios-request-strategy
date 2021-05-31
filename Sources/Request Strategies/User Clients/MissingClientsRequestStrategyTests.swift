@@ -100,7 +100,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(request.transportRequest.path, "/users/list-prekeys")
 
             guard let payloadData = (request.transportRequest.payload as? String)?.data(using: .utf8),
-                  let payload = Payload.ClientListByDomain(payloadData),
+                  let payload = Payload.ClientListByQualifiedUserID(payloadData),
                   let userList = payload[missingUser.domain!],
                   let clientList = userList[missingUser.remoteIdentifier.transportString()] else {
                 XCTFail(); return
@@ -283,7 +283,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             guard
                 let firstRequest = self.sut.nextRequest(),
                 let payloadData = (firstRequest.payload as? String)?.data(using: .utf8),
-                let firstPayload = Payload.ClientListByDomain(payloadData) else {
+                let firstPayload = Payload.ClientListByQualifiedUserID(payloadData) else {
                 XCTFail(); return
             }
 
@@ -303,7 +303,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             // and when
             guard let secondRequest = self.sut.nextRequest(),
                   let payloadData = (secondRequest.payload as? String)?.data(using: .utf8),
-                  let secondPayload = Payload.ClientListByDomain(payloadData) else {
+                  let secondPayload = Payload.ClientListByQualifiedUserID(payloadData) else {
                 XCTFail(); return
             }
 
@@ -697,7 +697,7 @@ extension MissingClientsRequestStrategyTests {
 
         guard let payloadString = request.payload as? String,
               let payloadAsData = payloadString.data(using: .utf8),
-              let payload = Payload.ClientListByDomain(payloadAsData) else {
+              let payload = Payload.ClientListByQualifiedUserID(payloadAsData) else {
             return XCTFail("Request should contain payload", file: file, line: line)
         }
 
@@ -736,8 +736,8 @@ extension MissingClientsRequestStrategyTests {
         return response
     }
 
-    func successfulFederatedResponse(for prekeyRequest: Payload.ClientListByDomain) -> ZMTransportResponse {
-        var responsePayload = Payload.PrekeyByDomain()
+    func successfulFederatedResponse(for prekeyRequest: Payload.ClientListByQualifiedUserID) -> ZMTransportResponse {
+        var responsePayload = Payload.PrekeyByQualifiedUserID()
 
         for entry in prekeyRequest {
             responsePayload[entry.key] = entry.value.reduce(into: Payload.PrekeyByUserID(), { (result, userID) in

@@ -91,7 +91,7 @@ extension Payload.PrekeyByUserID {
 
 }
 
-extension Payload.PrekeyByDomain {
+extension Payload.PrekeyByQualifiedUserID {
 
     func establishSessions(with selfClient: UserClient, context: NSManagedObjectContext) -> Bool {
         for (domain, prekeyByUserID) in self {

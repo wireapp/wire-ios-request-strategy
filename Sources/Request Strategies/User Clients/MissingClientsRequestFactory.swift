@@ -39,8 +39,8 @@ extension Collection where Element == UserClient {
         }
     }
 
-    var clientListByDomain: Payload.ClientListByDomain {
-        let initial: Payload.ClientListByDomain = [:]
+    var clientListByDomain: Payload.ClientListByQualifiedUserID {
+        let initial: Payload.ClientListByQualifiedUserID = [:]
 
         return self.reduce(into: initial) { (result, client) in
             guard let userID = client.user?.remoteIdentifier.transportString(),
