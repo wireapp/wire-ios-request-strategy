@@ -20,7 +20,7 @@ import Foundation
 import WireDataModel
 
 
-extension Set where Set.Element == UserClient {
+extension Collection where Element == UserClient {
 
     var clientListByUserID: Payload.ClientListByUserID {
 
@@ -38,6 +38,25 @@ extension Set where Set.Element == UserClient {
             result[userID] = clientList
         }
     }
+
+    var clientListByDomain: Payload.ClientListByDomain {
+        let initial: Payload.ClientListByDomain = [:]
+
+        return self.reduce(into: initial) { (result, client) in
+            guard let userID = client.user?.remoteIdentifier.transportString(),
+                  let clientID = client.remoteIdentifier,
+                  let domain = client.user?.domain
+            else {
+                return
+            }
+
+            var users = result[domain] ?? Payload.ClientListByUserID()
+            var clientList = users[userID] ?? []
+            clientList.append(clientID)
+            users[userID] = clientList
+            result[domain] = users
+        }
+    }
 }
 
 public final class MissingClientsRequestFactory {
@@ -49,9 +68,20 @@ public final class MissingClientsRequestFactory {
     }
 
     public func fetchPrekeys(for missingClients: Set<UserClient>) -> ZMUpstreamRequest {
-        let payloadData = missingClients.clientListByUserID.takeFirst(pageSize).payloadData()!
+        let payloadData = missingClients.prefix(pageSize).clientListByUserID.payloadData()!
         let payloadAsString = String(bytes: payloadData, encoding: .utf8)
         let request = ZMTransportRequest(path: "/users/prekeys",
+                                         method: .methodPOST,
+                                         payload: payloadAsString as ZMTransportData?)
+        return ZMUpstreamRequest(keys: Set(arrayLiteral: ZMUserClientMissingKey),
+                                 transportRequest: request,
+                                 userInfo: nil)
+    }
+
+    public func fetchPrekeysFederated(for missingClients: Set<UserClient>) -> ZMUpstreamRequest {
+        let payloadData = missingClients.prefix(pageSize).clientListByDomain.payloadData()!
+        let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+        let request = ZMTransportRequest(path: "/users/list-prekeys",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?)
         return ZMUpstreamRequest(keys: Set(arrayLiteral: ZMUserClientMissingKey),

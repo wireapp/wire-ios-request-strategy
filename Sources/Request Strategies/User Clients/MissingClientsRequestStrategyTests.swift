@@ -39,6 +39,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.mockApplicationStatus = MockApplicationStatus()
             self.mockApplicationStatus.mockSynchronizationState = .online
             self.sut = MissingClientsRequestStrategy(withManagedObjectContext: syncMOC, applicationStatus: self.mockApplicationStatus)
+            self.sut.isFederationEndpointAvailable = false
         }
     }
     
@@ -47,13 +48,14 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
         sut = nil
         super.tearDown()
     }
+
+    // MARK: Request generation
     
     func testThatItCreatesMissingClientsRequest() {
         self.syncMOC.performGroupedAndWait { syncMOC in
 
             // GIVEN
             let missingUser = self.createUser()
-
             let firstMissingClient = self.createClient(user: missingUser)
             let secondMissingClient = self.createClient(user: missingUser)
 
@@ -76,10 +78,40 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(clientList.sorted(), [firstMissingClient.remoteIdentifier!,
                                                  secondMissingClient.remoteIdentifier!].sorted())
         }
-        
     }
 
-    func testThatItCreatesARequestToFetchMissedKeysIfClientHasMissingClientsAndMissingKeyIsModified() {
+    func testThatItCreatesMissingClientsRequest_WhenFederationEndpointIsAvailable() {
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            // GIVEN
+            self.sut.isFederationEndpointAvailable = true
+
+            let missingUser = self.createUser()
+            let firstMissingClient = self.createClient(user: missingUser)
+            let secondMissingClient = self.createClient(user: missingUser)
+
+            // WHEN
+            self.selfClient.missesClient(firstMissingClient)
+            self.selfClient.missesClient(secondMissingClient)
+
+            let request = self.sut.requestsFactory.fetchPrekeysFederated(for: self.selfClient.missingClients!)
+
+            // THEN
+            XCTAssertEqual(request.transportRequest.method, ZMTransportRequestMethod.methodPOST)
+            XCTAssertEqual(request.transportRequest.path, "/users/list-prekeys")
+
+            guard let payloadData = (request.transportRequest.payload as? String)?.data(using: .utf8),
+                  let payload = Payload.ClientListByDomain(payloadData),
+                  let userList = payload[missingUser.domain!],
+                  let clientList = userList[missingUser.remoteIdentifier.transportString()] else {
+                XCTFail(); return
+            }
+
+            XCTAssertEqual(clientList.sorted(), [firstMissingClient.remoteIdentifier!,
+                                                 secondMissingClient.remoteIdentifier!].sorted())
+        }
+    }
+
+    func testThatItCreatesARequestToFetchMissedKeys_WhenClientHasMissingClientsAndMissingKeyIsModified() {
         self.syncMOC.performGroupedAndWait { syncMOC in
             // GIVEN
 
@@ -93,6 +125,23 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
 
             // THEN
             self.checkRequestForClientsPrekeys(request, expectedClients: [self.otherClient])
+        }
+    }
+
+    func testThatItCreatesARequestToFetchMissedKeys_WhenFederationEndpointIsAvailable() {
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            // GIVEN
+            self.sut.isFederationEndpointAvailable = true
+            self.selfClient.missesClient(self.otherClient)
+            self.sut.notifyChangeTrackers(self.selfClient)
+
+            // WHEN
+            guard let request = self.sut.nextRequest() else {
+                XCTFail(); return
+            }
+
+            // THEN
+            self.checkFederatedRequestForClientsPrekeys(request, expectedClients: [self.otherClient])
         }
     }
 
@@ -170,7 +219,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
                 XCTFail(); return
             }
             firstEntry = first
-            firstRequest.complete(with: self.response(for: firstPayload))
+            firstRequest.complete(with: self.successfulResponse(for: firstPayload))
         }
 
         var secondEntry: (key: String, value: [String])!
@@ -190,7 +239,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
                 XCTFail(); return
             }
             secondEntry = second
-            secondRequest.complete(with: self.response(for: secondPayload))
+            secondRequest.complete(with: self.successfulResponse(for: secondPayload))
         }
 
         self.syncMOC.performGroupedAndWait { syncMOC in
@@ -214,7 +263,85 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    func testThatItRemovesMissingClientWhenResponseContainsItsKey() {
+    func testThatItPaginatesMissedClientsRequest_WhenFederationEndpointIsAvailable() {
+        var user: ZMUser!
+        var firstEntry: (key: String, value: [String])!
+        var otherClient2: UserClient!
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            self.sut.isFederationEndpointAvailable = true
+            self.sut.requestsFactory = MissingClientsRequestFactory(pageSize: 1)
+
+            // GIVEN
+            self.selfClient.missesClient(self.otherClient)
+            user = self.createUser(alsoCreateClient: true)
+            otherClient2 = user.clients.first!
+            self.selfClient.missesClient(otherClient2)
+
+            self.sut.notifyChangeTrackers(self.selfClient)
+
+            // WHEN
+            guard
+                let firstRequest = self.sut.nextRequest(),
+                let payloadData = (firstRequest.payload as? String)?.data(using: .utf8),
+                let firstPayload = Payload.ClientListByDomain(payloadData) else {
+                XCTFail(); return
+            }
+
+            // THEN
+            XCTAssertEqual(firstRequest.method, .methodPOST)
+            XCTAssertEqual(firstRequest.path, "/users/list-prekeys")
+            XCTAssertEqual(firstPayload.count, 1)
+            guard let first = firstPayload.first?.value.first else {
+                XCTFail(); return
+            }
+            firstEntry = first
+            firstRequest.complete(with: self.successfulFederatedResponse(for: firstPayload))
+        }
+
+        var secondEntry: (key: String, value: [String])!
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            // and when
+            guard let secondRequest = self.sut.nextRequest(),
+                  let payloadData = (secondRequest.payload as? String)?.data(using: .utf8),
+                  let secondPayload = Payload.ClientListByDomain(payloadData) else {
+                XCTFail(); return
+            }
+
+            // THEN
+            XCTAssertEqual(secondRequest.method, .methodPOST)
+            XCTAssertEqual(secondRequest.path, "/users/list-prekeys")
+            XCTAssertEqual(secondPayload.count, 1)
+            guard let second = secondPayload.first?.value.first else {
+                XCTFail(); return
+            }
+            secondEntry = second
+            secondRequest.complete(with: self.successfulFederatedResponse(for: secondPayload))
+        }
+
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            // and when
+            let thirdRequest = self.sut.nextRequest()
+
+            // THEN
+            XCTAssertNil(thirdRequest, "Should not request clients keys any more")
+            XCTAssertTrue([user.remoteIdentifier!.transportString(),
+                           self.otherUser.remoteIdentifier!.transportString()].contains(firstEntry.key),
+                          "Unrecognized user")
+            XCTAssertTrue([user.remoteIdentifier!.transportString(),
+                           self.otherUser.remoteIdentifier!.transportString()].contains(secondEntry.key),
+                          "Unrecognized user")
+            XCTAssertNotEqual(firstEntry.key, secondEntry.key)
+            let expectedClients1 = [self.otherClient.remoteIdentifier!]
+            let expectedClients2 = [otherClient2.remoteIdentifier!]
+            XCTAssertTrue(firstEntry.value == expectedClients1 || firstEntry.value == expectedClients2, "Not matching clients")
+            XCTAssertTrue(secondEntry.value == expectedClients1 || secondEntry.value == expectedClients2, "Not matching clients")
+            XCTAssertNotEqual(firstEntry.value, secondEntry.value)
+        }
+    }
+
+    // MARK: Response processing
+
+    func testThatItRemovesMissingClient_WhenResponseContainsItsKey() {
         self.syncMOC.performGroupedAndWait { syncMOC in
             // GIVEN
             let request = self.missingClientsRequest(missingClients: [self.otherClient])
@@ -511,6 +638,29 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             XCTAssertTrue(self.selfClient.keysThatHaveLocalModifications.contains(ZMUserClientMissingKey))
         }
     }
+
+    // MARK: - Fallback behaviour when federation endpoint is not available
+
+    func testThatFallbacksToLegacyEndpoint_WhenFederationEndpointIsNotAvailable() {
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            // GIVEN
+            self.sut.isFederationEndpointAvailable = true
+            self.selfClient.missesClient(self.otherClient)
+            self.sut.notifyChangeTrackers(self.selfClient)
+            guard let request = self.sut.nextRequest() else { XCTFail(); return }
+            XCTAssertEqual(request.path, "/users/list-prekeys")
+
+            // WHEN
+            request.complete(with: ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil))
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            // THEN
+            guard let request = self.sut.nextRequest() else { XCTFail(); return }
+            XCTAssertEqual(request.path, "/users/prekeys")
+        }
+    }
 }
 
 extension MissingClientsRequestStrategyTests {
@@ -540,12 +690,60 @@ extension MissingClientsRequestStrategyTests {
         }
     }
 
-    func response(for prekeyRequest: Payload.ClientListByUserID) -> ZMTransportResponse {
+    func checkFederatedRequestForClientsPrekeys(_ request: ZMTransportRequest,
+                                                expectedClients: [UserClient],
+                                                file: StaticString = #file,
+                                                line: UInt = #line) {
+
+        guard let payloadString = request.payload as? String,
+              let payloadAsData = payloadString.data(using: .utf8),
+              let payload = Payload.ClientListByDomain(payloadAsData) else {
+            return XCTFail("Request should contain payload", file: file, line: line)
+        }
+
+        XCTAssertEqual(request.method, .methodPOST, file: file, line: line)
+        XCTAssertEqual(request.path, "/users/list-prekeys", file: file, line: line)
+        expectedClients.forEach {
+            guard let userKey = $0.user?.remoteIdentifier?.transportString() else {
+                return XCTFail("Invalid user ID", file: file, line: line)
+            }
+            guard let domainKey = $0.user?.domain else {
+                return XCTFail("Invalid user domain", file: file, line: line)
+            }
+            guard let userPayload = payload[domainKey]?[userKey] else {
+                return XCTFail("No such user in payload \(userKey)", file: file, line: line)
+            }
+
+            XCTAssertTrue(userPayload.contains($0.remoteIdentifier!), file: file, line: line)
+        }
+    }
+
+    func successfulResponse(for prekeyRequest: Payload.ClientListByUserID) -> ZMTransportResponse {
         var responsePayload = Payload.PrekeyByUserID()
 
         for entry in prekeyRequest {
             responsePayload[entry.key] = entry.value.reduce(into: Payload.PrekeyByClientID(), { (result, clientID) in
                 result[clientID] = Payload.Prekey(key: validPrekey, id: 1)
+            })
+        }
+
+        let payloadData = responsePayload.payloadData()!
+        let payloadString = String(bytes: payloadData, encoding: .utf8)!
+        let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
+                                           httpStatus: 200,
+                                           transportSessionError: nil)
+
+        return response
+    }
+
+    func successfulFederatedResponse(for prekeyRequest: Payload.ClientListByDomain) -> ZMTransportResponse {
+        var responsePayload = Payload.PrekeyByDomain()
+
+        for entry in prekeyRequest {
+            responsePayload[entry.key] = entry.value.reduce(into: Payload.PrekeyByUserID(), { (result, userID) in
+                result[userID.key] = userID.value.reduce(into: Payload.PrekeyByClientID(), { (result, clientID) in
+                    result[clientID] = Payload.Prekey(key: validPrekey, id: 1)
+                })
             })
         }
 

@@ -91,6 +91,37 @@ extension Payload.PrekeyByUserID {
 
 }
 
+extension Payload.PrekeyByDomain {
+
+    func establishSessions(with selfClient: UserClient, context: NSManagedObjectContext) -> Bool {
+        for (domain, prekeyByUserID) in self {
+            for (userID, prekeyByClientID) in prekeyByUserID {
+                for (clientID, prekey) in prekeyByClientID {
+                    guard
+                        let userID = UUID(uuidString: userID),
+                        let user = ZMUser(remoteID: userID, createIfNeeded: false, in: context),
+                        let missingClient = UserClient.fetchUserClient(withRemoteId: clientID,
+                                                                       forUser: user,
+                                                                       createIfNeeded: true)
+                    else {
+                        continue
+                    }
+
+                    if let prekey = prekey {
+                        missingClient.establishSessionAndUpdateMissingClients(prekey: prekey,
+                                                                              selfClient: selfClient)
+                    } else {
+                        missingClient.markClientAsInvalidAfterFailingToRetrievePrekey(selfClient: selfClient)
+                    }
+                }
+            }
+        }
+
+        return (selfClient.missingClients?.count ?? 0) > 0
+    }
+
+}
+
 extension UserClient {
 
     /// Creates session and update missing clients and messages that depend on those clients
