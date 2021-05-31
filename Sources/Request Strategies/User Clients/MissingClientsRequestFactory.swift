@@ -33,9 +33,7 @@ extension Set where Set.Element == UserClient {
                 return
             }
 
-            var clientList = result[userID] ?? []
-            clientList.append(clientID)
-            result[userID] = clientList
+            result[userID, default: []].append(clientID)
         }
     }
 }
