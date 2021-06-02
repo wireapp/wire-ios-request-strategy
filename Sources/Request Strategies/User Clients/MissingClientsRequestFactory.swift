@@ -51,6 +51,7 @@ extension Collection where Element == UserClient {
             result[domain, default: Payload.ClientListByUserID()][userID, default: []].append(clientID)
         }
     }
+
 }
 
 public final class MissingClientsRequestFactory {
