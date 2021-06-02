@@ -66,9 +66,12 @@ extension Payload.PrekeyByUserID {
     ///
     /// - parameter selfClient: The self user's client
     /// - parameter context: The `NSManagedObjectContext` on which the operation should be performed
+    /// - parameter domain: originating domain of the clients.
     ///
     /// - returns `True` if there's more sessions which needs to be established.
-    func establishSessions(with selfClient: UserClient, context: NSManagedObjectContext) -> Bool {
+    func establishSessions(with selfClient: UserClient,
+                           context: NSManagedObjectContext,
+                           domain: String? = nil) -> Bool {
         for (userID, prekeyByClientID) in self {
             for (clientID, prekey) in prekeyByClientID {
                 guard
@@ -90,6 +93,26 @@ extension Payload.PrekeyByUserID {
 
 
             }
+        }
+
+        let hasMoreMissingClients = (selfClient.missingClients?.count ?? 0) > 0
+
+        return hasMoreMissingClients
+    }
+
+}
+
+extension Payload.PrekeyByQualifiedUserID {
+
+    /// Establish new sessions using the prekeys retreived for each client.
+    ///
+    /// - parameter selfClient: The self user's client
+    /// - parameter context: The `NSManagedObjectContext` on which the operation should be performed
+    ///
+    /// - returns `True` if there's more sessions which needs to be established.
+    func establishSessions(with selfClient: UserClient, context: NSManagedObjectContext) -> Bool {
+        for (domain, prekeyByUserID) in self {
+            _ = prekeyByUserID.establishSessions(with: selfClient, context: context, domain: domain)
         }
 
         let hasMoreMissingClients = (selfClient.missingClients?.count ?? 0) > 0

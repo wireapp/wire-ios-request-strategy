@@ -22,7 +22,8 @@ import Foundation
 /// Register new client, update it with new keys, deletes clients.
 @objc
 public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, ZMContextChangeTrackerSource {
-    
+
+    var isFederationEndpointAvailable: Bool = true
     fileprivate(set) var modifiedSync: ZMUpstreamModifiedObjectSync! = nil
     public var requestsFactory = MissingClientsRequestFactory()
     
@@ -79,6 +80,19 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
         }
         return (keysToSync.count > 0)
     }
+
+    public func shouldRetryToSyncAfterFailed(toUpdate managedObject: ZMManagedObject,
+                                             request upstreamRequest: ZMUpstreamRequest,
+                                             response: ZMTransportResponse,
+                                             keysToParse keys: Set<String>) -> Bool {
+
+        if response.httpStatus == 404 {
+            isFederationEndpointAvailable = false
+            return true
+        }
+
+        return false
+    }
     
     public func request(forUpdating managedObject: ZMManagedObject, forKeys keys: Set<String>) -> ZMUpstreamRequest? {
         guard let client = managedObject as? UserClient
@@ -90,9 +104,14 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
         guard let missing = client.missingClients, missing.count > 0
         else { fatal("no missing clients found") }
 
-        let request = requestsFactory.fetchPrekeys(for: missing)
+        let request: ZMUpstreamRequest?
+        if isFederationEndpointAvailable {
+            request = requestsFactory.fetchPrekeysFederated(for: missing)
+        } else {
+            request = requestsFactory.fetchPrekeys(for: missing)
+        }
 
-        request.transportRequest.forceToVoipSession()
+        request?.transportRequest.forceToVoipSession()
         return request
     }
     
@@ -103,14 +122,25 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
                                     keysToParse: Set<String>) -> Bool {
         
         if keysToParse.contains(ZMUserClientMissingKey) {
-            guard let rawData = response.rawData,
-                  let prekeys = Payload.PrekeyByUserID(rawData),
-                  let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
-            else {
-                return false
-            }
+            if isFederationEndpointAvailable {
+                guard let rawData = response.rawData,
+                      let prekeys = Payload.PrekeyByQualifiedUserID(rawData),
+                      let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
+                else {
+                    return false
+                }
 
-            return prekeys.establishSessions(with: selfClient, context: managedObjectContext)
+                return prekeys.establishSessions(with: selfClient, context: managedObjectContext)
+            } else {
+                guard let rawData = response.rawData,
+                      let prekeys = Payload.PrekeyByUserID(rawData),
+                      let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
+                else {
+                    return false
+                }
+
+                return prekeys.establishSessions(with: selfClient, context: managedObjectContext)
+            }
         } else {
             fatal("We only expect request about missing clients")
         }
