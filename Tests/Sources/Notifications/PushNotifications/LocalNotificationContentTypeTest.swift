@@ -135,7 +135,7 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
         // then
-        XCTAssertEqual(contentType, .participantsRemoved)
+        XCTAssertEqual(contentType, .participantsRemoved(reason: .none))
     }
     
     func testThatItCreatesASystemMessageNotificationContentTypeForTheMessageTimerUpdateEvent() {
