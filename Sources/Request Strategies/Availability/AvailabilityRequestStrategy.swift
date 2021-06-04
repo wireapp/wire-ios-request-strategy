@@ -48,7 +48,8 @@ extension AvailabilityRequestStrategy: ZMUpstreamTranscoder {
         guard let selfUser = managedObject as? ZMUser else { return nil }
 
         let originalPath = "/broadcast/otr/messages"
-        let message = GenericMessage(content: WireProtos.Availability(selfUser.availability))
+        
+        let message = GenericMessage(content: AvailabilityFactory.createAvailability(availability: selfUser.availability))
         let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: context, maxCount: maximumBroadcastRecipients)
 
         guard let dataAndMissingClientStrategy = message.encryptForTransport(forBroadcastRecipients: recipients, in: context) else {

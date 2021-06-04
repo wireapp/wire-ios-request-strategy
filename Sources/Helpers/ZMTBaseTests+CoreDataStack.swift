@@ -43,7 +43,7 @@ extension ZMTBaseTest {
 
     @objc
     func setupCaches(in coreDataStack: CoreDataStack) {
-        let userImageCache = UserImageLocalCache()
+        let userImageCache = UserImageLocalCache(location: nil)
         let fileAssetCache = FileAssetCache()
 
         coreDataStack.viewContext.zm_userImageCache = userImageCache
