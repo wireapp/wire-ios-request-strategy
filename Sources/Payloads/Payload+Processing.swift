@@ -59,3 +59,113 @@ extension Array where Array.Element == Payload.UserClient {
     }
 
 }
+
+extension Payload.UserProfile {
+
+    func updateUserProfile(for user: ZMUser, authoritative: Bool = true) {
+
+        if let qualifiedID = qualifiedID {
+            precondition(user.remoteIdentifier == nil || user.remoteIdentifier == qualifiedID.uuid)
+            precondition(user.domain == nil || user.domain == qualifiedID.domain)
+
+            user.remoteIdentifier = qualifiedID.uuid
+            user.domain = qualifiedID.domain
+        } else if let id = id {
+            precondition(user.remoteIdentifier == nil || user.remoteIdentifier == id)
+
+            user.remoteIdentifier = id
+        }
+
+        if let serviceID = serviceID {
+            user.serviceIdentifier = serviceID.id.transportString()
+            user.providerIdentifier = serviceID.provider.transportString()
+        }
+
+        if (teamID != nil || authoritative) {
+            user.teamIdentifier = teamID
+            user.createOrDeleteMembershipIfBelongingToTeam()
+        }
+
+        if SSOID != nil || authoritative {
+            user.usesCompanyLogin = SSOID != nil
+        }
+
+        if isDeleted == true {
+            user.markAccountAsDeleted(at: Date())
+        }
+
+        if (!name.isEmpty || authoritative) && !user.isAccountDeleted {
+            user.name = name
+        }
+
+        if (phone != nil || authoritative) && !user.isAccountDeleted {
+            user.phoneNumber = phone?.removingExtremeCombiningCharacters
+        }
+
+        if (email != nil || authoritative) && !user.isAccountDeleted {
+            user.emailAddress = email?.removingExtremeCombiningCharacters
+        }
+
+        if (handle != nil || authoritative) && !user.isAccountDeleted {
+            user.handle = handle
+        }
+
+        if (managedBy != nil || authoritative) {
+             user.managedBy = managedBy
+        }
+
+        if let accentColor = accentColor, let accentColorValue = ZMAccentColor(rawValue: Int16(accentColor)) {
+            user.accentColorValue = accentColorValue
+        }
+
+        if let expiresAt = expiresAt {
+            user.expiresAt = expiresAt
+        }
+
+        updateAssets(for: user, authoritative: authoritative)
+
+        if authoritative {
+            user.needsToBeUpdatedFromBackend = false
+        }
+
+        user.updatePotentialGapSystemMessagesIfNeeded()
+    }
+
+    func updateAssets(for user: ZMUser, authoritative: Bool = true) {
+        let assetKeys = Set(arrayLiteral: ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey)
+        guard user.hasLocalModifications(forKeys: assetKeys) else {
+            return
+        }
+
+        let previewAssetKey = assets.first(where: {$0.size == .preview }).map(\.key)
+        let completeAssetKey = assets.first(where: {$0.size == .complete }).map(\.key)
+
+        if previewAssetKey != nil || authoritative {
+            user.previewProfileAssetIdentifier = previewAssetKey
+        }
+
+        if completeAssetKey != nil || authoritative {
+            user.completeProfileAssetIdentifier = completeAssetKey
+        }
+    }
+
+}
+
+extension Payload.UserProfiles {
+
+
+    func updateUserProfiles(in context: NSManagedObjectContext) {
+
+        for userProfile in self {
+            guard
+                let id = userProfile.id,
+                let user = ZMUser.fetchAndMerge(with: id, createIfNeeded: false, in: context)
+            else {
+                continue
+            }
+
+            userProfile.updateUserProfile(for: user)
+        }
+    }
+
+}

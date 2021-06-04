@@ -22,6 +22,16 @@ enum Payload {
     typealias UserClients = [Payload.UserClient]
     typealias UserClientByUserID = [String: UserClients]
     typealias UserClientByDomain = [String: UserClientByUserID]
+    typealias UserProfiles = [Payload.UserProfile]
+
+    struct QualifiedUserIDList: Codable, Hashable {
+
+        enum CodingKeys: String, CodingKey {
+            case qualifiedIDs = "qualified_ids"
+        }
+
+        var qualifiedIDs: [QualifiedUserID]
+    }
     
     struct QualifiedUserID: Codable, Hashable {
         
@@ -81,6 +91,109 @@ enum Payload {
             self.deviceModel = deviceModel
         }
         
+    }
+
+    struct Asset: Codable {
+
+        enum AssetSize: String, Codable {
+            case preview
+            case complete
+        }
+
+        enum AssetType: String, Codable {
+            case image
+        }
+
+        let key: String
+        let size: AssetSize
+        let type: AssetType
+    }
+
+    struct ServiceID: Codable {
+        let id: UUID
+        let provider: UUID
+    }
+
+    struct SSOID: Codable {
+
+        enum CodingKeys: String, CodingKey {
+            case tenant
+            case subject
+            case scimExternalID = "scim_external_id"
+        }
+
+        let tenant: String?
+        let subject: String?
+        let scimExternalID: String?
+    }
+
+    enum LegalholdStatus: String, Codable {
+        case enabled
+        case pending
+        case disabled
+        case noConsent = "no_consent"
+    }
+
+    struct UserProfile: Codable {
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case qualifiedID = "qualified_id"
+            case teamID = "team"
+            case serviceID = "service"
+            case SSOID = "sso_id"
+            case name
+            case handle
+            case phone
+            case email
+            case assets
+            case managedBy = "managed_by"
+            case accentColor = "accent_id"
+            case isDeleted = "deleted"
+            case expiresAt = "expires_at"
+            case legalholdStatus = "legalhold_status"
+        }
+
+        let id: UUID?
+        let qualifiedID: QualifiedUserID?
+        let teamID: UUID?
+        let serviceID: ServiceID?
+        let SSOID: SSOID?
+        let name: String
+        let handle: String?
+        let phone: String?
+        let email: String?
+        let assets: [Asset]
+        let managedBy: String?
+        let accentColor: Int?
+        let isDeleted: Bool?
+        let expiresAt: Date?
+        let legalholdStatus: LegalholdStatus?
+    }
+
+    struct ResponseFailure: Codable {
+
+        enum Label: String, Codable {
+            case notFound = "not-found"
+            case noEndpoint = "no-endpoint"
+            case unknown
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+                let label = try container.decode(String.self)
+                self = Label(rawValue: label) ?? .unknown
+            }
+
+            func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                try container.encode(self.rawValue)
+            }
+        }
+
+        let code: Int
+        let label: Label
+        let message: String
+
     }
 }
 

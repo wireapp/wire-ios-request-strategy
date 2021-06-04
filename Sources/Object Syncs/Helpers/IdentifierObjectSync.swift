@@ -33,6 +33,12 @@ public protocol IdentifierObjectSyncTranscoder: class {
     
 }
 
+public protocol IdentifierObjectSyncDelegate: class {
+
+    func didFinishSyncingAllObjects()
+
+}
+
 /// Class for syncing objects based on an identifier.
 
 public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: NSObject, ZMRequestGenerator {
@@ -41,6 +47,12 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
     fileprivate var pending: Set<Transcoder.T> = Set()
     fileprivate var downloading: Set<Transcoder.T> = Set()
     fileprivate weak var transcoder: Transcoder?
+
+    weak var delegate: IdentifierObjectSyncDelegate?
+
+    var isSyncing: Bool {
+        return !pending.isEmpty || !downloading.isEmpty
+    }
 
     var isAvailable: Bool {
         transcoder?.isAvailable ?? false
@@ -89,6 +101,10 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
             }
             
             self?.managedObjectContext.enqueueDelayedSave()
+
+            if let isSyncing = self?.isSyncing, !isSyncing {
+                self?.delegate?.didFinishSyncingAllObjects()
+            }
         }))
         
         return request
