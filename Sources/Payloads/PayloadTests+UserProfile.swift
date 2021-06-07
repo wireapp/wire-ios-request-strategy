@@ -18,7 +18,7 @@
 import XCTest
 @testable import WireRequestStrategy
 
-class UserProfilePayloadTests: MessagingTestBase {
+class PayloadTests_UserProfile: MessagingTestBase {
 
     override func setUp() {
         super.setUp()
@@ -117,6 +117,24 @@ class UserProfilePayloadTests: MessagingTestBase {
         }
     }
 
+    func testUpdateUserProfile_NameIsNotUpdated_WhenUserIsDeleted() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let oldName = "John Doe"
+            let newName = "Nhoj Eod"
+            self.otherUser.name = oldName
+            self.otherUser.markAccountAsDeleted(at: Date())
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, name: newName)
+
+            // when
+            userProfile.updateUserProfile(for: self.otherUser, authoritative: true)
+
+            // then
+            XCTAssertEqual(self.otherUser.name, oldName)
+        }
+    }
+
     func testUpdateUserProfile_Handle() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
@@ -129,6 +147,24 @@ class UserProfilePayloadTests: MessagingTestBase {
 
             // then
             XCTAssertEqual(self.otherUser.handle, handle)
+        }
+    }
+
+    func testUpdateUserProfile_HandleIsNotUpdated_WhenUserIsDeleted() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let oldHandle = "johndoe"
+            let newhandle = "eodnhoj"
+            self.otherUser.handle = oldHandle
+            self.otherUser.markAccountAsDeleted(at: Date())
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, handle: newhandle)
+
+            // when
+            userProfile.updateUserProfile(for: self.otherUser, authoritative: true)
+
+            // then
+            XCTAssertEqual(self.otherUser.handle, oldHandle)
         }
     }
 
@@ -147,6 +183,24 @@ class UserProfilePayloadTests: MessagingTestBase {
         }
     }
 
+    func testUpdateUserProfile_PhoneIsNotUpdated_WhenUserIsDeleted() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let oldPhone = "+123456789"
+            let newPhone = "+987654321"
+            self.otherUser.phoneNumber = oldPhone
+            self.otherUser.markAccountAsDeleted(at: Date())
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, phone: newPhone)
+
+            // when
+            userProfile.updateUserProfile(for: self.otherUser, authoritative: true)
+
+            // then
+            XCTAssertEqual(self.otherUser.phoneNumber, oldPhone)
+        }
+    }
+
     func testUpdateUserProfile_Email() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
@@ -159,6 +213,24 @@ class UserProfilePayloadTests: MessagingTestBase {
 
             // then
             XCTAssertEqual(self.otherUser.emailAddress, email)
+        }
+    }
+
+    func testUpdateUserProfile_EmailIsNotUpdated_WhenUserIsDeleted() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let oldEmail = "john.doe@example.com"
+            let newEmail = "john.eod@example.com"
+            self.otherUser.emailAddress = oldEmail
+            self.otherUser.markAccountAsDeleted(at: Date())
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, email: newEmail)
+
+            // when
+            userProfile.updateUserProfile(for: self.otherUser, authoritative: true)
+
+            // then
+            XCTAssertEqual(self.otherUser.emailAddress, oldEmail)
         }
     }
 
