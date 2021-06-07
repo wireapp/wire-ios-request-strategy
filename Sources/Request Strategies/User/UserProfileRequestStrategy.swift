@@ -43,7 +43,7 @@ extension Collection where Element == ZMUser {
 /// - During the `.fetchingUsers` slow sync phase.
 /// - When a user is marked as `needsToBeUpdatedFromBackend`.
 ///
-class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncDelegate {
+public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncDelegate {
 
     var isFetchingAllConnectedUsers: Bool = false
     let syncProgress: SyncProgress
@@ -54,7 +54,7 @@ class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncD
     let userProfileByIDTranscoder: UserProfileByIDTranscoder
     let userProfileByQualifiedIDTranscoder: UserProfileByQualifiedIDTranscoder
 
-    init(managedObjectContext: NSManagedObjectContext,
+    public init(managedObjectContext: NSManagedObjectContext,
          applicationStatus: ApplicationStatus,
          syncProgress: SyncProgress) {
 
@@ -76,7 +76,7 @@ class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncD
         self.userProfileByQualifiedIDTranscoder.contextChangedTracker = self
     }
 
-    override func nextRequestIfAllowed() -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
         fetchAllConnectedUsers()
 
         return userProfileByQualifiedID.nextRequest() ?? userProfileByID.nextRequest()
@@ -118,7 +118,7 @@ class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncD
         return Set(connections.map(\.to))
     }
 
-    func didFinishSyncingAllObjects() {
+    public func didFinishSyncingAllObjects() {
         guard
             syncProgress.currentSyncPhase == .fetchingUsers,
             !userProfileByID.isSyncing,
@@ -135,17 +135,17 @@ class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncD
 
 extension UserProfileRequestStrategy: ZMContextChangeTracker {
 
-    func objectsDidChange(_ objects: Set<NSManagedObject>) {
+    public func objectsDidChange(_ objects: Set<NSManagedObject>) {
         let usersNeedingToBeUpdated = objects.compactMap({ $0 as? ZMUser}).filter(\.needsToBeUpdatedFromBackend)
 
         fetch(Set(usersNeedingToBeUpdated))
     }
 
-    func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
+    public func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
         return ZMUser.sortedFetchRequest(with: ZMUser.predicateForNeedingToBeUpdatedFromBackend()!)
     }
 
-    func addTrackedObjects(_ objects: Set<NSManagedObject>) {
+    public func addTrackedObjects(_ objects: Set<NSManagedObject>) {
         guard let users = objects as? Set<ZMUser> else {
             return
         }
@@ -157,7 +157,7 @@ extension UserProfileRequestStrategy: ZMContextChangeTracker {
 
 extension UserProfileRequestStrategy: ZMEventConsumer {
 
-    func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
+    public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
         for event in events {
             switch event.type {
             case .userUpdate:
