@@ -158,7 +158,7 @@ extension Payload.UserProfiles {
 
         for userProfile in self {
             guard
-                let id = userProfile.id,
+                let id = userProfile.id ?? userProfile.qualifiedID?.uuid,
                 let user = ZMUser.fetchAndMerge(with: id, createIfNeeded: false, in: context)
             else {
                 continue

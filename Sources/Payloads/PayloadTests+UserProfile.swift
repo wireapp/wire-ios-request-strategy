@@ -253,6 +253,33 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
+    func testUpdateUserProfile_AssetsIsNotUpdated_WhenAssetsHaveLocalChanges() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let assetsModifiedKeys = [ZMUser.previewProfileAssetIdentifierKey,
+                                      ZMUser.completeProfileAssetIdentifierKey]
+            let oldPreviewAssetKey = "a"
+            let oldCompleteAssetKey = "b"
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            selfUser.previewProfileAssetIdentifier = oldPreviewAssetKey
+            selfUser.completeProfileAssetIdentifier = oldCompleteAssetKey
+            selfUser.setLocallyModifiedKeys(Set(assetsModifiedKeys))
+            let qualifiedID = Payload.QualifiedUserID(uuid: selfUser.remoteIdentifier, domain: "example.com")
+            let previewAsset = Payload.Asset(key: "1", size: .preview, type: .image)
+            let completeAsset = Payload.Asset(key: "2", size: .complete, type: .image)
+            let assets = [previewAsset, completeAsset]
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, assets: assets)
+
+
+            // when
+            userProfile.updateUserProfile(for: selfUser, authoritative: true)
+
+            // then
+            XCTAssertEqual(selfUser.previewProfileAssetIdentifier, oldPreviewAssetKey)
+            XCTAssertEqual(selfUser.completeProfileAssetIdentifier, oldCompleteAssetKey)
+        }
+    }
+
     func testUpdateUserProfile_ManagedBy() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
@@ -309,6 +336,24 @@ class PayloadTests_UserProfile: MessagingTestBase {
 
             // then
             XCTAssertEqual(self.otherUser.expiresAt, expiresAt)
+        }
+    }
+
+    func testUpdateUserProfiles() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let name = "John Doe"
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, name: name)
+            self.otherUser.remoteIdentifier = qualifiedID.uuid
+            self.otherUser.domain = qualifiedID.domain
+            self.syncMOC.saveOrRollback()
+
+            // when
+            [userProfile].updateUserProfiles(in: self.syncMOC)
+
+            // then
+            XCTAssertEqual(self.otherUser.name, name)
         }
     }
 
