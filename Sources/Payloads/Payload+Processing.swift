@@ -137,8 +137,9 @@ extension Payload.UserProfile {
             return
         }
 
-        let previewAssetKey = assets.first(where: {$0.size == .preview }).map(\.key)
-        let completeAssetKey = assets.first(where: {$0.size == .complete }).map(\.key)
+        let validAssets = assets.filter(\.key.isValidAssetID)
+        let previewAssetKey = validAssets.first(where: {$0.size == .preview }).map(\.key)
+        let completeAssetKey = validAssets.first(where: {$0.size == .complete }).map(\.key)
 
         if previewAssetKey != nil || authoritative {
             user.previewProfileAssetIdentifier = previewAssetKey

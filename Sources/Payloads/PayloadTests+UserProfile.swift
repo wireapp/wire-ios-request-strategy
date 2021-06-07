@@ -71,6 +71,23 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
+    func testUpdateUserProfile_TeamMembershipIsCreated_WhenUserBelongsToSelfUserTeam() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let teamID = UUID()
+            let team = Team.insertNewObject(in: self.syncMOC)
+            team.remoteIdentifier = teamID
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, teamID: teamID)
+
+            // when
+            userProfile.updateUserProfile(for: self.otherUser, authoritative: true)
+
+            // then
+            XCTAssertEqual(self.otherUser.membership?.team, team)
+        }
+    }
+    
     func testUpdateUserProfile_ServiceID() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
@@ -277,6 +294,26 @@ class PayloadTests_UserProfile: MessagingTestBase {
             // then
             XCTAssertEqual(selfUser.previewProfileAssetIdentifier, oldPreviewAssetKey)
             XCTAssertEqual(selfUser.completeProfileAssetIdentifier, oldCompleteAssetKey)
+        }
+    }
+
+    func testUpdateUserProfile_AssetsAreRejected_WhenAssetsKeysAreInvalid() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            self.otherUser.previewProfileAssetIdentifier = "a"
+            self.otherUser.completeProfileAssetIdentifier = "b"
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let previewAsset = Payload.Asset(key: "1<", size: .preview, type: .image)
+            let completeAsset = Payload.Asset(key: "2\"", size: .complete, type: .image)
+            let assets = [previewAsset, completeAsset]
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, assets: assets)
+
+            // when
+            userProfile.updateUserProfile(for: self.otherUser, authoritative: true)
+
+            // then
+            XCTAssertNil(self.otherUser.previewProfileAssetIdentifier)
+            XCTAssertNil(self.otherUser.completeProfileAssetIdentifier)
         }
     }
 
