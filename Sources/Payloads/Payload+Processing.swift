@@ -94,7 +94,7 @@ extension Payload.UserProfile {
             user.markAccountAsDeleted(at: Date())
         }
 
-        if (!name.isEmpty || authoritative) && !user.isAccountDeleted {
+        if (name != nil || authoritative) && !user.isAccountDeleted {
             user.name = name
         }
 
@@ -133,7 +133,7 @@ extension Payload.UserProfile {
 
     func updateAssets(for user: ZMUser, authoritative: Bool = true) {
         let assetKeys = Set(arrayLiteral: ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey)
-        guard user.hasLocalModifications(forKeys: assetKeys) else {
+        guard !user.hasLocalModifications(forKeys: assetKeys) else {
             return
         }
 

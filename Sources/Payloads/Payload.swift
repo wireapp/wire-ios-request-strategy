@@ -159,7 +159,7 @@ enum Payload {
         let teamID: UUID?
         let serviceID: ServiceID?
         let SSOID: SSOID?
-        let name: String
+        let name: String?
         let handle: String?
         let phone: String?
         let email: String?
@@ -169,6 +169,39 @@ enum Payload {
         let isDeleted: Bool?
         let expiresAt: Date?
         let legalholdStatus: LegalholdStatus?
+
+        init(id: UUID? = nil,
+             qualifiedID: QualifiedUserID? = nil,
+             teamID: UUID? = nil,
+             serviceID: ServiceID? = nil,
+             SSOID: SSOID? = nil,
+             name: String? = nil,
+             handle: String? = nil,
+             phone: String? = nil,
+             email: String? = nil,
+             assets: [Asset] = [],
+             managedBy: String? = nil,
+             accentColor: Int? = nil,
+             isDeleted: Bool? = nil,
+             expiresAt: Date? = nil,
+             legalholdStatus: LegalholdStatus? = nil) {
+
+            self.id = id
+            self.qualifiedID = qualifiedID
+            self.teamID = teamID
+            self.serviceID = serviceID
+            self.SSOID = SSOID
+            self.name = name
+            self.handle = handle
+            self.phone = phone
+            self.email = email
+            self.assets = assets
+            self.managedBy = managedBy
+            self.accentColor = accentColor
+            self.isDeleted = isDeleted
+            self.expiresAt = expiresAt
+            self.legalholdStatus = legalholdStatus
+        }
     }
 
     struct ResponseFailure: Codable {
