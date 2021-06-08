@@ -163,7 +163,7 @@ enum Payload {
         let handle: String?
         let phone: String?
         let email: String?
-        let assets: [Asset]
+        let assets: [Asset]?
         let managedBy: String?
         let accentColor: Int?
         let isDeleted: Bool?
