@@ -81,7 +81,7 @@ extension Payload.UserProfile {
             user.providerIdentifier = serviceID.provider.transportString()
         }
 
-        if (teamID != nil || authoritative) {
+        if (updatedKeys.contains(.teamID) || authoritative) {
             user.teamIdentifier = teamID
             user.createOrDeleteMembershipIfBelongingToTeam()
         }
@@ -98,11 +98,11 @@ extension Payload.UserProfile {
             user.name = name
         }
 
-        if (phone != nil || authoritative) && !user.isAccountDeleted {
+        if (updatedKeys.contains(.phone) || authoritative) && !user.isAccountDeleted {
             user.phoneNumber = phone?.removingExtremeCombiningCharacters
         }
-
-        if (email != nil || authoritative) && !user.isAccountDeleted {
+        
+        if (updatedKeys.contains(.email) || authoritative) && !user.isAccountDeleted {
             user.emailAddress = email?.removingExtremeCombiningCharacters
         }
 

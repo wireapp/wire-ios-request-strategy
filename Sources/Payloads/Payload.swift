@@ -136,7 +136,7 @@ enum Payload {
 
     struct UserProfile: Codable {
 
-        enum CodingKeys: String, CodingKey {
+        enum CodingKeys: String, CodingKey, CaseIterable {
             case id
             case qualifiedID = "qualified_id"
             case teamID = "team"
@@ -170,6 +170,13 @@ enum Payload {
         let expiresAt: Date?
         let legalholdStatus: LegalholdStatus?
 
+        /// All keys which were present in the original payload even if they
+        /// contained a null value.
+        ///
+        /// This is used to distinguish when a delta user profile update does not
+        /// contain a field from when it sets the field to nil.
+        let updatedKeys: Set<CodingKeys>
+
         init(id: UUID? = nil,
              qualifiedID: QualifiedUserID? = nil,
              teamID: UUID? = nil,
@@ -184,7 +191,8 @@ enum Payload {
              accentColor: Int? = nil,
              isDeleted: Bool? = nil,
              expiresAt: Date? = nil,
-             legalholdStatus: LegalholdStatus? = nil) {
+             legalholdStatus: LegalholdStatus? = nil,
+             updatedKeys: Set<CodingKeys>? = nil) {
 
             self.id = id
             self.qualifiedID = qualifiedID
@@ -201,6 +209,27 @@ enum Payload {
             self.isDeleted = isDeleted
             self.expiresAt = expiresAt
             self.legalholdStatus = legalholdStatus
+            self.updatedKeys = updatedKeys ?? Set(CodingKeys.allCases)
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.id = try container.decodeIfPresent(UUID.self, forKey: .id)
+            self.qualifiedID = try container.decodeIfPresent(QualifiedUserID.self, forKey: .qualifiedID)
+            self.teamID = try container.decodeIfPresent(UUID.self, forKey: .teamID)
+            self.serviceID = try container.decodeIfPresent(ServiceID.self, forKey: .serviceID)
+            self.SSOID = try container.decodeIfPresent(Payload.SSOID.self, forKey: .SSOID)
+            self.name = try container.decodeIfPresent(String.self, forKey: .name)
+            self.handle = try container.decodeIfPresent(String.self, forKey: .handle)
+            self.phone = try container.decodeIfPresent(String.self, forKey: .phone)
+            self.email = try container.decodeIfPresent(String.self, forKey: .email)
+            self.assets = try container.decodeIfPresent([Payload.Asset].self, forKey: .assets)
+            self.managedBy = try container.decodeIfPresent(String.self, forKey: .managedBy)
+            self.accentColor = try container.decodeIfPresent(Int.self, forKey: .accentColor)
+            self.isDeleted = try container.decodeIfPresent(Bool.self, forKey: .isDeleted)
+            self.expiresAt = try container.decodeIfPresent(Date.self, forKey: .expiresAt)
+            self.legalholdStatus = try container.decodeIfPresent(LegalholdStatus.self, forKey: .legalholdStatus)
+            self.updatedKeys = Set(container.allKeys)
         }
     }
 

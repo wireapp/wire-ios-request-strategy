@@ -71,6 +71,20 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
+    func testUpdateUserProfile_TeamIDCanBeDeleted_ByNonAuthoritativeUpdate() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, updatedKeys: Set(arrayLiteral: .teamID))
+
+            // when
+            userProfile.updateUserProfile(for: self.otherUser, authoritative: false)
+
+            // then
+            XCTAssertNil(self.otherUser.teamIdentifier)
+        }
+    }
+
     func testUpdateUserProfile_TeamMembershipIsCreated_WhenUserBelongsToSelfUserTeam() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
@@ -200,6 +214,21 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
+    func testUpdateUserProfile_PhoneCanBeDeleted_ByNonAuthoritativeUpdate() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, updatedKeys: Set(arrayLiteral: .phone))
+            self.otherUser.phoneNumber = "+123456789"
+
+            // when
+            userProfile.updateUserProfile(for: self.otherUser, authoritative: false)
+
+            // then
+            XCTAssertNil(self.otherUser.phoneNumber)
+        }
+    }
+
     func testUpdateUserProfile_PhoneIsNotUpdated_WhenUserIsDeleted() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
@@ -230,6 +259,21 @@ class PayloadTests_UserProfile: MessagingTestBase {
 
             // then
             XCTAssertEqual(self.otherUser.emailAddress, email)
+        }
+    }
+
+    func testUpdateUserProfile_EmailCanBeDeleted_ByNonAuthoritativeUpdate() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
+            let userProfile = Payload.UserProfile(qualifiedID: qualifiedID, updatedKeys: Set(arrayLiteral: .email))
+            self.otherUser.emailAddress = "john.doe@example.com"
+
+            // when
+            userProfile.updateUserProfile(for: self.otherUser, authoritative: false)
+
+            // then
+            XCTAssertNil(self.otherUser.emailAddress)
         }
     }
 
