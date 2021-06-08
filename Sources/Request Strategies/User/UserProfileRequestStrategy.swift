@@ -83,12 +83,13 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
     }
 
     func fetch(_ users: Set<ZMUser>) {
+        let users = users.filter({ !$0.isSelfUser })
         guard !users.isEmpty else { return }
 
         if userProfileByQualifiedID.isAvailable, let qualifiedUserIDs = users.qualifiedUserIDs {
             userProfileByQualifiedID.sync(identifiers: qualifiedUserIDs)
         } else {
-            userProfileByID.sync(identifiers: users.map(\.remoteIdentifier))
+            userProfileByID.sync(identifiers: users.compactMap(\.remoteIdentifier))
         }
 
     }
