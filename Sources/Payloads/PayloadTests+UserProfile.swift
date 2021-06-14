@@ -29,7 +29,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_ID() throws {
+    func testUpdateUserProfile_UpdatesID() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let userProfile = Payload.UserProfile(id: UUID())
@@ -42,7 +42,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_QualifiedUserID() throws {
+    func testUpdateUserProfile_UpdatesQualifiedUserID() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -57,7 +57,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_TeamID() throws {
+    func testUpdateUserProfile_UpdatesTeamID() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -102,7 +102,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
     
-    func testUpdateUserProfile_ServiceID() throws {
+    func testUpdateUserProfile_UpdatesServiceID() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -118,7 +118,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_SSOID() throws {
+    func testUpdateUserProfile_UpdatesSSOID() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -133,7 +133,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_Name() throws {
+    func testUpdateUserProfile_UpdatesName() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -166,7 +166,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_Handle() throws {
+    func testUpdateUserProfile_UpdatesHandle() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -199,7 +199,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_Phone() throws {
+    func testUpdateUserProfile_UpdatesPhone() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -247,7 +247,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_Email() throws {
+    func testUpdateUserProfile_UpdatesEmail() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -295,7 +295,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_Assets() throws {
+    func testUpdateUserProfile_UpdatesAssets() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -361,7 +361,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_ManagedBy() throws {
+    func testUpdateUserProfile_UpdatesManagedBy() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -376,7 +376,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_AccentColor() throws {
+    func testUpdateUserProfile_UpdatesAccentColor() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -391,7 +391,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_IsDeleted() throws {
+    func testUpdateUserProfile_UpdatesIsDeleted() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -405,7 +405,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfile_ExpiresAt() throws {
+    func testUpdateUserProfile_UpdatesExpiresAt() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
@@ -420,7 +420,7 @@ class PayloadTests_UserProfile: MessagingTestBase {
         }
     }
 
-    func testUpdateUserProfiles() throws {
+    func testUpdateUserProfiles_AppliesUpdateOnUserProfileList() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
             let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: "example.com")
