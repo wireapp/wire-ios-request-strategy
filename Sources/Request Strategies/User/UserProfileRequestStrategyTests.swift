@@ -86,10 +86,6 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    func testThatLegacyRequestToFetchUserAreProcessed() {
-
-    }
-
     // MARK: - Slow Sync
 
     func testThatRequestToFetchConnectedUsersIsGenerated_DuringFetchingUsersSyncPhase() {
