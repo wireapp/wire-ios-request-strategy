@@ -62,6 +62,16 @@ extension Array where Array.Element == Payload.UserClient {
 
 extension Payload.UserProfile {
 
+    /// Update a user entity with the data from a user profile payload.
+    ///
+    /// A user profile payload comes in two variants: full and delta, a full update is
+    /// used to initially sync the entity with the server state. After this the entity
+    /// can be updated with delta updates, which only contain the fields which have changed.
+    ///
+    /// - parameter user: User entity which on which the update should be applied.
+    /// - parameter authoritative: If **true** the update will be applied as if the update
+    ///                            is a full update, any missing fields will be removed from
+    ///                            the entity.
     func updateUserProfile(for user: ZMUser, authoritative: Bool = true) {
 
         if let qualifiedID = qualifiedID {
@@ -155,6 +165,9 @@ extension Payload.UserProfile {
 extension Payload.UserProfiles {
 
 
+    /// Update all user entities with the data from the user profiles.
+    ///
+    /// - parameter context: `NSManagedObjectContext` on which the update should be performed.
     func updateUserProfiles(in context: NSManagedObjectContext) {
 
         for userProfile in self {
