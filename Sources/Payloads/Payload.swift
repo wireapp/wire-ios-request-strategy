@@ -22,6 +22,12 @@ enum Payload {
     typealias UserClients = [Payload.UserClient]
     typealias UserClientByUserID = [String: UserClients]
     typealias UserClientByDomain = [String: UserClientByUserID]
+    typealias PrekeyByClientID = [String: Prekey?]
+    typealias PrekeyByUserID = [String: PrekeyByClientID]
+    typealias PrekeyByQualifiedUserID = [String: PrekeyByUserID]
+    typealias ClientList = [String]
+    typealias ClientListByUserID = [String: ClientList]
+    typealias ClientListByQualifiedUserID = [String: ClientListByUserID]
     typealias UserProfiles = [Payload.UserProfile]
 
     struct QualifiedUserIDList: Codable, Hashable {
@@ -31,6 +37,11 @@ enum Payload {
         }
 
         var qualifiedIDs: [QualifiedUserID]
+    }
+
+    struct Prekey: Codable {
+        let key: String
+        let id: Int?
     }
     
     struct QualifiedUserID: Codable, Hashable {
