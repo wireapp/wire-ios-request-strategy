@@ -105,8 +105,9 @@ class AvailabilityRequestStrategyTests: MessagingTestBase {
             // given
             let selfUser = ZMUser.selfUser(in: moc)
             _ = ZMConversation(remoteID: selfUser.remoteIdentifier!, createIfNeeded: true, in: moc) // create self conversation
-
-            let message = GenericMessage(content: WireProtos.Availability(.away))
+            
+            let message = GenericMessage(content:
+                                            AvailabilityFactory.createAvailability(availability: .away))
             let messageData = try? message.serializedData()
             let dict = ["recipient": self.selfClient.remoteIdentifier!,
                         "sender": self.selfClient.remoteIdentifier!,
