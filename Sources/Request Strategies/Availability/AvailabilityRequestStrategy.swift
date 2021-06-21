@@ -156,8 +156,8 @@ extension AvailabilityRequestStrategy: ZMEventConsumer {
             else {
                 continue
             }
-            
-            let user = ZMUser(remoteID: senderUUID, createIfNeeded: false, in: managedObjectContext)
+
+            let user = ZMUser.fetch(with: senderUUID, in: managedObjectContext)
             user?.updateAvailability(from: message)
         }
     }

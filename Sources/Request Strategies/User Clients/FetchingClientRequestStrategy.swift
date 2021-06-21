@@ -165,8 +165,11 @@ fileprivate final class UserClientByUserClientIDTranscoder: IdentifierObjectSync
 
         guard
             let identifier = identifiers.first,
-            let user = ZMUser(remoteID: identifier.userId, createIfNeeded: true, in: managedObjectContext),
-            let client = UserClient.fetchUserClient(withRemoteId: identifier.clientId, forUser:user, createIfNeeded: true)
+            let client = UserClient.fetchUserClient(withRemoteId: identifier.clientId,
+                                                    forUser: ZMUser.fetchOrCreate(with: identifier.userId,
+                                                                                 domain: nil,
+                                                                                 in: managedObjectContext),
+                                                    createIfNeeded: true)
         else {
             Logging.network.warn("Can't process response, aborting.")
             return
@@ -242,13 +245,13 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
             return
         }
 
-        for (_, users) in payload {
+        for (domain, users) in payload {
             for (userID, clientPayloads) in users {
                 guard
                     let userID = UUID(uuidString: userID),
-                    let user = ZMUser.fetchAndMerge(with: userID,
-                                                    createIfNeeded: true,
-                                                    in: managedObjectContext)
+                    let user = ZMUser.fetch(with: userID,
+                                            domain: domain,
+                                            in: managedObjectContext)
                 else {
                     continue
                 }
@@ -292,13 +295,13 @@ fileprivate final class UserClientByUserIDTranscoder: IdentifierObjectSyncTransc
             let rawData = response.rawData,
             let payload = Payload.UserClients(rawData, decoder: decoder),
             let identifier = identifiers.first,
-            let user = ZMUser(remoteID: identifier, createIfNeeded: true, in: managedObjectContext),
             let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
         else {
             Logging.network.warn("Can't process response, aborting.")
             return
         }
 
+        let user = ZMUser.fetchOrCreate(with: identifier, domain: nil, in: managedObjectContext)
         payload.updateClients(for: user, selfClient: selfClient)
     }
 }

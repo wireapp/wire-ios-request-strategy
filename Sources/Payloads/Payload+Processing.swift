@@ -173,7 +173,7 @@ extension Payload.UserProfiles {
         for userProfile in self {
             guard
                 let id = userProfile.id ?? userProfile.qualifiedID?.uuid,
-                let user = ZMUser.fetchAndMerge(with: id, createIfNeeded: false, in: context)
+                let user = ZMUser.fetch(with: id, domain: userProfile.qualifiedID?.domain, in: context)
             else {
                 continue
             }
@@ -200,7 +200,7 @@ extension Payload.PrekeyByUserID {
             for (clientID, prekey) in prekeyByClientID {
                 guard
                     let userID = UUID(uuidString: userID),
-                    let user = ZMUser(remoteID: userID, createIfNeeded: false, in: context),
+                    let user = ZMUser.fetch(with: userID, domain: domain, in: context),
                     let missingClient = UserClient.fetchUserClient(withRemoteId: clientID,
                                                                    forUser: user,
                                                                    createIfNeeded: true)

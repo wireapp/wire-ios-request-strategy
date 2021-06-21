@@ -148,7 +148,7 @@ extension FetchClientRequestStrategyTests {
             // GIVEN
             let clientUUID = UUID()
             let payload = [
-                "example.com": [clientUUID.transportString(): [
+                "example.com": [self.otherUser.remoteIdentifier.transportString(): [
                     Payload.UserClient(id: clientUUID.transportString(),
                                        deviceClass: "phone")
                     ]]
@@ -156,6 +156,7 @@ extension FetchClientRequestStrategyTests {
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
             client = UserClient.fetchUserClient(withRemoteId: clientUUID.transportString(), forUser: self.otherUser, createIfNeeded: true)!
             self.otherUser.domain = "example.com"
+            self.syncMOC.saveOrRollback()
 
             // WHEN
             client.needsToBeUpdatedFromBackend = true

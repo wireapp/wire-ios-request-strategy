@@ -137,9 +137,13 @@ extension OTREntity {
         redundantUsers.remove(ZMUser.selfUser(in: context))
         
         for (userID, remoteClientIdentifiers) in missingMap {
-            guard let userID = UUID(uuidString: userID),
-                  let user = ZMUser(remoteID: userID, createIfNeeded: true, in: self.context), !user.isSelfUser else { continue }
-            
+            guard let userID = UUID(uuidString: userID) else { continue }
+
+            let user = ZMUser.fetchOrCreate(with: userID, domain: nil, in: context)
+            if user.isSelfUser {
+                continue
+            }
+
             redundantUsers.remove(user)
             
             let remoteIdentifiers = Set(remoteClientIdentifiers)
@@ -238,7 +242,7 @@ extension OTREntity {
             
             // user
             guard let userID = UUID(uuidString: pair.0) else { return [] }
-            guard let user = ZMUser(remoteID: userID, createIfNeeded: false, in: self.context) else { return [] }
+            guard let user = ZMUser.fetch(with: userID, domain: nil, in: self.context) else { return [] }
             
             // clients
             guard let clientIDs = pair.1 as? [String] else { fatal("Deleted client ID is not parsed properly") }
@@ -266,7 +270,7 @@ extension OTREntity {
     fileprivate func processRedundantClients(_ redundantMap: [String: AnyObject]) -> Bool {
         let redundantUsers = redundantMap.compactMap { pair -> ZMUser? in
             guard let userID = UUID(uuidString: pair.0) else { return nil }
-            let user = ZMUser(remoteID: userID, createIfNeeded: false, in: self.context)!
+            let user = ZMUser.fetch(with: userID, domain: nil, in: self.context)!
             return user
         }
         
@@ -296,7 +300,7 @@ extension OTREntity {
             
             // user
             guard let userID = UUID(uuidString: pair.0) else { return [] }
-            let user = ZMUser(remoteID: userID, createIfNeeded: true, in: self.context)!
+            let user = ZMUser.fetchOrCreate(with: userID, domain: nil, in: self.context)
             
             // client
             guard let clientIDs = pair.1 as? [String] else { fatal("Missing client ID is not parsed properly") }

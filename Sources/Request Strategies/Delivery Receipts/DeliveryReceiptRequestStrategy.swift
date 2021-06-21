@@ -29,7 +29,7 @@ extension ZMUpdateEvent {
             let message = GenericMessage(from: self),
             message.needsDeliveryConfirmation,
             let conversationID = conversationUUID,
-            let conversation = ZMConversation.fetch(withRemoteIdentifier: conversationID, in: managedObjectContext),
+            let conversation = ZMConversation.fetch(with: conversationID, in: managedObjectContext),
             conversation.conversationType == .oneOnOne,
             let senderUUID = senderUUID,
             senderUUID != ZMUser.selfUser(in: managedObjectContext).remoteIdentifier,
@@ -115,7 +115,7 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
         var deliveryReceipts: [DeliveryReceipt] = []
         
         eventsByConversation.forEach { (conversationID: UUID, events: [ZMUpdateEvent]) in
-            guard let conversation = ZMConversation.fetch(withRemoteIdentifier: conversationID,
+            guard let conversation = ZMConversation.fetch(with: conversationID,
                                                           in: managedObjectContext) else { return }
             
             let eventsBySender = events
@@ -123,10 +123,9 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
                 .partition(by: \.senderUUID)
             
             eventsBySender.forEach { (senderID: UUID, events: [ZMUpdateEvent]) in
-                guard let sender = ZMUser.fetchAndMerge(with: senderID,
-                                                        createIfNeeded: true,
-                                                        in: managedObjectContext) else { return }
-                
+                let sender = ZMUser.fetchOrCreate(with: senderID,
+                                                  domain: nil,
+                                                  in: managedObjectContext)
                 let deliveryReceipt = DeliveryReceipt(sender: sender,
                                                       conversation: conversation,
                                                       messageIDs: events.compactMap(\.messageNonce))
