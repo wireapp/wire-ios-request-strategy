@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2020 Wire Swiss GmbH
+// Copyright (C) 2016 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,18 +16,11 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
+#import "ZMSimpleListRequestPaginator.h"
+#import "ZMSingleRequestSync.h"
 
-enum Logging {
+@interface ZMSimpleListRequestPaginator (Internal) <ZMSingleRequestTranscoder>
 
-    /// For logs related to processing message data, which may included
-    /// work related to `GenericMessage` profotobuf data or the `ZMClientMessage`
-    /// and `ZMAssetClientMessage` container types.
+@property (nonatomic) ZMSingleRequestSync *singleRequestSync;
 
-    static let messageProcessing = ZMSLog(tag: "Message Processing")
-
-    /// For logs related to network requests.
-
-    static let network = ZMSLog(tag: "Network")
-
-}
+@end
