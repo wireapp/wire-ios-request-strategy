@@ -70,9 +70,9 @@ extension LinkPreviewUploadRequestStrategy : ZMUpstreamTranscoder {
     public func request(forUpdating managedObject: ZMManagedObject, forKeys keys: Set<String>) -> ZMUpstreamRequest? {
         guard let message = managedObject as? ZMClientMessage else { return nil }
         guard keys.contains(ZMClientMessage.linkPreviewStateKey) else { return nil }
-        guard let conversationId = message.conversation?.remoteIdentifier else { return nil }
+        guard let conversation = message.conversation else { return nil }
         requireInternal(true == message.sender?.isSelfUser, "Trying to send message from sender other than self: \(message.nonce?.uuidString ?? "nil nonce")")
-        let request = requestFactory.upstreamRequestForMessage(message, forConversationWithId: conversationId)
+        let request = requestFactory.upstreamRequestForMessage(message, in: conversation, useFederationEndpoint: false)
         zmLog.debug("request to send: \(message.nonce?.uuidString ?? "nil"), linkPreview: \(String(describing: message.underlyingMessage))")
         return ZMUpstreamRequest(keys: [ZMClientMessage.linkPreviewStateKey], transportRequest: request)
     }

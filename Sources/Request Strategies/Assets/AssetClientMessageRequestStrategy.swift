@@ -124,9 +124,10 @@ extension AssetClientMessageRequestStrategy: ZMUpstreamTranscoder {
             }
         }
         
-        guard let request = requestFactory.upstreamRequestForMessage(message, forConversationWithId: conversation.remoteIdentifier!) else { fatal("Unable to generate request for \(message.safeForLoggingDescription)") }
+        guard let request = requestFactory.upstreamRequestForMessage(message, in: conversation, useFederationEndpoint: false) else { fatal("Unable to generate request for \(message.safeForLoggingDescription)") }
         requireInternal(true == message.sender?.isSelfUser, "Trying to send message from sender other than self: \(message.nonce?.uuidString ?? "nil nonce")")
-        
+
+        // TODO jacob this is currently not done for the link preview uploader
         // We need to flush the encrypted payloads cache, since the client is online now (request succeeded).
         let completionHandler = ZMCompletionHandler(on: self.managedObjectContext) { response in
             guard let selfClient = ZMUser.selfUser(in: self.managedObjectContext).selfClient(),

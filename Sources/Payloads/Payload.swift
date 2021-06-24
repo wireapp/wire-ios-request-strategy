@@ -249,6 +249,7 @@ enum Payload {
         enum Label: String, Codable {
             case notFound = "not-found"
             case noEndpoint = "no-endpoint"
+            case unknownClient = "unknown-client"
             case unknown
 
             init(from decoder: Decoder) throws {
@@ -267,6 +268,34 @@ enum Payload {
         let label: Label
         let message: String
 
+    }
+
+    struct MessageSendingStatus: Codable {
+
+        enum CodingKeys: String, CodingKey {
+            case time
+            case missing
+            case redundant
+            case deleted
+            case failedToSend = "failed_to_send"
+        }
+
+        /// Time of sending message.
+        let time: Date
+
+        /// Clients that the message should have been encrypted for, but wasn't.
+        let missing: ClientListByQualifiedUserID
+
+        /// Clients that the message was encrypted for, but isn't necessary. For
+        /// example for a client who's user has been removed from the conversation.
+        let redundant: ClientListByQualifiedUserID
+
+        /// Clients that the message was encrypted for, but has since been deleted.
+        let deleted: ClientListByQualifiedUserID
+
+        /// When a message is partially sent contains the list of clients which
+        /// didn't receive the message.
+        let failedToSend: ClientListByQualifiedUserID
     }
 }
 

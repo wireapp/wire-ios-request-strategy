@@ -91,6 +91,24 @@ extension GenericMessageEntity: EncryptedPayloadGenerator {
         }
     }
 
+    public func encryptForTransportQualified() -> EncryptedPayloadGenerator.Payload? {
+        guard
+            let conversation = conversation,
+            let managedObjectContext = conversation.managedObjectContext
+        else {
+            return nil
+        }
+
+        switch targetRecipients {
+        case .conversationParticipants:
+            return message.encryptForTransport(for: conversation, useQualifiedIdentifiers: true)
+        case .users(let users):
+            return message.encryptForTransport(forBroadcastRecipients: users, useQualifiedIdentifiers: true, in: managedObjectContext)
+        case .clients(let clientsByUser):
+            return message.encryptForTransport(for: clientsByUser, useQualifiedIdentifiers: true, in: managedObjectContext)
+        }
+    }
+
     public var debugInfo: String {
         if case .confirmation = message.content {
             return "Confirmation Message"
@@ -134,7 +152,7 @@ extension GenericMessageEntity: EncryptedPayloadGenerator {
     }
     
     public override func request(forEntity entity: GenericMessageEntity) -> ZMTransportRequest? {
-        return requestFactory.upstreamRequestForMessage(entity, forConversationWithId: entity.conversation!.remoteIdentifier!)
+        return requestFactory.upstreamRequestForMessage(entity, in: entity.conversation!, useFederationEndpoint: false)
     }
     
     public override func shouldTryToResend(entity: GenericMessageEntity, afterFailureWithResponse response: ZMTransportResponse) -> Bool {

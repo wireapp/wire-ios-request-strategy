@@ -279,3 +279,116 @@ extension UserClient {
     }
 
 }
+
+extension Payload.ClientListByQualifiedUserID {
+
+    func fetchUsers(in context: NSManagedObjectContext) -> [ZMUser] {
+        return flatMap { (domain, userClientsByUserID) in
+            return userClientsByUserID.compactMap { (userID, _) -> ZMUser? in
+                guard
+                    let userID = UUID(uuidString: userID),
+                    let user = ZMUser.fetch(with: userID, domain: domain, in: context)
+                else {
+                    return nil
+                }
+
+                return user
+            }
+        }
+    }
+
+    func fetchClients(in context: NSManagedObjectContext) -> [ZMUser: [UserClient]] {
+        let userClientsByUserTuples = flatMap { (domain, userClientsByUserID) in
+            return userClientsByUserID.compactMap { (userID, userClientIDs) -> [ZMUser: [UserClient]]? in
+                guard
+                    let userID = UUID(uuidString: userID),
+                    let user = ZMUser.fetch(with: userID, domain: domain, in: context)
+                else {
+                    return nil
+                }
+
+                let userClients = user.clients.filter({
+                    guard let clientID = $0.remoteIdentifier else { return false }
+                    return userClientIDs.contains(clientID)
+                })
+
+                return [user: Array(userClients)]
+            }
+        }.flatMap { $0 }
+
+        return Dictionary<ZMUser, [UserClient]>(userClientsByUserTuples, uniquingKeysWith: +)
+    }
+
+    func fetchOrCreateClients(in context: NSManagedObjectContext) -> [ZMUser: [UserClient]] {
+        let userClientsByUserTuples = flatMap { (domain, userClientsByUserID) in
+            return userClientsByUserID.compactMap { (userID, userClientIDs) -> [ZMUser: [UserClient]]? in
+                guard
+                    let userID = UUID(uuidString: userID)
+                else {
+                    return nil
+                }
+
+                let user = ZMUser.fetchOrCreate(with: userID, domain: domain, in: context)
+                let userClients = userClientIDs.compactMap { (clientID) -> UserClient? in
+                    guard
+                        let userClient = UserClient.fetchUserClient(withRemoteId: clientID,
+                                                                    forUser: user,
+                                                                    createIfNeeded: true),
+                        !userClient.hasSessionWithSelfClient
+                    else {
+                        return nil
+                    }
+                    return userClient
+                }
+
+                return [user: userClients]
+            }
+        }.flatMap { $0 }
+
+        return Dictionary<ZMUser, [UserClient]>(userClientsByUserTuples, uniquingKeysWith: +)
+    }
+
+}
+
+extension Payload.MessageSendingStatus {
+
+    /// Updates the reported client changes after an attempt to send the message
+    ///
+    /// - Parameter message: message for which the message sending status was created
+    /// - Returns *True* if the message was missing clients in the original payload.
+    ///
+    /// If a message was missing clients we should attempt to send the message again
+    /// after establishing sessions with the missing clients.
+    ///
+    func updateClientsChanges(for message: OTREntity) -> Bool {
+
+        let deletedClients = deleted.fetchClients(in: message.context)
+        for (_, deletedClients) in deletedClients {
+            deletedClients.forEach { $0.deleteClientAndEndSession() }
+        }
+
+        let redundantUsers = redundant.fetchUsers(in: message.context)
+        if !redundantUsers.isEmpty {
+            // if the BE tells us that these users are not in the
+            // conversation anymore, it means that we are out of sync
+            // with the list of participants
+            message.conversation?.needsToBeUpdatedFromBackend = true
+
+            // The missing users might have been deleted so we need re-fetch their profiles
+            // to verify if that's the case.
+            redundantUsers.forEach { $0.needsToBeUpdatedFromBackend = true }
+
+            message.detectedRedundantUsers(redundantUsers)
+        }
+
+        let missingClients = missing.fetchOrCreateClients(in: message.context)
+        for (user, userClients) in missingClients {
+            userClients.forEach({ $0.discoveredByMessage = message as? ZMOTRMessage })
+            message.registersNewMissingClients(Set(userClients))
+            message.conversation?.addParticipantAndSystemMessageIfMissing(user, date: nil)
+        }
+
+        return !missingClients.isEmpty
+    }
+
+}
