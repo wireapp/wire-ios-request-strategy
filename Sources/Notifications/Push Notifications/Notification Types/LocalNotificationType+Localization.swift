@@ -100,10 +100,20 @@ extension LocalNotificationType {
             case .messageTimerUpdate:
                 return ZMPushStringMessageTimerUpdate
             }
-        case .incomingCall(video: true):
-            return ZMPushStringVideoCallStarts
-        case .incomingCall(video: false):
-            return ZMPushStringCallStarts
+        ///TODO Katerina fix it
+//        case .calling(let callState):
+//            switch callState {
+//            case .incoming(video: true, shouldRing: _, degraded: _):
+//                return ZMPushStringVideoCallStarts
+//            case .incoming(video: false, shouldRing: _, degraded: _):
+//                return ZMPushStringCallStarts
+//            case .terminating, .none:
+//                return ZMPushStringCallMissed
+//            default:
+//                return ZMPushStringDefault
+//            }
+        case .calling:
+            return ZMPushStringDefault
         case .event(let eventType):
             switch eventType {
             case .conversationCreated:
@@ -256,10 +266,16 @@ extension LocalNotificationType {
                     arguments.append(string)
                 }
                 conversationTypeKey = nil
-            
-            case .participantsAdded, .participantsRemoved:
+
+            case .participantsAdded:
                 conversationTypeKey = nil // System messages don't follow the template and is missing the `group` suffix
                 senderKey = SelfKey
+
+            case .participantsRemoved(let reason):
+                conversationTypeKey = nil // System messages don't follow the template and is missing the `group` suffix
+                senderKey = SelfKey
+                /// If there is a reason for removal, we should display a simple message "You were removed"
+                mentionOrReplyKey = reason.stringValue != nil ? NoUserNameKey : nil
             
             default:
                 break

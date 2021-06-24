@@ -533,10 +533,8 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
         var note: ZMLocalNotification?
         
         // when
-        self.uiMOC.performGroupedAndWait { uiMOC in
-            note = ZMLocalNotification(event: event, conversation: self.oneOnOneConversation, managedObjectContext: uiMOC)
-        }
         
+        note = ZMLocalNotification(event: event, conversation: self.oneOnOneConversation, managedObjectContext: self.syncMOC)
         // then
         XCTAssertNotNil(note)
         XCTAssertEqual(note?.title, "Super User")
@@ -549,10 +547,8 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
         var note: ZMLocalNotification?
         
         // when
-        self.uiMOC.performGroupedAndWait { uiMOC in
-            note = ZMLocalNotification(event: event, conversation: self.oneOnOneConversation, managedObjectContext: uiMOC)
-        }
         
+        note = ZMLocalNotification(event: event, conversation: self.oneOnOneConversation, managedObjectContext: self.syncMOC)
         // then
         XCTAssertNotNil(note)
         XCTAssertEqual(note?.title, "Super User")
@@ -561,17 +557,15 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
     
     func testThatItCreatesASystemLocalNotificationForMessageTimerUpdateEvent() {
         // given
-        self.syncMOC.performGroupedAndWait { syncMOC in
-            let event = self.createMessageTimerUpdateEvent(UUID.create(), conversationID: self.oneOnOneConversation.remoteIdentifier!)
-            var note: ZMLocalNotification?
-            
-            // when
-            note = ZMLocalNotification(event: event, conversation: self.oneOnOneConversation, managedObjectContext: self.syncMOC)
-            
-            // then
-            XCTAssertNotNil(note)
-            XCTAssertEqual(note?.body, "Someone set the message timer to 1 year")
-        }
+        let event = createMessageTimerUpdateEvent(UUID.create(), conversationID: self.oneOnOneConversation.remoteIdentifier!)
+        var note: ZMLocalNotification?
+
+        // when
+        note = ZMLocalNotification(event: event, conversation: self.oneOnOneConversation, managedObjectContext: self.syncMOC)
+
+        // then
+        XCTAssertNotNil(note)
+        XCTAssertEqual(note?.body, "Someone set the message timer to 1 year")
     }
 }
 

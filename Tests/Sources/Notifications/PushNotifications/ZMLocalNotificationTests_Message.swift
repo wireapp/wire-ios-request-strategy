@@ -164,8 +164,8 @@ class ZMLocalNotificationTests_Message : ZMLocalNotificationTests {
         // given
         let event = createUpdateEvent(UUID.create(), conversationID: oneOnOneConversation.remoteIdentifier!, genericMessage: GenericMessage(content: Text(content: "Hello Hello!"), nonce: UUID.create()), senderID: sender.remoteIdentifier)
         
-        let note = ZMLocalNotification(event: event, conversation: oneOnOneConversation, managedObjectContext: uiMOC)
         
+        let note = ZMLocalNotification(event: event, conversation: oneOnOneConversation, managedObjectContext: syncMOC)
         // then
         XCTAssertEqual(note!.messageNonce, event.messageNonce)
         XCTAssertEqual(note!.selfUserID, self.selfUser.remoteIdentifier)
@@ -592,13 +592,13 @@ extension ZMLocalNotificationTests_Message {
         }
     }
 
-//    func testThatItCreatesAudioNotificationsCorrectly() {
-//        XCTAssertEqual(bodyForAssetNote(.audio, conversation: oneOnOneConversation, sender: sender), "Shared an audio message")
-//        XCTAssertEqual(bodyForAssetNote(.audio, conversation: groupConversation, sender: sender), "Super User shared an audio message")
-//        XCTAssertEqual(bodyForAssetNote(.audio, conversation: groupConversationWithoutUserDefinedName, sender: sender), "Super User shared an audio message")
-//        XCTAssertEqual(bodyForAssetNote(.audio, conversation: groupConversationWithoutName, sender: sender), "Super User shared an audio message in a conversation")
-//        XCTAssertEqual(bodyForAssetNote(.audio, conversation: invalidConversation, sender: sender), "Super User shared an audio message in a conversation")
-//    }
+    func testThatItCreatesAudioNotificationsCorrectly() {
+        XCTAssertEqual(bodyForAssetNote(.audio, conversation: oneOnOneConversation, sender: sender), "Shared an audio message")
+        XCTAssertEqual(bodyForAssetNote(.audio, conversation: groupConversation, sender: sender), "Super User shared an audio message")
+        XCTAssertEqual(bodyForAssetNote(.audio, conversation: groupConversationWithoutUserDefinedName, sender: sender), "Super User shared an audio message")
+        XCTAssertEqual(bodyForAssetNote(.audio, conversation: groupConversationWithoutName, sender: sender), "Super User shared an audio message in a conversation")
+        XCTAssertEqual(bodyForAssetNote(.audio, conversation: invalidConversation, sender: sender), "Super User shared an audio message in a conversation")
+    }
 }
 
 // MARK: - Knock Messages
@@ -665,20 +665,11 @@ extension ZMLocalNotificationTests_Message {
         return ZMLocalNotification(event: event, conversation: message.conversation!, managedObjectContext: uiMOC)
     }
 
-    func bodyForEditNote(_ conversation: ZMConversation, sender: ZMUser, text: String) -> String {
-        let message = try! conversation.appendText(content: "Foo") as! ZMClientMessage
+    func testThatItDoesntCreateANotificationForAnEditMessage() {
+        let message = try! oneOnOneConversation.appendText(content: "Foo") as! ZMClientMessage
         message.markAsSent()
-        let note = editNote(message, sender: sender, text: text)
-        XCTAssertNotNil(note)
-        return note!.body
-    }
-
-    func testThatItCreatesANotificationForAnEditMessage(){
-        XCTAssertEqual(bodyForEditNote(oneOnOneConversation, sender: sender, text: "Edited Text"), "Edited Text")
-        XCTAssertEqual(bodyForEditNote(groupConversation, sender: sender, text: "Edited Text"), "Super User: Edited Text")
-        XCTAssertEqual(bodyForEditNote(groupConversationWithoutUserDefinedName, sender: sender, text: "Edited Text"), "Super User: Edited Text")
-        XCTAssertEqual(bodyForEditNote(groupConversationWithoutName, sender: sender, text: "Edited Text"), "Super User in a conversation: Edited Text")
-        XCTAssertEqual(bodyForEditNote(invalidConversation, sender: sender, text: "Edited Text"), "Super User in a conversation: Edited Text")
+        let note = editNote(message, sender: sender, text: "Edited Text")
+        XCTAssertNil(note)
     }
 
 }
@@ -712,9 +703,10 @@ extension ZMLocalNotificationTests_Message {
         XCTAssertEqual(note.category, .conversationWithLikeAndMute)
     }
 
-    func testThatItGeneratesCorrectCategoryIfEncryptionAtRestIsEnabledForTeamUser() {
+    func testThatItGeneratesCorrectCategoryIfEncryptionAtRestIsEnabledForTeamUser() throws {
         // GIVEN
-        uiMOC.encryptMessagesAtRest = true
+        let encryptionKeys = try EncryptionKeys.createKeys(for: Account(userName: "", userIdentifier: UUID()))
+        try uiMOC.enableEncryptionAtRest(encryptionKeys: encryptionKeys, skipMigration: true)
 
         // WHEN
         let note = textNotification(oneOnOneConversation, sender: sender, text: "Hello", isEphemeral: false)!
@@ -723,9 +715,10 @@ extension ZMLocalNotificationTests_Message {
         XCTAssertEqual(note.category, .conversationUnderEncryptionAtRestWithMute)
     }
 
-    func testThatItGeneratesCorrectCategoryIfEncryptionAtRestIsEnabledForNormalUser() {
+    func testThatItGeneratesCorrectCategoryIfEncryptionAtRestIsEnabledForNormalUser() throws {
         // GIVEN
-        uiMOC.encryptMessagesAtRest = true
+        let encryptionKeys = try EncryptionKeys.createKeys(for: Account(userName: "", userIdentifier: UUID()))
+        try uiMOC.enableEncryptionAtRest(encryptionKeys: encryptionKeys, skipMigration: true)
 
         let team = Team.insertNewObject(in: uiMOC)
         team.name = "Wire Amazing Team"

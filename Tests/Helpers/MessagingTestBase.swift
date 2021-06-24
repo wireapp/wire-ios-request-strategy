@@ -43,6 +43,10 @@ class MessagingTestBase: ZMTBaseTest {
         return self.coreDataStack.viewContext
     }
 
+    var eventMOC: NSManagedObjectContext! {
+        return self.coreDataStack.eventContext
+    }
+
     override func setUp() {
         super.setUp()
         BackgroundActivityFactory.shared.activityManager = UIApplication.shared
