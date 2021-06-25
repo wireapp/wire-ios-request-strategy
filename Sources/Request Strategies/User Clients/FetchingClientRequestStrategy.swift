@@ -248,13 +248,14 @@ fileprivate final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectS
         for (domain, users) in payload {
             for (userID, clientPayloads) in users {
                 guard
-                    let userID = UUID(uuidString: userID),
-                    let user = ZMUser.fetch(with: userID,
-                                            domain: domain,
-                                            in: managedObjectContext)
+                    let userID = UUID(uuidString: userID)
                 else {
                     continue
                 }
+                
+                let user = ZMUser.fetchOrCreate(with: userID,
+                                                domain: domain,
+                                                in: managedObjectContext)
 
                 clientPayloads.updateClients(for: user, selfClient: selfClient)
             }
