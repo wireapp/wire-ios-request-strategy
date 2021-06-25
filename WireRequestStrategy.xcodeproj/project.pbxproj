@@ -31,7 +31,6 @@
 		16229486221EBB8100A98679 /* ZMImagePreprocessingTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 16229482221EBB8000A98679 /* ZMImagePreprocessingTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16229487221EBB8100A98679 /* ZMImagePreprocessingTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 16229483221EBB8000A98679 /* ZMImagePreprocessingTracker.m */; };
 		16229488221EBB8100A98679 /* ZMImagePreprocessingTracker+Testing.h in Headers */ = {isa = PBXBuildFile; fileRef = 16229484221EBB8000A98679 /* ZMImagePreprocessingTracker+Testing.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		164D00742225624E00A8F264 /* ZMImagePreprocessingTrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 16229485221EBB8000A98679 /* ZMImagePreprocessingTrackerTests.m */; };
 		164D007622256C6E00A8F264 /* AssetV3UploadRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164D007522256C6E00A8F264 /* AssetV3UploadRequestStrategyTests.swift */; };
 		1662ADB322B0E8B300D84071 /* VerifyLegalHoldRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1662ADB222B0E8B300D84071 /* VerifyLegalHoldRequestStrategy.swift */; };
 		1662ADD122B14CBA00D84071 /* VerifyLegalHoldRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1662ADD022B14CBA00D84071 /* VerifyLegalHoldRequestStrategyTests.swift */; };
@@ -1262,7 +1261,6 @@
 				1621D26B1D75C7FF007108C2 /* ZMUpstreamInsertedObjectSyncTests.m in Sources */,
 				F18401EB2073C26700E9F4CC /* OTREntityTranscoderTests.swift in Sources */,
 				F18401E52073C26200E9F4CC /* FetchingClientRequestStrategyTests.swift in Sources */,
-				164D00742225624E00A8F264 /* ZMImagePreprocessingTrackerTests.m in Sources */,
 				F18401DA2073C24B00E9F4CC /* ClientMessageTranscoderTests+ResponsePayload.swift in Sources */,
 				16824631257A23E8002AF17B /* KeyPathObjectSyncTests.swift in Sources */,
 				F1956204202A1506005347C0 /* ZMRequestGeneratorTests.m in Sources */,
