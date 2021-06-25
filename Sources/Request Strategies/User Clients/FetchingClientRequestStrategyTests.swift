@@ -264,13 +264,14 @@ extension FetchClientRequestStrategyTests {
 
         syncMOC.performGroupedBlockAndWait {
             // THEN
-            XCTAssertEqual(self.sut.nextRequest()?.path, "/users/\(self.otherUser.remoteIdentifier!.transportString())/clients/\(clientUUID.transportString())")
+            XCTAssertEqual(self.sut.nextRequest()?.path, "/users/\(self.otherUser.remoteIdentifier!.transportString())/clients")
         }
     }
 
 }
 
 // MARK: - Fetching Other Users Clients
+
 extension FetchClientRequestStrategyTests {
     
     func payloadForOtherClients(_ identifiers: String...) -> ZMTransportData {
@@ -354,6 +355,7 @@ extension FetchClientRequestStrategyTests {
     
     func testThatItDeletesLocalClientsNotIncludedInResponseToFetchOtherUsersClients() {
         // GIVEN
+        sut.userClientByQualifiedUserIDTranscoder.isAvailable = false
         var payload: ZMTransportData!
         var firstIdentifier: String!
         self.syncMOC.performGroupedBlockAndWait {
@@ -383,9 +385,10 @@ extension FetchClientRequestStrategyTests {
         }
     }
     
-    func testThatItCreateTheCorrectRequest() {
+    func testThatItCreatesLegacyRequest_WhenFederationEndpointIsNotAvailable() {
         
         // GIVEN
+        sut.userClientByQualifiedUserIDTranscoder.isAvailable = false
         var user: ZMUser!
         self.syncMOC.performGroupedBlockAndWait {
             XCTAssertEqual(self.selfClient.missingClients?.count, 0)
@@ -403,6 +406,32 @@ extension FetchClientRequestStrategyTests {
                 let path = "/users/\(user.remoteIdentifier!.transportString())/clients"
                 XCTAssertEqual(request.path, path)
                 XCTAssertEqual(request.method, .methodGET)
+            } else {
+                XCTFail()
+            }
+        }
+    }
+
+    func testThatItCreatesBatchRequest_WhenFederationEndpointIsAvailable() {
+
+        // GIVEN
+        var user: ZMUser!
+        self.syncMOC.performGroupedBlockAndWait {
+            XCTAssertEqual(self.selfClient.missingClients?.count, 0)
+            user = self.selfClient.user!
+            user.fetchUserClients()
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
+
+        self.syncMOC.performGroupedBlockAndWait {
+            // WHEN
+            let request = self.sut.nextRequest()
+
+            // THEN
+            if let request = request {
+                let path = "/users/list-clients"
+                XCTAssertEqual(request.path, path)
+                XCTAssertEqual(request.method, .methodPOST)
             } else {
                 XCTFail()
             }
@@ -441,6 +470,7 @@ extension FetchClientRequestStrategyTests {
     func testThatItAddsFetchedClientToIgnoredClientsWhenClientDoesNotExist() {
         
         // GIVEN
+        sut.userClientByQualifiedUserIDTranscoder.isAvailable = false
         var payload: ZMTransportData!
         let remoteIdentifier = "aabbccdd0011"
         self.syncMOC.performGroupedBlockAndWait {
@@ -467,6 +497,7 @@ extension FetchClientRequestStrategyTests {
     func testThatItAddsFetchedClientToIgnoredClientsWhenClientHasNoSession() {
         
         // GIVEN
+        sut.userClientByQualifiedUserIDTranscoder.isAvailable = false
         var payload: ZMTransportData!
         var client: UserClient!
         self.syncMOC.performGroupedBlockAndWait {
@@ -495,6 +526,7 @@ extension FetchClientRequestStrategyTests {
     func testThatItAddsFetchedClientToIgnoredClientsWhenSessionExistsButClientDoesNotExist() {
         
         // GIVEN
+        sut.userClientByQualifiedUserIDTranscoder.isAvailable = false
         var payload: ZMTransportData!
         let remoteIdentifier = "aabbccdd0011"
         var sessionIdentifier: EncryptionSessionIdentifier!
@@ -526,6 +558,7 @@ extension FetchClientRequestStrategyTests {
     func testThatItDeletesAnObjectWhenResponseDoesNotContainRemoteID() {
         
         // GIVEN
+        sut.userClientByQualifiedUserIDTranscoder.isAvailable = false
         let remoteID = "otherRemoteID"
         let payload: [[String:Any]] = [["id": remoteID, "class": "phone"]]
         self.syncMOC.performGroupedBlockAndWait {
