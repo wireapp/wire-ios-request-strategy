@@ -178,12 +178,14 @@ extension UserProfileRequestStrategy: ZMEventConsumer {
             let payloadAsDictionary = updateEvent.payload["user"] as? [String: Any],
             let payloadData = try? JSONSerialization.data(withJSONObject: payloadAsDictionary, options: []),
             let userProfile = Payload.UserProfile(payloadData),
-            let userID = userProfile.id,
-            let user = ZMUser.fetchAndMerge(with: userID, createIfNeeded: true, in: managedObjectContext)
+            let userID = userProfile.id
         else {
             return Logging.eventProcessing.error("Malformed user.update update event, skipping...")
         }
 
+        let user = ZMUser.fetchOrCreate(with: userID,
+                                        domain: userProfile.qualifiedID?.domain,
+                                        in: managedObjectContext)
         userProfile.updateUserProfile(for: user, authoritative: false)
     }
 
@@ -191,7 +193,7 @@ extension UserProfileRequestStrategy: ZMEventConsumer {
         guard updateEvent.type == .userDelete else { return }
 
         guard let userId = (updateEvent.payload["id"] as? String).flatMap(UUID.init),
-              let user = ZMUser.fetchAndMerge(with: userId, createIfNeeded: false, in: managedObjectContext)
+              let user = ZMUser.fetch(with: userId, in: managedObjectContext)
         else {
             return Logging.eventProcessing.error("Malformed user.delete update event, skipping...")
         }
@@ -256,7 +258,7 @@ class UserProfileByIDTranscoder: IdentifierObjectSyncTranscoder {
 
     private func markUserProfilesAsFetched(_ missingUsers: Set<UUID>) {
         for userID in missingUsers {
-            let user = ZMUser(remoteID: userID, createIfNeeded: false, in: context)
+            let user = ZMUser.fetch(with: userID, in: context)
             user?.needsToBeUpdatedFromBackend = false
         }
     }
@@ -331,7 +333,7 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
 
     private func markUserProfilesAsFetched(_ missingUsers: Set<Payload.QualifiedUserID>) {
         for qualifiedID in missingUsers {
-            let user = ZMUser(remoteID: qualifiedID.uuid, createIfNeeded: false, in: context)
+            let user = ZMUser.fetch(with: qualifiedID.uuid, domain: qualifiedID.domain, in: context)
             user?.needsToBeUpdatedFromBackend = false
         }
     }
