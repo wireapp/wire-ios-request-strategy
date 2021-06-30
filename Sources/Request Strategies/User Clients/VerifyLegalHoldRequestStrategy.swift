@@ -120,6 +120,8 @@ fileprivate class VerifyClientsParser: OTREntity {
     var dependentObjectNeedingUpdateBeforeProcessing: NSObject? = nil
     
     var isExpired: Bool = false
+
+    var expirationDate: Date? = nil
     
     func expire() {
         // no-op

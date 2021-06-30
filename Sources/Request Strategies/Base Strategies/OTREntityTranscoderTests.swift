@@ -24,10 +24,13 @@ import XCTest
 @objcMembers class MockOTREntity: OTREntity, Hashable {
     
     var context: NSManagedObjectContext
+    public var expirationDate: Date?
     public var isExpired: Bool = false
     public func expire() {
         isExpired = true
     }
+
+
     
     public func missesRecipients(_ recipients: Set<UserClient>!) {
         // no-op
@@ -52,6 +55,21 @@ import XCTest
         // no-op
     }
         
+}
+
+extension MockOTREntity: ProteusMessage {
+    var debugInfo: String {
+        "Mock ProteusMessage"
+    }
+
+    func encryptForTransport() -> EncryptedPayloadGenerator.Payload? {
+        return ("non-qualified".data(using: .utf8)!, .doNotIgnoreAnyMissingClient)
+    }
+
+    func encryptForTransportQualified() -> EncryptedPayloadGenerator.Payload? {
+        return ("qualified".data(using: .utf8)!, .doNotIgnoreAnyMissingClient)
+    }
+
 }
 
 func ==(lhs: MockOTREntity, rhs: MockOTREntity) -> Bool {

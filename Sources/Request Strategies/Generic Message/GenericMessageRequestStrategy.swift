@@ -30,6 +30,7 @@ import Foundation
     public var conversation: ZMConversation?
     public var completionHandler: ((_ response: ZMTransportResponse) -> Void)?
     public var isExpired: Bool = false
+    public var expirationDate: Date? = nil
 
     private let targetRecipients: Recipients
     

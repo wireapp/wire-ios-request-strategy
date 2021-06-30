@@ -131,6 +131,10 @@ extension AvailabilityRequestStrategy: OTREntity {
     public var isExpired: Bool {
         return false
     }
+
+    public var expirationDate: Date? {
+        return nil
+    }
     
     public func expire() {
         // nop
