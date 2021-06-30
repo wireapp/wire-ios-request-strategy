@@ -34,6 +34,7 @@ class ClientMessageTranscoderTests: MessagingTestBase {
         mockAttachmentsDetector = MockAttachmentDetector()
         LinkAttachmentDetectorHelper.setTest_debug_linkAttachmentDetector(mockAttachmentsDetector)
         sut = ClientMessageTranscoder(in: syncMOC, localNotificationDispatcher: localNotificationDispatcher, applicationStatus: mockApplicationStatus)
+        sut.isFederationEndpointAvailable = false
     }
     
     override func tearDown() {
