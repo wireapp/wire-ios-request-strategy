@@ -23,10 +23,19 @@ public class LinkPreviewRequestStrategy: AbstractRequestStrategy, ZMContextChang
     let modifiedKeysSync: ModifiedKeyObjectSync<LinkPreviewRequestStrategy>
     let messageSync: ProteusMessageSync<ZMClientMessage>
 
+    static func linkPreviewIsUploadedPredicate(context: NSManagedObjectContext) -> NSPredicate {
+        return NSPredicate(format: "%K == %@ AND %K == %d",
+                           #keyPath(ZMClientMessage.sender), ZMUser.selfUser(in: context),
+                           #keyPath(ZMClientMessage.linkPreviewState), ZMLinkPreviewState.uploaded.rawValue)
+    }
+
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
                   applicationStatus: ApplicationStatus) {
+
+        let modifiedPredicate = Self.linkPreviewIsUploadedPredicate(context: managedObjectContext)
         self.modifiedKeysSync = ModifiedKeyObjectSync(entity: ZMClientMessage.entity(),
-                                                 trackedKey: ZMClientMessage.linkPreviewStateKey)
+                                                      trackedKey: ZMClientMessage.linkPreviewStateKey,
+                                                      modifiedPredicate: modifiedPredicate)
         self.messageSync = ProteusMessageSync<ZMClientMessage>(context: managedObjectContext,
                                                                applicationStatus: applicationStatus)
 
