@@ -33,6 +33,7 @@ public class LinkPreviewRequestStrategy: AbstractRequestStrategy, ZMContextChang
         super.init(withManagedObjectContext: managedObjectContext,
                    applicationStatus: applicationStatus)
 
+        self.configuration = .allowsRequestsWhileOnline
         self.modifiedKeysSync.transcoder = self
     }
 
