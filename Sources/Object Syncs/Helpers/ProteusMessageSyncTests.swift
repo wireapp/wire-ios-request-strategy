@@ -105,6 +105,23 @@ class ProteusMessageSyncTests: MessagingTestBase {
         }
     }
 
+    func testThatItRetriesTheRequest_WhenResponseSaysItsATemporaryError() throws {
+        syncMOC.performGroupedBlockAndWait { [self] in
+            // given
+            let message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
+            sut.sync(message) { (result, _) in }
+
+            // when
+            sut.nextRequest()?.complete(with: ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError()))
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        syncMOC.performGroupedBlockAndWait { [self] in
+            // then
+            XCTAssertEqual(sut.nextRequest()?.path, qualifiedEndpoint)
+        }
+    }
+
     func testThatItRetriesTheRequest_WhenResponseSaysClientAreMissing() throws {
         syncMOC.performGroupedBlockAndWait { [self] in
             // given

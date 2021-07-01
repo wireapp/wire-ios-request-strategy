@@ -114,7 +114,12 @@ class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTranscoder, Z
             if payload?.label == .unknownClient {
                 applicationStatus.clientRegistrationDelegate.didDetectCurrentClientDeletion()
             }
-            return false
+
+            if case .permanentError = response.result {
+                return false
+            } else {
+                return true
+            }
         }
     }
 
