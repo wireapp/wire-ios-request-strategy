@@ -26,11 +26,19 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
     let linkAttachmentsPreprocessor: LinkAttachmentsPreprocessor
     let localNotificationDispatcher: PushMessageHandler
 
+    static func shouldBeSentPredicate(context: NSManagedObjectContext) -> NSPredicate {
+        let notDelivered = NSPredicate(format: "%K == FALSE", DeliveredKey)
+        let notExpired = NSPredicate(format: "%K == 0", ZMMessageIsExpiredKey)
+        let fromSelf = NSPredicate(format: "%K == %@", ZMMessageSenderKey, ZMUser.selfUser(in: context))
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [notDelivered, notExpired, fromSelf])
+    }
+
     public init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
                          localNotificationDispatcher: PushMessageHandler,
                          applicationStatus: ApplicationStatus) {
 
-        self.insertedObjectSync = InsertedObjectSync(entity: ZMClientMessage.entity())
+        self.insertedObjectSync = InsertedObjectSync(entity: ZMClientMessage.entity(),
+                                                     insertPredicate: Self.shouldBeSentPredicate(context: managedObjectContext))
         self.messageSync = ProteusMessageSync<ZMClientMessage>(context: managedObjectContext,
                                                                applicationStatus: applicationStatus)
         self.localNotificationDispatcher = localNotificationDispatcher
@@ -48,7 +56,7 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
     }
 
     public var contextChangeTrackers: [ZMContextChangeTracker] {
-        return [insertedObjectSync, messageExpirationTimer] + messageSync.contextChangeTrackers
+        return [insertedObjectSync, messageExpirationTimer, self.linkAttachmentsPreprocessor] + messageSync.contextChangeTrackers
     }
 
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
