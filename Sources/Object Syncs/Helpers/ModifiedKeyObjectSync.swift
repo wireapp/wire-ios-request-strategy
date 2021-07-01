@@ -43,7 +43,7 @@ class ModifiedKeyObjectSync<Transcoder: ModifiedKeyObjectSyncTranscoder>: NSObje
 
     let entity: NSEntityDescription
     let trackedKey: String
-    let fetchPredicate: NSPredicate?
+    let modifiedPredicate: NSPredicate?
     var pending: Set<Transcoder.Object> = Set()
 
     weak var transcoder: Transcoder?
@@ -51,25 +51,28 @@ class ModifiedKeyObjectSync<Transcoder: ModifiedKeyObjectSyncTranscoder>: NSObje
     /// - Parameters:
     ///   - entity: Entity which should be synchronized
     ///   - trackedKey: Key / property which should synchchronized when modified.
-    ///   - fetchPredicate: Predicate used when fetching the initial entities when strategy is created. If omitted
-    ///                     all entities will be fetched an evaluated.
+    ///   - modifiedPredicate: Predicate which determine if an object has been modified or not. If omitted
+    ///                        an object is considered modified in all cases when the tracked key has been changed.
     init(entity: NSEntityDescription,
          trackedKey: String,
-         fetchPredicate: NSPredicate? = nil) {
+         modifiedPredicate: NSPredicate? = nil) {
         self.entity = entity
         self.trackedKey = trackedKey
-        self.fetchPredicate = fetchPredicate
+        self.modifiedPredicate = modifiedPredicate
     }
 
-    func objectsDidChange(_ object: Set<NSManagedObject>) {
-        addTrackedObjects(object)
+    func objectsDidChange(_ objects: Set<NSManagedObject>) {
+        let trackedObjects = objects.compactMap({ $0 as? Transcoder.Object})
+        let modifiedObjects = trackedObjects.filter({ modifiedPredicate?.evaluate(with: $0) ?? true })
+
+        addModifiedObjects(modifiedObjects)
     }
 
     func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
         let moClass: AnyClass? = NSClassFromString(entity.managedObjectClassName)
 
-        if let fetchPredicate = fetchPredicate {
-            return moClass?.sortedFetchRequest(with: fetchPredicate)
+        if let modifiedPredicate = modifiedPredicate {
+            return moClass?.sortedFetchRequest(with: modifiedPredicate)
         } else {
             return moClass?.sortedFetchRequest()
         }
@@ -78,7 +81,11 @@ class ModifiedKeyObjectSync<Transcoder: ModifiedKeyObjectSyncTranscoder>: NSObje
     func addTrackedObjects(_ objects: Set<NSManagedObject>) {
         let trackedObjects = objects.compactMap({ $0 as? Transcoder.Object})
 
-        for modifiedObject in trackedObjects {
+        addModifiedObjects(trackedObjects)
+    }
+
+    func addModifiedObjects(_ objects: [Transcoder.Object]) {
+        for modifiedObject in objects {
             guard let modifiedKeys = modifiedObject.modifiedKeys,
                   modifiedKeys.contains(trackedKey),
                   !pending.contains(modifiedObject)

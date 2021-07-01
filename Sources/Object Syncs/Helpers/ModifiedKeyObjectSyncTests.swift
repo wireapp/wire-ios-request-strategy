@@ -52,7 +52,9 @@ class ModifiedKeyObjectSyncTests: ZMTBaseTest {
 
         moc = MockModelObjectContextFactory.testContext()
         transcoder = MockModifiedKeyObjectSyncTranscoder()
-        sut = ModifiedKeyObjectSync(entity: MockEntity.entity(), trackedKey: "field")
+        sut = ModifiedKeyObjectSync(entity: MockEntity.entity(),
+                                    trackedKey: "field",
+                                    modifiedPredicate: NSPredicate(format: "field2 != \"not allowed\""))
         sut.transcoder = transcoder
     }
 
@@ -106,6 +108,20 @@ class ModifiedKeyObjectSyncTests: ZMTBaseTest {
         moc.saveOrRollback()
         sut.objectsDidChange(Set(arrayLiteral: mockEntity))
         transcoder.objectsAskedToBeSynchronized.removeAll()
+
+        // when
+        sut.objectsDidChange(Set(arrayLiteral: mockEntity))
+
+        // then
+        XCTAssertTrue(transcoder.objectsAskedToBeSynchronized.isEmpty)
+    }
+
+    func testItDoesNotAskToSynchronizeObject_WhenModifiedPredicateEvaluatesToFalse() {
+        // given
+        let mockEntity = MockEntity.insertNewObject(in: moc)
+        mockEntity.field = 1
+        mockEntity.field2 = "not allowed"
+        moc.saveOrRollback()
 
         // when
         sut.objectsDidChange(Set(arrayLiteral: mockEntity))
