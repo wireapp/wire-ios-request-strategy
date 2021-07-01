@@ -231,12 +231,10 @@ extension ClientMessageTranscoder {
                 return false
         }
 
-        if response.httpStatus == 412,
-           let label = response.payloadLabel(), label == "missing-legalhold-consent" {
+        if response.httpStatus == 412 && response.payloadLabel() == "missing-legalhold-consent" {
             managedObjectContext.zm_userInterface.performGroupedBlock { [weak self] in
-                guard let `self` = self else { return }
-                NotificationInContext(name: ZMConversation.failedToSendMessageNotificationName,
-                                      context: self.managedObjectContext.notificationContext).post()
+                guard let context = self?.managedObjectContext.notificationContext else { return }
+                NotificationInContext(name: ZMConversation.failedToSendMessageNotificationName, context: context).post()
             }
         }
 
