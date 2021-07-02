@@ -178,7 +178,7 @@
 		F18401DE2073C25900E9F4CC /* ClientMessageTranscoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18401512073BE0800E9F4CC /* ClientMessageTranscoderTests.swift */; };
 		F18401DF2073C25900E9F4CC /* ClientMessageTranscoderTests+MessageConfirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18401532073BE0800E9F4CC /* ClientMessageTranscoderTests+MessageConfirmation.swift */; };
 		F18401E02073C25900E9F4CC /* ClientMessageRequestFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18401542073BE0800E9F4CC /* ClientMessageRequestFactoryTests.swift */; };
-		F18401E12073C25900E9F4CC /* ClientMessageTranscoderTests+Depedency.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18401552073BE0800E9F4CC /* ClientMessageTranscoderTests+Depedency.swift */; };
+		F18401E12073C25900E9F4CC /* OTREntityTests+Dependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18401552073BE0800E9F4CC /* OTREntityTests+Dependency.swift */; };
 		F18401E22073C25900E9F4CC /* ClientMessageTranscoderTests+Ephemeral.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18401562073BE0800E9F4CC /* ClientMessageTranscoderTests+Ephemeral.swift */; };
 		F18401E42073C25E00E9F4CC /* GenericMessageRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F184015B2073BE0800E9F4CC /* GenericMessageRequestStrategyTests.swift */; };
 		F18401E52073C26200E9F4CC /* FetchingClientRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F184015E2073BE0800E9F4CC /* FetchingClientRequestStrategyTests.swift */; };
@@ -410,7 +410,7 @@
 		F18401522073BE0800E9F4CC /* ClientMessageTranscoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClientMessageTranscoder.swift; sourceTree = "<group>"; };
 		F18401532073BE0800E9F4CC /* ClientMessageTranscoderTests+MessageConfirmation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ClientMessageTranscoderTests+MessageConfirmation.swift"; sourceTree = "<group>"; };
 		F18401542073BE0800E9F4CC /* ClientMessageRequestFactoryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClientMessageRequestFactoryTests.swift; sourceTree = "<group>"; };
-		F18401552073BE0800E9F4CC /* ClientMessageTranscoderTests+Depedency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ClientMessageTranscoderTests+Depedency.swift"; sourceTree = "<group>"; };
+		F18401552073BE0800E9F4CC /* OTREntityTests+Dependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OTREntityTests+Dependency.swift"; sourceTree = "<group>"; };
 		F18401562073BE0800E9F4CC /* ClientMessageTranscoderTests+Ephemeral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ClientMessageTranscoderTests+Ephemeral.swift"; sourceTree = "<group>"; };
 		F184015A2073BE0800E9F4CC /* GenericMessageRequestStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenericMessageRequestStrategy.swift; sourceTree = "<group>"; };
 		F184015B2073BE0800E9F4CC /* GenericMessageRequestStrategyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenericMessageRequestStrategyTests.swift; sourceTree = "<group>"; };
@@ -752,7 +752,6 @@
 				F18401522073BE0800E9F4CC /* ClientMessageTranscoder.swift */,
 				F18401502073BE0800E9F4CC /* ClientMessageTranscoderTests+ResponsePayload.swift */,
 				F18401532073BE0800E9F4CC /* ClientMessageTranscoderTests+MessageConfirmation.swift */,
-				F18401552073BE0800E9F4CC /* ClientMessageTranscoderTests+Depedency.swift */,
 				F18401562073BE0800E9F4CC /* ClientMessageTranscoderTests+Ephemeral.swift */,
 				F18401512073BE0800E9F4CC /* ClientMessageTranscoderTests.swift */,
 			);
@@ -930,6 +929,7 @@
 				161E05432665465A00DADC3D /* SyncProgress.swift */,
 				F18401902073BE0800E9F4CC /* ApplicationStatus.swift */,
 				F18401912073BE0800E9F4CC /* OTREntity.swift */,
+				F18401552073BE0800E9F4CC /* OTREntityTests+Dependency.swift */,
 				1621D2721D7715EA007108C2 /* ZMObjectSyncStrategy.h */,
 				1621D2731D7715EA007108C2 /* ZMObjectSyncStrategy.m */,
 				F18402122073C56C00E9F4CC /* RequestStrategy.h */,
@@ -1322,7 +1322,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F18401E12073C25900E9F4CC /* ClientMessageTranscoderTests+Depedency.swift in Sources */,
+				F18401E12073C25900E9F4CC /* OTREntityTests+Dependency.swift in Sources */,
 				547D47191E7C2F6C002EEA15 /* DependentObjectsTests.swift in Sources */,
 				06D0651A256340470057836B /* FeatureControllerTest.swift in Sources */,
 				16CC083B268E075100C0613C /* ClientMessageRequestStrategyTests.swift in Sources */,
