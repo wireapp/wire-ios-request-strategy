@@ -43,19 +43,15 @@ protocol InsertedObjectSyncTranscoder: class {
  */
 class InsertedObjectSync<Transcoder: InsertedObjectSyncTranscoder>: NSObject, ZMContextChangeTracker {
 
-    let entity: NSEntityDescription
     let insertPredicate: NSPredicate
     var pending: Set<Transcoder.Object> = Set()
 
     weak var transcoder: Transcoder?
 
     /// - Parameters:
-    ///   - entity: Entity which should be synchronized
     ///   - insertPredicate: Predicate which determine when an object is only exist locally. If omitted
     ///                     `predicateForObjectsThatNeedToBeInsertedUpstream()` will be used.
-    init(entity: NSEntityDescription,
-         insertPredicate: NSPredicate? = nil) {
-        self.entity = entity
+    init(insertPredicate: NSPredicate? = nil) {
         self.insertPredicate = insertPredicate ?? Transcoder.Object.predicateForObjectsThatNeedToBeInsertedUpstream()!
     }
 

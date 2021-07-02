@@ -42,7 +42,7 @@ class InsertedObjectSyncTests: ZMTBaseTest {
 
         moc = MockModelObjectContextFactory.testContext()
         transcoder = MockInsertedObjectSyncTranscoder()
-        sut = InsertedObjectSync(entity: MockEntity.entity())
+        sut = InsertedObjectSync()
         sut.transcoder = transcoder
     }
 
