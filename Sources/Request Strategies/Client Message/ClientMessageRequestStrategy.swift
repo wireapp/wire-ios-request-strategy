@@ -48,6 +48,9 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
         super.init(withManagedObjectContext: managedObjectContext,
                    applicationStatus: applicationStatus)
 
+        self.configuration = [.allowsRequestsWhileOnline,
+                              .allowsRequestsWhileInBackground]
+
         self.insertedObjectSync.transcoder = self
 
         self.messageSync.onRequestScheduled { [weak self] (message, _) in
