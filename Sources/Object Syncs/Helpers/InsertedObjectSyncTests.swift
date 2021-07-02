@@ -68,7 +68,7 @@ class InsertedObjectSyncTests: ZMTBaseTest {
         let mockEntity = MockEntity.insertNewObject(in: moc)
 
         // when
-        mockEntity.testUUID = nil
+        mockEntity.remoteIdentifier = nil
         sut.addTrackedObjects(Set(arrayLiteral: mockEntity))
 
         // then
@@ -80,7 +80,7 @@ class InsertedObjectSyncTests: ZMTBaseTest {
         let mockEntity = MockEntity.insertNewObject(in: moc)
 
         // when
-        mockEntity.testUUID = nil
+        mockEntity.remoteIdentifier = nil
         sut.objectsDidChange(Set(arrayLiteral: mockEntity))
 
         // then
@@ -90,13 +90,13 @@ class InsertedObjectSyncTests: ZMTBaseTest {
     func testThatItAsksToInsertObject_WhenInsertPredicateEvaluatesToTrueAfterBeingFalse() {
         // given
         let mockEntity = MockEntity.insertNewObject(in: moc)
-        mockEntity.testUUID = nil
+        mockEntity.remoteIdentifier = nil
         sut.objectsDidChange(Set(arrayLiteral: mockEntity))
-        mockEntity.testUUID = UUID()
+        mockEntity.remoteIdentifier = UUID()
         sut.objectsDidChange(Set(arrayLiteral: mockEntity))
 
         // when
-        mockEntity.testUUID = nil
+        mockEntity.remoteIdentifier = nil
         sut.objectsDidChange(Set(arrayLiteral: mockEntity))
 
         // then
@@ -108,7 +108,7 @@ class InsertedObjectSyncTests: ZMTBaseTest {
         let mockEntity = MockEntity.insertNewObject(in: moc)
 
         // when
-        mockEntity.testUUID = UUID()
+        mockEntity.remoteIdentifier = UUID()
         sut.objectsDidChange(Set(arrayLiteral: mockEntity))
 
         // then
@@ -118,7 +118,7 @@ class InsertedObjectSyncTests: ZMTBaseTest {
     func testItDoesNotAskToInsertObject_WhenInsertionIsPending() {
         // given
         let mockEntity = MockEntity.insertNewObject(in: moc)
-        mockEntity.testUUID = nil
+        mockEntity.remoteIdentifier = nil
         sut.objectsDidChange(Set(arrayLiteral: mockEntity))
         transcoder.objectsAskedToBeInserted.removeAll()
 

@@ -44,6 +44,7 @@ class ModifiedKeyObjectSyncTests: ZMTBaseTest {
     var moc: NSManagedObjectContext!
     var transcoder: MockModifiedKeyObjectSyncTranscoder!
     var sut: ModifiedKeyObjectSync<MockModifiedKeyObjectSyncTranscoder>!
+    let modifiedPredicate = NSPredicate(format: "field2 != \"not allowed\"")
 
     // MARK: - Life Cycle
 
@@ -52,9 +53,8 @@ class ModifiedKeyObjectSyncTests: ZMTBaseTest {
 
         moc = MockModelObjectContextFactory.testContext()
         transcoder = MockModifiedKeyObjectSyncTranscoder()
-        sut = ModifiedKeyObjectSync(entity: MockEntity.entity(),
-                                    trackedKey: "field",
-                                    modifiedPredicate: NSPredicate(format: "field2 != \"not allowed\""))
+        sut = ModifiedKeyObjectSync(trackedKey: "field",
+                                    modifiedPredicate: modifiedPredicate)
         sut.transcoder = transcoder
     }
 
@@ -72,7 +72,7 @@ class ModifiedKeyObjectSyncTests: ZMTBaseTest {
         let fetchRequest = sut.fetchRequestForTrackedObjects()
 
         // then
-        XCTAssertEqual(fetchRequest, MockEntity.sortedFetchRequest())
+        XCTAssertEqual(fetchRequest, MockEntity.sortedFetchRequest(with: modifiedPredicate))
     }
 
     func testThatItAsksToSynchronizeObject_WhenTrackedFieldHasBeenModified() {

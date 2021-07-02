@@ -33,8 +33,7 @@ public class LinkPreviewRequestStrategy: AbstractRequestStrategy, ZMContextChang
                   applicationStatus: ApplicationStatus) {
 
         let modifiedPredicate = Self.linkPreviewIsUploadedPredicate(context: managedObjectContext)
-        self.modifiedKeysSync = ModifiedKeyObjectSync(entity: ZMClientMessage.entity(),
-                                                      trackedKey: ZMClientMessage.linkPreviewStateKey,
+        self.modifiedKeysSync = ModifiedKeyObjectSync(trackedKey: ZMClientMessage.linkPreviewStateKey,
                                                       modifiedPredicate: modifiedPredicate)
         self.messageSync = ProteusMessageSync<ZMClientMessage>(context: managedObjectContext,
                                                                applicationStatus: applicationStatus)

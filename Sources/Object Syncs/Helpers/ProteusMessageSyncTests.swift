@@ -80,7 +80,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
             }
 
             // when
-            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 500, transportSessionError: nil))
+            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 403, transportSessionError: nil))
         }
 
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
