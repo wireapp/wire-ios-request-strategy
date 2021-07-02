@@ -41,7 +41,6 @@ protocol ModifiedKeyObjectSyncTranscoder: class {
  */
 class ModifiedKeyObjectSync<Transcoder: ModifiedKeyObjectSyncTranscoder>: NSObject, ZMContextChangeTracker {
 
-    let entity: NSEntityDescription
     let trackedKey: String
     let modifiedPredicate: NSPredicate?
     var pending: Set<Transcoder.Object> = Set()
@@ -49,14 +48,11 @@ class ModifiedKeyObjectSync<Transcoder: ModifiedKeyObjectSyncTranscoder>: NSObje
     weak var transcoder: Transcoder?
 
     /// - Parameters:
-    ///   - entity: Entity which should be synchronized
     ///   - trackedKey: Key / property which should synchchronized when modified.
     ///   - modifiedPredicate: Predicate which determine if an object has been modified or not. If omitted
     ///                        an object is considered modified in all cases when the tracked key has been changed.
-    init(entity: NSEntityDescription,
-         trackedKey: String,
+    init(trackedKey: String,
          modifiedPredicate: NSPredicate? = nil) {
-        self.entity = entity
         self.trackedKey = trackedKey
         self.modifiedPredicate = modifiedPredicate
     }
@@ -69,12 +65,10 @@ class ModifiedKeyObjectSync<Transcoder: ModifiedKeyObjectSyncTranscoder>: NSObje
     }
 
     func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
-        let moClass: AnyClass? = NSClassFromString(entity.managedObjectClassName)
-
         if let modifiedPredicate = modifiedPredicate {
-            return moClass?.sortedFetchRequest(with: modifiedPredicate)
+            return Transcoder.Object.sortedFetchRequest(with: modifiedPredicate)
         } else {
-            return moClass?.sortedFetchRequest()
+            return Transcoder.Object.sortedFetchRequest()
         }
     }
 
