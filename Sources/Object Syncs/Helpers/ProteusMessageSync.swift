@@ -18,7 +18,7 @@
 
 import Foundation
 
-protocol ProteusMessage: OTREntity, EncryptedPayloadGenerator, Hashable {}
+public protocol ProteusMessage: OTREntity, EncryptedPayloadGenerator, Hashable {}
 
 extension ZMClientMessage: ProteusMessage {}
 
@@ -27,10 +27,10 @@ extension ZMClientMessage: ProteusMessage {}
 
  This only works with objects which implements the `ProteusMessage` protocol.
  */
-class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTranscoder, ZMContextChangeTrackerSource, ZMRequestGenerator {
+public class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTranscoder, ZMContextChangeTrackerSource, ZMRequestGenerator {
 
-    typealias Entity = Message
-    typealias OnRequestScheduledHandler = (_ message: Message, _ request: ZMTransportRequest) -> Void
+    public typealias Entity = Message
+    public typealias OnRequestScheduledHandler = (_ message: Message, _ request: ZMTransportRequest) -> Void
 
     var dependencySync: DependencyEntitySync<ProteusMessageSync>!
     let requestFactory = ClientMessageRequestFactory()
@@ -39,7 +39,7 @@ class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTranscoder, Z
     var onRequestScheduledHandler: OnRequestScheduledHandler?
     var isFederationEndpointAvailable = true
 
-    init(context: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
+    public init(context: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         self.context = context
         self.applicationStatus = applicationStatus
 
@@ -48,23 +48,27 @@ class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTranscoder, Z
         self.dependencySync = DependencyEntitySync<ProteusMessageSync>(transcoder: self, context: context)
     }
 
-    var contextChangeTrackers: [ZMContextChangeTracker] {
+    public var contextChangeTrackers: [ZMContextChangeTracker] {
         return [dependencySync]
     }
 
-    func nextRequest() -> ZMTransportRequest? {
+    public func nextRequest() -> ZMTransportRequest? {
         return dependencySync.nextRequest()
     }
 
-    func onRequestScheduled(_ handler: @escaping OnRequestScheduledHandler) {
+    public func onRequestScheduled(_ handler: @escaping OnRequestScheduledHandler) {
         onRequestScheduledHandler = handler
     }
 
-    func sync(_ message: Message, completion: @escaping EntitySyncHandler) {
+    public func sync(_ message: Message, completion: @escaping EntitySyncHandler) {
         dependencySync.synchronize(entity: message, completion: completion)
     }
 
-    func request(forEntity entity: Message) -> ZMTransportRequest? {
+    public func expireMessages(withDependency dependency: NSObject) {
+        dependencySync.expireEntities(withDependency: dependency)
+    }
+
+    public func request(forEntity entity: Message) -> ZMTransportRequest? {
         guard
             let request = requestFactory.upstreamRequestForMessage(entity,
                                                                    in: entity.conversation!,
@@ -82,7 +86,7 @@ class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTranscoder, Z
         return request
     }
 
-    func request(forEntity entity: Message, didCompleteWithResponse response: ZMTransportResponse) {
+    public func request(forEntity entity: Message, didCompleteWithResponse response: ZMTransportResponse) {
         if isFederationEndpointAvailable {
             let payload = Payload.MessageSendingStatus(response, decoder: .defaultDecoder)
             _ = payload?.updateClientsChanges(for: entity)
@@ -92,7 +96,7 @@ class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTranscoder, Z
         purgeEncryptedPayloadCache()
     }
 
-    func shouldTryToResend(entity: Message, afterFailureWithResponse response: ZMTransportResponse) -> Bool {
+    public func shouldTryToResend(entity: Message, afterFailureWithResponse response: ZMTransportResponse) -> Bool {
         switch response.httpStatus {
         case 404:
             let payload = Payload.ResponseFailure(response, decoder: .defaultDecoder)

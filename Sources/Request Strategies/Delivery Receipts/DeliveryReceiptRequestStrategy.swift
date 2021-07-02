@@ -46,16 +46,17 @@ extension ZMUpdateEvent {
 @objcMembers
 public final class DeliveryReceiptRequestStrategy: AbstractRequestStrategy {
     
-    private let genericMessageStrategy: GenericMessageRequestStrategy
+    private let messageSync: ProteusMessageSync<GenericMessageEntity>
     
     // MARK: - Init
     
     public init(managedObjectContext: NSManagedObjectContext,
                 applicationStatus: ApplicationStatus,
                 clientRegistrationDelegate: ClientRegistrationDelegate) {
-        
-        self.genericMessageStrategy = GenericMessageRequestStrategy(context: managedObjectContext, clientRegistrationDelegate: clientRegistrationDelegate)
-        
+
+        self.messageSync = ProteusMessageSync(context: managedObjectContext,
+                                              applicationStatus: applicationStatus)
+
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         
         self.configuration = [.allowsRequestsWhileInBackground,
@@ -66,16 +67,17 @@ public final class DeliveryReceiptRequestStrategy: AbstractRequestStrategy {
     // MARK: - Methods
     
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return genericMessageStrategy.nextRequest()
+        return messageSync.nextRequest()
     }
 }
+
 
 // MARK: - Context Change Tracker
 
 extension DeliveryReceiptRequestStrategy: ZMContextChangeTrackerSource {
     
     public var contextChangeTrackers: [ZMContextChangeTracker] {
-        return [self.genericMessageStrategy]
+        return messageSync.contextChangeTrackers
     }
     
 }
@@ -101,12 +103,12 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
     func sendDeliveryReceipt(_ deliveryReceipt: DeliveryReceipt) {
         guard let confirmation = Confirmation.init(messageIds: deliveryReceipt.messageIDs,
                                                    type: .delivered) else { return }
-        
-        genericMessageStrategy.schedule(message: GenericMessage(content: confirmation),
-                                        inConversation: deliveryReceipt.conversation,
-                                        targetRecipients: .users(Set(arrayLiteral: deliveryReceipt.sender)),
-                                        completionHandler: nil)
-        
+
+        messageSync.sync(GenericMessageEntity(conversation: deliveryReceipt.conversation,
+                                              message: GenericMessage(content: confirmation),
+                                              targetRecipients: .users(Set(arrayLiteral: deliveryReceipt.sender)),
+                                              completionHandler:nil),
+                         completion: {_,_ in })
     }
     
     func deliveryReceipts(for events: [ZMUpdateEvent]) -> [DeliveryReceipt] {

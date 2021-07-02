@@ -18,7 +18,7 @@
 
 import Foundation
 
-@objcMembers public class GenericMessageEntity : NSObject, OTREntity {
+@objcMembers public class GenericMessageEntity : NSObject, ProteusMessage {
 
     public enum Recipients {
         case conversationParticipants
@@ -34,7 +34,7 @@ import Foundation
 
     private let targetRecipients: Recipients
     
-    init(conversation: ZMConversation, message: GenericMessage, targetRecipients: Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
+    public init(conversation: ZMConversation, message: GenericMessage, targetRecipients: Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
         self.conversation = conversation
         self.message = message
         self.targetRecipients = targetRecipients

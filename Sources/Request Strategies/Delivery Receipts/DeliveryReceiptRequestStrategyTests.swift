@@ -60,6 +60,7 @@ class DeliveryReceiptRequestStrategyTests: MessagingTestBase {
     func testThatRequestIsGenerated_WhenProcessingEventWhichNeedsDeliveryReceipt() throws {
         try syncMOC.performGroupedAndWait { moc in
             let conversationID = self.oneToOneConversation.remoteIdentifier!.transportString()
+            let conversationDomain = self.oneToOneConversation.domain!
             let event = self.createTextUpdateEvent(from: self.otherUser, in: self.oneToOneConversation)
             
             // when
@@ -67,7 +68,7 @@ class DeliveryReceiptRequestStrategyTests: MessagingTestBase {
             
             // then
             let request = try XCTUnwrap(self.sut.nextRequest())
-            XCTAssertEqual(request.path, "/conversations/\(conversationID)/otr/messages")
+            XCTAssertEqual(request.path, "/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
         }
     }
         
