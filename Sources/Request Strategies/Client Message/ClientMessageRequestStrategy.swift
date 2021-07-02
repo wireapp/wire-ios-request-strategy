@@ -106,3 +106,58 @@ extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
     }
 
 }
+
+// MARK: - Update events
+
+extension ClientMessageRequestStrategy: ZMEventConsumer {
+
+    public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
+        events.forEach { self.insertMessage(from: $0, prefetchResult: prefetchResult) }
+    }
+
+    public func messageNoncesToPrefetch(toProcessEvents events: [ZMUpdateEvent]) -> Set<UUID> {
+        return Set(events.compactMap {
+            switch $0.type {
+            case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
+                return $0.messageNonce
+            default:
+                return nil
+            }
+        })
+    }
+
+    private func nonces(for updateEvents: [ZMUpdateEvent]) -> [UpdateEventWithNonce] {
+        return updateEvents.compactMap {
+            switch $0.type {
+            case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
+                if let nonce = $0.messageNonce {
+                    return UpdateEventWithNonce(event: $0, nonce: nonce)
+                }
+                return nil
+            default:
+                return nil
+            }
+        }
+    }
+
+    func insertMessage(from event: ZMUpdateEvent, prefetchResult: ZMFetchRequestBatchResult?) {
+        switch event.type {
+        case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
+
+            guard let message = ZMOTRMessage.createOrUpdate(from: event, in: managedObjectContext, prefetchResult: prefetchResult) else { return }
+
+            message.markAsSent()
+
+        default:
+            break
+        }
+
+        managedObjectContext.processPendingChanges()
+    }
+}
+
+// MARK: - Helpers
+private struct UpdateEventWithNonce {
+    let event: ZMUpdateEvent
+    let nonce: UUID
+}
