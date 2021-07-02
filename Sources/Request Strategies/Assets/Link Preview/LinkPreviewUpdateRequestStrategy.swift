@@ -18,9 +18,9 @@
 
 import Foundation
 
-public class LinkPreviewRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
+public class LinkPreviewUpdateRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
 
-    let modifiedKeysSync: ModifiedKeyObjectSync<LinkPreviewRequestStrategy>
+    let modifiedKeysSync: ModifiedKeyObjectSync<LinkPreviewUpdateRequestStrategy>
     let messageSync: ProteusMessageSync<ZMClientMessage>
 
     static func linkPreviewIsUploadedPredicate(context: NSManagedObjectContext) -> NSPredicate {
@@ -55,7 +55,7 @@ public class LinkPreviewRequestStrategy: AbstractRequestStrategy, ZMContextChang
 
 }
 
-extension LinkPreviewRequestStrategy: ModifiedKeyObjectSyncTranscoder {
+extension LinkPreviewUpdateRequestStrategy: ModifiedKeyObjectSyncTranscoder {
 
     typealias Object = ZMClientMessage
 
