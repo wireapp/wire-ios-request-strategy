@@ -31,6 +31,7 @@ public class ClientMessageTranscoder: AbstractRequestStrategy {
     fileprivate let messageExpirationTimer: MessageExpirationTimer
     fileprivate let linkAttachmentsPreprocessor: LinkAttachmentsPreprocessor
     fileprivate weak var localNotificationDispatcher: PushMessageHandler!
+    var isFederationEndpointAvailable: Bool = true
     
     public init(in moc:NSManagedObjectContext,
          localNotificationDispatcher: PushMessageHandler,
@@ -119,7 +120,7 @@ extension ClientMessageTranscoder: ZMUpstreamTranscoder {
             }
         }
 
-        let request = self.requestFactory.upstreamRequestForMessage(message, forConversationWithId: message.conversation!.remoteIdentifier!)!
+        let request = self.requestFactory.upstreamRequestForMessage(message, in: message.conversation!, useFederationEndpoint: isFederationEndpointAvailable)!
         
         // We need to flush the encrypted payloads cache, since the client is online now (request succeeded).
         let completionHandler = ZMCompletionHandler(on: self.managedObjectContext) { response in
@@ -191,7 +192,6 @@ extension ClientMessageTranscoder {
         }
         
         self.update(message, from: response, keys: upstreamRequest.keys ?? Set())
-        _ = message.parseMissingClientsResponse(response, clientRegistrationDelegate: self.applicationStatus!.clientRegistrationDelegate)
         
         if genericMessage.hasReaction {
             message.managedObjectContext?.delete(message)
@@ -210,11 +210,17 @@ extension ClientMessageTranscoder {
         
         self.messageExpirationTimer.stop(for: message)
         message.markAsSent()
-        message.update(withPostPayload: response.payload?.asDictionary() ?? [:], updatedKeys: keys)
-        _ = message.parseMissingClientsResponse(response, clientRegistrationDelegate: self.applicationStatus!.clientRegistrationDelegate)
 
+        if isFederationEndpointAvailable {
+            let payload = Payload.MessageSendingStatus(response, decoder: .defaultDecoder)
+            _ = payload?.updateClientsChanges(for: message)
+        } else {
+            message.update(withPostPayload: response.payload?.asDictionary() ?? [:], updatedKeys: keys)
+            _ = message.parseMissingClientsResponse(response, clientRegistrationDelegate: self.applicationStatus!.clientRegistrationDelegate)
+        }
     }
 
+    // TODO jacob is this ever called?
     public func updateUpdatedObject(_ managedObject: ZMManagedObject, requestUserInfo: [AnyHashable : Any]? = nil, response: ZMTransportResponse, keysToParse: Set<String>) -> Bool {
         guard let message = managedObject as? ZMClientMessage,
             !managedObject.isZombieObject else {
@@ -230,7 +236,29 @@ extension ClientMessageTranscoder {
             !managedObject.isZombieObject else {
                 return false
         }
-        return message.parseMissingClientsResponse(response, clientRegistrationDelegate: self.applicationStatus!.clientRegistrationDelegate)
+
+        if isFederationEndpointAvailable {
+            switch response.httpStatus {
+            case 404:
+                let payload = Payload.ResponseFailure(response, decoder: .defaultDecoder)
+                if payload?.label == .noEndpoint {
+                    isFederationEndpointAvailable = false
+                    return true
+                }
+                return false
+            case 412:
+                let payload = Payload.MessageSendingStatus(response, decoder: .defaultDecoder)
+                return payload?.updateClientsChanges(for: message) ?? false
+            default:
+                let payload = Payload.ResponseFailure(response, decoder: .defaultDecoder)
+                if payload?.label == .unknownClient {
+                    applicationStatus?.clientRegistrationDelegate.didDetectCurrentClientDeletion()
+                }
+                return false
+            }
+        } else {
+            return message.parseMissingClientsResponse(response, clientRegistrationDelegate: self.applicationStatus!.clientRegistrationDelegate)
+        }
     }
     
     public func shouldCreateRequest(toSyncObject managedObject: ZMManagedObject, forKeys keys: Set<String>, withSync sync: Any) -> Bool {
