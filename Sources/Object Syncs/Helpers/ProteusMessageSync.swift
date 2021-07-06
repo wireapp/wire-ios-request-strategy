@@ -21,6 +21,7 @@ import Foundation
 public protocol ProteusMessage: OTREntity, EncryptedPayloadGenerator, Hashable {}
 
 extension ZMClientMessage: ProteusMessage {}
+extension ZMAssetClientMessage: ProteusMessage {}
 
 /**
  ProteusMessageSync synchronizes messages with the backend using the using the Proteus encryption protocol.

@@ -66,6 +66,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         
         self.syncMOC.performGroupedBlockAndWait {
             self.sut = AssetClientMessageRequestStrategy(withManagedObjectContext: self.syncMOC, applicationStatus: self.mockApplicationStatus)
+            self.sut.messageSync.isFederationEndpointAvailable = false
         }
     }
     
@@ -84,6 +85,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         previewAssetId: Bool = false,
         transferState: AssetTransferState = .uploading,
         conversation: ZMConversation? = nil,
+        sender: ZMUser? = nil,
         line: UInt = #line
         ) -> ZMAssetClientMessage {
 
@@ -148,6 +150,10 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         } else  {
             message.updateTransferState(transferState, synchronize: true) // TODO jacob
         }
+
+        if let sender = sender {
+            message.sender = sender
+        }
         
         syncMOC.saveOrRollback()
         prepareUpload(of: message)
@@ -175,8 +181,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
     func testThatItDoesNotCreateARequestForAnImageMessageUploadedByOtherUser() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
-            let message = self.createMessage(uploaded: true)
-            message.sender = self.otherUser
+            self.createMessage(uploaded: true, sender: self.otherUser)
             
             // THEN
             XCTAssertNil(self.sut.nextRequest())
