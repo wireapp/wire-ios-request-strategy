@@ -87,6 +87,8 @@ public class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTransc
     }
 
     public func request(forEntity entity: Message, didCompleteWithResponse response: ZMTransportResponse) {
+        entity.delivered(with: response)
+
         if isFederationEndpointAvailable {
             let payload = Payload.MessageSendingStatus(response, decoder: .defaultDecoder)
             _ = payload?.updateClientsChanges(for: entity)

@@ -58,6 +58,10 @@ import Foundation
     public func detectedRedundantUsers(_ users: [ZMUser]) {
         // no-op
     }
+
+    public func delivered(with response: ZMTransportResponse) {
+        // no-op
+    }
         
     public func expire() {
         isExpired = true

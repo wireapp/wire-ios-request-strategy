@@ -116,6 +116,10 @@ fileprivate class VerifyClientsParser: OTREntity {
     func detectedRedundantUsers(_ users: [ZMUser]) {
         // no-op
     }
+
+    func delivered(with response: ZMTransportResponse) {
+        // no-op
+    }
         
     var dependentObjectNeedingUpdateBeforeProcessing: NSObject? = nil
     

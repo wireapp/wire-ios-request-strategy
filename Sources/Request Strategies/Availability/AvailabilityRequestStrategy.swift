@@ -122,6 +122,10 @@ extension AvailabilityRequestStrategy: OTREntity {
         // from this we must restart the slow sync.
         applicationStatus?.requestSlowSync()
     }
+
+    public func delivered(with response: ZMTransportResponse) {
+        // no-op
+    }
         
     public var dependentObjectNeedingUpdateBeforeProcessing: NSObject? {
         let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: context, maxCount: maximumBroadcastRecipients)

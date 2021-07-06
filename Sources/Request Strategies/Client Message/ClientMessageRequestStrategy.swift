@@ -80,7 +80,6 @@ extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
             switch result {
             case .success:
                 object.markAsSent()
-                object.update(withPostPayload: response.payload?.asDictionary() ?? [:], updatedKeys: nil)
                 self?.deleteMessageIfNecessary(object)
             case .failure(let error):
                 switch error {
