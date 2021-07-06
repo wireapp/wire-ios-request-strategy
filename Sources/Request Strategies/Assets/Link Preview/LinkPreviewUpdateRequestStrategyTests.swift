@@ -125,7 +125,15 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             guard let request = self.verifyItCreatesARequest(in: self.groupConversation) else { return }
 
             // When
-            let response = ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil)
+            let payload = Payload.MessageSendingStatus(time: Date(),
+                                                       missing: [:],
+                                                       redundant: [:],
+                                                       deleted: [:],
+                                                       failedToSend: [:])
+            let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
+            let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
+                                               httpStatus: 201,
+                                               transportSessionError: nil)
             request.complete(with: response)
         }
         self.syncMOC.performGroupedAndWait { moc in
