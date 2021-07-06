@@ -37,7 +37,7 @@ protocol InsertedObjectSyncTranscoder: class {
 /**
  InsertedObjectSync synchronizes objects which has been inserted locally but does yet exist on the backend.
 
- This only works for core data entities which inherit from `ZMManagedObject`. The Rule for when an object does
+ This only works for core data entities which inherit from `ZMManagedObject`. The rule for when an object does
  not yet exist on the backend is determined by the `predicateForObjectsThatNeedToBeInsertedUpstream()` or
  by the `insertPredicate` if supplied.
  */
