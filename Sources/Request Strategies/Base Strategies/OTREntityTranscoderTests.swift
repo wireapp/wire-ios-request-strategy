@@ -39,6 +39,7 @@ import XCTest
     
     var isMissingClients = false
     var didCallHandleClientUpdates = false
+    var isDelivered = false
     
     var dependentObjectNeedingUpdateBeforeProcessing: NSObject?
     
@@ -53,6 +54,10 @@ import XCTest
     
     func detectedRedundantUsers(_ users: [ZMUser]) {
         // no-op
+    }
+
+    func delivered(with response: ZMTransportResponse) {
+        isDelivered = true
     }
         
 }

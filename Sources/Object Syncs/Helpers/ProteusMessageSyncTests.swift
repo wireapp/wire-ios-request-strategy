@@ -66,6 +66,29 @@ class ProteusMessageSyncTests: MessagingTestBase {
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
     }
 
+    func testThatItInformsTheMessageThatItsBeenDelivered_WhenResponseIsSuccessfull() throws {
+        var message: MockOTREntity!
+        syncMOC.performGroupedBlockAndWait { [self] in
+            // given
+            message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
+            sut.sync(message, completion: { (_, _) in })
+
+            // when
+            let payload = Payload.MessageSendingStatus(time: Date(),
+                                                       missing: [:],
+                                                       redundant: [:],
+                                                       deleted: [:],
+                                                       failedToSend: [:])
+            let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
+            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 201, transportSessionError: nil))
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        syncMOC.performGroupedBlockAndWait {
+            XCTAssertTrue(message.isDelivered)
+        }
+    }
+
     func testThatItCallsSyncCompletionHandler_WhenResponseIsNonRecoverableFailure() throws {
         syncMOC.performGroupedBlockAndWait { [self] in
             // given
