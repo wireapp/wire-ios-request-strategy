@@ -34,8 +34,8 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
     }
 
     public init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
-                         localNotificationDispatcher: PushMessageHandler,
-                         applicationStatus: ApplicationStatus) {
+                localNotificationDispatcher: PushMessageHandler,
+                applicationStatus: ApplicationStatus) {
 
         self.insertedObjectSync = InsertedObjectSync(insertPredicate: Self.shouldBeSentPredicate(context: managedObjectContext))
         self.messageSync = ProteusMessageSync<ZMClientMessage>(context: managedObjectContext,
