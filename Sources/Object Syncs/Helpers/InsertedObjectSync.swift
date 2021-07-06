@@ -49,7 +49,7 @@ class InsertedObjectSync<Transcoder: InsertedObjectSyncTranscoder>: NSObject, ZM
     weak var transcoder: Transcoder?
 
     /// - Parameters:
-    ///   - insertPredicate: Predicate which determine when an object is only exist locally. If omitted
+    ///   - insertPredicate: Predicate which determine when an object only exists locally. If omitted
     ///                     `predicateForObjectsThatNeedToBeInsertedUpstream()` will be used.
     init(insertPredicate: NSPredicate? = nil) {
         self.insertPredicate = insertPredicate ?? Transcoder.Object.predicateForObjectsThatNeedToBeInsertedUpstream()!
