@@ -69,9 +69,15 @@ public class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTransc
     }
 
     public func request(forEntity entity: Message) -> ZMTransportRequest? {
+
+        if isFederationEndpointAvailable, ZMUser.selfUser(in: context).domain == nil {
+            isFederationEndpointAvailable = false
+        }
+
         guard
+            let conversation = entity.conversation,
             let request = requestFactory.upstreamRequestForMessage(entity,
-                                                                   in: entity.conversation!,
+                                                                   in: conversation,
                                                                    useFederationEndpoint: isFederationEndpointAvailable)
         else {
             return nil
