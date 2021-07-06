@@ -56,12 +56,12 @@ class InsertedObjectSync<Transcoder: InsertedObjectSyncTranscoder>: NSObject, ZM
     }
 
     func objectsDidChange(_ objects: Set<NSManagedObject>) {
-        let trackedObjects = objects.compactMap({ $0 as? Transcoder.Object})
-        let insertedObjects = trackedObjects.filter({ insertPredicate.evaluate(with: $0) })
-        let removedObjects = trackedObjects.filter({ !insertPredicate.evaluate(with: $0) })
-
-        addInsertedObjects(insertedObjects)
-        removeNoLongerMatchingObjects(removedObjects)
+        var trackedObjects = objects.compactMap({ $0 as? Transcoder.Object})
+        let indexOfSecondPartition = trackedObjects.partition(by: insertPredicate.evaluate)
+        let insertedObjects = trackedObjects[indexOfSecondPartition...]
+        let removedObjects = trackedObjects[..<indexOfSecondPartition]
+        addInsertedObjects(Array(insertedObjects))
+        removeNoLongerMatchingObjects(Array(removedObjects))
     }
 
     func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
