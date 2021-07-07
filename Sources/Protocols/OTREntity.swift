@@ -39,6 +39,8 @@ private let zmLog = ZMSLog(tag: "Dependencies")
     /// conversation anymore, it means that we are out of sync
     /// with the list of participants
     func detectedRedundantUsers(_ users: [ZMUser])
+
+    func delivered(with response: ZMTransportResponse)
     
 }
 

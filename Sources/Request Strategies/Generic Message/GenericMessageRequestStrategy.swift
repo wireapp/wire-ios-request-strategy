@@ -18,7 +18,7 @@
 
 import Foundation
 
-@objcMembers public class GenericMessageEntity : NSObject, OTREntity {
+@objcMembers public class GenericMessageEntity : NSObject, ProteusMessage {
 
     public enum Recipients {
         case conversationParticipants
@@ -30,10 +30,11 @@ import Foundation
     public var conversation: ZMConversation?
     public var completionHandler: ((_ response: ZMTransportResponse) -> Void)?
     public var isExpired: Bool = false
+    public var expirationDate: Date? = nil
 
     private let targetRecipients: Recipients
     
-    init(conversation: ZMConversation, message: GenericMessage, targetRecipients: Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
+    public init(conversation: ZMConversation, message: GenericMessage, targetRecipients: Recipients = .conversationParticipants, completionHandler: ((_ response: ZMTransportResponse) -> Void)?) {
         self.conversation = conversation
         self.message = message
         self.targetRecipients = targetRecipients
@@ -55,6 +56,10 @@ import Foundation
     }
     
     public func detectedRedundantUsers(_ users: [ZMUser]) {
+        // no-op
+    }
+
+    public func delivered(with response: ZMTransportResponse) {
         // no-op
     }
         

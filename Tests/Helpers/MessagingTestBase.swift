@@ -31,6 +31,8 @@ class MessagingTestBase: ZMTBaseTest {
     fileprivate(set) var coreDataStack: CoreDataStack!
     fileprivate(set) var accountIdentifier: UUID!
 
+    let owningDomain = "example.com"
+
     var useInMemoryStore: Bool {
         true
     }
@@ -216,6 +218,7 @@ extension MessagingTestBase {
     
     func setupOneToOneConversation(with user: ZMUser) -> ZMConversation {
         let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+        conversation.domain = owningDomain
         conversation.conversationType = .oneOnOne
         conversation.remoteIdentifier = UUID.create()
         conversation.connection = ZMConnection.insertNewObject(in: self.syncMOC)
@@ -230,7 +233,7 @@ extension MessagingTestBase {
     func createUser(alsoCreateClient: Bool = false) -> ZMUser {
         let user = ZMUser.insertNewObject(in: self.syncMOC)
         user.remoteIdentifier = UUID.create()
-        user.domain = "example.com"
+        user.domain = owningDomain
         if alsoCreateClient {
             _ = self.createClient(user: user)
         }
@@ -250,6 +253,7 @@ extension MessagingTestBase {
     func createGroupConversation(with user: ZMUser) -> ZMConversation {
         let conversation = ZMConversation.insertNewObject(in: syncMOC)
         conversation.conversationType = .group
+        conversation.domain = owningDomain
         conversation.remoteIdentifier = UUID.create()
         conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
         conversation.addParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: syncMOC), role: nil)
@@ -273,7 +277,7 @@ extension MessagingTestBase {
     fileprivate func createSelfClient() -> UserClient {
         let user = ZMUser.selfUser(in: self.syncMOC)
         user.remoteIdentifier = UUID.create()
-        user.domain = "example.com"
+        user.domain = owningDomain
         
         let selfClient = UserClient.insertNewObject(in: self.syncMOC)
         selfClient.remoteIdentifier = "baddeed"
