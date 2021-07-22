@@ -182,7 +182,7 @@ private extension FeatureConfigRequestStrategy {
     struct ConfigResponse<T: FeatureLike>: Decodable {
 
         let status: Feature.Status
-        let config: T.Config
+        let config: T.Config?
 
         var asFeature: T {
             return T(status: status, config: config)
