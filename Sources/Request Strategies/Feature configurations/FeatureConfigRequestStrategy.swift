@@ -126,7 +126,6 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
             case .fileSharing:
                 let config = try decoder.decode(ConfigResponse<Feature.FileSharing>.self, from: responseData)
                 feature.status = config.status
-                return
             }
 
             feature.needsToBeUpdatedFromBackend = false
