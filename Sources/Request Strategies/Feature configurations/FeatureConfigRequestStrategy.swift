@@ -206,20 +206,20 @@ extension FeatureConfigRequestStrategy: ZMEventConsumer {
             return
         }
 
-        /// TODO Katerina: use updateOrCreate() introduce by John
-        if let existing = Feature.fetch(name: featureName, context: managedObjectContext) {
-            let config = payloadData["config"] as? [String: String]
-            let configData = try? JSONEncoder().encode(config)
+        Feature.updateOrCreate(havingName: featureName, in: managedObjectContext) {
+            switch featureName {
+            case .appLock:
+                let config = payloadData["config"] as? [String: String]
+                let configData = try? JSONEncoder().encode(config)
 
-            existing.status = status
-            existing.config = configData
-
-        } else {
-            if let team = team {
-                Feature.createDefaultInstanceIfNeeded(name: featureName, team: team, context: managedObjectContext)
+                $0.status = status
+                $0.config = configData
+            case .fileSharing:
+                $0.status = status
             }
         }
     }
+    
 }
 
 // MARK: - Response models

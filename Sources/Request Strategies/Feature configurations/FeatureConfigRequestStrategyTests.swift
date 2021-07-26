@@ -133,37 +133,10 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
 
 extension FeatureConfigRequestStrategyTests {
 
-    func testThatItCreatesFileSharingFeature_FromUpdateEventt() {
-        self.syncMOC.performGroupedAndWait { moc in
-            // given
-            let _ = self.createTeam(for: .selfUser(in: moc)).remoteIdentifier!
-            let dict: NSDictionary = [
-                "status": "enabled"
-            ]
-            let payload: NSDictionary = [
-                "type": "feature-config.update",
-                "data": dict,
-                "name": "fileSharing"
-            ]
-            let event =  ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)!
-
-            // when
-            let existingFeature = Feature.fetch(name: .fileSharing, context: moc)
-            XCTAssertNil(existingFeature)
-            self.sut.processEvents([event], liveEvents: false, prefetchResult: nil)
-
-            // then
-            let existingFeature1 = Feature.fetch(name: .fileSharing, context: moc)
-            XCTAssertNotNil(existingFeature1)
-            XCTAssertEqual(existingFeature1?.status, .enabled)
-        }
-    }
-
     func testThatItUpdatesFileSharingFeature_FromUpdateEvent() {
-        self.syncMOC.performGroupedAndWait { moc in
+        syncMOC.performGroupedAndWait { moc in
             // given
-            let team = self.createTeam(for: .selfUser(in: moc))
-            Feature.createDefaultInstanceIfNeeded(name: .fileSharing, team: team, context: moc)
+            FeatureService(context: moc).storeFileSharing(.init())
             let dict: NSDictionary = [
                 "status": "disabled"
             ]
@@ -172,15 +145,18 @@ extension FeatureConfigRequestStrategyTests {
                 "data": dict,
                 "name": "fileSharing"
             ]
-            let event =  ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)!
+            let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)!
 
             // when
             self.sut.processEvents([event], liveEvents: false, prefetchResult: nil)
+        }
+        XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
-            // then
-            let existingFeature1 = Feature.fetch(name: .fileSharing, context: moc)
-            XCTAssertNotNil(existingFeature1)
-            XCTAssertEqual(existingFeature1?.status, .disabled)
+        // then
+        syncMOC.performGroupedAndWait { moc in
+            let existingFeature = Feature.fetch(name: .fileSharing, context: moc)
+            XCTAssertNotNil(existingFeature)
+            XCTAssertEqual(existingFeature?.status, .disabled)
         }
     }
 
