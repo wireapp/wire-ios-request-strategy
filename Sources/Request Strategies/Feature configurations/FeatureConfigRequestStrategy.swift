@@ -208,6 +208,7 @@ extension FeatureConfigRequestStrategy: ZMEventConsumer {
             return
         }
 
+        /// TODO Katerina: use updateOrCreate() introduce by John
         if let existing = Feature.fetch(name: featureName, context: managedObjectContext) {
             let config = payloadData["config"] as? [String: String]
             let configData = try? JSONEncoder().encode(config)
