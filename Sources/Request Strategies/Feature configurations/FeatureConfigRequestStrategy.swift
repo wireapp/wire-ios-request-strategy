@@ -20,6 +20,13 @@ import Foundation
 
 private let zmLog = ZMSLog(tag: "feature configurations")
 
+public extension Notification.Name {
+    static let fetchAllConfigsTriggerNotification = Notification.Name("fetchAlLConfigsTriggerNotification")
+
+    /// Notification to be fired when the feature configuration is changed.
+    /// When firing this notification the event has to be included as object in the notification.
+    static let featureConfigDidChangeNotification = Notification.Name("featureConfigDidChangeNotification")
+}
 
 @objcMembers
 public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
@@ -75,7 +82,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
         fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self, groupQueue: managedObjectContext)
 
         observerToken = NotificationCenter.default.addObserver(
-            forName: Self.fetchAllConfigsTriggerNotification,
+            forName: .fetchAllConfigsTriggerNotification,
             object: nil,
             queue: nil,
             using: { [weak self] _ in self?.needsToFetchAllConfigs = true }
@@ -174,6 +181,47 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
     }
 }
 
+//MARK: - ZMEventConsumer
+
+extension FeatureConfigRequestStrategy: ZMEventConsumer {
+
+    public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
+        events.forEach(process)
+    }
+
+    private func process(_ event: ZMUpdateEvent) {
+        switch event.type {
+        case .featureConfigUpdate:
+            updateFeature(with: event)
+
+            NotificationCenter.default.post(name: .featureConfigDidChangeNotification, object: event)
+        default: break
+        }
+    }
+
+    private func updateFeature(with event: ZMUpdateEvent) {
+        guard let payloadData = event.payload["data"] as? [String: Any],
+              let statusString = payloadData["status"] as? String,
+              let status = Feature.Status(rawValue: statusString),
+              let nameString = event.payload["name"] as? String,
+              let featureName = Feature.Name(rawValue: nameString) else {
+            return
+        }
+
+        if let existing = Feature.fetch(name: featureName, context: managedObjectContext) {
+            let config = payloadData["config"] as? [String: String]
+            let configData = try? JSONEncoder().encode(config)
+
+            existing.status = status
+            existing.config = configData
+
+        } else {
+            if let team = team {
+                Feature.createDefaultInstanceIfNeeded(name: featureName, team: team, context: managedObjectContext)
+            }
+        }
+    }
+}
 
 // MARK: - Response models
 
@@ -219,15 +267,9 @@ public extension Feature {
 
     static func triggerBackendRefreshForAllConfigs() {
         NotificationCenter.default.post(
-            name: FeatureConfigRequestStrategy.fetchAllConfigsTriggerNotification,
+            name: .fetchAllConfigsTriggerNotification,
             object: nil
         )
     }
-
-}
-
-private extension FeatureConfigRequestStrategy {
-
-    static let fetchAllConfigsTriggerNotification = Notification.Name("fetchAlLConfigsTriggerNotification")
 
 }
