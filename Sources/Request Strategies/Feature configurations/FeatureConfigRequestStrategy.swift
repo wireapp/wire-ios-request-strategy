@@ -190,36 +190,49 @@ extension FeatureConfigRequestStrategy: ZMEventConsumer {
     private func process(_ event: ZMUpdateEvent) {
         switch event.type {
         case .featureConfigUpdate:
-            updateFeature(with: event)
+            guard let jsonPayload = try? JSONSerialization.data(withJSONObject: event.payload, options: []),
+                  let featurePayload = FeatureUpdateEventPayload(jsonPayload) else {
+                return
+            }
 
-            NotificationCenter.default.post(name: .featureConfigDidChangeNotification, object: event)
+            Feature.updateOrCreate(havingName: featurePayload.name, in: managedObjectContext) { feature in
+                feature.status = featurePayload.status
+                feature.config = featurePayload.config
+            }
+
+            NotificationCenter.default.post(name: .featureConfigDidChangeNotification, object: featurePayload)
         default: break
         }
     }
-
-    private func updateFeature(with event: ZMUpdateEvent) {
-        guard let payloadData = event.payload["data"] as? [String: Any],
-              let statusString = payloadData["status"] as? String,
-              let status = Feature.Status(rawValue: statusString),
-              let nameString = event.payload["name"] as? String,
-              let featureName = Feature.Name(rawValue: nameString) else {
-            return
-        }
-
-        Feature.updateOrCreate(havingName: featureName, in: managedObjectContext) { feature in
-            switch featureName {
-            case .appLock:
-                let config = payloadData["config"] as? [String: String]
-                let configData = try? JSONEncoder().encode(config)
-
-                feature.status = status
-                feature.config = configData
-            case .fileSharing:
-                feature.status = status
-            }
-        }
-    }
     
+}
+
+// MARK: - Update event models
+
+public struct FeatureUpdateEventPayload: Decodable {
+    var name: Feature.Name
+    var status: Feature.Status
+    var config: Data?
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let nestedContainer = try container.nestedContainer(keyedBy: ConfigKeys.self, forKey: .data)
+
+        name = try container.decode(Feature.Name.self, forKey: .name)
+        status = try nestedContainer.decode(Feature.Status.self, forKey: .status)
+        let configDict = try nestedContainer.decodeIfPresent([String: String].self, forKey: .config)
+        config = try? JSONEncoder().encode(configDict)
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case data
+    }
+
+    enum ConfigKeys: String, CodingKey {
+        case status
+        case config
+    }
 }
 
 // MARK: - Response models
