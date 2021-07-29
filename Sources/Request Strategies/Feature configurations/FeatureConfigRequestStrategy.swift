@@ -21,7 +21,7 @@ import Foundation
 private let zmLog = ZMSLog(tag: "feature configurations")
 
 public extension Notification.Name {
-    static let fetchAllConfigsTriggerNotification = Notification.Name("fetchAlLConfigsTriggerNotification")
+    static let fetchAllConfigsTriggerNotification = Notification.Name("fetchAllConfigsTriggerNotification")
 
     /// Notification to be fired when the feature configuration is changed.
     /// When firing this notification the event has to be included as object in the notification.
@@ -206,16 +206,16 @@ extension FeatureConfigRequestStrategy: ZMEventConsumer {
             return
         }
 
-        Feature.updateOrCreate(havingName: featureName, in: managedObjectContext) {
+        Feature.updateOrCreate(havingName: featureName, in: managedObjectContext) { feature in
             switch featureName {
             case .appLock:
                 let config = payloadData["config"] as? [String: String]
                 let configData = try? JSONEncoder().encode(config)
 
-                $0.status = status
-                $0.config = configData
+                feature.status = status
+                feature.config = configData
             case .fileSharing:
-                $0.status = status
+                feature.status = status
             }
         }
     }
