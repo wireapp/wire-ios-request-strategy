@@ -210,9 +210,9 @@ extension FeatureConfigRequestStrategy: ZMEventConsumer {
 // MARK: - Update event models
 
 public struct FeatureUpdateEventPayload: Decodable {
-    var name: Feature.Name
-    var status: Feature.Status
-    var config: Data?
+    public var name: Feature.Name
+    public var status: Feature.Status
+    public var config: Data?
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
