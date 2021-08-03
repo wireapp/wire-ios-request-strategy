@@ -198,13 +198,13 @@ extension FeatureConfigRequestStrategy: ZMEventConsumer {
             Feature.updateOrCreate(havingName: featurePayload.name, in: managedObjectContext) { feature in
                 feature.status = featurePayload.status
                 feature.config = featurePayload.config
+                self.managedObjectContext.saveOrRollback()
+                NotificationCenter.default.post(name: .featureConfigDidChangeNotification, object: featurePayload)
             }
 
-            NotificationCenter.default.post(name: .featureConfigDidChangeNotification, object: featurePayload)
         default: break
         }
     }
-    
 }
 
 // MARK: - Update event models
