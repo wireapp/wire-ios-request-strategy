@@ -96,8 +96,7 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
     }
 
     private func requestToFetchConfig(for feature: Feature) -> ZMTransportRequest? {
-        guard let teamId = team?.remoteIdentifier?.transportString() else { return nil }
-        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features/\(feature.transportName)")
+        return ZMTransportRequest(getFromPath: "/feature-configs/\(feature.transportName)")
     }
 
     public func update(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
@@ -119,6 +118,10 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
                 let config = try decoder.decode(DynamicConfigResponse<Feature.AppLock.Config>.self, from: responseData)
                 feature.status = config.status
                 feature.config = try encoder.encode(config.config)
+
+            case .conferenceCalling:
+                let config = try decoder.decode(ConfigResponse.self, from: responseData)
+                feature.status = config.status
             }
 
             feature.needsToBeUpdatedFromBackend = false
@@ -209,6 +212,9 @@ private extension Feature {
         switch name {
         case .appLock:
             return "appLock"
+
+        case .conferenceCalling:
+            return "conferenceCalling"
         }
     }
 
