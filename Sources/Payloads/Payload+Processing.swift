@@ -392,4 +392,3 @@ extension Payload.MessageSendingStatus {
     }
 
 }
-
