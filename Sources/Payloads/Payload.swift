@@ -250,6 +250,7 @@ enum Payload {
             case notFound = "not-found"
             case noEndpoint = "no-endpoint"
             case unknownClient = "unknown-client"
+            case missingLegalholdConsent = "missing-legalhold-consent"
             case unknown
 
             init(from decoder: Decoder) throws {

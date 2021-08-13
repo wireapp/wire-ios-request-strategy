@@ -65,7 +65,7 @@ extension AssetClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
     typealias Object = ZMAssetClientMessage
 
     func insert(object: ZMAssetClientMessage, completion: @escaping () -> Void) {
-        messageSync.sync(object) { (result, response) in
+        messageSync.sync(object) { [weak self] (result, response) in
             switch result {
             case .success:
                 object.markAsSent()
@@ -74,7 +74,13 @@ extension AssetClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
                 case .expired, .gaveUpRetrying:
                     object.expire()
 
-
+                    let payload = Payload.ResponseFailure(response, decoder: .defaultDecoder)
+                    if response.httpStatus == 403 && payload?.label == .missingLegalholdConsent {
+                        self?.managedObjectContext.zm_userInterface.performGroupedBlock {
+                            guard let context = self?.managedObjectContext.notificationContext else { return }
+                            NotificationInContext(name: ZMConversation.failedToSendMessageNotificationName, context: context).post()
+                        }
+                    }
                 }
             }
         }

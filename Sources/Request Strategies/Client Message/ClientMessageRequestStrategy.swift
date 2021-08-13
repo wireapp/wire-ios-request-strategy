@@ -86,6 +86,14 @@ extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
                 case .expired, .gaveUpRetrying:
                     object.expire()
                     self?.localNotificationDispatcher.didFailToSend(object)
+
+                    let payload = Payload.ResponseFailure(response, decoder: .defaultDecoder)
+                    if response.httpStatus == 403 && payload?.label == .missingLegalholdConsent {
+                        self?.managedObjectContext.zm_userInterface.performGroupedBlock {
+                            guard let context = self?.managedObjectContext.notificationContext else { return }
+                            NotificationInContext(name: ZMConversation.failedToSendMessageNotificationName, context: context).post()
+                        }
+                    }
                 }
             }
         }
