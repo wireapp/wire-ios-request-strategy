@@ -220,8 +220,12 @@ public struct FeatureUpdateEventPayload: Decodable {
 
         name = try container.decode(Feature.Name.self, forKey: .name)
         status = try nestedContainer.decode(Feature.Status.self, forKey: .status)
-        let configDict = try nestedContainer.decodeIfPresent([String: String].self, forKey: .config)
-        config = try? JSONEncoder().encode(configDict)
+        switch name {
+        case .appLock:
+            config = try nestedContainer.decodeIfPresent(Feature.AppLock.Config.self, forKey: .config).payloadData()
+        default:
+            return
+        }
     }
 
     enum CodingKeys: String, CodingKey {
