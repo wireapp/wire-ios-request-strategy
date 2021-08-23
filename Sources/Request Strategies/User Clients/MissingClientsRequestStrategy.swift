@@ -21,11 +21,20 @@ import Foundation
 
 /// Register new client, update it with new keys, deletes clients.
 @objc
-public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, ZMContextChangeTrackerSource {
+public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, ZMContextChangeTrackerSource, FederationAware {
 
     var isFederationEndpointAvailable: Bool = true
     fileprivate(set) var modifiedSync: ZMUpstreamModifiedObjectSync! = nil
     public var requestsFactory = MissingClientsRequestFactory()
+
+    public var useFederationEndpoint: Bool {
+        set {
+            isFederationEndpointAvailable = newValue
+        }
+        get {
+            isFederationEndpointAvailable
+        }
+    }
     
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)

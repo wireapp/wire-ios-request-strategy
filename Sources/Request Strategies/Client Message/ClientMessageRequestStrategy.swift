@@ -18,13 +18,22 @@
 
 import Foundation
 
-public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
+public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
 
     let insertedObjectSync: InsertedObjectSync<ClientMessageRequestStrategy>
     let messageSync: ProteusMessageSync<ZMClientMessage>
     let messageExpirationTimer: MessageExpirationTimer
     let linkAttachmentsPreprocessor: LinkAttachmentsPreprocessor
     let localNotificationDispatcher: PushMessageHandler
+
+    public var useFederationEndpoint: Bool {
+        set {
+            messageSync.isFederationEndpointAvailable = newValue
+        }
+        get {
+            messageSync.isFederationEndpointAvailable
+        }
+    }
 
     static func shouldBeSentPredicate(context: NSManagedObjectContext) -> NSPredicate {
         let notDelivered = NSPredicate(format: "%K == FALSE", DeliveredKey)

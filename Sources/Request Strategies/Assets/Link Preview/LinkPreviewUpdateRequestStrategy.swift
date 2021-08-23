@@ -18,10 +18,19 @@
 
 import Foundation
 
-public class LinkPreviewUpdateRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
+public class LinkPreviewUpdateRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
 
     let modifiedKeysSync: ModifiedKeyObjectSync<LinkPreviewUpdateRequestStrategy>
     let messageSync: ProteusMessageSync<ZMClientMessage>
+
+    public var useFederationEndpoint: Bool {
+        set {
+            messageSync.isFederationEndpointAvailable = newValue
+        }
+        get {
+            messageSync.isFederationEndpointAvailable
+        }
+    }
 
     static func linkPreviewIsUploadedPredicate(context: NSManagedObjectContext) -> NSPredicate {
         return NSPredicate(format: "%K == %@ AND %K == %d",

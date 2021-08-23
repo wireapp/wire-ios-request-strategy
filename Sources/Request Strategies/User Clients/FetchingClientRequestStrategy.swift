@@ -34,7 +34,7 @@ public let ZMNeedsToUpdateUserClientsNotificationUserObjectIDKey = "userObjectID
 }
 
 @objc
-public final class FetchingClientRequestStrategy : AbstractRequestStrategy {
+public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
 
     fileprivate static let needsToUpdateUserClientsNotificationName = Notification.Name("ZMNeedsToUpdateUserClientsNotification")
 

@@ -43,7 +43,7 @@ extension Collection where Element == ZMUser {
 /// - During the `.fetchingUsers` slow sync phase.
 /// - When a user is marked as `needsToBeUpdatedFromBackend`.
 ///
-public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncDelegate {
+public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncDelegate, FederationAware {
 
     var isFetchingAllConnectedUsers: Bool = false
     let syncProgress: SyncProgress
@@ -53,6 +53,15 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
 
     let userProfileByIDTranscoder: UserProfileByIDTranscoder
     let userProfileByQualifiedIDTranscoder: UserProfileByQualifiedIDTranscoder
+
+    public var useFederationEndpoint: Bool {
+        set {
+            userProfileByQualifiedIDTranscoder.isAvailable = newValue
+        }
+        get {
+            userProfileByQualifiedIDTranscoder.isAvailable
+        }
+    }
 
     public init(managedObjectContext: NSManagedObjectContext,
          applicationStatus: ApplicationStatus,
