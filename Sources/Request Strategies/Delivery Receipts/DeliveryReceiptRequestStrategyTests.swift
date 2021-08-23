@@ -71,6 +71,21 @@ class DeliveryReceiptRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(request.path, "/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
         }
     }
+
+    func testThatRequestIsGenerated_WhenProcessingEventWhichNeedsDeliveryReceipt_With_FederationEndpointDisabled() throws {
+        try syncMOC.performGroupedAndWait { moc in
+            let conversationID = self.oneToOneConversation.remoteIdentifier!.transportString()
+            let event = self.createTextUpdateEvent(from: self.otherUser, in: self.oneToOneConversation)
+            self.sut.useFederationEndpoint = false
+
+            // when
+            self.sut.processEventsWhileInBackground([event])
+
+            // then
+            let request = try XCTUnwrap(self.sut.nextRequest())
+            XCTAssertEqual(request.path, "/conversations/\(conversationID)/otr/messages")
+        }
+    }
         
     // MARK: Delivery receipt creation
     

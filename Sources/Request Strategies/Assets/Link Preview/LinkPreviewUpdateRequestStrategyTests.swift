@@ -86,6 +86,21 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
         }
     }
 
+    func testThatItDoesCreateARequestInState_Uploaded_WhenFederationEndpointIsDisabled() {
+        self.syncMOC.performGroupedAndWait { moc in
+            // Given
+            self.sut.useFederationEndpoint = false
+            let message = self.insertMessage(with: .uploaded)
+
+            // When
+            self.process(message)
+        }
+        self.syncMOC.performGroupedAndWait { moc in
+            // Then
+            self.verifyItCreatesALegacyRequest(in: self.groupConversation)
+        }
+    }
+
     func testThatItDoesCreateARequestInState_Uploaded_WhenTheFirstRequestFailed() {
         var message: ZMClientMessage!
 
@@ -176,6 +191,16 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
         XCTAssertNotNil(request, "No request generated", file: file, line: line)
         XCTAssertEqual(request?.method, .methodPOST, file: file, line: line)
         XCTAssertEqual(request?.path, "/conversations/\(domain)/\(conversationID)/proteus/messages", file: file, line: line)
+        return request
+    }
+
+    @discardableResult
+    func verifyItCreatesALegacyRequest(in conversation: ZMConversation, file: StaticString = #file, line: UInt = #line) -> ZMTransportRequest? {
+        let request = sut.nextRequest()
+        let conversationID = conversation.remoteIdentifier!.transportString()
+        XCTAssertNotNil(request, "No request generated", file: file, line: line)
+        XCTAssertEqual(request?.method, .methodPOST, file: file, line: line)
+        XCTAssertEqual(request?.path, "/conversations/\(conversationID)/otr/messages", file: file, line: line)
         return request
     }
 
