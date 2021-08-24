@@ -79,9 +79,11 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
     }
 
     func testThatItParsesAResponse() {
-        syncMOC.performGroupedAndWait { context -> Void in
+        var feature: Feature?
+        syncMOC.performGroupedBlockAndWait {
             // given
-            guard let feature = Feature.fetch(name: .fileSharing, context: context) else { return XCTFail() }
+            feature = Feature.fetch(name: .fileSharing, context: self.syncMOC)
+            guard let feature = feature else { return XCTFail() }
             feature.needsToBeUpdatedFromBackend = true
 
             self.boostrapChangeTrackers(with: feature)
@@ -93,11 +95,17 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
                 "status": "disabled"
             ]
 
-            let response = ZMTransportResponse(payload: payload as NSDictionary as ZMTransportData, httpStatus: 200, transportSessionError: nil)
-            self.sut.update(feature, with: response, downstreamSync: self.sut.fetchSingleConfigSync)
+            let response = ZMTransportResponse(payload: payload as NSDictionary as ZMTransportData,
+                                               httpStatus: 200,
+                                               transportSessionError: nil)
+            request.complete(with: response)
+        }
 
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
+
+        syncMOC.performGroupedBlockAndWait {
             // then
-            XCTAssertEqual(feature.status, .disabled)
+            XCTAssertEqual(feature!.status, .disabled)
         }
     }
 
