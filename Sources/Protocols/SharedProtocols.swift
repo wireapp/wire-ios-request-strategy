@@ -30,7 +30,7 @@ import Foundation
 
 }
 
-/// Request strategies which adopt this protocol declare that they can will talk to federation aware endpoints.
+/// Request strategies which adopt this protocol declare that they can talk to federation aware endpoints.
 @objc public protocol FederationAware: NSObjectProtocol {
 
     /// If `true` the request strategy will talk to federation aware endpoints, otherwise it will
