@@ -41,7 +41,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
         }
     }
 
-    private var fetchSingleConfigSync: ZMDownstreamObjectSync!
+    var fetchSingleConfigSync: ZMDownstreamObjectSync!
     private var fetchAllConfigsSync: ZMSingleRequestSync!
 
     private var team: Team? {
