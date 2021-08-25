@@ -183,6 +183,22 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
 
     // MARK: - Response processing
 
+    func testThatFallbacksToLegacyEndpoint_WhenFederatedEndpointIsDisabled() {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            self.sut.useFederationEndpoint = false
+            self.otherUser.domain = "example.com"
+            self.otherUser.needsToBeUpdatedFromBackend = true
+            self.sut.objectsDidChange(Set([self.otherUser]))
+
+            // when
+            let request = self.sut.nextRequest()!
+
+            // then
+            XCTAssertEqual(request.path, "/users?ids=\(self.otherUser.remoteIdentifier.transportString())")
+        }
+    }
+
     func testThatFallbacksToLegacyEndpoint_WhenFederatedEndpointIsNotAvailable() {
         syncMOC.performGroupedBlockAndWait {
             // given

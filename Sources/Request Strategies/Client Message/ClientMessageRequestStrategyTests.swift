@@ -237,7 +237,7 @@ extension ClientMessageRequestStrategyTests {
             let text = "Lorem ipsum"
             let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
             self.syncMOC.saveOrRollback()
-            self.sut.messageSync.isFederationEndpointAvailable = false
+            self.sut.useFederationEndpoint = false
 
             // WHEN
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
@@ -259,6 +259,32 @@ extension ClientMessageRequestStrategyTests {
         }
     }
 
+    func testThatItGeneratesARequestToSendAClientMessage_WithFederationEndpointEnabled() {
+        self.syncMOC.performGroupedBlockAndWait {
+
+            // GIVEN
+            let text = "Lorem ipsum"
+            let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
+            let conversationID = self.groupConversation.remoteIdentifier!.transportString()
+            let conversationDomain = self.groupConversation.domain!
+            self.syncMOC.saveOrRollback()
+            self.sut.useFederationEndpoint = true
+
+            // WHEN
+            self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
+            guard let request = self.sut.nextRequest() else {
+                XCTFail()
+                return
+            }
+
+            // THEN
+            XCTAssertEqual(request.path, "/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
+            XCTAssertEqual(request.method, .methodPOST)
+            XCTAssertNotNil(request.binaryData)
+            XCTAssertEqual(request.binaryDataType, "application/x-protobuf")
+        }
+    }
+
     func testThatItGeneratesARequestToSendAClientMessageExternalWithExternalBlob() {
         self.syncMOC.performGroupedBlockAndWait {
 
@@ -266,8 +292,7 @@ extension ClientMessageRequestStrategyTests {
             let text = String(repeating: "Hi", count: 100000)
             let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
             self.syncMOC.saveOrRollback()
-            self.sut.messageSync.isFederationEndpointAvailable = false
-            self.sut.messageSync.isFederationEndpointAvailable = false
+            self.sut.useFederationEndpoint = false
 
             // WHEN
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }

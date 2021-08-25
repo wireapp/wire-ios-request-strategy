@@ -38,7 +38,8 @@ public class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTransc
     let applicationStatus: ApplicationStatus
     let context: NSManagedObjectContext
     var onRequestScheduledHandler: OnRequestScheduledHandler?
-    var isFederationEndpointAvailable = true
+    
+    public var isFederationEndpointAvailable = true
 
     public init(context: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         self.context = context

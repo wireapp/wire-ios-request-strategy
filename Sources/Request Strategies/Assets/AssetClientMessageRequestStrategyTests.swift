@@ -28,13 +28,29 @@ import WireDataModel
 
 fileprivate extension AssetClientMessageRequestStrategy {
 
+    @discardableResult func assertCreatesValidLegacyRequestForAsset(in conversation: ZMConversation, line: UInt = #line) -> ZMTransportRequest! {
+        guard let request = nextRequest() else {
+            XCTFail("No request generated", line: line)
+            return nil
+        }
+
+        let converationID = conversation.remoteIdentifier!.transportString()
+
+        XCTAssertEqual(request.path, "/conversations/\(converationID)/otr/messages", line: line)
+        XCTAssertEqual(request.method, .methodPOST, line: line)
+        return request
+    }
+
     @discardableResult func assertCreatesValidRequestForAsset(in conversation: ZMConversation, line: UInt = #line) -> ZMTransportRequest! {
         guard let request = nextRequest() else {
             XCTFail("No request generated", line: line)
             return nil
         }
 
-        XCTAssertEqual(request.path, "/conversations/\(conversation.remoteIdentifier!.transportString())/otr/messages", line: line)
+        let domain = conversation.domain!
+        let conversationID = conversation.remoteIdentifier!.transportString()
+
+        XCTAssertEqual(request.path, "/conversations/\(domain)/\(conversationID)/proteus/messages", line: line)
         XCTAssertEqual(request.method, .methodPOST, line: line)
         return request
     }
@@ -66,7 +82,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         
         self.syncMOC.performGroupedBlockAndWait {
             self.sut = AssetClientMessageRequestStrategy(withManagedObjectContext: self.syncMOC, applicationStatus: self.mockApplicationStatus)
-            self.sut.messageSync.isFederationEndpointAvailable = false
+            self.sut.useFederationEndpoint = false
         }
     }
     
@@ -223,6 +239,17 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
     func testThatItCreatesARequestForAnUploadedImageMessage() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
+            self.createMessage(uploaded: true, assetId: true)
+
+            // THEN
+            self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation)
+        }
+    }
+
+    func testThatItCreatesARequestForAnUploadedImageMessage_WithFederationEndpointEnabled() {
+        self.syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            self.sut.useFederationEndpoint = true
             self.createMessage(uploaded: true, assetId: true)
 
             // THEN
@@ -409,7 +436,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            guard let request = self.sut.assertCreatesValidRequestForAsset(in: self.groupConversation) else {
+            guard let request = self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation) else {
                 return XCTFail()
             }
             request.complete(withHttpStatus: 400)
@@ -441,7 +468,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            guard let request = self.sut.assertCreatesValidRequestForAsset(in: self.groupConversation) else {
+            guard let request = self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation) else {
                 return XCTFail()
             }
             let payload = ["label": "missing-legalhold-consent", "code": 403, "message": ""] as NSDictionary
@@ -465,7 +492,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            guard let request = self.sut.assertCreatesValidRequestForAsset(in: self.groupConversation)
+            guard let request = self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation)
                 else { return XCTFail("No request generated") }
             request.complete(withHttpStatus: 200)
         }
