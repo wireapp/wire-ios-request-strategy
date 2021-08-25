@@ -126,9 +126,15 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
                 let config = try decoder.decode(DynamicConfigResponse<Feature.AppLock.Config>.self, from: responseData)
                 feature.status = config.status
                 feature.config = try encoder.encode(config.config)
+
             case .fileSharing:
                 let config = try decoder.decode(ConfigResponse.self, from: responseData)
                 feature.status = config.status
+
+            case .selfDeletingMessages:
+                let config = try decoder.decode(DynamicConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: responseData)
+                feature.status = config.status
+                feature.config = try encoder.encode(config.config)
             }
 
             feature.needsToBeUpdatedFromBackend = false
@@ -278,8 +284,12 @@ private extension Feature {
         switch name {
         case .appLock:
             return "appLock"
+
         case .fileSharing:
             return "fileSharing"
+
+        case .selfDeletingMessages:
+            return "selfDeletingMessages"
         }
     }
 
