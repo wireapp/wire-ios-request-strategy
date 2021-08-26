@@ -194,6 +194,44 @@ extension FeatureConfigRequestStrategyTests {
         }
     }
 
+    func testThatItUpdatesSelfDeletingMessagesFeature_FromUpdateEvent() {
+        let featureService = FeatureService(context: syncMOC)
+
+        syncMOC.performGroupedAndWait { moc in
+            // given
+            featureService.storeSelfDeletingMessages(.init(status: .disabled, config: .init(enforcedTimeoutSeconds: 0)))
+
+            let data: NSDictionary = [
+                "status": "enabled",
+                "config": [
+                    "enforcedTimeoutSeconds": 60
+                ]
+            ]
+
+            let payload: NSDictionary = [
+                "type": "feature-config.update",
+                "data": data,
+                "name": "selfDeletingMessages"
+            ]
+
+            let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)!
+
+            // when
+            self.sut.processEvents([event], liveEvents: false, prefetchResult: nil)
+        }
+
+        XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // then
+        syncMOC.performGroupedAndWait { _ in
+            let selfDeletingMessages = featureService.fetchSelfDeletingMesssages()
+            XCTAssertEqual(selfDeletingMessages.status, .enabled)
+            XCTAssertEqual(selfDeletingMessages.config.enforcedTimeoutSeconds, 60)
+        }
+
+        XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+    }
+
 }
 
 // MARK: - Helpers
