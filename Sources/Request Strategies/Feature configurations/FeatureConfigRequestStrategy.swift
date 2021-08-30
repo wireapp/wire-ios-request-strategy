@@ -231,12 +231,16 @@ public struct FeatureUpdateEventPayload: Decodable {
         name = try container.decode(Feature.Name.self, forKey: .name)
         status = try nestedContainer.decode(Feature.Status.self, forKey: .status)
 
+        let encoder = JSONEncoder()
+
         switch name {
         case .appLock:
-            config = try nestedContainer.decodeIfPresent(Feature.AppLock.Config.self, forKey: .config).payloadData()!
+            let config = try nestedContainer.decode(Feature.AppLock.Config.self, forKey: .config)
+            self.config = try encoder.encode(config)
 
         case .selfDeletingMessages:
-            config = try nestedContainer.decode(Feature.SelfDeletingMessages.Config.self, forKey: .config).payloadData()!
+            let config = try nestedContainer.decode(Feature.SelfDeletingMessages.Config.self, forKey: .config)
+            self.config = try encoder.encode(config)
 
         case .fileSharing:
             config = nil
