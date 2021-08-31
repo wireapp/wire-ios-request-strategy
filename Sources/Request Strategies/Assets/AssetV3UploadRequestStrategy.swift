@@ -148,9 +148,11 @@ extension AssetV3UploadRequestStrategy: ZMUpstreamTranscoder {
         
         if message.processingState == .done {
             message.updateTransferState(.uploaded, synchronize: false)
+            return false
+        } else {
+            // There are more assets to upload
+            return true
         }
-        
-        return false
     }
     
     public func shouldRetryToSyncAfterFailed(toUpdate managedObject: ZMManagedObject,
