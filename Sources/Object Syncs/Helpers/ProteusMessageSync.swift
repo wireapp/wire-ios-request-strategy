@@ -24,7 +24,7 @@ extension ZMClientMessage: ProteusMessage {}
 extension ZMAssetClientMessage: ProteusMessage {}
 
 /**
- ProteusMessageSync synchronizes messages with the backend using the using the Proteus encryption protocol.
+ ProteusMessageSync synchronizes messages with the backend using the Proteus encryption protocol.
 
  This only works with objects which implements the `ProteusMessage` protocol.
  */
