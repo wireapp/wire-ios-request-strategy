@@ -225,7 +225,7 @@ class UserProfileByIDTranscoder: IdentifierObjectSyncTranscoder {
 
     public typealias T = UUID
 
-    var fetchLimit: Int = 500
+    var fetchLimit: Int =  1600 / 25 // UUID as string is 24 + 1 for the comma
     var isAvailable: Bool = true
 
     let context: NSManagedObjectContext
