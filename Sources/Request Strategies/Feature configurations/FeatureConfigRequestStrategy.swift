@@ -130,6 +130,7 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
                 feature.status = config.status
             }
 
+            feature.hasInitialDefault = false
             feature.needsToBeUpdatedFromBackend = false
 
         } catch {
