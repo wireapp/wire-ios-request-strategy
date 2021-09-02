@@ -120,9 +120,6 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
             let decoder = JSONDecoder()
             let encoder = JSONEncoder()
 
-            feature.hasInitialDefault = false
-            feature.needsToBeUpdatedFromBackend = false
-
             switch feature.name {
             case .appLock:
                 let config = try decoder.decode(DynamicConfigResponse<Feature.AppLock.Config>.self, from: responseData)
@@ -132,6 +129,9 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
                 let config = try decoder.decode(ConfigResponse.self, from: responseData)
                 feature.status = config.status
             }
+
+            feature.hasInitialDefault = false
+            feature.needsToBeUpdatedFromBackend = false
 
         } catch {
             zmLog.error("Failed to process feature config response: \(error.localizedDescription)")
@@ -198,6 +198,7 @@ extension FeatureConfigRequestStrategy: ZMEventConsumer {
             Feature.updateOrCreate(havingName: featurePayload.name, in: managedObjectContext) { feature in
                 feature.status = featurePayload.status
                 feature.config = featurePayload.config
+                feature.hasInitialDefault = false
                 self.managedObjectContext.saveOrRollback()
                 NotificationCenter.default.post(name: .featureConfigDidChangeNotification, object: featurePayload)
             }
