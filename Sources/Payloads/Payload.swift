@@ -341,6 +341,57 @@ enum Payload {
         let others: [ConversationMember]
     }
 
+    struct ConversationTeamInfo: Codable {
+        enum CodingKeys: String, CodingKey {
+            case teamID = "teamid"
+            case managed
+        }
+
+        init (teamID: UUID, managed: Bool = false) {
+            self.teamID = teamID
+            self.managed = managed
+        }
+
+        let teamID: UUID
+        let managed: Bool?
+    }
+
+    struct NewConversation: Codable {
+        enum CodingKeys: String, CodingKey {
+            case users
+            case qualifiedUsers = "qualified_users"
+            case access
+            case accessRole = "access_role"
+            case name
+            case team
+            case messageTimer = "message_timer"
+            case readReceiptMode = "receipt_mode"
+            case conversationRole = "conversation_role"
+        }
+
+        init(_ conversation: ZMConversation) {
+            users = conversation.localParticipantsExcludingSelf.map(\.remoteIdentifier)
+            qualifiedUsers = nil
+            name = conversation.userDefinedName
+            access = conversation.accessMode?.stringValue
+            accessRole = conversation.accessRole?.rawValue
+            conversationRole = ZMConversation.defaultMemberRoleName
+            team = conversation.team?.remoteIdentifier.map({ ConversationTeamInfo(teamID: $0) })
+            readReceiptMode = conversation.hasReadReceiptsEnabled ? 1 : 0
+            messageTimer = nil
+        }
+
+        let users: [UUID]?
+        let qualifiedUsers: QualifiedUserIDList?
+        let access: [String]?
+        let accessRole: String?
+        let name: String?
+        let team: ConversationTeamInfo?
+        let messageTimer: TimeInterval?
+        let readReceiptMode: Int?
+        let conversationRole: String?
+    }
+
     struct Conversation: Codable {
 
         enum CodingKeys: String, CodingKey {

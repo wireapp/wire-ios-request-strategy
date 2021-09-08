@@ -107,7 +107,7 @@ class PaginatedSync<Payload: Paginatable>: NSObject, ZMRequestGenerator {
 
 }
 
-public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGeneratorSource {
+public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGeneratorSource, ZMContextChangeTrackerSource {
 
     let syncProgress: SyncProgress
     let syncIDs: PaginatedSync<Payload.PaginatedConversationIDList>
@@ -117,6 +117,8 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
     let conversationByIDListTranscoder: ConversationByIDListTranscoder
     let conversationByIDListSync: IdentifierObjectSync<ConversationByIDListTranscoder>
+
+    var insertSync: ZMUpstreamInsertedObjectSync!
 
     var isFetchingAllConversations: Bool = false
 
@@ -138,6 +140,10 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
                                                          transcoder: conversationByIDTranscoder)
 
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
+
+        self.insertSync = ZMUpstreamInsertedObjectSync(transcoder: self,
+                                                       entityName: ZMConversation.entityName(),
+                                                       managedObjectContext: managedObjectContext)
 
         self.configuration = [.allowsRequestsWhileOnline,
                               .allowsRequestsDuringSlowSync]
@@ -172,7 +178,16 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
     }
 
     public var requestGenerators: [ZMRequestGenerator] {
-        return [syncIDs, conversationByIDListSync]
+        if syncProgress.currentSyncPhase == .fetchingConversations {
+            return [syncIDs, conversationByIDListSync]
+        } else {
+            return [syncIDs, conversationByIDListSync, insertSync]
+        }
+
+    }
+
+    public var contextChangeTrackers: [ZMContextChangeTracker] {
+        return [self, insertSync]
     }
     
 }
@@ -222,6 +237,80 @@ extension ConversationRequestStrategy: IdentifierObjectSyncDelegate {
 
 }
 
+extension ConversationRequestStrategy: ZMUpstreamTranscoder {
+
+    public func shouldProcessUpdatesBeforeInserts() -> Bool {
+        return false
+    }
+
+    public func updateInsertedObject(_ managedObject: ZMManagedObject,
+                                     request upstreamRequest: ZMUpstreamRequest,
+                                     response: ZMTransportResponse) {
+
+        guard
+            let newConversation = managedObject as? ZMConversation,
+            let rawData = response.rawData,
+            let payload = Payload.Conversation(rawData, decoder: .defaultDecoder),
+            let conversationID = payload.id
+        else {
+            Logging.network.warn("Can't process response, aborting.")
+            return
+        }
+
+        var deletedDuplicate = false
+        if let existingConversation = ZMConversation.fetch(with: conversationID,
+                                                           domain: payload.qualifiedID?.domain,
+                                                           in: managedObjectContext) {
+            managedObjectContext.delete(existingConversation)
+            deletedDuplicate = true
+        }
+
+        newConversation.remoteIdentifier = conversationID
+        payload.updateOrCreate(in: managedObjectContext)
+        newConversation.needsToBeUpdatedFromBackend = deletedDuplicate
+    }
+
+    public func updateUpdatedObject(_ managedObject: ZMManagedObject,
+                                    requestUserInfo: [AnyHashable : Any]? = nil,
+                                    response: ZMTransportResponse, keysToParse: Set<String>) -> Bool {
+
+        return false
+    }
+
+    public func objectToRefetchForFailedUpdate(of managedObject: ZMManagedObject) -> ZMManagedObject? {
+        return nil
+    }
+
+    public func request(forUpdating managedObject: ZMManagedObject,
+                        forKeys keys: Set<String>) -> ZMUpstreamRequest? {
+        return nil
+    }
+
+    public func request(forInserting managedObject: ZMManagedObject,
+                        forKeys keys: Set<String>?) -> ZMUpstreamRequest? {
+
+        guard let conversation = managedObject as? ZMConversation else {
+            return nil
+        }
+
+        let payload = Payload.NewConversation(conversation)
+
+        guard
+            let payloadData = payload.payloadData(encoder: .defaultEncoder),
+            let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+        else {
+            return nil
+        }
+
+        let request = ZMTransportRequest(path: "/conversations",
+                                         method: .methodPOST,
+                                         payload: payloadAsString as ZMTransportData?)
+
+        return ZMUpstreamRequest(transportRequest: request)
+    }
+
+}
+
 class ConversationByIDTranscoder: IdentifierObjectSyncTranscoder {
     public typealias T = UUID
 
@@ -265,13 +354,13 @@ class ConversationByIDTranscoder: IdentifierObjectSyncTranscoder {
 
         guard
             let rawData = response.rawData,
-            let payload = Payload.ConversationList(rawData, decoder: decoder)
+            let payload = Payload.Conversation(rawData, decoder: decoder)
         else {
             Logging.network.warn("Can't process response, aborting.")
             return
         }
 
-        payload.updateOrCreateConverations(in: context)
+        payload.updateOrCreate(in: context)
     }
 
     private func deleteConversations(_ conversations: Set<UUID>) {
