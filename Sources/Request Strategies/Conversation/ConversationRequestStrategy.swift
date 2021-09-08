@@ -243,6 +243,23 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
         return false
     }
 
+    public func shouldRetryToSyncAfterFailed(toUpdate managedObject: ZMManagedObject,
+                                             request upstreamRequest: ZMUpstreamRequest,
+                                             response: ZMTransportResponse,
+                                             keysToParse keys: Set<String>) -> Bool {
+
+        guard let newConversation = managedObject as? ZMConversation else {
+            return false
+        }
+
+        if let responseFailure = Payload.ResponseFailure(response, decoder: .defaultDecoder),
+           responseFailure.code == 412 && responseFailure.label == .missingLegalholdConsent {
+            newConversation.notifyMissingLegalHoldConsent()
+        }
+
+        return false
+    }
+
     public func updateInsertedObject(_ managedObject: ZMManagedObject,
                                      request upstreamRequest: ZMUpstreamRequest,
                                      response: ZMTransportResponse) {
