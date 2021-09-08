@@ -128,6 +128,10 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
         return Set(connections.map(\.to))
     }
 
+    public func didFailToSyncAllObjects() {
+        // TODO jacob fail sync phase...
+    }
+
     public func didFinishSyncingAllObjects() {
         guard
             syncProgress.currentSyncPhase == .fetchingUsers,

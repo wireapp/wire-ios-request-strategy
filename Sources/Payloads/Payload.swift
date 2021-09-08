@@ -298,5 +298,105 @@ enum Payload {
         /// didn't receive the message.
         let failedToSend: ClientListByQualifiedUserID
     }
+
+    struct Service: Codable {
+        let id: UUID
+        let provider: UUID
+    }
+
+    struct ConversationMember: Codable {
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case qualifiedID = "qualified_id"
+            case service
+            case mutedStatus = "otr_muted_status"
+            case mutedReference = "otr_muted_ref"
+            case archived = "otr_archived"
+            case archivedReference = "otr_archived_ref"
+            case hidden = "otr_hidden"
+            case hiddenReference = "otr_hidden_ref"
+            case converationRole = "conversation_role"
+        }
+
+        let id: UUID?
+        let qualifiedID: QualifiedUserID?
+        let service: Service?
+        let mutedStatus: Int?
+        let mutedReference: Date?
+        let archived: Bool?
+        let archivedReference: Date?
+        let hidden: Bool?
+        let hiddenReference: String?
+        let converationRole: String?
+    }
+
+    struct ConversationMembers: Codable {
+        enum CodingKeys: String, CodingKey {
+            case selfMember = "self"
+            case others
+        }
+
+        let selfMember: ConversationMember
+        let others: [ConversationMember]
+    }
+
+    struct Conversation: Codable {
+
+        enum CodingKeys: String, CodingKey {
+            case qualifiedID = "qualified_id"
+            case id
+            case type
+            case creator
+            case access
+            case accessRole = "access_role"
+            case name
+            case members
+            case lastEvent = "last_event"
+            case lastEventTime = "last_event_time"
+            case teamID = "team"
+            case messageTimer = "message_timer"
+            case readReceiptMode = "read_receipt_mode"
+        }
+
+        let qualifiedID: QualifiedUserID?
+        let id: UUID?
+        let type: Int?
+        let creator: UUID?
+        let access: [String]?
+        let accessRole: String?
+        let name: String?
+        let members: ConversationMembers?
+        let lastEvent: String?
+        let lastEventTime: String?
+        let teamID: UUID?
+        let messageTimer: TimeInterval?
+        let readReceiptMode: Int?
+    }
+
+    struct ConversationList: Codable {
+        enum CodingKeys: String, CodingKey {
+            case conversations
+            case hasMore = "has_more"
+        }
+
+        let conversations: [Conversation]
+        let hasMore: Bool?
+    }
+
+    struct PaginatedConversationIDList: Paginatable {
+
+        enum CodingKeys: String, CodingKey {
+            case conversations
+            case hasMore = "has_more"
+        }
+
+        var nextStartReference: String? {
+            return conversations.last?.transportString()
+        }
+
+        let conversations: [UUID]
+        let hasMore: Bool
+    }
 }
 

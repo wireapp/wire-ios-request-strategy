@@ -36,6 +36,7 @@ public protocol IdentifierObjectSyncTranscoder: class {
 public protocol IdentifierObjectSyncDelegate: class {
 
     func didFinishSyncingAllObjects()
+    func didFailToSyncAllObjects()
 
 }
 
@@ -97,6 +98,7 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
             case .permanentError, .success:
                 strongSelf.downloading.subtract(scheduled)
                 strongSelf.transcoder?.didReceive(response: response, for: scheduled)
+                self?.delegate?.didFailToSyncAllObjects()
             default:
                 strongSelf.downloading.subtract(scheduled)
                 strongSelf.pending.formUnion(scheduled)

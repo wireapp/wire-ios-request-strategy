@@ -392,3 +392,203 @@ extension Payload.MessageSendingStatus {
     }
 
 }
+
+extension Payload.ConversationMember {
+    func fetchUserAndRole(in context: NSManagedObjectContext,
+                          conversation: ZMConversation) -> (ZMUser, Role?)? {
+        guard let userID = id else { return nil }
+        return (ZMUser.fetchOrCreate(with: userID, domain: qualifiedID?.domain, in: context),
+                converationRole.map({conversation.fetchOrCreateRoleForConversation(name: $0) }))
+    }
+}
+
+extension Payload.ConversationMembers {
+
+    func fetchOtherMembers(in context: NSManagedObjectContext, conversation: ZMConversation) -> [(ZMUser, Role?)] {
+        return others.compactMap({ $0.fetchUserAndRole(in: context, conversation: conversation) })
+    }
+
+}
+
+extension Payload.Conversation {
+
+    enum Source {
+        case slowSync
+        case eventStream
+    }
+
+    func fetchCreator(in context: NSManagedObjectContext) -> ZMUser? {
+        guard let userID = creator else { return nil }
+
+        // We assume that the creator always belongs to the same domain as the conversation
+        return ZMUser.fetchOrCreate(with: userID, domain: qualifiedID?.domain, in: context)
+    }
+
+    func updateOrCreate(in context: NSManagedObjectContext,
+                        serverTimestamp: Date = Date(),
+                        source: Source = .eventStream) {
+
+        guard let rawType = type else { return }
+        let conversationType = BackendConversationType.clientConversationType(rawValue: rawType)
+
+        switch conversationType {
+        case .group:
+            updateOrCreateGroupConversation(in: context, serverTimestamp: serverTimestamp, source: source)
+        case .`self`:
+            updateOrCreateSelfConversation(in: context, serverTimestamp: serverTimestamp, source: source)
+        case .connection, .oneOnOne:
+            updateOrCreateOneToOneConversation(in: context, serverTimestamp: serverTimestamp, source: source)
+        default:
+            break
+        }
+    }
+
+    func updateOrCreateOneToOneConversation(in context: NSManagedObjectContext,
+                                            serverTimestamp: Date,
+                                            source: Source) {
+
+        guard let conversationID = id,
+              let rawConversationType = type else {
+            // TODO jacob log error
+            return
+        }
+
+        let conversationType = BackendConversationType.clientConversationType(rawValue: rawConversationType)
+
+        guard let otherMember = members?.others.first, let otherUserID = otherMember.id else {
+            let conversation = ZMConversation.fetch(with: conversationID, domain: qualifiedID?.domain, in: context)
+            conversation?.conversationType = conversationType
+            return
+        }
+
+        let otherUser = ZMUser.fetchOrCreate(with: otherUserID, domain: otherMember.qualifiedID?.domain, in: context)
+
+        var conversation: ZMConversation
+        if let existingConversation = otherUser.connection?.conversation {
+            existingConversation.mergeWithExistingConversation(withRemoteID: conversationID)
+            conversation = existingConversation
+        } else {
+            conversation = ZMConversation.fetchOrCreate(with: conversationID, domain: qualifiedID?.domain, in: context)
+            otherUser.connection?.conversation = conversation
+        }
+
+        conversation.remoteIdentifier = conversationID
+        conversation.domain = qualifiedID?.domain
+        conversation.needsToBeUpdatedFromBackend = false
+
+        updateConversationStatus(for: conversation, serverTimestamp: serverTimestamp)
+    }
+
+    func updateOrCreateSelfConversation(in context: NSManagedObjectContext,
+                                        serverTimestamp: Date,
+                                        source: Source) {
+        guard let conversationID = id else {
+            // TODO jacob log error
+            return
+        }
+
+        var created = false
+        let conversation = ZMConversation.fetchOrCreate(with: conversationID,
+                                                        domain: qualifiedID?.domain,
+                                                        in: context,
+                                                        created: &created)
+
+        conversation.conversationType = .`self`
+        conversation.remoteIdentifier = conversationID
+        conversation.domain = qualifiedID?.domain
+        conversation.needsToBeUpdatedFromBackend = false
+
+        updateConversationStatus(for: conversation, serverTimestamp: serverTimestamp)
+    }
+
+    func updateOrCreateGroupConversation(in context: NSManagedObjectContext,
+                                         serverTimestamp: Date,
+                                         source: Source) {
+        guard let conversationID = id else {
+            // TODO jacob log error
+            return
+        }
+
+        var created = false
+        let conversation = ZMConversation.fetchOrCreate(with: conversationID,
+                                                        domain: qualifiedID?.domain,
+                                                        in: context,
+                                                        created: &created)
+
+        conversation.conversationType = .group
+        conversation.remoteIdentifier = conversationID
+        conversation.domain = qualifiedID?.domain
+        conversation.needsToBeUpdatedFromBackend = false
+
+        if let teamID = teamID {
+            conversation.updateTeam(identifier: teamID)
+        }
+
+        if let name = name {
+            conversation.userDefinedName = name
+        }
+
+        if let creator = fetchCreator(in: context) {
+            conversation.creator = creator
+        }
+        
+        if let members = members {
+            let otherMembers = members.fetchOtherMembers(in: context, conversation: conversation)
+            let selfUserRole = members.selfMember.fetchUserAndRole(in: context, conversation: conversation)?.1
+            conversation.updateMembers(otherMembers, selfUserRole: selfUserRole)
+        }
+
+        updateConversationStatus(for: conversation, serverTimestamp: serverTimestamp)
+
+        if created {
+            // we just got a new conversation, we display new conversation header
+            conversation.appendNewConversationSystemMessage(at: serverTimestamp,
+                                                            users: conversation.localParticipants)
+
+            if source == .slowSync {
+                // Slow synced conversations should be considered read from the start
+                conversation.lastReadServerTimeStamp = conversation.lastModifiedDate
+            }
+        }
+    }
+
+    func updateConversationStatus(for conversation: ZMConversation, serverTimestamp: Date) {
+
+        // If the lastModifiedDate is non-nil, e.g. restore from backup, do not update the lastModifiedDate
+        if conversation.lastModifiedDate == nil {
+            conversation.updateLastModified(serverTimestamp)
+        }
+        conversation.updateServerModified(serverTimestamp)
+
+        if let mutedStatus = members?.selfMember.mutedStatus,
+           let mutedReference = members?.selfMember.mutedReference {
+            conversation.updateMutedStatus(referenceDate: mutedReference, status: Int32(mutedStatus))
+        }
+
+        if let archived = members?.selfMember.archived,
+           let archivedReference = members?.selfMember.archivedReference {
+            conversation.updateArchivedStatus(archived: archived, referenceDate: archivedReference)
+        }
+
+        if let readReceiptMode = readReceiptMode {
+            conversation.updateReceiptMode(readReceiptMode)
+        }
+
+        if let access = access, let accessRole = accessRole {
+            conversation.updateAccessStatus(accessModes: access, role: accessRole)
+        }
+
+        if let messageTimer = messageTimer {
+            conversation.updateMessageDestructionTimeout(timeout: messageTimer)
+        }
+    }
+
+}
+
+extension Payload.ConversationList {
+
+    func updateOrCreateConverations(in context: NSManagedObjectContext) {
+        conversations.forEach({ $0.updateOrCreate(in: context, source: .slowSync) })
+    }
+
+}
