@@ -309,6 +309,7 @@ enum Payload {
         enum CodingKeys: String, CodingKey {
             case id
             case qualifiedID = "qualified_id"
+            case target
             case service
             case mutedStatus = "otr_muted_status"
             case mutedReference = "otr_muted_ref"
@@ -316,11 +317,12 @@ enum Payload {
             case archivedReference = "otr_archived_ref"
             case hidden = "otr_hidden"
             case hiddenReference = "otr_hidden_ref"
-            case converationRole = "conversation_role"
+            case conversationRole = "conversation_role"
         }
 
         let id: UUID?
         let qualifiedID: QualifiedUserID?
+        let target: UUID?
         let service: Service?
         let mutedStatus: Int?
         let mutedReference: Date?
@@ -328,7 +330,7 @@ enum Payload {
         let archivedReference: Date?
         let hidden: Bool?
         let hiddenReference: String?
-        let converationRole: String?
+        let conversationRole: String?
     }
 
     struct ConversationMembers: Codable {
@@ -354,6 +356,56 @@ enum Payload {
 
         let teamID: UUID
         let managed: Bool?
+    }
+
+    struct UpdateConverationMemberLeave: Codable {
+        enum CodingKeys: String, CodingKey {
+            case userIDs = "user_ids"
+            case qualifiedUserIDs = "qualified_user_ids"
+        }
+
+        let userIDs: [UUID]?
+        let qualifiedUserIDs: [QualifiedUserID]?
+    }
+
+    struct UpdateConverationMemberJoin: Codable {
+        enum CodingKeys: String, CodingKey {
+            case userIDs = "user_ids"
+            case users
+        }
+
+        let userIDs: [UUID]?
+        let users: [ConversationMember]?
+    }
+
+    struct UpdateConversationConnectionRequest: Codable { }
+    
+    struct UpdateConversationDeleted: Codable { }
+
+    struct UpdateConversationReceiptMode: Codable {
+        enum CodingKeys: String, CodingKey {
+            case readReceiptMode = "receipt_mode"
+        }
+
+        let readReceiptMode: Int
+    }
+
+    struct UpdateConversationMessageTimer: Codable {
+        enum CodingKeys: String, CodingKey {
+            case messageTimer = "message_timer"
+        }
+
+        let messageTimer: TimeInterval?
+    }
+
+    struct UpdateConversationAccess: Codable {
+        enum CodingKeys: String, CodingKey {
+            case access
+            case accessRole = "access_role"
+        }
+
+        let access: [String]
+        let accessRole: String
     }
 
     struct UpdateConversationName: Codable {
@@ -485,6 +537,25 @@ enum Payload {
 
         let conversations: [Conversation]
         let hasMore: Bool?
+    }
+
+    struct ConversationEvent<T: Codable>: Codable {
+
+        enum CodingKeys: String, CodingKey {
+            case id = "conversation"
+            case qualifiedID = "qualified_conversation"
+            case from
+            case qualifiedFrom = "qualified_from"
+            case timestamp = "time"
+            case data
+        }
+
+        let id: UUID?
+        let qualifiedID: QualifiedUserID?
+        let from: UUID?
+        let qualifiedFrom: QualifiedUserID?
+        let timestamp: Date?
+        let data: T
     }
 
     struct PaginatedConversationIDList: Paginatable {

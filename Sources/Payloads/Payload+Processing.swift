@@ -398,7 +398,21 @@ extension Payload.ConversationMember {
                           conversation: ZMConversation) -> (ZMUser, Role?)? {
         guard let userID = id else { return nil }
         return (ZMUser.fetchOrCreate(with: userID, domain: qualifiedID?.domain, in: context),
-                converationRole.map({conversation.fetchOrCreateRoleForConversation(name: $0) }))
+                conversationRole.map({conversation.fetchOrCreateRoleForConversation(name: $0) }))
+    }
+
+    func updateStatus(for conversation: ZMConversation) {
+
+        if let mutedStatus = mutedStatus,
+           let mutedReference = mutedReference {
+            conversation.updateMutedStatus(referenceDate: mutedReference, status: Int32(mutedStatus))
+        }
+
+        if let archived = archived,
+           let archivedReference = archivedReference {
+            conversation.updateArchivedStatus(archived: archived, referenceDate: archivedReference)
+        }
+
     }
 }
 
@@ -552,22 +566,18 @@ extension Payload.Conversation {
         }
     }
 
-    func updateConversationStatus(for conversation: ZMConversation, serverTimestamp: Date) {
+    func updateConversationStatus(for conversation: ZMConversation,
+                                  serverTimestamp: Date) {
 
         // If the lastModifiedDate is non-nil, e.g. restore from backup, do not update the lastModifiedDate
         if conversation.lastModifiedDate == nil {
             conversation.updateLastModified(serverTimestamp)
         }
+
         conversation.updateServerModified(serverTimestamp)
 
-        if let mutedStatus = members?.selfMember.mutedStatus,
-           let mutedReference = members?.selfMember.mutedReference {
-            conversation.updateMutedStatus(referenceDate: mutedReference, status: Int32(mutedStatus))
-        }
-
-        if let archived = members?.selfMember.archived,
-           let archivedReference = members?.selfMember.archivedReference {
-            conversation.updateArchivedStatus(archived: archived, referenceDate: archivedReference)
+        if let selfMember = members?.selfMember {
+            selfMember.updateStatus(for: conversation)
         }
 
         if let readReceiptMode = readReceiptMode {
@@ -589,6 +599,230 @@ extension Payload.ConversationList {
 
     func updateOrCreateConverations(in context: NSManagedObjectContext) {
         conversations.forEach({ $0.updateOrCreate(in: context, source: .slowSync) })
+    }
+
+}
+
+extension Payload.ConversationEvent {
+
+    func fetchOrCreateConversation(in context: NSManagedObjectContext) -> ZMConversation? {
+        guard let conversationID = id else { return nil }
+        return ZMConversation.fetchOrCreate(with: conversationID, domain: qualifiedID?.domain, in: context)
+    }
+
+    func fetchOrCreateSender(in context: NSManagedObjectContext) -> ZMUser? {
+        guard let userID = from else { return nil }
+        return ZMUser.fetchOrCreate(with: userID, domain: qualifiedFrom?.domain, in: context)
+    }
+
+}
+
+extension Payload.ConversationEvent where T == Payload.UpdateConversationName {
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let conversation = fetchOrCreateConversation(in: context) else {
+            return
+        }
+
+        if conversation.userDefinedName != data.name || ((conversation.modifiedKeys?.contains(ZMConversationUserDefinedNameKey)) != nil) {
+            // TODO jacob refactor to append method on conversation
+            _ = ZMSystemMessage.createOrUpdate(from: originalEvent, in: context)
+        }
+
+        conversation.userDefinedName = data.name
+    }
+
+}
+
+extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberLeave {
+
+    func fetchRemovedUsers(in context: NSManagedObjectContext) -> [ZMUser]? {
+        if let users = data.qualifiedUserIDs?.map({ ZMUser.fetchOrCreate(with: $0.uuid, domain: $0.domain, in: context) }) {
+            return users
+        }
+
+        if let users = data.userIDs?.map({ ZMUser.fetchOrCreate(with: $0, domain: nil, in: context) }) {
+            return users
+        }
+
+        return nil
+    }
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let conversation = fetchOrCreateConversation(in: context),
+            let removedUsers = fetchRemovedUsers(in: context)
+        else {
+            return
+        }
+
+        if !conversation.localParticipants.isDisjoint(with: removedUsers) {
+            // TODO jacob refactor to append method on conversation
+            _ = ZMSystemMessage.createOrUpdate(from: originalEvent, in: context)
+        }
+
+        let sender = fetchOrCreateSender(in: context)
+        conversation.removeParticipantsAndUpdateConversationState(users: Set(removedUsers), initiatingUser: sender)
+    }
+
+}
+
+extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberJoin {
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let conversation = fetchOrCreateConversation(in: context)
+        else {
+            return
+        }
+
+        if let usersAndRoles = data.users?.map({ $0.fetchUserAndRole(in: context, conversation: conversation)! }) {
+            let selfUser = ZMUser.selfUser(in: context)
+            let users = Set(usersAndRoles.map { $0.0 })
+            let newUsers = !users.subtracting(conversation.localParticipants).isEmpty
+
+            if users.contains(selfUser) || newUsers {
+                // TODO jacob refactor to append method on conversation
+                _ = ZMSystemMessage.createOrUpdate(from: originalEvent, in: context)
+            }
+
+            conversation.addParticipantsAndUpdateConversationState(usersAndRoles: usersAndRoles)
+        } else if let users = data.userIDs?.map({ ZMUser.fetchOrCreate(with: $0, domain: nil, in: context)}) {
+            // NOTE: legacy code path for backwards compatibility with servers without role support
+            
+            let users = Set(users)
+            let selfUser = ZMUser.selfUser(in: context)
+
+            if !users.isSubset(of: conversation.localParticipantsExcludingSelf) || users.contains(selfUser) {
+                // TODO jacob refactor to append method on conversation
+                _ = ZMSystemMessage.createOrUpdate(from: originalEvent, in: context)
+            }
+            conversation.addParticipantsAndUpdateConversationState(users: users, role: nil)
+        }
+
+    }
+
+}
+
+extension Payload.ConversationEvent where T == Payload.ConversationMember {
+
+    func fetchOrCreateTargetUser(in context: NSManagedObjectContext) -> ZMUser? {
+        guard
+            let userID = data.target
+        else {
+            return nil
+        }
+
+        // TODO jacob this should be updated with for qualified ID when available by BE
+
+        return ZMUser.fetchOrCreate(with: userID, domain: nil, in: context)
+    }
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let conversation = fetchOrCreateConversation(in: context),
+            let targetUser = fetchOrCreateTargetUser(in: context)
+        else {
+            return
+        }
+
+        if targetUser.isSelfUser {
+            data.updateStatus(for: conversation)
+        }
+
+        if let role = data.conversationRole.map({conversation.fetchOrCreateRoleForConversation(name: $0) }) {
+            conversation.addParticipantAndUpdateConversationState(user: targetUser, role: role)
+        }
+    }
+}
+
+extension Payload.ConversationEvent where T == Payload.UpdateConversationAccess {
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let conversation = fetchOrCreateConversation(in: context)
+        else {
+            return
+        }
+
+        conversation.updateAccessStatus(accessModes: data.access, role: data.accessRole)
+    }
+    
+}
+
+extension Payload.ConversationEvent where T == Payload.UpdateConversationMessageTimer {
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let sender = fetchOrCreateSender(in: context),
+            let conversation = fetchOrCreateConversation(in: context)
+        else {
+            return
+        }
+
+        let timeoutValue = (data.messageTimer ?? 0) / 1000
+        let timeout: MessageDestructionTimeout = .synced((.init(rawValue: timeoutValue)))
+
+        if let timestamp = timestamp, conversation.messageDestructionTimeout != timeout {
+            conversation.appendMessageTimerUpdateMessage(fromUser: sender, timer: timeoutValue, timestamp: timestamp)
+        }
+
+        conversation.messageDestructionTimeout = timeout
+    }
+
+}
+
+extension Payload.ConversationEvent where T == Payload.UpdateConversationReceiptMode {
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let sender = fetchOrCreateSender(in: context),
+            let conversation = fetchOrCreateConversation(in: context),
+            let timestamp = timestamp,
+            timestamp > conversation.lastServerTimeStamp // Discard event if it has already been applied
+        else {
+            return
+        }
+        
+        let enabled = data.readReceiptMode > 0
+        conversation.hasReadReceiptsEnabled = enabled
+        conversation.appendMessageReceiptModeChangedMessage(fromUser: sender, timestamp: timestamp, enabled: enabled)
+    }
+}
+
+extension Payload.ConversationEvent where T == Payload.Conversation {
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let timestamp = timestamp
+        else {
+            return
+        }
+
+        data.updateOrCreate(in: context, serverTimestamp: timestamp, source: .eventStream)
+    }
+}
+
+extension Payload.ConversationEvent where T == Payload.UpdateConversationDeleted {
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let conversation = fetchOrCreateConversation(in: context)
+        else {
+            return
+        }
+
+        context.delete(conversation)
+    }
+
+}
+
+extension Payload.ConversationEvent where T == Payload.UpdateConversationConnectionRequest {
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        // TODO jacob refactor to append method on conversation
+        _ = ZMSystemMessage.createOrUpdate(from: originalEvent, in: context)
     }
 
 }

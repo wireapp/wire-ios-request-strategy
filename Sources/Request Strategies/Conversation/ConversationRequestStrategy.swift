@@ -194,10 +194,63 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
 extension ConversationRequestStrategy: ZMEventConsumer {
 
-    public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
+    public func processEvents(_ events: [ZMUpdateEvent],
+                              liveEvents: Bool,
+                              prefetchResult: ZMFetchRequestBatchResult?) {
+        for event in events {
+            guard
+                let payloadAsDictionary = event.payload as? [String: Any],
+                let payloadData = try? JSONSerialization.data(withJSONObject: payloadAsDictionary, options: [])
+            else {
+                continue
+            }
 
+            switch event.type {
+            case .conversationCreate:
+                let conversationEvent = Payload.ConversationEvent<Payload.Conversation>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            case .conversationDelete:
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationDeleted>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            case .conversationMemberLeave:
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberLeave>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            case .conversationMemberJoin:
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberJoin>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            case .conversationRename:
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationName>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            case .conversationMemberUpdate:
+                let conversationEvent = Payload.ConversationEvent<Payload.ConversationMember>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            case .conversationAccessModeUpdate:
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationAccess>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            case .conversationMessageTimerUpdate:
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationMessageTimer>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            case .conversationReceiptModeUpdate:
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationReceiptMode>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            case .conversationConnectRequest:
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationConnectionRequest>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
+            default:
+                break
+            }
+        }
     }
-
 }
 
 extension ConversationRequestStrategy: ZMContextChangeTracker {
