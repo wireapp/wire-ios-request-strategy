@@ -192,6 +192,14 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
     
 }
 
+extension ConversationRequestStrategy: ZMEventConsumer {
+
+    public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
+
+    }
+
+}
+
 extension ConversationRequestStrategy: ZMContextChangeTracker {
 
     public func objectsDidChange(_ objects: Set<NSManagedObject>) {
@@ -291,6 +299,17 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                                     requestUserInfo: [AnyHashable : Any]? = nil,
                                     response: ZMTransportResponse, keysToParse: Set<String>) -> Bool {
 
+        guard
+            keysToParse.contains(ZMConversationUserDefinedNameKey),
+            let payload = response.payload
+        else {
+            return false
+        }
+
+        if let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil) {
+            processEvents([event], liveEvents: true, prefetchResult: nil)
+        }
+
         return false
     }
 
@@ -300,6 +319,53 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
 
     public func request(forUpdating managedObject: ZMManagedObject,
                         forKeys keys: Set<String>) -> ZMUpstreamRequest? {
+        guard
+            let conversation = managedObject as? ZMConversation,
+            let conversationID = conversation.remoteIdentifier
+        else {
+            return nil
+        }
+
+        if keys.contains(ZMConversationUserDefinedNameKey) {
+            guard
+                let payload = Payload.UpdateConversationName(conversation),
+                let payloadData = payload.payloadData(encoder: .defaultEncoder),
+                let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+            else {
+                return nil
+            }
+
+            let request = ZMTransportRequest(path: "/conversations/\(conversationID)",
+                                             method: .methodPUT,
+                                             payload: payloadAsString as ZMTransportData?)
+
+            return ZMUpstreamRequest(keys: Set(arrayLiteral: ZMConversationUserDefinedNameKey),
+                                     transportRequest: request)
+        }
+
+        if keys.contains(ZMConversationArchivedChangedTimeStampKey) ||
+           keys.contains(ZMConversationSilencedChangedTimeStampKey) {
+            let payload = Payload.UpdateConversationStatus(conversation)
+
+            guard
+                let payloadData = payload.payloadData(encoder: .defaultEncoder),
+                let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+            else {
+                return nil
+            }
+
+            let changedKeys = keys.intersection([ZMConversationArchivedChangedTimeStampKey,
+                                                 ZMConversationSilencedChangedTimeStampKey])
+
+            let request = ZMTransportRequest(path: "/conversations/\(conversationID)/self",
+                                             method: .methodPUT,
+                                             payload: payloadAsString as ZMTransportData?)
+
+            return ZMUpstreamRequest(keys: changedKeys,
+                                     transportRequest: request)
+
+        }
+
         return nil
     }
 

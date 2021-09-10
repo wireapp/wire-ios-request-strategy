@@ -356,6 +356,58 @@ enum Payload {
         let managed: Bool?
     }
 
+    struct UpdateConversationName: Codable {
+        var name: String
+
+        init?(_ conversation: ZMConversation) {
+            guard
+                conversation.hasLocalModifications(forKey: ZMConversationUserDefinedNameKey),
+                let userDefinedName = conversation.userDefinedName
+            else {
+                return nil
+            }
+
+            name = userDefinedName
+        }
+    }
+
+    struct UpdateConversationStatus: Codable {
+        enum CodingKeys: String, CodingKey {
+            case mutedStatus = "otr_muted_status"
+            case mutedReference = "otr_muted_ref"
+            case archived = "otr_archived"
+            case archivedReference = "otr_archived_ref"
+            case hidden = "otr_hidden"
+            case hiddenReference = "otr_hidden_ref"
+        }
+
+        var mutedStatus: Int?
+        var mutedReference: Date?
+        var archived: Bool?
+        var archivedReference: Date?
+        var hidden: Bool?
+        var hiddenReference: String?
+
+        init(_ conversation: ZMConversation) {
+
+            if conversation.hasLocalModifications(forKey: ZMConversationSilencedChangedTimeStampKey) {
+                let reference = conversation.silencedChangedTimestamp ?? Date()
+                conversation.silencedChangedTimestamp = reference
+
+                mutedStatus = Int(conversation.mutedMessageTypes.rawValue)
+                mutedReference = reference
+            }
+
+            if conversation.hasLocalModifications(forKey: ZMConversationArchivedChangedTimeStampKey) {
+                let reference = conversation.archivedChangedTimestamp ?? Date()
+                conversation.archivedChangedTimestamp = reference
+
+                archived = conversation.isArchived
+                archivedReference = reference
+            }
+        }
+    }
+
     struct NewConversation: Codable {
         enum CodingKeys: String, CodingKey {
             case users
@@ -369,6 +421,16 @@ enum Payload {
             case conversationRole = "conversation_role"
         }
 
+        let users: [UUID]?
+        let qualifiedUsers: QualifiedUserIDList?
+        let access: [String]?
+        let accessRole: String?
+        let name: String?
+        let team: ConversationTeamInfo?
+        let messageTimer: TimeInterval?
+        let readReceiptMode: Int?
+        let conversationRole: String?
+
         init(_ conversation: ZMConversation) {
             users = conversation.localParticipantsExcludingSelf.map(\.remoteIdentifier)
             qualifiedUsers = nil
@@ -380,16 +442,6 @@ enum Payload {
             readReceiptMode = conversation.hasReadReceiptsEnabled ? 1 : 0
             messageTimer = nil
         }
-
-        let users: [UUID]?
-        let qualifiedUsers: QualifiedUserIDList?
-        let access: [String]?
-        let accessRole: String?
-        let name: String?
-        let team: ConversationTeamInfo?
-        let messageTimer: TimeInterval?
-        let readReceiptMode: Int?
-        let conversationRole: String?
     }
 
     struct Conversation: Codable {
