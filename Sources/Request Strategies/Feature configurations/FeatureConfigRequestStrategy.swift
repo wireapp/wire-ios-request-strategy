@@ -117,22 +117,26 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
         }
 
         do {
+            let featureService = FeatureService(context: managedObjectContext)
             let decoder = JSONDecoder()
 
             switch feature.name {
-            case .conferenceCalling, .fileSharing:
+            case .conferenceCalling:
                 let response = try decoder.decode(SimpleConfigResponse.self, from: responseData)
-                feature.status = response.status
+                featureService.storeConferenceCalling(.init(status: response.status))
+
+
+            case .fileSharing:
+                let response = try decoder.decode(SimpleConfigResponse.self, from: responseData)
+                featureService.storeFileSharing(.init(status: response.status))
 
             case .appLock:
                 let response = try decoder.decode(ConfigResponse<Feature.AppLock.Config>.self, from: responseData)
-                feature.status = response.status
-                feature.config = response.config.payloadData()!
+                featureService.storeAppLock(.init(status: response.status, config: response.config))
 
             case .selfDeletingMessages:
                 let response = try decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: responseData)
-                feature.status = response.status
-                feature.config = response.config.payloadData()!
+                featureService.storeSelfDeletingMessages(.init(status: response.status, config: response.config))
             }
 
             feature.needsToBeUpdatedFromBackend = false
@@ -190,71 +194,44 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
 extension FeatureConfigRequestStrategy: ZMEventConsumer {
 
     public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
-        events.forEach(process)
+        events.forEach(processEvent)
     }
 
-    private func process(_ event: ZMUpdateEvent) {
-        switch event.type {
-        case .featureConfigUpdate:
-            guard
-                let payloadData = try? JSONSerialization.data(withJSONObject: event.payload, options: []),
-                let featurePayload = FeatureUpdateEventPayload(payloadData)
-            else {
-                return
-            }
+    private func processEvent(_ event: ZMUpdateEvent) {
+        guard event.type == .featureConfigUpdate else { return }
 
-            Feature.updateOrCreate(havingName: featurePayload.name, in: managedObjectContext) { feature in
-                feature.status = featurePayload.status
-                feature.config = featurePayload.config
-                self.managedObjectContext.saveOrRollback()
-                NotificationCenter.default.post(name: .featureConfigDidChangeNotification, object: featurePayload)
-            }
-
-        default:
-            break
+        guard
+            let payload = try? JSONSerialization.data(withJSONObject: event.payload, options: []),
+            let name = event.payload["name"] as? String,
+            let featureName = Feature.Name(rawValue: name)
+        else {
+            return
         }
-    }
-}
 
-// MARK: - Update event models
+        // TODO: This needs to be deduplicated.
+        let featureService = FeatureService(context: managedObjectContext)
+        let decoder = JSONDecoder()
 
-public struct FeatureUpdateEventPayload: Decodable {
-    public let name: Feature.Name
-    public let status: Feature.Status
-    public let config: Data?
+        switch featureName {
+        case .conferenceCalling:
+            let response = try! decoder.decode(SimpleConfigResponse.self, from: payload)
+            featureService.storeConferenceCalling(.init(status: response.status))
 
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let nestedContainer = try container.nestedContainer(keyedBy: ConfigKeys.self, forKey: .data)
 
-        name = try container.decode(Feature.Name.self, forKey: .name)
-        status = try nestedContainer.decode(Feature.Status.self, forKey: .status)
+        case .fileSharing:
+            let response = try! decoder.decode(SimpleConfigResponse.self, from: payload)
+            featureService.storeFileSharing(.init(status: response.status))
 
-        let encoder = JSONEncoder()
-
-        switch name {
         case .appLock:
-            let config = try nestedContainer.decode(Feature.AppLock.Config.self, forKey: .config)
-            self.config = try encoder.encode(config)
+            let response = try! decoder.decode(ConfigResponse<Feature.AppLock.Config>.self, from: payload)
+            featureService.storeAppLock(.init(status: response.status, config: response.config))
 
         case .selfDeletingMessages:
-            let config = try nestedContainer.decode(Feature.SelfDeletingMessages.Config.self, forKey: .config)
-            self.config = try encoder.encode(config)
-
-        case .conferenceCalling, .fileSharing:
-            config = nil
+            let response = try! decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: payload)
+            featureService.storeSelfDeletingMessages(.init(status: response.status, config: response.config))
         }
     }
 
-    enum CodingKeys: String, CodingKey {
-        case name
-        case data
-    }
-
-    enum ConfigKeys: String, CodingKey {
-        case status
-        case config
-    }
 }
 
 // MARK: - Response models
