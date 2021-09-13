@@ -117,30 +117,8 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
         }
 
         do {
-            let featureService = FeatureService(context: managedObjectContext)
-            let decoder = JSONDecoder()
-
-            switch feature.name {
-            case .conferenceCalling:
-                let response = try decoder.decode(SimpleConfigResponse.self, from: responseData)
-                featureService.storeConferenceCalling(.init(status: response.status))
-
-
-            case .fileSharing:
-                let response = try decoder.decode(SimpleConfigResponse.self, from: responseData)
-                featureService.storeFileSharing(.init(status: response.status))
-
-            case .appLock:
-                let response = try decoder.decode(ConfigResponse<Feature.AppLock.Config>.self, from: responseData)
-                featureService.storeAppLock(.init(status: response.status, config: response.config))
-
-            case .selfDeletingMessages:
-                let response = try decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: responseData)
-                featureService.storeSelfDeletingMessages(.init(status: response.status, config: response.config))
-            }
-
+            try processResponse(featureName: feature.name, data: responseData)
             feature.needsToBeUpdatedFromBackend = false
-
         } catch {
             zmLog.error("Failed to process feature config response: \(error.localizedDescription)")
         }
@@ -148,6 +126,29 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
 
     public func delete(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
         // No op
+    }
+
+    private func processResponse(featureName: Feature.Name, data: Data) throws {
+        let featureService = FeatureService(context: managedObjectContext)
+        let decoder = JSONDecoder()
+
+        switch featureName {
+        case .conferenceCalling:
+            let response = try decoder.decode(SimpleConfigResponse.self, from: data)
+            featureService.storeConferenceCalling(.init(status: response.status))
+
+        case .fileSharing:
+            let response = try decoder.decode(SimpleConfigResponse.self, from: data)
+            featureService.storeFileSharing(.init(status: response.status))
+
+        case .appLock:
+            let response = try decoder.decode(ConfigResponse<Feature.AppLock.Config>.self, from: data)
+            featureService.storeAppLock(.init(status: response.status, config: response.config))
+
+        case .selfDeletingMessages:
+            let response = try decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: data)
+            featureService.storeSelfDeletingMessages(.init(status: response.status, config: response.config))
+        }
     }
 
 }
@@ -198,37 +199,19 @@ extension FeatureConfigRequestStrategy: ZMEventConsumer {
     }
 
     private func processEvent(_ event: ZMUpdateEvent) {
-        guard event.type == .featureConfigUpdate else { return }
-
         guard
-            let payload = try? JSONSerialization.data(withJSONObject: event.payload, options: []),
+            event.type == .featureConfigUpdate,
             let name = event.payload["name"] as? String,
             let featureName = Feature.Name(rawValue: name)
         else {
             return
         }
 
-        // TODO: This needs to be deduplicated.
-        let featureService = FeatureService(context: managedObjectContext)
-        let decoder = JSONDecoder()
-
-        switch featureName {
-        case .conferenceCalling:
-            let response = try! decoder.decode(SimpleConfigResponse.self, from: payload)
-            featureService.storeConferenceCalling(.init(status: response.status))
-
-
-        case .fileSharing:
-            let response = try! decoder.decode(SimpleConfigResponse.self, from: payload)
-            featureService.storeFileSharing(.init(status: response.status))
-
-        case .appLock:
-            let response = try! decoder.decode(ConfigResponse<Feature.AppLock.Config>.self, from: payload)
-            featureService.storeAppLock(.init(status: response.status, config: response.config))
-
-        case .selfDeletingMessages:
-            let response = try! decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: payload)
-            featureService.storeSelfDeletingMessages(.init(status: response.status, config: response.config))
+        do {
+            let payload = try JSONSerialization.data(withJSONObject: event.payload, options: [])
+            try processResponse(featureName: featureName, data: payload)
+        } catch {
+            zmLog.error("Failed to process feature config update event: \(error.localizedDescription)")
         }
     }
 
