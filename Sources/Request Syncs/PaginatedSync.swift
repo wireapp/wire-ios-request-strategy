@@ -23,13 +23,18 @@ protocol Paginatable: Decodable {
     var nextStartReference: String? { get }
 }
 
-class PaginatedSync<Payload: Paginatable>: NSObject, ZMRequestGenerator {
+class PaginatedSync<PayloadType: Paginatable>: NSObject, ZMRequestGenerator {
 
-    typealias CompletionHandler = (Swift.Result<Payload, PaginatedSyncError>) -> Void
+    typealias CompletionHandler = (Swift.Result<PayloadType, PaginatedSyncError>) -> Void
 
     enum Status: Equatable {
         case fetching(_ state: String)
         case done
+    }
+
+    enum PaginationMehod {
+        case get
+        case post
     }
 
     enum PaginatedSyncError: Error {
@@ -39,14 +44,16 @@ class PaginatedSync<Payload: Paginatable>: NSObject, ZMRequestGenerator {
     let context: NSManagedObjectContext
     let basePath: String
     let pageSize: Int
+    let method: PaginationMehod
     var status: Status = .done
     var request: ZMTransportRequest? = nil
     var completionHandler: CompletionHandler?
 
-    init(basePath: String, pageSize: Int, context: NSManagedObjectContext) {
+    init(basePath: String, pageSize: Int, method: PaginationMehod = .get, context: NSManagedObjectContext) {
         self.basePath = basePath
         self.pageSize = pageSize
         self.context = context
+        self.method = method
     }
 
     func fetch(_ completionHandler: @escaping CompletionHandler) {
@@ -59,25 +66,17 @@ class PaginatedSync<Payload: Paginatable>: NSObject, ZMRequestGenerator {
             return nil
         }
 
-        var queryItems = [URLQueryItem(name: "size", value: String(pageSize))]
-
-        if !start.isEmpty {
-            queryItems.append(URLQueryItem(name: "start", value: start))
+        switch method {
+        case .get:
+            self.request = getRequest(startReference: start)
+        case .post:
+            self.request = postRequest(startReference: start)
         }
-
-        var urlComponents = URLComponents(string: basePath)
-        urlComponents?.queryItems = queryItems
-
-        guard let path = urlComponents?.string else {
-            return nil
-        }
-
-        self.request = ZMTransportRequest(getFromPath: path)
 
         request?.add(ZMCompletionHandler(on: context, block: { (response) in
             self.request = nil
 
-            guard let result = Payload(response, decoder: .defaultDecoder) else {
+            guard let result = PayloadType(response, decoder: .defaultDecoder) else {
                 if response.result == .permanentError {
                     self.completionHandler?(.failure(.permanentError))
                     self.status = .done
@@ -95,6 +94,36 @@ class PaginatedSync<Payload: Paginatable>: NSObject, ZMRequestGenerator {
         }))
 
         return request
+    }
+
+    private func getRequest(startReference: String) -> ZMTransportRequest? {
+        var queryItems = [URLQueryItem(name: "size", value: String(pageSize))]
+
+        if !startReference.isEmpty {
+            queryItems.append(URLQueryItem(name: "start", value: startReference))
+        }
+
+        var urlComponents = URLComponents(string: basePath)
+        urlComponents?.queryItems = queryItems
+
+        guard let path = urlComponents?.string else {
+            return nil
+        }
+
+        return ZMTransportRequest(getFromPath: path)
+    }
+
+    private func postRequest(startReference: String) -> ZMTransportRequest? {
+        let payload = Payload.PaginationStatus(pagingState: startReference, size: pageSize)
+
+        guard
+            let payloadData = payload.payloadData(encoder: .defaultEncoder),
+            let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+        else {
+            return nil
+        }
+
+        return ZMTransportRequest(path: basePath, method: .methodPOST, payload: payloadAsString as ZMTransportData)
     }
 
 }

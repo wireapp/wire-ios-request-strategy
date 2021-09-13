@@ -299,5 +299,21 @@ enum Payload {
         let failedToSend: ClientListByQualifiedUserID
     }
 
+    struct PaginationStatus: Codable {
+
+        enum CodingKeys: String, CodingKey {
+            case pagingState = "paging_state"
+            case size
+        }
+
+        let pagingState: String?
+        let size: Int?
+
+        init(pagingState: String?, size: Int) {
+            self.pagingState = pagingState?.isEmpty == true ? nil : pagingState
+            self.size = size
+        }
+    }
+
 }
 

@@ -259,6 +259,18 @@ extension Payload {
         let hasMore: Bool?
     }
 
+    struct QualifiedConversationList: Codable {
+        enum CodingKeys: String, CodingKey {
+            case found = "found"
+            case notFound = "not_found"
+            case failed = "failed"
+        }
+
+        let found: [Conversation]
+        let notFound: [QualifiedUserID]
+        let failed: [QualifiedUserID]
+    }
+
     struct ConversationEvent<T: Codable>: Codable {
 
         enum CodingKeys: String, CodingKey {
@@ -290,6 +302,23 @@ extension Payload {
         }
 
         let conversations: [UUID]
+        let hasMore: Bool
+    }
+
+    struct PaginatedQualifiedConversationIDList: Paginatable {
+
+        enum CodingKeys: String, CodingKey {
+            case conversations = "qualified_conversations"
+            case pagingState = "paging_state"
+            case hasMore = "has_more"
+        }
+
+        var nextStartReference: String? {
+            return pagingState
+        }
+
+        let conversations: [QualifiedUserID]
+        let pagingState: String
         let hasMore: Bool
     }
 

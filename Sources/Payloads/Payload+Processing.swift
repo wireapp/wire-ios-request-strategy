@@ -472,6 +472,7 @@ extension Payload.Conversation {
         guard let otherMember = members?.others.first, let otherUserID = otherMember.id else {
             let conversation = ZMConversation.fetch(with: conversationID, domain: qualifiedID?.domain, in: context)
             conversation?.conversationType = conversationType
+            conversation?.needsToBeUpdatedFromBackend = false
             return
         }
 
@@ -599,6 +600,14 @@ extension Payload.ConversationList {
 
     func updateOrCreateConverations(in context: NSManagedObjectContext) {
         conversations.forEach({ $0.updateOrCreate(in: context, source: .slowSync) })
+    }
+
+}
+
+extension Payload.QualifiedConversationList {
+
+    func updateOrCreateConverations(in context: NSManagedObjectContext) {
+        found.forEach({ $0.updateOrCreate(in: context, source: .slowSync) })
     }
 
 }
