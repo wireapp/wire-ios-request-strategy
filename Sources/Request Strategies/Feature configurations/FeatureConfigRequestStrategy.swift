@@ -241,7 +241,7 @@ public struct FeatureUpdateEventPayload: Decodable {
             let config = try nestedContainer.decode(Feature.SelfDeletingMessages.Config.self, forKey: .config)
             self.config = try encoder.encode(config)
 
-        case .fileSharing:
+        case .conferenceCalling, .fileSharing:
             config = nil
         }
     }
