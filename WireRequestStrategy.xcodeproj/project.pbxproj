@@ -97,6 +97,8 @@
 		16CC083B268E075100C0613C /* ClientMessageRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16CC083A268E075100C0613C /* ClientMessageRequestStrategyTests.swift */; };
 		16D0E07F1DF88B430075DF8F /* EntityTranscoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */; };
 		16DABDA225D69335005F4C3A /* Payload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DABDA125D69335005F4C3A /* Payload.swift */; };
+		16E5F6D626EF1BE100F35FBA /* PaginatedSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E5F6D526EF1BE000F35FBA /* PaginatedSync.swift */; };
+		16E5F6DD26EF1E3200F35FBA /* Payload+Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E5F6DC26EF1E3200F35FBA /* Payload+Conversation.swift */; };
 		16FFDE441DF6C668003494D6 /* DependencyEntitySync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FFDE431DF6C668003494D6 /* DependencyEntitySync.swift */; };
 		547D47171E7C1B0D002EEA15 /* DependentObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 547D47161E7C1B0D002EEA15 /* DependentObjects.swift */; };
 		547D47191E7C2F6C002EEA15 /* DependentObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 547D47181E7C2F6C002EEA15 /* DependentObjectsTests.swift */; };
@@ -360,6 +362,8 @@
 		16D0E07C1DF872FD0075DF8F /* DependencyEntitySyncTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyEntitySyncTests.swift; sourceTree = "<group>"; };
 		16D0E07E1DF88B430075DF8F /* EntityTranscoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EntityTranscoder.swift; sourceTree = "<group>"; };
 		16DABDA125D69335005F4C3A /* Payload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Payload.swift; sourceTree = "<group>"; };
+		16E5F6D526EF1BE000F35FBA /* PaginatedSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginatedSync.swift; sourceTree = "<group>"; };
+		16E5F6DC26EF1E3200F35FBA /* Payload+Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Payload+Conversation.swift"; sourceTree = "<group>"; };
 		16FFDE431DF6C668003494D6 /* DependencyEntitySync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyEntitySync.swift; sourceTree = "<group>"; };
 		547D47161E7C1B0D002EEA15 /* DependentObjects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependentObjects.swift; sourceTree = "<group>"; };
 		547D47181E7C2F6C002EEA15 /* DependentObjectsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependentObjectsTests.swift; sourceTree = "<group>"; };
@@ -672,6 +676,7 @@
 			isa = PBXGroup;
 			children = (
 				16DABDA125D69335005F4C3A /* Payload.swift */,
+				16E5F6DC26EF1E3200F35FBA /* Payload+Conversation.swift */,
 				169BA1CC25E95DC900374343 /* Payload+Processing.swift */,
 				169BA1CA25E9507600374343 /* Payload+Decoding.swift */,
 				162F5799266DE67600337797 /* PayloadTests+UserProfile.swift */,
@@ -880,6 +885,7 @@
 				166901C31D7081C7000FE4AF /* ZMTimedSingleRequestSync.h */,
 				166901C41D7081C7000FE4AF /* ZMTimedSingleRequestSync.m */,
 				166902211D709110000FE4AF /* ZMTimedSingleRequestSyncTests.m */,
+				16E5F6D526EF1BE000F35FBA /* PaginatedSync.swift */,
 			);
 			path = "Request Syncs";
 			sourceTree = "<group>";
@@ -1270,6 +1276,7 @@
 				F18401BD2073BE0800E9F4CC /* LinkPreviewAssetUploadRequestStrategy.swift in Sources */,
 				F18401AA2073BE0800E9F4CC /* FetchingClientRequestStrategy.swift in Sources */,
 				166901D61D7081C7000FE4AF /* ZMDownstreamObjectSyncWithWhitelist.m in Sources */,
+				16E5F6D626EF1BE100F35FBA /* PaginatedSync.swift in Sources */,
 				161E055026655E4500DADC3D /* UserProfileRequestStrategy.swift in Sources */,
 				F18401D42073BE0800E9F4CC /* MessageExpirationTimer.swift in Sources */,
 				1622946B221C18BE00A98679 /* AssetV3UploadRequestStrategy.swift in Sources */,
@@ -1308,6 +1315,7 @@
 				547D47171E7C1B0D002EEA15 /* DependentObjects.swift in Sources */,
 				F18401AF2073BE0800E9F4CC /* AvailabilityRequestStrategy.swift in Sources */,
 				F18401D12073BE0800E9F4CC /* ApplicationStatus.swift in Sources */,
+				16E5F6DD26EF1E3200F35FBA /* Payload+Conversation.swift in Sources */,
 				16A4891A2685CECD001F9127 /* ProteusMessageSync.swift in Sources */,
 				F18401D32073BE0800E9F4CC /* ZMMessage+Dependency.swift in Sources */,
 				D5D65A072074C23D00D7F3C3 /* AssetRequestFactory.swift in Sources */,
