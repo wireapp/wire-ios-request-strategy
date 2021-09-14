@@ -22,10 +22,6 @@ private let zmLog = ZMSLog(tag: "feature configurations")
 
 public extension Notification.Name {
     static let fetchAllConfigsTriggerNotification = Notification.Name("fetchAllConfigsTriggerNotification")
-
-    /// Notification to be fired when the feature configuration is changed.
-    /// When firing this notification the event has to be included as object in the notification.
-    static let featureConfigDidChangeNotification = Notification.Name("featureConfigDidChangeNotification")
 }
 
 @objcMembers
