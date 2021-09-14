@@ -202,13 +202,14 @@ extension FeatureConfigRequestStrategy: ZMEventConsumer {
         guard
             event.type == .featureConfigUpdate,
             let name = event.payload["name"] as? String,
-            let featureName = Feature.Name(rawValue: name)
+            let featureName = Feature.Name(rawValue: name),
+            let data = event.payload["data"]
         else {
             return
         }
 
         do {
-            let payload = try JSONSerialization.data(withJSONObject: event.payload, options: [])
+            let payload = try JSONSerialization.data(withJSONObject: data, options: [])
             try processResponse(featureName: featureName, data: payload)
         } catch {
             zmLog.error("Failed to process feature config update event: \(error.localizedDescription)")
