@@ -22,10 +22,6 @@ private let zmLog = ZMSLog(tag: "feature configurations")
 
 public extension Notification.Name {
     static let fetchAllConfigsTriggerNotification = Notification.Name("fetchAllConfigsTriggerNotification")
-
-    /// Notification to be fired when the feature configuration is changed.
-    /// When firing this notification the event has to be included as object in the notification.
-    static let featureConfigDidChangeNotification = Notification.Name("featureConfigDidChangeNotification")
 }
 
 @objcMembers
@@ -117,26 +113,8 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
         }
 
         do {
-            let decoder = JSONDecoder()
-
-            switch feature.name {
-            case .conferenceCalling, .fileSharing:
-                let response = try decoder.decode(SimpleConfigResponse.self, from: responseData)
-                feature.status = response.status
-
-            case .appLock:
-                let response = try decoder.decode(ConfigResponse<Feature.AppLock.Config>.self, from: responseData)
-                feature.status = response.status
-                feature.config = response.config.payloadData()!
-
-            case .selfDeletingMessages:
-                let response = try decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: responseData)
-                feature.status = response.status
-                feature.config = response.config.payloadData()!
-            }
-
+            try processResponse(featureName: feature.name, data: responseData)
             feature.needsToBeUpdatedFromBackend = false
-
         } catch {
             zmLog.error("Failed to process feature config response: \(error.localizedDescription)")
         }
@@ -144,6 +122,29 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
 
     public func delete(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
         // No op
+    }
+
+    private func processResponse(featureName: Feature.Name, data: Data) throws {
+        let featureService = FeatureService(context: managedObjectContext)
+        let decoder = JSONDecoder()
+
+        switch featureName {
+        case .conferenceCalling:
+            let response = try decoder.decode(SimpleConfigResponse.self, from: data)
+            featureService.storeConferenceCalling(.init(status: response.status))
+
+        case .fileSharing:
+            let response = try decoder.decode(SimpleConfigResponse.self, from: data)
+            featureService.storeFileSharing(.init(status: response.status))
+
+        case .appLock:
+            let response = try decoder.decode(ConfigResponse<Feature.AppLock.Config>.self, from: data)
+            featureService.storeAppLock(.init(status: response.status, config: response.config))
+
+        case .selfDeletingMessages:
+            let response = try decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: data)
+            featureService.storeSelfDeletingMessages(.init(status: response.status, config: response.config))
+        }
     }
 
 }
@@ -190,71 +191,27 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
 extension FeatureConfigRequestStrategy: ZMEventConsumer {
 
     public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
-        events.forEach(process)
+        events.forEach(processEvent)
     }
 
-    private func process(_ event: ZMUpdateEvent) {
-        switch event.type {
-        case .featureConfigUpdate:
-            guard
-                let payloadData = try? JSONSerialization.data(withJSONObject: event.payload, options: []),
-                let featurePayload = FeatureUpdateEventPayload(payloadData)
-            else {
-                return
-            }
-
-            Feature.updateOrCreate(havingName: featurePayload.name, in: managedObjectContext) { feature in
-                feature.status = featurePayload.status
-                feature.config = featurePayload.config
-                self.managedObjectContext.saveOrRollback()
-                NotificationCenter.default.post(name: .featureConfigDidChangeNotification, object: featurePayload)
-            }
-
-        default:
-            break
+    private func processEvent(_ event: ZMUpdateEvent) {
+        guard
+            event.type == .featureConfigUpdate,
+            let name = event.payload["name"] as? String,
+            let featureName = Feature.Name(rawValue: name),
+            let data = event.payload["data"]
+        else {
+            return
         }
-    }
-}
 
-// MARK: - Update event models
-
-public struct FeatureUpdateEventPayload: Decodable {
-    public let name: Feature.Name
-    public let status: Feature.Status
-    public let config: Data?
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let nestedContainer = try container.nestedContainer(keyedBy: ConfigKeys.self, forKey: .data)
-
-        name = try container.decode(Feature.Name.self, forKey: .name)
-        status = try nestedContainer.decode(Feature.Status.self, forKey: .status)
-
-        let encoder = JSONEncoder()
-
-        switch name {
-        case .appLock:
-            let config = try nestedContainer.decode(Feature.AppLock.Config.self, forKey: .config)
-            self.config = try encoder.encode(config)
-
-        case .selfDeletingMessages:
-            let config = try nestedContainer.decode(Feature.SelfDeletingMessages.Config.self, forKey: .config)
-            self.config = try encoder.encode(config)
-
-        case .conferenceCalling, .fileSharing:
-            config = nil
+        do {
+            let payload = try JSONSerialization.data(withJSONObject: data, options: [])
+            try processResponse(featureName: featureName, data: payload)
+        } catch {
+            zmLog.error("Failed to process feature config update event: \(error.localizedDescription)")
         }
     }
 
-    enum CodingKeys: String, CodingKey {
-        case name
-        case data
-    }
-
-    enum ConfigKeys: String, CodingKey {
-        case status
-        case config
-    }
 }
 
 // MARK: - Response models
