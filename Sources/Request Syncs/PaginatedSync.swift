@@ -78,19 +78,19 @@ class PaginatedSync<PayloadType: Paginatable>: NSObject, ZMRequestGenerator {
 
             guard let result = PayloadType(response, decoder: .defaultDecoder) else {
                 if response.result == .permanentError {
-                    self.completionHandler?(.failure(.permanentError))
                     self.status = .done
+                    self.completionHandler?(.failure(.permanentError))
                 }
                 return
             }
-
-            self.completionHandler?(.success(result))
 
             if result.hasMore, let nextStartReference = result.nextStartReference {
                 self.status = .fetching(nextStartReference)
             } else {
                 self.status = .done
             }
+
+            self.completionHandler?(.success(result))
         }))
 
         return request

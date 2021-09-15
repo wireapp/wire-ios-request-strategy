@@ -394,9 +394,10 @@ extension Payload.MessageSendingStatus {
 }
 
 extension Payload.ConversationMember {
+
     func fetchUserAndRole(in context: NSManagedObjectContext,
                           conversation: ZMConversation) -> (ZMUser, Role?)? {
-        guard let userID = id else { return nil }
+        guard let userID = id ?? qualifiedID?.uuid else { return nil }
         return (ZMUser.fetchOrCreate(with: userID, domain: qualifiedID?.domain, in: context),
                 conversationRole.map({conversation.fetchOrCreateRoleForConversation(name: $0) }))
     }
@@ -414,6 +415,7 @@ extension Payload.ConversationMember {
         }
 
     }
+
 }
 
 extension Payload.ConversationMembers {
@@ -461,7 +463,7 @@ extension Payload.Conversation {
                                             serverTimestamp: Date,
                                             source: Source) {
 
-        guard let conversationID = id,
+        guard let conversationID = id ?? qualifiedID?.uuid,
               let rawConversationType = type else {
             // TODO jacob log error
             return
@@ -469,7 +471,7 @@ extension Payload.Conversation {
 
         let conversationType = BackendConversationType.clientConversationType(rawValue: rawConversationType)
 
-        guard let otherMember = members?.others.first, let otherUserID = otherMember.id else {
+        guard let otherMember = members?.others.first, let otherUserID = otherMember.id ?? otherMember.qualifiedID?.uuid else {
             let conversation = ZMConversation.fetch(with: conversationID, domain: qualifiedID?.domain, in: context)
             conversation?.conversationType = conversationType
             conversation?.needsToBeUpdatedFromBackend = false
@@ -489,15 +491,17 @@ extension Payload.Conversation {
 
         conversation.remoteIdentifier = conversationID
         conversation.domain = qualifiedID?.domain
+        conversation.conversationType = conversationType
         conversation.needsToBeUpdatedFromBackend = false
 
-        updateConversationStatus(for: conversation, serverTimestamp: serverTimestamp)
+        updateConversationTimestamps(for: conversation, serverTimestamp: serverTimestamp)
+        updateConversationStatus(for: conversation)
     }
 
     func updateOrCreateSelfConversation(in context: NSManagedObjectContext,
                                         serverTimestamp: Date,
                                         source: Source) {
-        guard let conversationID = id else {
+        guard let conversationID = id ?? qualifiedID?.uuid else {
             // TODO jacob log error
             return
         }
@@ -509,17 +513,16 @@ extension Payload.Conversation {
                                                         created: &created)
 
         conversation.conversationType = .`self`
-        conversation.remoteIdentifier = conversationID
         conversation.domain = qualifiedID?.domain
         conversation.needsToBeUpdatedFromBackend = false
 
-        updateConversationStatus(for: conversation, serverTimestamp: serverTimestamp)
+        updateConversationTimestamps(for: conversation, serverTimestamp: serverTimestamp)
     }
 
     func updateOrCreateGroupConversation(in context: NSManagedObjectContext,
                                          serverTimestamp: Date,
                                          source: Source) {
-        guard let conversationID = id else {
+        guard let conversationID = id ?? qualifiedID?.uuid else {
             // TODO jacob log error
             return
         }
@@ -553,7 +556,8 @@ extension Payload.Conversation {
             conversation.updateMembers(otherMembers, selfUserRole: selfUserRole)
         }
 
-        updateConversationStatus(for: conversation, serverTimestamp: serverTimestamp)
+        updateConversationTimestamps(for: conversation, serverTimestamp: serverTimestamp)
+        updateConversationStatus(for: conversation)
 
         if created {
             // we just got a new conversation, we display new conversation header
@@ -567,15 +571,16 @@ extension Payload.Conversation {
         }
     }
 
-    func updateConversationStatus(for conversation: ZMConversation,
-                                  serverTimestamp: Date) {
-
+    func updateConversationTimestamps(for conversation: ZMConversation, serverTimestamp: Date) {
         // If the lastModifiedDate is non-nil, e.g. restore from backup, do not update the lastModifiedDate
-        if conversation.lastModifiedDate == nil {
+        if conversation.lastModifiedDate == nil { // TODO jacob review this logic
             conversation.updateLastModified(serverTimestamp)
         }
 
         conversation.updateServerModified(serverTimestamp)
+    }
+
+    func updateConversationStatus(for conversation: ZMConversation) {
 
         if let selfMember = members?.selfMember {
             selfMember.updateStatus(for: conversation)

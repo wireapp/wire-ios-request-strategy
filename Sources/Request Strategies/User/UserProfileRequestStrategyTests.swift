@@ -449,6 +449,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
         return response
 
     }
+
     func userProfile(for uuid: UUID, domain: String?) -> Payload.UserProfile {
         return Payload.UserProfile(id: uuid,
                                    qualifiedID: nil,

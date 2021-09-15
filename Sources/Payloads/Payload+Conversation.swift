@@ -51,6 +51,30 @@ extension Payload {
         let hidden: Bool?
         let hiddenReference: String?
         let conversationRole: String?
+
+        init(id: UUID? = nil,
+             qualifiedID: QualifiedUserID? = nil,
+             target: UUID? = nil,
+             service: Service? = nil,
+             mutedStatus: Int? = nil,
+             mutedReference: Date? = nil,
+             archived: Bool? = nil,
+             archivedReference: Date? = nil,
+             hidden: Bool? = nil,
+             hiddenReference: String? = nil,
+             conversationRole: String? = nil) {
+            self.id = id
+            self.qualifiedID = qualifiedID
+            self.target = target
+            self.service = service
+            self.mutedStatus  = mutedStatus
+            self.mutedReference = mutedReference
+            self.archived = archived
+            self.archivedReference = archivedReference
+            self.hidden = hidden
+            self.hiddenReference = hiddenReference
+            self.conversationRole = conversationRole
+        }
     }
 
     struct ConversationMembers: Codable {
@@ -205,7 +229,7 @@ extension Payload {
 
         init(_ conversation: ZMConversation) {
             users = conversation.localParticipantsExcludingSelf.map(\.remoteIdentifier)
-            qualifiedUsers = nil
+            qualifiedUsers = conversation.localParticipantsExcludingSelf.qualifiedUserIDs.map({ Payload.QualifiedUserIDList(qualifiedIDs: $0) })
             name = conversation.userDefinedName
             access = conversation.accessMode?.stringValue
             accessRole = conversation.accessRole?.rawValue
@@ -247,6 +271,35 @@ extension Payload {
         let teamID: UUID?
         let messageTimer: TimeInterval?
         let readReceiptMode: Int?
+
+        init(qualifiedID: QualifiedUserID? = nil,
+             id: UUID?  = nil,
+             type: Int? = nil,
+             creator: UUID? = nil,
+             access: [String]? = nil,
+             accessRole: String? = nil,
+             name: String? = nil,
+             members: ConversationMembers? = nil,
+             lastEvent: String? = nil,
+             lastEventTime: String? = nil,
+             teamID: UUID? = nil,
+             messageTimer: TimeInterval? = nil,
+             readReceiptMode: Int? = nil) {
+
+            self.qualifiedID = qualifiedID
+            self.id = id
+            self.type = type
+            self.creator = creator
+            self.access = access
+            self.accessRole = accessRole
+            self.name = name
+            self.members = members
+            self.lastEvent = lastEvent
+            self.lastEventTime = lastEventTime
+            self.teamID = teamID
+            self.messageTimer = messageTimer
+            self.readReceiptMode = readReceiptMode
+        }
     }
 
     struct ConversationList: Codable {
@@ -290,7 +343,7 @@ extension Payload {
         let data: T
     }
 
-    struct PaginatedConversationIDList: Paginatable {
+    struct PaginatedConversationIDList: Codable, Paginatable {
 
         enum CodingKeys: String, CodingKey {
             case conversations
@@ -305,7 +358,7 @@ extension Payload {
         let hasMore: Bool
     }
 
-    struct PaginatedQualifiedConversationIDList: Paginatable {
+    struct PaginatedQualifiedConversationIDList: Codable, Paginatable {
 
         enum CodingKeys: String, CodingKey {
             case conversations = "qualified_conversations"

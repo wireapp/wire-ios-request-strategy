@@ -78,7 +78,13 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
     /// If the identifiers have already been added this method has no effect.
     
     public func sync<S: Sequence>(identifiers: S) where S.Element == Transcoder.T {
-        pending.formUnion(Set(identifiers).subtracting(downloading))
+        let newIdentifiers = Set(identifiers)
+
+        if newIdentifiers.isEmpty && downloading.isEmpty && pending.isEmpty {
+            delegate?.didFinishSyncingAllObjects()
+        } else {
+            pending.formUnion(Set(identifiers).subtracting(downloading))
+        }
     }
     
     public func nextRequest() -> ZMTransportRequest? {
@@ -98,7 +104,10 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
             case .permanentError, .success:
                 strongSelf.downloading.subtract(scheduled)
                 strongSelf.transcoder?.didReceive(response: response, for: scheduled)
-                self?.delegate?.didFailToSyncAllObjects()
+
+                if case .permanentError = response.result {
+                    self?.delegate?.didFailToSyncAllObjects()
+                }
             default:
                 strongSelf.downloading.subtract(scheduled)
                 strongSelf.pending.formUnion(scheduled)

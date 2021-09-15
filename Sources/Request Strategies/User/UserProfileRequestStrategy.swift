@@ -17,26 +17,6 @@
 
 import Foundation
 
-extension Collection where Element == ZMUser {
-
-    var qualifiedUserIDs: [Payload.QualifiedUserID]? {
-
-        let list: [Payload.QualifiedUserID] = compactMap({
-            guard
-                let uuid = $0.remoteIdentifier,
-                let domain = $0.domain
-            else {
-                return nil
-            }
-
-            return Payload.QualifiedUserID(uuid: uuid, domain: domain)
-        })
-
-        return list.count == count ? list : nil
-    }
-
-}
-
 /// Request strategy for fetching user profiles and processing user update events.
 ///
 /// User profiles are fetched:

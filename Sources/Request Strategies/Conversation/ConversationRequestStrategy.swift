@@ -66,7 +66,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         ZMConversationSilencedChangedTimeStampKey
     ]
 
-    public var useFederationEndpoint: Bool = false {
+    public var useFederationEndpoint: Bool = true {
         didSet {
             conversationByQualifiedIDTranscoder.isAvailable = useFederationEndpoint
         }
@@ -369,7 +369,7 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                         forKeys keys: Set<String>) -> ZMUpstreamRequest? {
         guard
             let conversation = managedObject as? ZMConversation,
-            let conversationID = conversation.remoteIdentifier
+            let conversationID = conversation.remoteIdentifier?.transportString()
         else {
             return nil
         }
@@ -737,7 +737,7 @@ class ConversationByQualifiedIDListTranscoder: IdentifierObjectSyncTranscoder {
         payload.updateOrCreateConverations(in: context)
 
         queryStatusForMissingConversations(payload.notFound)
-        queryStatusForMissingConversations(payload.failed)
+        queryStatusForFailedConversations(payload.failed)
     }
 
     /// Query the backend if a converation is deleted or the self user has been removed
