@@ -60,6 +60,8 @@ extension Array where Array.Element == Payload.UserClient {
 
 }
 
+// MARK: User Profile
+
 extension Payload.UserProfile {
 
     /// Update a user entity with the data from a user profile payload.
@@ -184,6 +186,8 @@ extension Payload.UserProfiles {
 
 }
 
+// MARK: - Prekeys
+
 extension Payload.PrekeyByUserID {
 
     /// Establish new sessions using the prekeys retreived for each client.
@@ -245,6 +249,8 @@ extension Payload.PrekeyByQualifiedUserID {
     }
 
 }
+
+// MARK: - UserClient
 
 extension UserClient {
 
@@ -350,6 +356,8 @@ extension Payload.ClientListByQualifiedUserID {
 
 }
 
+// MARK: - Message sending
+
 extension Payload.MessageSendingStatus {
 
     /// Updates the reported client changes after an attempt to send the message
@@ -392,6 +400,8 @@ extension Payload.MessageSendingStatus {
     }
 
 }
+
+// MARK: - Conversation
 
 extension Payload.ConversationMember {
 
@@ -620,22 +630,26 @@ extension Payload.QualifiedConversationList {
 extension Payload.ConversationEvent {
 
     func fetchOrCreateConversation(in context: NSManagedObjectContext) -> ZMConversation? {
-        guard let conversationID = id else { return nil }
+        guard let conversationID = id ?? qualifiedID?.uuid else { return nil }
         return ZMConversation.fetchOrCreate(with: conversationID, domain: qualifiedID?.domain, in: context)
     }
 
     func fetchOrCreateSender(in context: NSManagedObjectContext) -> ZMUser? {
-        guard let userID = from else { return nil }
+        guard let userID = from ?? qualifiedFrom?.uuid else { return nil }
         return ZMUser.fetchOrCreate(with: userID, domain: qualifiedFrom?.domain, in: context)
     }
 
 }
 
+// MARK: - Conversation events
+
 extension Payload.ConversationEvent where T == Payload.UpdateConversationName {
 
     func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
         guard
-            let conversation = fetchOrCreateConversation(in: context) else {
+            let conversation = fetchOrCreateConversation(in: context)
+        else {
+            Logging.eventProcessing.error("Conversation name update missing conversation, aborting...")
             return
         }
 
@@ -668,6 +682,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberLe
             let conversation = fetchOrCreateConversation(in: context),
             let removedUsers = fetchRemovedUsers(in: context)
         else {
+            Logging.eventProcessing.error("Member leave update missing conversation or users, aborting...")
             return
         }
 
@@ -688,6 +703,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberJo
         guard
             let conversation = fetchOrCreateConversation(in: context)
         else {
+            Logging.eventProcessing.error("Member join update missing conversation, aborting...")
             return
         }
 
@@ -738,6 +754,7 @@ extension Payload.ConversationEvent where T == Payload.ConversationMember {
             let conversation = fetchOrCreateConversation(in: context),
             let targetUser = fetchOrCreateTargetUser(in: context)
         else {
+            Logging.eventProcessing.error("Conversation member update missing conversation or target user, aborting...")
             return
         }
 
@@ -757,6 +774,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationAccess 
         guard
             let conversation = fetchOrCreateConversation(in: context)
         else {
+            Logging.eventProcessing.error("Converation access update missing conversation, aborting...")
             return
         }
 
@@ -772,13 +790,15 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationMessage
             let sender = fetchOrCreateSender(in: context),
             let conversation = fetchOrCreateConversation(in: context)
         else {
+            Logging.eventProcessing.error("Conversation message timer update missing sender or conversation, aborting...")
             return
         }
 
         let timeoutValue = (data.messageTimer ?? 0) / 1000
         let timeout: MessageDestructionTimeout = .synced((.init(rawValue: timeoutValue)))
+        let currentTimeout = conversation.messageDestructionTimeout ?? .synced(0)
 
-        if let timestamp = timestamp, conversation.messageDestructionTimeout != timeout {
+        if let timestamp = timestamp, currentTimeout != timeout {
             conversation.appendMessageTimerUpdateMessage(fromUser: sender, timer: timeoutValue, timestamp: timestamp)
         }
 
@@ -796,6 +816,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationReceipt
             let timestamp = timestamp,
             timestamp > conversation.lastServerTimeStamp // Discard event if it has already been applied
         else {
+            Logging.eventProcessing.error("Conversation receipt mode has already been updated, aborting...")
             return
         }
         
@@ -811,6 +832,7 @@ extension Payload.ConversationEvent where T == Payload.Conversation {
         guard
             let timestamp = timestamp
         else {
+            Logging.eventProcessing.error("Conversation creation missing timestamp in event, aborting...")
             return
         }
 
@@ -824,6 +846,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationDeleted
         guard
             let conversation = fetchOrCreateConversation(in: context)
         else {
+            Logging.eventProcessing.error("Conversation deletion missing conversation in event, aborting...")
             return
         }
 

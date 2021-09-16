@@ -17,192 +17,11 @@
 
 import Foundation
 
+protocol EventData: Codable {
+    static var eventType: ZMUpdateEventType { get }
+}
+
 extension Payload {
-
-    struct Service: Codable {
-        let id: UUID
-        let provider: UUID
-    }
-
-    struct ConversationMember: Codable {
-
-        enum CodingKeys: String, CodingKey {
-            case id
-            case qualifiedID = "qualified_id"
-            case target
-            case service
-            case mutedStatus = "otr_muted_status"
-            case mutedReference = "otr_muted_ref"
-            case archived = "otr_archived"
-            case archivedReference = "otr_archived_ref"
-            case hidden = "otr_hidden"
-            case hiddenReference = "otr_hidden_ref"
-            case conversationRole = "conversation_role"
-        }
-
-        let id: UUID?
-        let qualifiedID: QualifiedUserID?
-        let target: UUID?
-        let service: Service?
-        let mutedStatus: Int?
-        let mutedReference: Date?
-        let archived: Bool?
-        let archivedReference: Date?
-        let hidden: Bool?
-        let hiddenReference: String?
-        let conversationRole: String?
-
-        init(id: UUID? = nil,
-             qualifiedID: QualifiedUserID? = nil,
-             target: UUID? = nil,
-             service: Service? = nil,
-             mutedStatus: Int? = nil,
-             mutedReference: Date? = nil,
-             archived: Bool? = nil,
-             archivedReference: Date? = nil,
-             hidden: Bool? = nil,
-             hiddenReference: String? = nil,
-             conversationRole: String? = nil) {
-            self.id = id
-            self.qualifiedID = qualifiedID
-            self.target = target
-            self.service = service
-            self.mutedStatus  = mutedStatus
-            self.mutedReference = mutedReference
-            self.archived = archived
-            self.archivedReference = archivedReference
-            self.hidden = hidden
-            self.hiddenReference = hiddenReference
-            self.conversationRole = conversationRole
-        }
-    }
-
-    struct ConversationMembers: Codable {
-        enum CodingKeys: String, CodingKey {
-            case selfMember = "self"
-            case others
-        }
-
-        let selfMember: ConversationMember
-        let others: [ConversationMember]
-    }
-
-    struct ConversationTeamInfo: Codable {
-        enum CodingKeys: String, CodingKey {
-            case teamID = "teamid"
-            case managed
-        }
-
-        init (teamID: UUID, managed: Bool = false) {
-            self.teamID = teamID
-            self.managed = managed
-        }
-
-        let teamID: UUID
-        let managed: Bool?
-    }
-
-    struct UpdateConverationMemberLeave: Codable {
-        enum CodingKeys: String, CodingKey {
-            case userIDs = "user_ids"
-            case qualifiedUserIDs = "qualified_user_ids"
-        }
-
-        let userIDs: [UUID]?
-        let qualifiedUserIDs: [QualifiedUserID]?
-    }
-
-    struct UpdateConverationMemberJoin: Codable {
-        enum CodingKeys: String, CodingKey {
-            case userIDs = "user_ids"
-            case users
-        }
-
-        let userIDs: [UUID]?
-        let users: [ConversationMember]?
-    }
-
-    struct UpdateConversationConnectionRequest: Codable { }
-
-    struct UpdateConversationDeleted: Codable { }
-
-    struct UpdateConversationReceiptMode: Codable {
-        enum CodingKeys: String, CodingKey {
-            case readReceiptMode = "receipt_mode"
-        }
-
-        let readReceiptMode: Int
-    }
-
-    struct UpdateConversationMessageTimer: Codable {
-        enum CodingKeys: String, CodingKey {
-            case messageTimer = "message_timer"
-        }
-
-        let messageTimer: TimeInterval?
-    }
-
-    struct UpdateConversationAccess: Codable {
-        enum CodingKeys: String, CodingKey {
-            case access
-            case accessRole = "access_role"
-        }
-
-        let access: [String]
-        let accessRole: String
-    }
-
-    struct UpdateConversationName: Codable {
-        var name: String
-
-        init?(_ conversation: ZMConversation) {
-            guard
-                conversation.hasLocalModifications(forKey: ZMConversationUserDefinedNameKey),
-                let userDefinedName = conversation.userDefinedName
-            else {
-                return nil
-            }
-
-            name = userDefinedName
-        }
-    }
-
-    struct UpdateConversationStatus: Codable {
-        enum CodingKeys: String, CodingKey {
-            case mutedStatus = "otr_muted_status"
-            case mutedReference = "otr_muted_ref"
-            case archived = "otr_archived"
-            case archivedReference = "otr_archived_ref"
-            case hidden = "otr_hidden"
-            case hiddenReference = "otr_hidden_ref"
-        }
-
-        var mutedStatus: Int?
-        var mutedReference: Date?
-        var archived: Bool?
-        var archivedReference: Date?
-        var hidden: Bool?
-        var hiddenReference: String?
-
-        init(_ conversation: ZMConversation) {
-
-            if conversation.hasLocalModifications(forKey: ZMConversationSilencedChangedTimeStampKey) {
-                let reference = conversation.silencedChangedTimestamp ?? Date()
-                conversation.silencedChangedTimestamp = reference
-
-                mutedStatus = Int(conversation.mutedMessageTypes.rawValue)
-                mutedReference = reference
-            }
-
-            if conversation.hasLocalModifications(forKey: ZMConversationArchivedChangedTimeStampKey) {
-                let reference = conversation.archivedChangedTimestamp ?? Date()
-                conversation.archivedChangedTimestamp = reference
-
-                archived = conversation.isArchived
-                archivedReference = reference
-            }
-        }
-    }
 
     struct NewConversation: Codable {
         enum CodingKeys: String, CodingKey {
@@ -240,7 +59,7 @@ extension Payload {
         }
     }
 
-    struct Conversation: Codable {
+    struct Conversation: EventData {
 
         enum CodingKeys: String, CodingKey {
             case qualifiedID = "qualified_id"
@@ -256,6 +75,10 @@ extension Payload {
             case teamID = "team"
             case messageTimer = "message_timer"
             case readReceiptMode = "read_receipt_mode"
+        }
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationCreate
         }
 
         let qualifiedID: QualifiedUserID?
@@ -324,25 +147,6 @@ extension Payload {
         let failed: [QualifiedUserID]
     }
 
-    struct ConversationEvent<T: Codable>: Codable {
-
-        enum CodingKeys: String, CodingKey {
-            case id = "conversation"
-            case qualifiedID = "qualified_conversation"
-            case from
-            case qualifiedFrom = "qualified_from"
-            case timestamp = "time"
-            case data
-        }
-
-        let id: UUID?
-        let qualifiedID: QualifiedUserID?
-        let from: UUID?
-        let qualifiedFrom: QualifiedUserID?
-        let timestamp: Date?
-        let data: T
-    }
-
     struct PaginatedConversationIDList: Codable, Paginatable {
 
         enum CodingKeys: String, CodingKey {
@@ -373,6 +177,255 @@ extension Payload {
         let conversations: [QualifiedUserID]
         let pagingState: String
         let hasMore: Bool
+    }
+
+
+    struct Service: Codable {
+        let id: UUID
+        let provider: UUID
+    }
+
+    struct ConversationMember: EventData {
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case qualifiedID = "qualified_id"
+            case target
+            case service
+            case mutedStatus = "otr_muted_status"
+            case mutedReference = "otr_muted_ref"
+            case archived = "otr_archived"
+            case archivedReference = "otr_archived_ref"
+            case hidden = "otr_hidden"
+            case hiddenReference = "otr_hidden_ref"
+            case conversationRole = "conversation_role"
+        }
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationMemberUpdate
+        }
+
+        let id: UUID?
+        let qualifiedID: QualifiedUserID?
+        let target: UUID?
+        let service: Service?
+        let mutedStatus: Int?
+        let mutedReference: Date?
+        let archived: Bool?
+        let archivedReference: Date?
+        let hidden: Bool?
+        let hiddenReference: String?
+        let conversationRole: String?
+
+        init(id: UUID? = nil,
+             qualifiedID: QualifiedUserID? = nil,
+             target: UUID? = nil,
+             service: Service? = nil,
+             mutedStatus: Int? = nil,
+             mutedReference: Date? = nil,
+             archived: Bool? = nil,
+             archivedReference: Date? = nil,
+             hidden: Bool? = nil,
+             hiddenReference: String? = nil,
+             conversationRole: String? = nil) {
+            self.id = id
+            self.qualifiedID = qualifiedID
+            self.target = target
+            self.service = service
+            self.mutedStatus  = mutedStatus
+            self.mutedReference = mutedReference
+            self.archived = archived
+            self.archivedReference = archivedReference
+            self.hidden = hidden
+            self.hiddenReference = hiddenReference
+            self.conversationRole = conversationRole
+        }
+    }
+
+    struct ConversationMembers: Codable {
+        enum CodingKeys: String, CodingKey {
+            case selfMember = "self"
+            case others
+        }
+
+        let selfMember: ConversationMember
+        let others: [ConversationMember]
+    }
+
+    struct ConversationTeamInfo: Codable {
+        enum CodingKeys: String, CodingKey {
+            case teamID = "teamid"
+            case managed
+        }
+
+        init (teamID: UUID, managed: Bool = false) {
+            self.teamID = teamID
+            self.managed = managed
+        }
+
+        let teamID: UUID
+        let managed: Bool?
+    }
+
+    struct UpdateConversationStatus: Codable {
+        enum CodingKeys: String, CodingKey {
+            case mutedStatus = "otr_muted_status"
+            case mutedReference = "otr_muted_ref"
+            case archived = "otr_archived"
+            case archivedReference = "otr_archived_ref"
+            case hidden = "otr_hidden"
+            case hiddenReference = "otr_hidden_ref"
+        }
+
+        var mutedStatus: Int?
+        var mutedReference: Date?
+        var archived: Bool?
+        var archivedReference: Date?
+        var hidden: Bool?
+        var hiddenReference: String?
+
+        init(_ conversation: ZMConversation) {
+
+            if conversation.hasLocalModifications(forKey: ZMConversationSilencedChangedTimeStampKey) {
+                let reference = conversation.silencedChangedTimestamp ?? Date()
+                conversation.silencedChangedTimestamp = reference
+
+                mutedStatus = Int(conversation.mutedMessageTypes.rawValue)
+                mutedReference = reference
+            }
+
+            if conversation.hasLocalModifications(forKey: ZMConversationArchivedChangedTimeStampKey) {
+                let reference = conversation.archivedChangedTimestamp ?? Date()
+                conversation.archivedChangedTimestamp = reference
+
+                archived = conversation.isArchived
+                archivedReference = reference
+            }
+        }
+    }
+
+    // MARK: - Events
+
+    struct ConversationEvent<T: EventData>: Codable {
+
+        enum CodingKeys: String, CodingKey {
+            case id = "conversation"
+            case qualifiedID = "qualified_conversation"
+            case from
+            case qualifiedFrom = "qualified_from"
+            case timestamp = "time"
+            case type
+            case data
+        }
+
+        let id: UUID?
+        let qualifiedID: QualifiedUserID?
+        let from: UUID?
+        let qualifiedFrom: QualifiedUserID?
+        let timestamp: Date?
+        let type: String?
+        let data: T
+    }
+
+    struct UpdateConverationMemberLeave: EventData {
+        enum CodingKeys: String, CodingKey {
+            case userIDs = "user_ids"
+            case qualifiedUserIDs = "qualified_user_ids"
+        }
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationMemberLeave
+        }
+
+        let userIDs: [UUID]?
+        let qualifiedUserIDs: [QualifiedUserID]?
+    }
+
+    struct UpdateConverationMemberJoin: EventData {
+        enum CodingKeys: String, CodingKey {
+            case userIDs = "user_ids"
+            case users
+        }
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationMemberJoin
+        }
+
+        let userIDs: [UUID]?
+        let users: [ConversationMember]?
+    }
+
+    struct UpdateConversationConnectionRequest: EventData {
+        static var eventType: ZMUpdateEventType {
+            return .conversationConnectRequest
+        }
+    }
+
+    struct UpdateConversationDeleted: EventData {
+        static var eventType: ZMUpdateEventType {
+            return .conversationDelete
+        }
+    }
+
+    struct UpdateConversationReceiptMode: EventData {
+        enum CodingKeys: String, CodingKey {
+            case readReceiptMode = "receipt_mode"
+        }
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationReceiptModeUpdate
+        }
+
+        let readReceiptMode: Int
+    }
+
+    struct UpdateConversationMessageTimer: EventData {
+        enum CodingKeys: String, CodingKey {
+            case messageTimer = "message_timer"
+        }
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationMessageTimerUpdate
+        }
+
+        let messageTimer: TimeInterval?
+    }
+
+    struct UpdateConversationAccess: EventData {
+        enum CodingKeys: String, CodingKey {
+            case access
+            case accessRole = "access_role"
+        }
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationAccessModeUpdate
+        }
+
+        let access: [String]
+        let accessRole: String
+    }
+
+    struct UpdateConversationName: EventData {
+        var name: String
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationRename
+        }
+
+        init?(_ conversation: ZMConversation) {
+            guard
+                conversation.hasLocalModifications(forKey: ZMConversationUserDefinedNameKey),
+                let userDefinedName = conversation.userDefinedName
+            else {
+                return nil
+            }
+
+            name = userDefinedName
+        }
+
+        init(name: String) {
+            self.name = name
+        }
     }
 
 }
