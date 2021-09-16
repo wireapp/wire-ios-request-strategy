@@ -416,7 +416,7 @@ extension Payload.ConversationMember {
 
         if let mutedStatus = mutedStatus,
            let mutedReference = mutedReference {
-            conversation.updateMutedStatus(referenceDate: mutedReference, status: Int32(mutedStatus))
+            conversation.updateMutedStatus(status: Int32(mutedStatus), referenceDate: mutedReference)
         }
 
         if let archived = archived,
