@@ -1074,19 +1074,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         return response
     }
 
-    // TODO jacob this method is duplicated. Move to a better place
-    func responseFailure(code: Int, label: Payload.ResponseFailure.Label, message: String = "") -> ZMTransportResponse {
-        let responseFailure = Payload.ResponseFailure(code: code, label: label, message: message)
-        let payloadData = responseFailure.payloadData()!
-        let payloadString = String(bytes: payloadData, encoding: .utf8)!
-        let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
-                                           httpStatus: code,
-                                           transportSessionError: nil)
-
-        return response
-
-    }
-
     func conversation(uuid: UUID, domain: String?, type: BackendConversationType = .group) -> Payload.Conversation {
         return Payload.Conversation(qualifiedID: nil,
                                     id: uuid,
