@@ -475,7 +475,7 @@ extension Payload.Conversation {
 
         guard let conversationID = id ?? qualifiedID?.uuid,
               let rawConversationType = type else {
-            // TODO jacob log error
+            Logging.eventProcessing.error("Missing conversation or type in 1:1 conversation payload, aborting...")
             return
         }
 
@@ -512,7 +512,7 @@ extension Payload.Conversation {
                                         serverTimestamp: Date,
                                         source: Source) {
         guard let conversationID = id ?? qualifiedID?.uuid else {
-            // TODO jacob log error
+            Logging.eventProcessing.error("Missing conversationID in self conversation payload, aborting...")
             return
         }
 
@@ -533,7 +533,7 @@ extension Payload.Conversation {
                                          serverTimestamp: Date,
                                          source: Source) {
         guard let conversationID = id ?? qualifiedID?.uuid else {
-            // TODO jacob log error
+            Logging.eventProcessing.error("Missing conversationID in group conversation payload, aborting...")
             return
         }
 
