@@ -187,11 +187,26 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
 extension ConversationRequestStrategy: ZMEventConsumer {
 
+    var eventsToProcess: [ZMUpdateEventType] {
+        return [.conversationCreate,
+                .conversationDelete,
+                .conversationMemberLeave,
+                .conversationMemberJoin,
+                .conversationRename,
+                .conversationMemberUpdate,
+                .conversationAccessModeUpdate,
+                .conversationMessageTimerUpdate,
+                .conversationReceiptModeUpdate,
+                .conversationConnectRequest
+        ]
+    }
+
     public func processEvents(_ events: [ZMUpdateEvent],
                               liveEvents: Bool,
                               prefetchResult: ZMFetchRequestBatchResult?) {
         for event in events {
             guard
+                eventsToProcess.contains(event.type),
                 let payloadAsDictionary = event.payload as? [String: Any],
                 let payloadData = try? JSONSerialization.data(withJSONObject: payloadAsDictionary, options: [])
             else {
