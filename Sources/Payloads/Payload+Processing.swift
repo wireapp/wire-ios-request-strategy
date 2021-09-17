@@ -504,6 +504,8 @@ extension Payload.Conversation {
         conversation.conversationType = conversationType
         conversation.needsToBeUpdatedFromBackend = false
 
+        updateMetadata(for: conversation, context: context)
+        updateMembers(for: conversation, context: context)
         updateConversationTimestamps(for: conversation, serverTimestamp: serverTimestamp)
         updateConversationStatus(for: conversation)
     }
@@ -526,6 +528,8 @@ extension Payload.Conversation {
         conversation.domain = qualifiedID?.domain
         conversation.needsToBeUpdatedFromBackend = false
 
+        updateMetadata(for: conversation, context: context)
+        updateMembers(for: conversation, context: context)
         updateConversationTimestamps(for: conversation, serverTimestamp: serverTimestamp)
     }
 
@@ -548,24 +552,8 @@ extension Payload.Conversation {
         conversation.domain = qualifiedID?.domain
         conversation.needsToBeUpdatedFromBackend = false
 
-        if let teamID = teamID {
-            conversation.updateTeam(identifier: teamID)
-        }
-
-        if let name = name {
-            conversation.userDefinedName = name
-        }
-
-        if let creator = fetchCreator(in: context) {
-            conversation.creator = creator
-        }
-        
-        if let members = members {
-            let otherMembers = members.fetchOtherMembers(in: context, conversation: conversation)
-            let selfUserRole = members.selfMember.fetchUserAndRole(in: context, conversation: conversation)?.1
-            conversation.updateMembers(otherMembers, selfUserRole: selfUserRole)
-        }
-
+        updateMetadata(for: conversation, context: context)
+        updateMembers(for: conversation, context: context)
         updateConversationTimestamps(for: conversation, serverTimestamp: serverTimestamp)
         updateConversationStatus(for: conversation)
 
@@ -578,6 +566,28 @@ extension Payload.Conversation {
                 // Slow synced conversations should be considered read from the start
                 conversation.lastReadServerTimeStamp = conversation.lastModifiedDate
             }
+        }
+    }
+
+    func updateMetadata(for conversation: ZMConversation, context: NSManagedObjectContext) {
+        if let teamID = teamID {
+            conversation.updateTeam(identifier: teamID)
+        }
+
+        if let name = name {
+            conversation.userDefinedName = name
+        }
+
+        if let creator = fetchCreator(in: context) {
+            conversation.creator = creator
+        }
+    }
+
+    func updateMembers(for conversation: ZMConversation, context: NSManagedObjectContext) {
+        if let members = members {
+            let otherMembers = members.fetchOtherMembers(in: context, conversation: conversation)
+            let selfUserRole = members.selfMember.fetchUserAndRole(in: context, conversation: conversation)?.1
+            conversation.updateMembers(otherMembers, selfUserRole: selfUserRole)
         }
     }
 
@@ -739,20 +749,18 @@ extension Payload.ConversationEvent where T == Payload.ConversationMember {
 
     func fetchOrCreateTargetUser(in context: NSManagedObjectContext) -> ZMUser? {
         guard
-            let userID = data.target
+            let userID = data.target ?? data.id
         else {
             return nil
         }
-
-        // TODO jacob this should be updated with for qualified ID when available by BE
-
-        return ZMUser.fetchOrCreate(with: userID, domain: nil, in: context)
+        
+        return ZMUser.fetchOrCreate(with: userID, domain: data.qualifiedID?.domain, in: context)
     }
 
     func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
         guard
             let conversation = fetchOrCreateConversation(in: context),
-            let targetUser = fetchOrCreateTargetUser(in: context)
+            let targetUser =  fetchOrCreateTargetUser(in: context)
         else {
             Logging.eventProcessing.error("Conversation member update missing conversation or target user, aborting...")
             return

@@ -143,6 +143,14 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
         isFetchingAllConversations = true
 
+        // Mark all existing conversationt to be re-fetched since they might have
+        // been deleted. If not the flag will be reset after syncing the conversations
+        // with the BE and no extra work will be done.
+        ZMUser.selfUser(in: managedObjectContext).conversations.forEach {
+            print("Marking \($0.remoteIdentifier!) to be re-fetched")
+            $0.needsToBeUpdatedFromBackend = true
+        }
+
         if useFederationEndpoint {
             conversationQualifiedIDsSync.fetch { [weak self] (result) in
                 switch result {
@@ -312,6 +320,32 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
 
     public func shouldProcessUpdatesBeforeInserts() -> Bool {
         return false
+    }
+
+    public func shouldCreateRequest(toSyncObject managedObject: ZMManagedObject,
+                                    forKeys keys: Set<String>,
+                                    withSync sync: Any) -> Bool {
+        guard (sync as AnyObject) === modifiedSync else {
+            return true
+        }
+
+        guard let conversation = managedObject as? ZMConversation else {
+            return false
+        }
+
+        var remainingKeys = keys
+
+        if keys.contains(ZMConversationUserDefinedNameKey) && conversation.userDefinedName == nil {
+            conversation.resetLocallyModifiedKeys(Set(arrayLiteral: ZMConversationUserDefinedNameKey))
+            remainingKeys.remove(ZMConversationUserDefinedNameKey)
+        }
+
+        if remainingKeys.count < keys.count {
+            contextChangeTrackers.forEach({ $0.objectsDidChange(Set(arrayLiteral: conversation)) })
+            managedObjectContext.enqueueDelayedSave()
+        }
+
+        return remainingKeys.count > 0
     }
 
     public func shouldRetryToSyncAfterFailed(toUpdate managedObject: ZMManagedObject,
@@ -501,16 +535,14 @@ class ConversationByIDTranscoder: IdentifierObjectSyncTranscoder {
     func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
 
         guard response.result != .permanentError else {
-            if let responseFailure = Payload.ResponseFailure(response, decoder: decoder) {
-                if responseFailure.code == 404, case .notFound = responseFailure.label {
-                    deleteConversations(identifiers)
-                    return
-                }
+            if response.httpStatus == 404 {
+                deleteConversations(identifiers)
+                return
+            }
 
-                if responseFailure.code == 403 {
-                    removeSelfUser(identifiers)
-                    return
-                }
+            if response.httpStatus == 403 {
+                removeSelfUser(identifiers)
+                return
             }
 
             markConversationsAsFetched(identifiers)
@@ -597,16 +629,14 @@ class ConversationByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
     func didReceive(response: ZMTransportResponse, for identifiers: Set<Payload.QualifiedUserID>) {
 
         guard response.result != .permanentError else {
-            if let responseFailure = Payload.ResponseFailure(response, decoder: decoder) {
-                if responseFailure.code == 404, case .notFound = responseFailure.label {
-                    deleteConversations(identifiers)
-                    return
-                }
+            if response.httpStatus == 404 {
+                deleteConversations(identifiers)
+                return
+            }
 
-                if responseFailure.code == 403 {
-                    removeSelfUser(identifiers)
-                    return
-                }
+            if response.httpStatus == 403 {
+                removeSelfUser(identifiers)
+                return
             }
 
             markConversationsAsFetched(identifiers)

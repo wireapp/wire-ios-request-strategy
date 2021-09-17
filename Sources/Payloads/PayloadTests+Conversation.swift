@@ -280,7 +280,7 @@ class PayloadTests_Conversation: MessagingTestBase {
             XCTAssertEqual(self.otherUser.connection?.conversation?.remoteIdentifier, conversationID)
             XCTAssertEqual(self.otherUser.connection?.conversation?.domain, self.owningDomain)
             XCTAssertEqual(self.otherUser.connection?.conversation?.conversationType, .oneOnOne)
-            XCTAssertEqual(self.otherUser.connection?.conversation?.needsToBeUpdatedFromBackend, false)
+            XCTAssertEqual(self.otherUser.connection?.conversation?.localParticipants, Set(arrayLiteral: selfUser, self.otherUser))
         }
     }
 
