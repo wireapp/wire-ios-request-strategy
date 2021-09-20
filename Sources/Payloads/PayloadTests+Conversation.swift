@@ -349,7 +349,7 @@ class PayloadTests_Conversation: MessagingTestBase {
             conversationPayload.updateOrCreate(in: self.syncMOC)
 
             // then
-            XCTAssertTrue(existingConversation.isDeleted)
+            XCTAssertTrue(existingConversation.isZombieObject)
             XCTAssertEqual(self.otherUser.connection?.conversation?.lastMessage?.textMessageData?.messageText, existingTextMessage)
         }
     }

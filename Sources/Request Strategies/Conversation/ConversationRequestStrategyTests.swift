@@ -56,7 +56,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let conversationID = self.groupConversation.remoteIdentifier!
             self.groupConversation.domain = domain
             self.groupConversation.needsToBeUpdatedFromBackend = true
-            self.sut.objectsDidChange(Set([self.groupConversation]))
+            self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([self.groupConversation])) }
 
             // when
             let request = self.sut.nextRequest()!
@@ -70,10 +70,11 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     func testThatLegacyRequestToFetchConversationIsGenerated_WhenDomainIsNotSet() {
         syncMOC.performGroupedBlockAndWait {
             // given
+            ZMUser.selfUser(in: self.syncMOC).domain = nil
             let conversationID = self.groupConversation.remoteIdentifier!
             self.groupConversation.domain = nil
             self.groupConversation.needsToBeUpdatedFromBackend = true
-            self.sut.objectsDidChange(Set([self.groupConversation]))
+            self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([self.groupConversation])) }
 
             // when
             let request = self.sut.nextRequest()!
@@ -982,7 +983,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             // given
             self.groupConversation.needsToBeUpdatedFromBackend = true
-            self.sut.objectsDidChange(Set([self.groupConversation]))
+            self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([self.groupConversation])) }
 
             // when
             let request = self.sut.nextRequest()!

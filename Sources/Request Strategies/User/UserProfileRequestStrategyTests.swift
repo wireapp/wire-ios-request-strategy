@@ -74,6 +74,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatLegacyRequestToFetchUserIsGenerated_WhenDomainIsNotSet() {
         syncMOC.performGroupedBlockAndWait {
             // given
+            ZMUser.selfUser(in: self.syncMOC).domain = nil
             self.otherUser.domain = nil
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
