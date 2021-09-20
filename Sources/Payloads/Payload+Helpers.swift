@@ -19,7 +19,7 @@ import Foundation
 
 extension ZMUser {
 
-    var qualifiedID: Payload.QualifiedUserID? {
+    var qualifiedID: Payload.QualifiedID? {
         guard
             let context = managedObjectContext,
             let uuid = remoteIdentifier,
@@ -28,14 +28,14 @@ extension ZMUser {
             return nil
         }
 
-        return Payload.QualifiedUserID(uuid: uuid, domain: domain)
+        return Payload.QualifiedID(uuid: uuid, domain: domain)
     }
 
 }
 
 extension ZMConversation {
 
-    var qualifiedID: Payload.QualifiedUserID? {
+    var qualifiedID: Payload.QualifiedID? {
         guard
             let context = managedObjectContext,
             let uuid = remoteIdentifier,
@@ -44,14 +44,14 @@ extension ZMConversation {
             return nil
         }
 
-        return Payload.QualifiedUserID(uuid: uuid, domain: domain)
+        return Payload.QualifiedID(uuid: uuid, domain: domain)
     }
 
 }
 
 extension Collection where Element == ZMUser {
 
-    var qualifiedUserIDs: [Payload.QualifiedUserID]? {
+    var qualifiedUserIDs: [Payload.QualifiedID]? {
         let list = compactMap(\.qualifiedID)
 
         return list.count == count ? list : nil
@@ -61,7 +61,7 @@ extension Collection where Element == ZMUser {
 
 extension Collection where Element == ZMConversation {
 
-    var qualifiedIDs: [Payload.QualifiedUserID]? {
+    var qualifiedIDs: [Payload.QualifiedID]? {
         let list = compactMap(\.qualifiedID)
 
         return list.count == count ? list : nil

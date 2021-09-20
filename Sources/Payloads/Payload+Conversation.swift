@@ -81,7 +81,7 @@ extension Payload {
             return .conversationCreate
         }
 
-        let qualifiedID: QualifiedUserID?
+        let qualifiedID: QualifiedID?
         let id: UUID?
         let type: Int?
         let creator: UUID?
@@ -95,7 +95,7 @@ extension Payload {
         let messageTimer: TimeInterval?
         let readReceiptMode: Int?
 
-        init(qualifiedID: QualifiedUserID? = nil,
+        init(qualifiedID: QualifiedID? = nil,
              id: UUID?  = nil,
              type: Int? = nil,
              creator: UUID? = nil,
@@ -143,8 +143,8 @@ extension Payload {
         }
 
         let found: [Conversation]
-        let notFound: [QualifiedUserID]
-        let failed: [QualifiedUserID]
+        let notFound: [QualifiedID]
+        let failed: [QualifiedID]
     }
 
     struct PaginatedConversationIDList: Codable, Paginatable {
@@ -174,7 +174,7 @@ extension Payload {
             return pagingState
         }
 
-        let conversations: [QualifiedUserID]
+        let conversations: [QualifiedID]
         let pagingState: String
         let hasMore: Bool
     }
@@ -206,7 +206,7 @@ extension Payload {
         }
 
         let id: UUID?
-        let qualifiedID: QualifiedUserID?
+        let qualifiedID: QualifiedID?
         let target: UUID?
         let service: Service?
         let mutedStatus: Int?
@@ -218,7 +218,7 @@ extension Payload {
         let conversationRole: String?
 
         init(id: UUID? = nil,
-             qualifiedID: QualifiedUserID? = nil,
+             qualifiedID: QualifiedID? = nil,
              target: UUID? = nil,
              service: Service? = nil,
              mutedStatus: Int? = nil,
@@ -319,9 +319,9 @@ extension Payload {
         }
 
         let id: UUID?
-        let qualifiedID: QualifiedUserID?
+        let qualifiedID: QualifiedID?
         let from: UUID?
-        let qualifiedFrom: QualifiedUserID?
+        let qualifiedFrom: QualifiedID?
         let timestamp: Date?
         let type: String?
         let data: T
@@ -338,7 +338,7 @@ extension Payload {
         }
 
         let userIDs: [UUID]?
-        let qualifiedUserIDs: [QualifiedUserID]?
+        let qualifiedUserIDs: [QualifiedID]?
     }
 
     struct UpdateConverationMemberJoin: EventData {

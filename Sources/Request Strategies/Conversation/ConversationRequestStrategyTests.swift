@@ -208,7 +208,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                 return XCTFail()
             }
 
-            let qualifiedConversationID = Payload.QualifiedUserID(uuid: self.groupConversation.remoteIdentifier!,
+            let qualifiedConversationID = Payload.QualifiedID(uuid: self.groupConversation.remoteIdentifier!,
                                                                   domain: self.groupConversation.domain!)
             XCTAssertEqual(fetchPayload.qualifiedIDs.count, 1)
             XCTAssertEqual(fetchPayload.qualifiedIDs, [qualifiedConversationID])
@@ -271,7 +271,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func testThatConversationIsCreatedAndMarkedToFetched_WhenFailingDuringSlowSyncPhase() throws {
         // given
-        let conversationID = Payload.QualifiedUserID(uuid: UUID(), domain: owningDomain)
+        let conversationID = Payload.QualifiedID(uuid: UUID(), domain: owningDomain)
         startSlowSync()
         fetchConversationListDuringSlowSync()
 
@@ -336,7 +336,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         syncMOC.performAndWait {
             // given
             let selfUserID = ZMUser.selfUser(in: self.syncMOC).remoteIdentifier!
-            let qualifiedID = Payload.QualifiedUserID(uuid: UUID(), domain: self.owningDomain)
+            let qualifiedID = Payload.QualifiedID(uuid: UUID(), domain: self.owningDomain)
             let payload = Payload.Conversation(qualifiedID: qualifiedID,
                                                type: BackendConversationType.group.rawValue,
                                                name: "Hello World",
@@ -964,10 +964,10 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     // MARK: - Helpers
 
-    func qualifiedID(for conversation: ZMConversation) -> Payload.QualifiedUserID {
-        var qualifiedID: Payload.QualifiedUserID!
+    func qualifiedID(for conversation: ZMConversation) -> Payload.QualifiedID {
+        var qualifiedID: Payload.QualifiedID!
         syncMOC.performGroupedBlockAndWait {
-            qualifiedID = Payload.QualifiedUserID(uuid: conversation.remoteIdentifier!,
+            qualifiedID = Payload.QualifiedID(uuid: conversation.remoteIdentifier!,
                                                   domain: conversation.domain!)
         }
         return qualifiedID
@@ -994,7 +994,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func fetchConversationListDuringSlowSync() {
         syncMOC.performGroupedBlockAndWait {
-            let qualifiedConversationID = Payload.QualifiedUserID(uuid: self.groupConversation.remoteIdentifier!,
+            let qualifiedConversationID = Payload.QualifiedID(uuid: self.groupConversation.remoteIdentifier!,
                                                                   domain: self.groupConversation.domain!)
 
             let listRequest = self.sut.nextRequest()!
@@ -1028,8 +1028,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }
 
-    func fetchConversationsDuringSlowSync(notFound: [Payload.QualifiedUserID] = [],
-                                          failed: [Payload.QualifiedUserID] = []) {
+    func fetchConversationsDuringSlowSync(notFound: [Payload.QualifiedID] = [],
+                                          failed: [Payload.QualifiedID] = []) {
         syncMOC.performGroupedBlockAndWait {
 
             // when
@@ -1045,7 +1045,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     }
 
     func successfulResponse(request: Payload.PaginationStatus,
-                            conversations: [Payload.QualifiedUserID]) -> ZMTransportResponse {
+                            conversations: [Payload.QualifiedID]) -> ZMTransportResponse {
         let payload = Payload.PaginatedQualifiedConversationIDList(conversations: conversations,
                                                                    pagingState: "",
                                                                    hasMore: false)
@@ -1060,8 +1060,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     }
 
     func successfulResponse(request: Payload.QualifiedUserIDList,
-                            notFound: [Payload.QualifiedUserID],
-                            failed: [Payload.QualifiedUserID]) -> ZMTransportResponse {
+                            notFound: [Payload.QualifiedID],
+                            failed: [Payload.QualifiedID]) -> ZMTransportResponse {
 
 
         let found = request.qualifiedIDs.map({ conversation(uuid: $0.uuid, domain: $0.domain)})
@@ -1092,8 +1092,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     }
 
     func updateEvent<Event: EventData>(from data: Event,
-                                     conversationID: Payload.QualifiedUserID? = nil,
-                                     senderID: Payload.QualifiedUserID? = nil,
+                                     conversationID: Payload.QualifiedID? = nil,
+                                     senderID: Payload.QualifiedID? = nil,
                                      timestamp: Date? = nil) -> ZMUpdateEvent {
 
         let event = Payload.ConversationEvent<Event>(id: conversationID?.uuid,

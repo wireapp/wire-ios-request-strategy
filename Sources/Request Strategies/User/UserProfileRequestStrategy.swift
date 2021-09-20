@@ -260,7 +260,7 @@ class UserProfileByIDTranscoder: IdentifierObjectSyncTranscoder {
 
 class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
 
-    public typealias T = Payload.QualifiedUserID
+    public typealias T = Payload.QualifiedID
 
     var fetchLimit: Int = 500
     var isAvailable: Bool = true
@@ -274,7 +274,7 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
         self.context = context
     }
 
-    func request(for identifiers: Set<Payload.QualifiedUserID>) -> ZMTransportRequest? {
+    func request(for identifiers: Set<Payload.QualifiedID>) -> ZMTransportRequest? {
         guard
             let payloadData = Payload.QualifiedUserIDList(qualifiedIDs: Array(identifiers)).payloadData(encoder: encoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
@@ -287,7 +287,7 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
         return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?)
     }
 
-    func didReceive(response: ZMTransportResponse, for identifiers: Set<Payload.QualifiedUserID>) {
+    func didReceive(response: ZMTransportResponse, for identifiers: Set<Payload.QualifiedID>) {
 
         if response.httpStatus == 404, let responseFailure = Payload.ResponseFailure(response, decoder: decoder) {
             switch responseFailure.label {
@@ -324,7 +324,7 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
         markUserProfilesAsFetched(missingIdentifiers)
     }
 
-    private func markUserProfilesAsFetched(_ missingUsers: Set<Payload.QualifiedUserID>) {
+    private func markUserProfilesAsFetched(_ missingUsers: Set<Payload.QualifiedID>) {
         for qualifiedID in missingUsers {
             let user = ZMUser.fetch(with: qualifiedID.uuid, domain: qualifiedID.domain, in: context)
             user?.needsToBeUpdatedFromBackend = false
