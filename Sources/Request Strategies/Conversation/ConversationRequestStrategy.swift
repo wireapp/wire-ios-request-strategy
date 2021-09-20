@@ -17,26 +17,6 @@
 
 import Foundation
 
-extension Collection where Element == ZMConversation {
-
-    var qualifiedIDs: [Payload.QualifiedUserID]? {
-
-        let list: [Payload.QualifiedUserID] = compactMap({
-            guard
-                let uuid = $0.remoteIdentifier,
-                let domain = $0.domain
-            else {
-                return nil
-            }
-
-            return Payload.QualifiedUserID(uuid: uuid, domain: domain)
-        })
-
-        return list.count == count ? list : nil
-    }
-
-}
-
 public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGeneratorSource, ZMContextChangeTrackerSource, FederationAware {
 
     let syncProgress: SyncProgress

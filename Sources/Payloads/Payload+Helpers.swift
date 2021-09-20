@@ -58,3 +58,13 @@ extension Collection where Element == ZMUser {
     }
 
 }
+
+extension Collection where Element == ZMConversation {
+
+    var qualifiedIDs: [Payload.QualifiedUserID]? {
+        let list = compactMap(\.qualifiedID)
+
+        return list.count == count ? list : nil
+    }
+
+}
