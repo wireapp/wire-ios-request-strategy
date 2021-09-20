@@ -57,6 +57,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
     var insertSync: ZMUpstreamInsertedObjectSync!
     var modifiedSync: ZMUpstreamModifiedObjectSync!
+    let updateSync: KeyPathObjectSync<ConversationRequestStrategy>
 
     var isFetchingAllConversations: Bool = false
 
@@ -104,6 +105,8 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         self.conversationByQualifiedIDSync = IdentifierObjectSync(managedObjectContext: managedObjectContext,
                                                                   transcoder: conversationByQualifiedIDTranscoder)
 
+        self.updateSync = KeyPathObjectSync(entityName: ZMConversation.entityName(), \.needsToBeUpdatedFromBackend)
+
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
 
         self.insertSync = ZMUpstreamInsertedObjectSync(transcoder: self,
@@ -118,6 +121,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         self.configuration = [.allowsRequestsWhileOnline,
                               .allowsRequestsDuringSlowSync]
 
+        self.updateSync.transcoder = self
         self.conversationByIDListSync.delegate = self
         self.conversationByQualifiedIDListSync.delegate = self
     }
@@ -147,7 +151,6 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         // been deleted. If not the flag will be reset after syncing the conversations
         // with the BE and no extra work will be done.
         ZMUser.selfUser(in: managedObjectContext).conversations.forEach {
-            print("Marking \($0.remoteIdentifier!) to be re-fetched")
             $0.needsToBeUpdatedFromBackend = true
         }
 
@@ -188,7 +191,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
     }
 
     public var contextChangeTrackers: [ZMContextChangeTracker] {
-        return [self, insertSync, modifiedSync]
+        return [updateSync, insertSync, modifiedSync]
     }
     
 }
@@ -269,24 +272,25 @@ extension ConversationRequestStrategy: ZMEventConsumer {
     }
 }
 
-extension ConversationRequestStrategy: ZMContextChangeTracker {
+extension ConversationRequestStrategy: KeyPathObjectSyncTranscoder {
 
-    public func objectsDidChange(_ objects: Set<NSManagedObject>) {
-        let conversationNeedingToBeUpdated = objects.compactMap({ $0 as? ZMConversation}).filter(\.needsToBeUpdatedFromBackend)
+    typealias T = ZMConversation
 
-        fetch(Set(conversationNeedingToBeUpdated))
-    }
-
-    public func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
-        return ZMConversation.sortedFetchRequest(with: ZMConversation.predicateForNeedingToBeUpdatedFromBackend()!)
-    }
-
-    public func addTrackedObjects(_ objects: Set<NSManagedObject>) {
-        guard let conversations = objects as? Set<ZMConversation> else {
-            return
+    func synchronize(_ object: ZMConversation, completion: @escaping () -> Void) {
+        if conversationByQualifiedIDSync.isAvailable, let identifiers = object.qualifiedID {
+            conversationByQualifiedIDSync.sync(identifiers: Set(arrayLiteral: identifiers))
+        } else if let identifier = object.remoteIdentifier {
+            conversationByIDSync.sync(identifiers: Set(arrayLiteral: identifier))
         }
+    }
 
-        fetch(conversations)
+    func cancel(_ object: ZMConversation) {
+        if let identifier = object.qualifiedID {
+            conversationByQualifiedIDSync.cancel(identifiers: Set(arrayLiteral: identifier))
+        }
+        if let identifier = object.remoteIdentifier {
+            conversationByIDSync.cancel(identifiers: Set(arrayLiteral: identifier))
+        }
     }
 
 }

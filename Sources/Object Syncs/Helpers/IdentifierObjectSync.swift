@@ -86,6 +86,16 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
             pending.formUnion(Set(identifiers).subtracting(downloading))
         }
     }
+
+    /// Remove identifiers from the list of objects to be fetched
+    ///
+    /// - parameter identifiers: Set of identifiers to remove
+    ///
+    /// If the identifiers have been or are currently being downloaded this method has no effect.
+    
+    public func cancel<S: Sequence>(identifiers: S) where S.Element == Transcoder.T {
+        pending.subtract(identifiers)
+    }
     
     public func nextRequest() -> ZMTransportRequest? {
         guard !pending.isEmpty, let fetchLimit = transcoder?.fetchLimit else { return nil }
