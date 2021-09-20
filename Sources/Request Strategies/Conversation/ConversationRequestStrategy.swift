@@ -295,6 +295,7 @@ extension ConversationRequestStrategy: IdentifierObjectSyncDelegate {
     public func didFailToSyncAllObjects() {
         if syncProgress.currentSyncPhase == .fetchingConversations {
             syncProgress.failCurrentSyncPhase(phase: .fetchingConversations)
+            isFetchingAllConversations = false
         }
     }
 

@@ -109,7 +109,10 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
     }
 
     public func didFailToSyncAllObjects() {
-        // TODO jacob fail sync phase...
+        if syncProgress.currentSyncPhase == .fetchingUsers {
+            syncProgress.failCurrentSyncPhase(phase: .fetchingUsers)
+            isFetchingAllConnectedUsers = false
+        }
     }
 
     public func didFinishSyncingAllObjects() {
