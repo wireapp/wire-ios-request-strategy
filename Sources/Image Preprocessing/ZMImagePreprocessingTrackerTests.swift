@@ -47,9 +47,15 @@ extension ZMImagePreprocessingTrackerTests {
         XCTAssertEqual(request, expectedRequest)
     }
     
-    func testThatItHasNoOutstandingItems() {
+    @objc
+    func assertHasOutstandingItems() {
         XCTAssertFalse(
             sut.hasOutstandingItems,
-            "\(sut.imageOwnersThatNeedPreprocessing) / \(sut.imageOwnersBeingPreprocessed)")
+            "\(sut.imageOwnersThatNeedPreprocessing.description) / \(sut.imageOwnersBeingPreprocessed.description)")
+
+    }
+    
+    func testThatItHasNoOutstandingItems() {
+        assertHasOutstandingItems()
     }
 }

@@ -155,7 +155,7 @@
     XCTAssert([self waitForAllGroupsToBeEmptyWithTimeout:0.3]);
     
     // then
-    XCTAssertFalse(self.sut.hasOutstandingItems);
+    [self assertHasOutstandingItems];
 }
 
 - (void)testThatItHasNoOutstandingItemsWhenItemsNotMatchingThePredicateChange
