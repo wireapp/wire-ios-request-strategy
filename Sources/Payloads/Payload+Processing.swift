@@ -749,12 +749,12 @@ extension Payload.ConversationEvent where T == Payload.ConversationMember {
 
     func fetchOrCreateTargetUser(in context: NSManagedObjectContext) -> ZMUser? {
         guard
-            let userID = data.target ?? data.id
+            let userID = data.target ?? data.qualifiedTarget?.uuid
         else {
             return nil
         }
         
-        return ZMUser.fetchOrCreate(with: userID, domain: data.qualifiedID?.domain, in: context)
+        return ZMUser.fetchOrCreate(with: userID, domain: data.qualifiedTarget?.domain, in: context)
     }
 
     func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {

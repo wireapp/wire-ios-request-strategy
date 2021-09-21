@@ -191,6 +191,7 @@ extension Payload {
             case id
             case qualifiedID = "qualified_id"
             case target
+            case qualifiedTarget = "qualified_target"
             case service
             case mutedStatus = "otr_muted_status"
             case mutedReference = "otr_muted_ref"
@@ -208,6 +209,7 @@ extension Payload {
         let id: UUID?
         let qualifiedID: QualifiedID?
         let target: UUID?
+        let qualifiedTarget: QualifiedID?
         let service: Service?
         let mutedStatus: Int?
         let mutedReference: Date?
@@ -220,6 +222,7 @@ extension Payload {
         init(id: UUID? = nil,
              qualifiedID: QualifiedID? = nil,
              target: UUID? = nil,
+             qualifiedTarget: QualifiedID? = nil,
              service: Service? = nil,
              mutedStatus: Int? = nil,
              mutedReference: Date? = nil,
@@ -231,6 +234,7 @@ extension Payload {
             self.id = id
             self.qualifiedID = qualifiedID
             self.target = target
+            self.qualifiedTarget = qualifiedTarget
             self.service = service
             self.mutedStatus  = mutedStatus
             self.mutedReference = mutedReference
