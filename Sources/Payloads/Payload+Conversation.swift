@@ -74,7 +74,7 @@ extension Payload {
             case lastEventTime = "last_event_time"
             case teamID = "team"
             case messageTimer = "message_timer"
-            case readReceiptMode = "read_receipt_mode"
+            case readReceiptMode = "receipt_mode"
         }
 
         static var eventType: ZMUpdateEventType {
