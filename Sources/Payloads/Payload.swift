@@ -44,16 +44,16 @@ enum Payload {
         let id: Int?
     }
     
-    struct QualifiedID: Codable, Hashable {
-        
-        enum CodingKeys: String, CodingKey {
-            case uuid = "id"
-            case domain
-        }
-        
-        let uuid: UUID
-        let domain: String
-    }
+//    struct QualifiedID: Codable, Hashable {
+//        
+//        enum CodingKeys: String, CodingKey {
+//            case uuid = "id"
+//            case domain
+//        }
+//
+//        let uuid: UUID
+//        let domain: String
+//    }
         
     struct Location: Codable {
         
