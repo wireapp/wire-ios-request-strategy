@@ -35,8 +35,17 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
     let conversationByQualifiedIDListTranscoder: ConversationByQualifiedIDListTranscoder
     let conversationByQualifiedIDListSync: IdentifierObjectSync<ConversationByQualifiedIDListTranscoder>
 
-    var insertSync: ZMUpstreamInsertedObjectSync!
-    var modifiedSync: ZMUpstreamModifiedObjectSync!
+    lazy var insertSync: ZMUpstreamInsertedObjectSync = {
+        ZMUpstreamInsertedObjectSync(transcoder: self,
+                                     entityName: ZMConversation.entityName(),
+                                     managedObjectContext: managedObjectContext)
+    }()
+    lazy var modifiedSync: ZMUpstreamModifiedObjectSync = {
+        ZMUpstreamModifiedObjectSync(transcoder: self,
+                                     entityName: ZMConversation.entityName(),
+                                     keysToSync: keysToSync,
+                                     managedObjectContext: managedObjectContext)
+    }()
     let updateSync: KeyPathObjectSync<ConversationRequestStrategy>
 
     var isFetchingAllConversations: Bool = false
@@ -88,15 +97,6 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         self.updateSync = KeyPathObjectSync(entityName: ZMConversation.entityName(), \.needsToBeUpdatedFromBackend)
 
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
-
-        self.insertSync = ZMUpstreamInsertedObjectSync(transcoder: self,
-                                                       entityName: ZMConversation.entityName(),
-                                                       managedObjectContext: managedObjectContext)
-
-        self.modifiedSync = ZMUpstreamModifiedObjectSync(transcoder: self,
-                                                         entityName: ZMConversation.entityName(),
-                                                         keysToSync: keysToSync,
-                                                         managedObjectContext: managedObjectContext)
 
         self.configuration = [.allowsRequestsWhileOnline,
                               .allowsRequestsDuringSlowSync]
