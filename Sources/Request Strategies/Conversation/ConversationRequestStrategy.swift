@@ -56,6 +56,19 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         ZMConversationSilencedChangedTimeStampKey
     ]
 
+    let eventsToProcess: [ZMUpdateEventType] = [
+        .conversationCreate,
+        .conversationDelete,
+        .conversationMemberLeave,
+        .conversationMemberJoin,
+        .conversationRename,
+        .conversationMemberUpdate,
+        .conversationAccessModeUpdate,
+        .conversationMessageTimerUpdate,
+        .conversationReceiptModeUpdate,
+        .conversationConnectRequest
+    ]
+
     public var useFederationEndpoint: Bool = true {
         didSet {
             conversationByQualifiedIDTranscoder.isAvailable = useFederationEndpoint
@@ -177,20 +190,6 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 }
 
 extension ConversationRequestStrategy: ZMEventConsumer {
-
-    var eventsToProcess: [ZMUpdateEventType] {
-        return [.conversationCreate,
-                .conversationDelete,
-                .conversationMemberLeave,
-                .conversationMemberJoin,
-                .conversationRename,
-                .conversationMemberUpdate,
-                .conversationAccessModeUpdate,
-                .conversationMessageTimerUpdate,
-                .conversationReceiptModeUpdate,
-                .conversationConnectRequest
-        ]
-    }
 
     public func processEvents(_ events: [ZMUpdateEvent],
                               liveEvents: Bool,
