@@ -485,17 +485,14 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             XCTAssertNotEqual(self.groupConversation.accessRole, newAccessRole)
 
             // GIVEN
-            let payload = [
-                "from": self.otherUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": [
-                    "access": newAccessMode.stringValue,
-                    "access_role": newAccessRole.rawValue
-                ],
-                "type": "conversation.access-update"
-                ] as [String: Any]
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.access-update",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload: [
+                                            "access": newAccessMode.stringValue,
+                                            "access_role": newAccessRole.rawValue
+                                        ])
 
             // WHEN
             self.sut.processEvents([event], liveEvents: true, prefetchResult: nil)
@@ -512,15 +509,12 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             XCTAssertNil(self.groupConversation.messageDestructionTimeout)
 
-            // Given
-            let payload: [String: Any] = [
-                "from": self.otherUser!.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation!.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": ["message_timer": 31536000000],
-                "type": "conversation.message-timer-update"
-                ]
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            // GIVEN
+            let event = self.updateEvent(type: "conversation.message-timer-update",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload: ["message_timer": 31536000000])
 
             // WHEN
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
@@ -538,14 +532,11 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(self.groupConversation.messageDestructionTimeout!, MessageDestructionTimeout.synced(.fiveMinutes))
 
             // Given
-            let payload: [String: Any] = [
-                "from": self.otherUser!.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation!.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": ["message_timer": NSNull()],
-                "type": "conversation.message-timer-update"
-            ]
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.message-timer-update",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload: ["message_timer": NSNull()])
 
             // WHEN
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
@@ -571,15 +562,11 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             XCTAssertNotNil(self.groupConversation.messageDestructionTimeout)
 
             // "turn off" synced timeout
-            let payload: [String: Any] = [
-                "from": self.otherUser!.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation!.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": ["message_timer": 0],
-                "type": "conversation.message-timer-update"
-            ]
-
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.message-timer-update",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload: ["message_timer": 0])
 
             // WHEN
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
@@ -605,15 +592,11 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let selfUser = ZMUser.selfUser(in: self.syncMOC)
             selfUser.remoteIdentifier = UUID.create()
 
-            let payload: [String: Any] = [
-                "from": selfUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation!.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": ["message_timer": messageTimerMillis],
-                "type": "conversation.message-timer-update"
-            ]
-
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.message-timer-update",
+                                         senderID: selfUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload: ["message_timer": messageTimerMillis])
 
             // WHEN
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil) //First event
@@ -643,24 +626,17 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let selfUser = ZMUser.selfUser(in: self.syncMOC)
             selfUser.remoteIdentifier = UUID.create()
 
-            let valuedPayload: [String: Any] = [
-                "from": selfUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation!.remoteIdentifier!.transportString(),
-                "time": NSDate(timeIntervalSinceNow: 0).transportString(),
-                "data": ["message_timer": valuedMessageTimerMillis],
-                "type": "conversation.message-timer-update"
-            ]
+            let valuedEvent = self.updateEvent(type: "conversation.message-timer-update",
+                                               senderID: selfUser.remoteIdentifier!,
+                                               conversationID: self.groupConversation.remoteIdentifier!,
+                                               timestamp: Date(),
+                                               dataPayload: ["message_timer": valuedMessageTimerMillis])
 
-            let payload: [String: Any] = [
-                "from": selfUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation!.remoteIdentifier!.transportString(),
-                "time": NSDate(timeIntervalSinceNow: 100).transportString(),
-                "data": ["message_timer": 0],
-                "type": "conversation.message-timer-update"
-            ]
-
-            let valuedEvent = ZMUpdateEvent(fromEventStreamPayload: valuedPayload as ZMTransportData, uuid: nil)!
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.message-timer-update",
+                                         senderID: selfUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(timeIntervalSinceNow: 100),
+                                         dataPayload: ["message_timer": 0])
 
             // WHEN
 
@@ -692,16 +668,13 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performAndWait {
 
             // GIVEN
-            let payload = [
-                "from": self.otherUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": [
-                    "user_ids": [self.thirdUser.remoteIdentifier!.transportString()]
-                ],
-                "type": "conversation.member-join"
-                ] as [String: Any]
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.member-join",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload:  [
+                                            "user_ids": [self.thirdUser.remoteIdentifier!.transportString()]
+                                         ])
 
             // WHEN
             self.sut.processEvents([event], liveEvents: true, prefetchResult: nil)
@@ -721,20 +694,17 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             // GIVEN
             let user2 = ZMUser.insertNewObject(in: self.syncMOC)
             user2.remoteIdentifier = UUID.create()
-            let payload = [
-                "from": self.otherUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": [
-                    "user_ids": [user2.remoteIdentifier!.transportString()],
-                    "users": [[
-                        "id": user2.remoteIdentifier!.transportString(),
-                        "conversation_role": "wire_admin"
-                        ]]
-                ],
-                "type": "conversation.member-join"
-                ] as [String: Any]
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.member-join",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload:  [
+                                            "user_ids": [user2.remoteIdentifier!.transportString()],
+                                            "users": [[
+                                                "id": user2.remoteIdentifier!.transportString(),
+                                                "conversation_role": "wire_admin"
+                                            ]]
+                                         ])
 
             // WHEN
             groupConversation.addParticipantsAndUpdateConversationState(users: [otherUser], role: nil)
@@ -757,16 +727,13 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             // GIVEN
             self.groupConversation.addParticipantAndUpdateConversationState(user: otherUser, role: nil)
 
-            let payload = [
-                "from": self.otherUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": [
-                    "user_ids": [self.otherUser.remoteIdentifier!.transportString()]
-                ],
-                "type": "conversation.member-join"
-                ] as [String: Any]
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.member-join",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload: [
+                                            "user_ids": [self.otherUser.remoteIdentifier!.transportString()]
+                                         ])
             let messageCountBeforeProcessing = self.groupConversation.allMessages.count
 
             // WHEN
@@ -785,17 +752,13 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // GIVEN
             self.groupConversation.addParticipantAndUpdateConversationState(user: thirdUser, role: nil)
-
-            let payload = [
-                "from": self.otherUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": [
-                    "user_ids": [self.thirdUser.remoteIdentifier!.transportString()]
-                ],
-                "type": "conversation.member-leave"
-                ] as [String: Any]
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.member-leave",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload: [
+                                            "user_ids": [self.thirdUser.remoteIdentifier!.transportString()]
+                                         ])
 
             // WHEN
             self.sut.processEvents([event], liveEvents: true, prefetchResult: nil)
@@ -815,16 +778,13 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performAndWait {
 
             // GIVEN
-            let payload = [
-                "from": self.otherUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation.remoteIdentifier!.transportString(),
-                "time": NSDate().transportString(),
-                "data": [
-                    "user_ids": [self.thirdUser.remoteIdentifier!.transportString()]
-                ],
-                "type": "conversation.member-leave"
-                ] as [String: Any]
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = self.updateEvent(type: "conversation.member-leave",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload: [
+                                            "user_ids": [self.thirdUser.remoteIdentifier!.transportString()]
+                                         ])
             let messageCountBeforeProcessing = self.groupConversation.allMessages.count
 
             // WHEN
@@ -846,25 +806,23 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             selfUser.remoteIdentifier = UUID.create()
 
             // GIVEN
-            let payload: [String: Any] = [
-                "from": selfUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation!.remoteIdentifier!.transportString(),
-                "time": NSDate(timeIntervalSinceNow: 100).transportString(),
-                "data": [
-                    "target": userId.transportString(),
-                    "conversation_role": "new"
-                ],
-                "type": "conversation.member-update"
-            ]
+            let event = self.updateEvent(type: "conversation.member-update",
+                                         senderID: selfUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(timeIntervalSinceNow: 100),
+                                         dataPayload: [
+                                            "target": userId.transportString(),
+                                            "conversation_role": "new"
+                                         ])
+
 
             // WHEN
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
             guard let participant = self.groupConversation.participantRoles
-                .first(where: {$0.user.remoteIdentifier == userId}) else {
-                    return XCTFail("No user in convo")
+                    .first(where: {$0.user.remoteIdentifier == userId}) else {
+                return XCTFail("No user in convo")
             }
             XCTAssertEqual(participant.role?.name, "new")
         }
@@ -894,25 +852,22 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.syncMOC.saveOrRollback()
 
             // GIVEN
-            let payload: [String: Any] = [
-                "from": selfUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation!.remoteIdentifier!.transportString(),
-                "time": NSDate(timeIntervalSinceNow: 100).transportString(),
-                "data": [
-                    "target": userId.transportString(),
-                    "conversation_role": "new"
-                ],
-                "type": "conversation.member-update"
-            ]
+            let event = self.updateEvent(type: "conversation.member-update",
+                                         senderID: selfUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(timeIntervalSinceNow: 100),
+                                         dataPayload: [
+                                            "target": userId.transportString(),
+                                            "conversation_role": "new"
+                                         ])
 
             // WHEN
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
             guard let participant = self.groupConversation.participantRoles
-                .first(where: {$0.user == user}) else {
-                    return XCTFail("No user in convo")
+                    .first(where: {$0.user == user}) else {
+                return XCTFail("No user in convo")
             }
             XCTAssertEqual(participant.role, newRole)
         }
@@ -937,25 +892,22 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.syncMOC.saveOrRollback()
 
             // GIVEN
-            let payload: [String: Any] = [
-                "from": selfUser.remoteIdentifier!.transportString(),
-                "conversation": self.groupConversation!.remoteIdentifier!.transportString(),
-                "time": NSDate(timeIntervalSinceNow: 100).transportString(),
-                "data": [
-                    "target": selfUser.remoteIdentifier.transportString(),
-                    "conversation_role": "new"
-                ],
-                "type": "conversation.member-update"
-            ]
+            let event = self.updateEvent(type: "conversation.member-update",
+                                         senderID: selfUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(timeIntervalSinceNow: 100),
+                                         dataPayload: [
+                                            "target": selfUser.remoteIdentifier.transportString(),
+                                            "conversation_role": "new"
+                                         ])
 
             // WHEN
-            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
             guard let participant = self.groupConversation.participantRoles
-                .first(where: {$0.user == selfUser}) else {
-                    return XCTFail("No user in convo")
+                    .first(where: {$0.user == selfUser}) else {
+                return XCTFail("No user in convo")
             }
             XCTAssertEqual(participant.role, newRole)
         }
@@ -968,7 +920,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         var qualifiedID: Payload.QualifiedID!
         syncMOC.performGroupedBlockAndWait {
             qualifiedID = Payload.QualifiedID(uuid: conversation.remoteIdentifier!,
-                                                  domain: conversation.domain!)
+                                              domain: conversation.domain!)
         }
         return qualifiedID
     }
@@ -995,7 +947,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     func fetchConversationListDuringSlowSync() {
         syncMOC.performGroupedBlockAndWait {
             let qualifiedConversationID = Payload.QualifiedID(uuid: self.groupConversation.remoteIdentifier!,
-                                                                  domain: self.groupConversation.domain!)
+                                                              domain: self.groupConversation.domain!)
 
             let listRequest = self.sut.nextRequest()!
             guard let listPayload = Payload.PaginationStatus(listRequest) else {
@@ -1089,6 +1041,22 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                     teamID: nil,
                                     messageTimer: nil,
                                     readReceiptMode: nil)
+    }
+
+    func updateEvent(type: String,
+                     senderID: UUID,
+                     conversationID: UUID,
+                     timestamp: Date,
+                     dataPayload: [String: Any]) -> ZMUpdateEvent {
+        let payload: [String: Any] = [
+            "from": senderID.transportString(),
+            "conversation": conversationID.transportString(),
+            "time": timestamp.transportString(),
+            "data": dataPayload,
+            "type": type
+        ]
+
+        return ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
     }
 
     func updateEvent<Event: EventData>(from data: Event,
