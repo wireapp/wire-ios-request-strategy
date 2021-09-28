@@ -1059,21 +1059,4 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         return ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
     }
 
-    func updateEvent<Event: EventData>(from data: Event,
-                                     conversationID: Payload.QualifiedID? = nil,
-                                     senderID: Payload.QualifiedID? = nil,
-                                     timestamp: Date? = nil) -> ZMUpdateEvent {
-
-        let event = Payload.ConversationEvent<Event>(id: conversationID?.uuid,
-                                                     qualifiedID: conversationID,
-                                                     from: senderID?.uuid,
-                                                     qualifiedFrom: senderID,
-                                                     timestamp: timestamp,
-                                                     type: ZMUpdateEvent.eventTypeString(for: Event.eventType),
-                                                     data: data)
-
-        let payload = try! JSONSerialization.jsonObject(with: event.payloadData()!, options: []) as? [String: Any]
-        return ZMUpdateEvent(fromEventStreamPayload: payload! as ZMTransportData, uuid: UUID())!
-    }
-
 }

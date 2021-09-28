@@ -43,7 +43,7 @@ extension MessagingTestBase {
                                               senderID: senderID,
                                               timestamp: timestamp)
 
-        let payload = try! JSONSerialization.jsonObject(with: event.payloadData()!, options: []) as? [String: Any]
+        let payload = try! JSONSerialization.jsonObject(with: event, options: []) as? [String: Any]
 
         return ZMUpdateEvent(fromEventStreamPayload: payload! as ZMTransportData, uuid: UUID())!
     }
