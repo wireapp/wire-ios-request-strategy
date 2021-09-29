@@ -21,9 +21,10 @@ import Foundation
 class ActionHandler<T: EntityAction>: NSObject, EntityActionHandler, ZMRequestGenerator {
     typealias Action = T
 
-    var pendingActions: [Action] = []
     let context: NSManagedObjectContext
-    var token: Any?
+
+    private var pendingActions: [Action] = []
+    private var token: Any?
 
     init(context: NSManagedObjectContext) {
         self.context = context
