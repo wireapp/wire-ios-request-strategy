@@ -310,7 +310,7 @@ extension Payload {
 
     // MARK: - Actions
 
-    struct ConverationAddMember: Codable {
+    struct ConversationAddMember: Codable {
         enum CodingKeys: String, CodingKey {
             case userIDs = "users"
             case qualifiedUserIDs = "qualified_users"
