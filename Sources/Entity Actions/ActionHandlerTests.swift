@@ -60,18 +60,6 @@ class ActionHandlerTests: MessagingTestBase {
         super.tearDown()
     }
 
-    func testExample() throws {
-        // given
-        let action = MockAction()
-
-        // when
-        action.send(in: uiMOC.notificationContext)
-        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-
-        // then
-        XCTAssertEqual(sut.pendingActions, [action])
-    }
-
     func testThatItCallsRequestForAction_WhenActionHasBeenSent() throws {
         // given
         let action = MockAction()
