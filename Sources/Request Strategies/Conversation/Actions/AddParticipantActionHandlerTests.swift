@@ -65,7 +65,7 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
 
             // then
             XCTAssertEqual(request.path, "/conversations/\(conversationID.transportString())/members")
-            let payload = Payload.ConverationAddMember(request)
+            let payload = Payload.ConversationAddMember(request)
             XCTAssertEqual(payload?.userIDs, [userID])
         }
     }
@@ -82,7 +82,7 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
 
             // then
             XCTAssertEqual(request.path, "/conversations/\(conversationID)/members/v2")
-            let payload = Payload.ConverationAddMember(request)
+            let payload = Payload.ConversationAddMember(request)
             XCTAssertEqual(payload?.qualifiedUserIDs, [self.user.qualifiedID!])
         }
     }
