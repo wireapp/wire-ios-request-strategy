@@ -79,6 +79,8 @@ public class ConnectionRequestStrategy: AbstractRequestStrategy, FederationAware
 
         self.configuration = [.allowsRequestsWhileOnline,
                               .allowsRequestsDuringSlowSync]
+
+        updateSync.transcoder = self
     }
 
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
@@ -205,7 +207,7 @@ class ConnectionByIDTranscoder: IdentifierObjectSyncTranscoder {
     }
 
     func request(for identifiers: Set<UUID>) -> ZMTransportRequest? {
-        guard let userID = identifiers.first.map({ $0.transportString() }) else { return nil }
+        guard let userID = identifiers.first.map({ $0 }) else { return nil }
 
         // GET /connections/<UUID>
         return ZMTransportRequest(getFromPath: "/connections/\(userID)")
