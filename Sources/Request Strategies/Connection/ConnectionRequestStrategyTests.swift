@@ -68,6 +68,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
     func testThatRequestToFetchConversationIsGenerated_WhenNeedsToBeUpdatedFromBackendIsTrue_NonFederated() {
         syncMOC.performGroupedBlockAndWait {
             // given
+            self.sut.useFederationEndpoint = false
             let connection = ZMConnection.insertNewObject(in: self.syncMOC)
             connection.to = self.otherUser
             connection.needsToBeUpdatedFromBackend = true
@@ -160,9 +161,108 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
 
     // MARK: Response processing
 
+    func testThatConnectionResetsNeedsToBeUpdatedFromBackend_OnPermanentErrors_Federated() {
+        // given
+        sut.useFederationEndpoint = true
+        var connection: ZMConnection!
+        self.syncMOC.performGroupedBlockAndWait {
+            connection = self.oneToOneConversation.connection!
+        }
+
+        // when
+        fetchConnection(connection, response: responseFailure(code: 403, label: .unknown))
+
+        // then
+        self.syncMOC.performGroupedBlockAndWait {
+            XCTAssertFalse(connection.needsToBeUpdatedFromBackend)
+        }
+    }
+
+    func testThatConnectionResetsNeedsToBeUpdatedFromBackend_OnPermanentErrors_NonFederated() {
+        // given
+        sut.useFederationEndpoint = false
+        var connection: ZMConnection!
+        self.syncMOC.performGroupedBlockAndWait {
+            connection = self.oneToOneConversation.connection!
+        }
+
+        // when
+        fetchConnection(connection, response: responseFailure(code: 403, label: .unknown))
+
+        // then
+        self.syncMOC.performGroupedBlockAndWait {
+            XCTAssertFalse(connection.needsToBeUpdatedFromBackend)
+        }
+    }
+
+    func testThatConnectionPayloadIsProcessed_OnSuccessfulResponse_Federated() {
+        // given
+        sut.useFederationEndpoint = true
+        var connection: ZMConnection!
+        var payload: Payload.Connection!
+        self.syncMOC.performGroupedBlockAndWait {
+            connection = self.oneToOneConversation.connection!
+            payload = self.createConnectionPayload(connection, status: .cancelled)
+        }
+
+        // when
+        fetchConnection(connection, response: successfulResponse(connection: payload))
+
+        // then
+        self.syncMOC.performGroupedBlockAndWait {
+            XCTAssertEqual(connection.status, .cancelled)
+        }
+    }
+
+    func testThatConnectionPayloadIsProcessed_OnSuccessfulResponse_NonFederated() {
+        // given
+        sut.useFederationEndpoint = false
+        var connection: ZMConnection!
+        var payload: Payload.Connection!
+        self.syncMOC.performGroupedBlockAndWait {
+            connection = self.oneToOneConversation.connection!
+            payload = self.createConnectionPayload(connection, status: .cancelled)
+        }
+
+        // when
+        fetchConnection(connection, response: successfulResponse(connection: payload))
+
+        // then
+        self.syncMOC.performGroupedBlockAndWait {
+            XCTAssertEqual(connection.status, .cancelled)
+        }
+    }
+
     // MARK: Event processing
 
+    func testThatItProcessConnectionEvents() {
+        syncMOC.performAndWait {
+            // given
+            let connection = createConnectionPayload(oneToOneConversation.connection!, status: .blocked)
+            let eventType = ZMUpdateEvent.eventTypeString(for: Payload.Connection.eventType)!
+            let eventPayload = Payload.UserConnectionEvent(connection: connection, type: eventType)
+            let event = updateEvent(from: eventPayload.payloadData()!)
+
+            // when
+            self.sut.processEvents([event], liveEvents: true, prefetchResult: nil)
+
+            // then
+            XCTAssertEqual(self.oneToOneConversation.connection?.status, .blocked)
+        }
+    }
+
     // MARK: Helpers
+
+    func createConnectionPayload(_ connection: ZMConnection, status: ZMConnectionStatus) -> Payload.Connection {
+        return Payload.Connection(
+            from: nil,
+            to: connection.to.remoteIdentifier,
+            qualifiedTo: connection.to.qualifiedID,
+            conversationID: connection.conversation.remoteIdentifier,
+            qualifiedConversationID: connection.conversation.qualifiedID,
+            lastUpdate: Date(),
+            status: Payload.ConnectionStatus(status)!)
+    }
 
     func createConnection() -> Payload.Connection {
         let fromID = UUID()
@@ -173,19 +273,33 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
         let conversationDomain = owningDomain
         let qualifiedConversation = QualifiedID(uuid: conversationID, domain: conversationDomain)
 
-        return Payload.Connection(from: fromID,
-                                  to: toID,
-                                  qualifiedTo: qualifiedTo,
-                                  conversationID: conversationID,
-                                  qualifiedConversationID: qualifiedConversation,
-                                  lastUpdate: Date(),
-                                  status: .accepted)
+        return Payload.Connection(
+            from: fromID,
+            to: toID,
+            qualifiedTo: qualifiedTo,
+            conversationID: conversationID,
+            qualifiedConversationID: qualifiedConversation,
+            lastUpdate: Date(),
+            status: .accepted)
     }
 
     func startSlowSync() {
         syncMOC.performGroupedBlockAndWait {
             self.mockSyncProgress.currentSyncPhase = .fetchingConnections
         }
+    }
+
+    func fetchConnection(_ connection: ZMConnection, response: ZMTransportResponse) {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            connection.needsToBeUpdatedFromBackend = true
+            self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([connection])) }
+
+            // when
+            let request = self.sut.nextRequest()!
+            request.complete(with: response)
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }
 
     func fetchConnectionsDuringSlowSync(connections: [Payload.Connection]) {
@@ -216,6 +330,16 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
                                         hasMore: false)
 
         let payloadData = payload.payloadData()!
+        let payloadString = String(bytes: payloadData, encoding: .utf8)!
+        let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
+                                           httpStatus: 200,
+                                           transportSessionError: nil)
+
+        return response
+    }
+
+    func successfulResponse(connection: Payload.Connection) -> ZMTransportResponse {
+        let payloadData = connection.payloadData()!
         let payloadString = String(bytes: payloadData, encoding: .utf8)!
         let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
                                            httpStatus: 200,
