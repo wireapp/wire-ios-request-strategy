@@ -83,7 +83,7 @@ extension MessagingTestBase {
     func conversationEventPayload<Event: EventData>(from data: Event,
                                                     conversationID: QualifiedID? = nil,
                                                     senderID: QualifiedID? = nil,
-                                                    timestamp: Date? = nil) -> Data {
+                                                    timestamp: Date? = nil) -> Payload.ConversationEvent<Event> {
 
         let event = Payload.ConversationEvent<Event>(id: conversationID?.uuid,
                                                      qualifiedID: conversationID,
@@ -92,8 +92,7 @@ extension MessagingTestBase {
                                                      timestamp: timestamp,
                                                      type: ZMUpdateEvent.eventTypeString(for: Event.eventType),
                                                      data: data)
-
-        return event.payloadData()!
+        return event
     }
 
 }
