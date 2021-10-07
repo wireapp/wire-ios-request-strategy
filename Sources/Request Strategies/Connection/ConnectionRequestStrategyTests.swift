@@ -131,7 +131,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
         startSlowSync()
 
         // when
-        fetchConnectionsDuringSlowSync(connections: [createConnection()])
+        fetchConnectionsDuringSlowSync(connections: [createConnectionPayload()])
 
         // then
         XCTAssertEqual(mockSyncProgress.didFinishCurrentSyncPhase, .fetchingConnections)
@@ -252,36 +252,6 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
     }
 
     // MARK: Helpers
-
-    func createConnectionPayload(_ connection: ZMConnection, status: ZMConnectionStatus) -> Payload.Connection {
-        return Payload.Connection(
-            from: nil,
-            to: connection.to.remoteIdentifier,
-            qualifiedTo: connection.to.qualifiedID,
-            conversationID: connection.conversation.remoteIdentifier,
-            qualifiedConversationID: connection.conversation.qualifiedID,
-            lastUpdate: Date(),
-            status: Payload.ConnectionStatus(status)!)
-    }
-
-    func createConnection() -> Payload.Connection {
-        let fromID = UUID()
-        let toID = UUID()
-        let toDomain = owningDomain
-        let qualifiedTo = QualifiedID(uuid: toID, domain: toDomain)
-        let conversationID = UUID()
-        let conversationDomain = owningDomain
-        let qualifiedConversation = QualifiedID(uuid: conversationID, domain: conversationDomain)
-
-        return Payload.Connection(
-            from: fromID,
-            to: toID,
-            qualifiedTo: qualifiedTo,
-            conversationID: conversationID,
-            qualifiedConversationID: qualifiedConversation,
-            lastUpdate: Date(),
-            status: .accepted)
-    }
 
     func startSlowSync() {
         syncMOC.performGroupedBlockAndWait {

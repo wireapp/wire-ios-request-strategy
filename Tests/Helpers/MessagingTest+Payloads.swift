@@ -21,6 +21,35 @@ import Foundation
 
 extension MessagingTestBase {
 
+    func createConnectionPayload(_ connection: ZMConnection, status: ZMConnectionStatus) -> Payload.Connection {
+        return Payload.Connection(
+            from: nil,
+            to: connection.to.remoteIdentifier,
+            qualifiedTo: connection.to.qualifiedID,
+            conversationID: connection.conversation.remoteIdentifier,
+            qualifiedConversationID: connection.conversation.qualifiedID,
+            lastUpdate: Date(),
+            status: Payload.ConnectionStatus(status)!)
+    }
+
+    func createConnectionPayload(to qualifiedTo: QualifiedID = QualifiedID(uuid: UUID(), domain: "example.com")) -> Payload.Connection {
+        let fromID = UUID()
+        let toID = qualifiedTo.uuid
+        let qualifiedTo = qualifiedTo
+        let conversationID = UUID()
+        let conversationDomain = owningDomain
+        let qualifiedConversation = QualifiedID(uuid: conversationID, domain: conversationDomain)
+
+        return Payload.Connection(
+            from: fromID,
+            to: toID,
+            qualifiedTo: qualifiedTo,
+            conversationID: conversationID,
+            qualifiedConversationID: qualifiedConversation,
+            lastUpdate: Date(),
+            status: .accepted)
+    }
+
     func responseFailure(code: Int, label: Payload.ResponseFailure.Label, message: String = "") -> ZMTransportResponse {
         let responseFailure = Payload.ResponseFailure(code: code, label: label, message: message)
         let payloadData = responseFailure.payloadData()!

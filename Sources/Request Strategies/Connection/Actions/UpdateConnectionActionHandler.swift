@@ -34,13 +34,14 @@ class UpdateConnectionActionHandler: ActionHandler<UpdateConnectionAction>, Fede
     func federatedRequest(for action: ActionHandler<UpdateConnectionAction>.Action) -> ZMTransportRequest? {
         guard
             let connection = ZMConnection.existingObject(for: action.connectionID, in: context),
-            let qualifiedID = connection.to.qualifiedID
+            let qualifiedID = connection.to.qualifiedID,
+            let status = Payload.ConnectionStatus(action.newStatus)
         else {
             Logging.network.error("Can't create request to update connection status")
             return nil
         }
 
-        let payload = Payload.ConnectionUpdate(status: .accepted)
+        let payload = Payload.ConnectionUpdate(status: status)
 
         guard
             let payloadData = payload.payloadData(encoder: encoder),
