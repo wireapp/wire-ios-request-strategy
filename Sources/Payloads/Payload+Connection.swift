@@ -19,7 +19,7 @@ import Foundation
 
 extension Payload {
 
-    enum ConnectionStatus: String, Codable {
+    enum ConnectionStatus: String, Codable, CaseIterable {
         case accepted = "accepted"
         case blocked = "blocked"
         case pending = "pending"

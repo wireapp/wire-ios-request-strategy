@@ -19,32 +19,38 @@
 import Foundation
 @testable import WireRequestStrategy
 
+extension QualifiedID {
+    static func randomID() -> QualifiedID {
+        return QualifiedID(uuid: UUID(), domain: "example.com")
+    }
+}
+
 extension MessagingTestBase {
 
-    func createConnectionPayload(_ connection: ZMConnection, status: ZMConnectionStatus) -> Payload.Connection {
+    func createConnectionPayload(_ connection: ZMConnection,
+                                 status: ZMConnectionStatus = .accepted,
+                                 lastUpdate: Date = Date()) -> Payload.Connection {
         return Payload.Connection(
             from: nil,
             to: connection.to.remoteIdentifier,
             qualifiedTo: connection.to.qualifiedID,
             conversationID: connection.conversation.remoteIdentifier,
             qualifiedConversationID: connection.conversation.qualifiedID,
-            lastUpdate: Date(),
+            lastUpdate: lastUpdate,
             status: Payload.ConnectionStatus(status)!)
     }
 
-    func createConnectionPayload(to qualifiedTo: QualifiedID = QualifiedID(uuid: UUID(), domain: "example.com")) -> Payload.Connection {
+    func createConnectionPayload(to qualifiedTo: QualifiedID = .randomID(),
+                                 conversation qualifiedConversation: QualifiedID = .randomID()) -> Payload.Connection {
         let fromID = UUID()
         let toID = qualifiedTo.uuid
         let qualifiedTo = qualifiedTo
-        let conversationID = UUID()
-        let conversationDomain = owningDomain
-        let qualifiedConversation = QualifiedID(uuid: conversationID, domain: conversationDomain)
 
         return Payload.Connection(
             from: fromID,
             to: toID,
             qualifiedTo: qualifiedTo,
-            conversationID: conversationID,
+            conversationID: qualifiedConversation.uuid,
             qualifiedConversationID: qualifiedConversation,
             lastUpdate: Date(),
             status: .accepted)
