@@ -66,7 +66,7 @@ class ConnectToUserActionHandlerTests: MessagingTestBase {
             let request = try XCTUnwrap(self.sut.request(for: action))
 
             // then
-            XCTAssertEqual(request.path, "/connections/\(domain)/\(userID)")
+            XCTAssertEqual(request.path, "/connections/\(domain)/\(userID.transportString())")
             XCTAssertEqual(request.method, .methodPOST)
         }
     }

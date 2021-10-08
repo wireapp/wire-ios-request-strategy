@@ -39,7 +39,7 @@ class ConnectToUserActionHandler: ActionHandler<ConnectToUserAction>, Federation
             return nil
         }
 
-        return ZMTransportRequest(path: "/connections/\(domain)/\(action.userID)",
+        return ZMTransportRequest(path: "/connections/\(domain)/\(action.userID.transportString())",
                                   method: .methodPOST,
                                   payload: nil)
     }

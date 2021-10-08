@@ -207,7 +207,7 @@ class ConnectionByIDTranscoder: IdentifierObjectSyncTranscoder {
     }
 
     func request(for identifiers: Set<UUID>) -> ZMTransportRequest? {
-        guard let userID = identifiers.first.map({ $0 }) else { return nil }
+        guard let userID = identifiers.first.map({ $0.transportString() }) else { return nil }
 
         // GET /connections/<UUID>
         return ZMTransportRequest(getFromPath: "/connections/\(userID)")
@@ -258,7 +258,7 @@ class ConnectionByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
         guard let qualifiedID = identifiers.first.map({ $0 }) else { return nil }
 
         // GET /connections/domain/<UUID>
-        return ZMTransportRequest(getFromPath: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid)")
+        return ZMTransportRequest(getFromPath: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid.transportString())")
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {

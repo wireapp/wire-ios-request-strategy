@@ -47,7 +47,7 @@ class UpdateConnectionActionHandlerTests: MessagingTestBase {
             let request = try XCTUnwrap(self.sut.request(for: action))
 
             // then
-            XCTAssertEqual(request.path, "/connections/\(userID)")
+            XCTAssertEqual(request.path, "/connections/\(userID.transportString())")
             XCTAssertEqual(request.method, .methodPUT)
             let payload = Payload.ConnectionUpdate(request)
             XCTAssertEqual(payload?.status, .cancelled)
@@ -66,7 +66,7 @@ class UpdateConnectionActionHandlerTests: MessagingTestBase {
             let request = try XCTUnwrap(self.sut.request(for: action))
 
             // then
-            XCTAssertEqual(request.path, "/connections/\(userID.domain)/\(userID.uuid)")
+            XCTAssertEqual(request.path, "/connections/\(userID.domain)/\(userID.uuid.transportString())")
             XCTAssertEqual(request.method, .methodPUT)
             let payload = Payload.ConnectionUpdate(request)
             XCTAssertEqual(payload?.status, .cancelled)

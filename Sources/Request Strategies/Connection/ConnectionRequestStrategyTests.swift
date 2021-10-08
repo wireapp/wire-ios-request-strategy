@@ -60,7 +60,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest()!
 
             // then
-            XCTAssertEqual(request.path, "/connections/\(self.otherUser.domain!)/\(self.otherUser.remoteIdentifier!)")
+            XCTAssertEqual(request.path, "/connections/\(self.otherUser.domain!)/\(self.otherUser.remoteIdentifier!.transportString())")
             XCTAssertEqual(request.method, .methodGET)
         }
     }
@@ -78,7 +78,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest()!
 
             // then
-            XCTAssertEqual(request.path, "/connections/\(self.otherUser.remoteIdentifier!)")
+            XCTAssertEqual(request.path, "/connections/\(self.otherUser.remoteIdentifier!.transportString())")
             XCTAssertEqual(request.method, .methodGET)
         }
     }

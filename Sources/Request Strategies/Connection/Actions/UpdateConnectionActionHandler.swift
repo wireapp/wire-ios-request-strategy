@@ -51,13 +51,13 @@ class UpdateConnectionActionHandler: ActionHandler<UpdateConnectionAction>, Fede
             return nil
         }
 
-        return ZMTransportRequest(path: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid)", method: .methodPUT, payload: payloadAsString as ZMTransportData)
+        return ZMTransportRequest(path: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid.transportString())", method: .methodPUT, payload: payloadAsString as ZMTransportData)
     }
 
     func nonFederatedRequest(for action: ActionHandler<UpdateConnectionAction>.Action) -> ZMTransportRequest? {
         guard
             let connection = ZMConnection.existingObject(for: action.connectionID, in: context),
-            let userID = connection.to.remoteIdentifier,
+            let userID = connection.to.remoteIdentifier?.transportString(),
             let status = Payload.ConnectionStatus(action.newStatus)
         else {
             Logging.network.error("Can't create request to update connection status")
