@@ -166,7 +166,7 @@ extension ConnectionRequestStrategy: KeyPathObjectSyncTranscoder {
     }
 
     func cancel(_ object: ZMConnection) {
-        
+        // We don't need to cancel connections
     }
 
 }
