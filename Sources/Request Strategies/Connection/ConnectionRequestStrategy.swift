@@ -60,9 +60,9 @@ public class ConnectionRequestStrategy: AbstractRequestStrategy, FederationAware
                                                            method: .post,
                                                            context: managedObjectContext)
 
-        connectionByIDTransoder = ConnectionByIDTranscoder(context: managedObjectContext)
+        connectionByIDTranscoder = ConnectionByIDTranscoder(context: managedObjectContext)
         connectionByIDSync = IdentifierObjectSync(managedObjectContext: managedObjectContext,
-                                                  transcoder: connectionByIDTransoder)
+                                                  transcoder: connectionByIDTranscoder)
         connectionByQualifiedIDTranscoder = ConnectionByQualifiedIDTranscoder(context: managedObjectContext)
         connectionByQualifiedIDSync = IdentifierObjectSync(managedObjectContext: managedObjectContext, transcoder: connectionByQualifiedIDTranscoder)
 
