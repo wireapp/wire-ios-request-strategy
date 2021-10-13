@@ -117,7 +117,7 @@ extension Payload.PrekeyByQualifiedUserID {
             _ = prekeyByUserID.establishSessions(with: selfClient, context: context, domain: domain)
         }
 
-        let hasMoreMissingClients = (selfClient.missingClients?.count ?? 0) > 0
+        let hasMoreMissingClients = selfClient.missingClients?.isEmpty == false
 
         return hasMoreMissingClients
     }
