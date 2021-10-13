@@ -18,7 +18,7 @@
 import XCTest
 @testable import WireRequestStrategy
 
-class PayloadProcessing_ConnlectionTests: MessagingTestBase {
+class PayloadProcessing_ConnectionTests: MessagingTestBase {
 
     func testThatConversationIsMarkedForDownload() {
         syncMOC.performGroupedBlockAndWait {
