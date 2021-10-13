@@ -88,7 +88,7 @@ extension Payload {
     struct PaginatedConnectionList: Codable, Paginatable {
 
         enum CodingKeys: String, CodingKey {
-            case connections = "connections"
+            case connections
             case pagingState = "paging_state"
             case hasMore = "has_more"
         }
