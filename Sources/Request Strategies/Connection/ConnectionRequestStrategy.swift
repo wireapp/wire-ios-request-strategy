@@ -96,37 +96,40 @@ public class ConnectionRequestStrategy: AbstractRequestStrategy, FederationAware
 
         isFetchingAllConnections = true
 
-        let context = self.managedObjectContext
-
         if useFederationEndpoint {
             connectionListSync.fetch { [weak self] result in
                 switch result {
                 case .success(let connectionList):
-                    connectionList.connections.forEach { $0.updateOrCreate(in: context) }
-
-                    if !connectionList.hasMore {
-                        self?.syncProgress.finishCurrentSyncPhase(phase: .fetchingConnections)
-                        self?.isFetchingAllConnections = false
-                    }
+                    self?.createConnectionsAndFinishSyncPhase(connectionList.connections,
+                                                        hasMore: connectionList.hasMore)
                 case .failure:
-                    self?.syncProgress.failCurrentSyncPhase(phase: .fetchingConnections)
+                    self?.failSyncPhase()
                 }
             }
         } else {
             localConnectionListSync.fetch { [weak self] (result) in
                 switch result {
                 case .success(let connectionList):
-                    connectionList.connections.forEach { $0.updateOrCreate(in: context) }
-
-                    if !connectionList.hasMore {
-                        self?.syncProgress.finishCurrentSyncPhase(phase: .fetchingConnections)
-                        self?.isFetchingAllConnections = false
-                    }
+                    self?.createConnectionsAndFinishSyncPhase(connectionList.connections,
+                                                        hasMore: connectionList.hasMore)
                 case .failure:
-                    self?.syncProgress.failCurrentSyncPhase(phase: .fetchingConnections)
+                    self?.failSyncPhase()
                 }
             }
         }
+    }
+
+    private func createConnectionsAndFinishSyncPhase(_ connections: [Payload.Connection], hasMore: Bool) {
+        connections.forEach { $0.updateOrCreate(in: managedObjectContext) }
+
+        if !hasMore {
+            syncProgress.finishCurrentSyncPhase(phase: .fetchingConnections)
+            isFetchingAllConnections = false
+        }
+    }
+
+    private func failSyncPhase() {
+        syncProgress.failCurrentSyncPhase(phase: .fetchingConnections)
     }
 
     public var requestGenerators: [ZMRequestGenerator] {
