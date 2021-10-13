@@ -33,7 +33,7 @@ public class ConnectionRequestStrategy: AbstractRequestStrategy, FederationAware
     var isFetchingAllConnections: Bool = false
     let syncProgress: SyncProgress
     let connectionByIDSync: IdentifierObjectSync<ConnectionByIDTranscoder>
-    let connectionByIDTransoder: ConnectionByIDTranscoder
+    let connectionByIDTranscoder: ConnectionByIDTranscoder
     let connectionByQualifiedIDSync: IdentifierObjectSync<ConnectionByQualifiedIDTranscoder>
     let connectionByQualifiedIDTranscoder: ConnectionByQualifiedIDTranscoder
     let localConnectionListSync: PaginatedSync<Payload.PaginatedLocalConnectionList>
