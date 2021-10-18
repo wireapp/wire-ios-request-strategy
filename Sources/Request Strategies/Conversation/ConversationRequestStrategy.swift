@@ -628,6 +628,8 @@ class ConversationByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
 
         guard response.result != .permanentError else {
+            markConversationsAsFetched(identifiers)
+
             if response.httpStatus == 404 {
                 deleteConversations(identifiers)
                 return
@@ -637,8 +639,6 @@ class ConversationByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
                 removeSelfUser(identifiers)
                 return
             }
-
-            markConversationsAsFetched(identifiers)
             return
         }
 
@@ -660,6 +660,7 @@ class ConversationByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
                 let conversation = ZMConversation.fetch(with: qualifiedID.uuid, domain: qualifiedID.domain, in: context),
                 conversation.conversationType == .group
             else {
+
                 continue
             }
             context.delete(conversation)
@@ -677,7 +678,6 @@ class ConversationByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
             }
             let selfUser = ZMUser.selfUser(in: context)
             conversation.removeParticipantAndUpdateConversationState(user: selfUser, initiatingUser: selfUser)
-            conversation.needsToBeUpdatedFromBackend = false
         }
     }
 
