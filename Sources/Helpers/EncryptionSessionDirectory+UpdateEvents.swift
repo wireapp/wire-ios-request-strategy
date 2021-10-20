@@ -89,7 +89,7 @@ extension EncryptionSessionsDirectory {
         
         var conversation : ZMConversation?
         if let conversationUUID = event.conversationUUID {
-            conversation = ZMConversation.fetch(with: conversationUUID, domain: event.senderDomain, in: moc)
+            conversation = ZMConversation.fetch(with: conversationUUID, domain: event.conversationDomain, in: moc)
             conversation?.appendDecryptionFailedSystemMessage(at: event.timestamp, sender: sender.user!, client: sender, errorCode: Int(error?.rawValue ?? 0))
         }
         
