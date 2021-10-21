@@ -212,6 +212,7 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
 
             // then
             XCTAssertEqual(self.groupConversation.activeMessageDestructionTimeoutValue, messageTimer)
+            XCTAssertEqual(self.groupConversation.activeMessageDestructionTimeoutType, .groupConversation)
         }
     }
 
