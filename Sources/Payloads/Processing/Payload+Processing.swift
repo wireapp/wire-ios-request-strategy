@@ -60,129 +60,7 @@ extension Array where Array.Element == Payload.UserClient {
 
 }
 
-extension Payload.UserProfile {
-
-    /// Update a user entity with the data from a user profile payload.
-    ///
-    /// A user profile payload comes in two variants: full and delta, a full update is
-    /// used to initially sync the entity with the server state. After this the entity
-    /// can be updated with delta updates, which only contain the fields which have changed.
-    ///
-    /// - parameter user: User entity which on which the update should be applied.
-    /// - parameter authoritative: If **true** the update will be applied as if the update
-    ///                            is a full update, any missing fields will be removed from
-    ///                            the entity.
-    func updateUserProfile(for user: ZMUser, authoritative: Bool = true) {
-
-        if let qualifiedID = qualifiedID {
-            precondition(user.remoteIdentifier == nil || user.remoteIdentifier == qualifiedID.uuid)
-            precondition(user.domain == nil || user.domain == qualifiedID.domain)
-
-            user.remoteIdentifier = qualifiedID.uuid
-            user.domain = qualifiedID.domain
-        } else if let id = id {
-            precondition(user.remoteIdentifier == nil || user.remoteIdentifier == id)
-
-            user.remoteIdentifier = id
-        }
-
-        if let serviceID = serviceID {
-            user.serviceIdentifier = serviceID.id.transportString()
-            user.providerIdentifier = serviceID.provider.transportString()
-        }
-
-        if (updatedKeys.contains(.teamID) || authoritative) {
-            user.teamIdentifier = teamID
-            user.createOrDeleteMembershipIfBelongingToTeam()
-        }
-
-        if SSOID != nil || authoritative {
-            user.usesCompanyLogin = SSOID != nil
-        }
-
-        if isDeleted == true {
-            user.markAccountAsDeleted(at: Date())
-        }
-
-        if (name != nil || authoritative) && !user.isAccountDeleted {
-            user.name = name
-        }
-
-        if (updatedKeys.contains(.phone) || authoritative) && !user.isAccountDeleted {
-            user.phoneNumber = phone?.removingExtremeCombiningCharacters
-        }
-        
-        if (updatedKeys.contains(.email) || authoritative) && !user.isAccountDeleted {
-            user.emailAddress = email?.removingExtremeCombiningCharacters
-        }
-
-        if (handle != nil || authoritative) && !user.isAccountDeleted {
-            user.handle = handle
-        }
-
-        if (managedBy != nil || authoritative) {
-             user.managedBy = managedBy
-        }
-
-        if let accentColor = accentColor, let accentColorValue = ZMAccentColor(rawValue: Int16(accentColor)) {
-            user.accentColorValue = accentColorValue
-        }
-
-        if let expiresAt = expiresAt {
-            user.expiresAt = expiresAt
-        }
-
-        updateAssets(for: user, authoritative: authoritative)
-
-        if authoritative {
-            user.needsToBeUpdatedFromBackend = false
-        }
-
-        user.updatePotentialGapSystemMessagesIfNeeded()
-    }
-
-    func updateAssets(for user: ZMUser, authoritative: Bool = true) {
-        let assetKeys = Set(arrayLiteral: ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey)
-        guard !user.hasLocalModifications(forKeys: assetKeys) else {
-            return
-        }
-
-        let validAssets = assets?.filter(\.key.isValidAssetID)
-        let previewAssetKey = validAssets?.first(where: {$0.size == .preview }).map(\.key)
-        let completeAssetKey = validAssets?.first(where: {$0.size == .complete }).map(\.key)
-
-        if previewAssetKey != nil || authoritative {
-            user.previewProfileAssetIdentifier = previewAssetKey
-        }
-
-        if completeAssetKey != nil || authoritative {
-            user.completeProfileAssetIdentifier = completeAssetKey
-        }
-    }
-
-}
-
-extension Payload.UserProfiles {
-
-
-    /// Update all user entities with the data from the user profiles.
-    ///
-    /// - parameter context: `NSManagedObjectContext` on which the update should be performed.
-    func updateUserProfiles(in context: NSManagedObjectContext) {
-
-        for userProfile in self {
-            guard
-                let id = userProfile.id ?? userProfile.qualifiedID?.uuid,
-                let user = ZMUser.fetch(with: id, domain: userProfile.qualifiedID?.domain, in: context)
-            else {
-                continue
-            }
-
-            userProfile.updateUserProfile(for: user)
-        }
-    }
-
-}
+// MARK: - Prekeys
 
 extension Payload.PrekeyByUserID {
 
@@ -239,12 +117,14 @@ extension Payload.PrekeyByQualifiedUserID {
             _ = prekeyByUserID.establishSessions(with: selfClient, context: context, domain: domain)
         }
 
-        let hasMoreMissingClients = (selfClient.missingClients?.count ?? 0) > 0
+        let hasMoreMissingClients = selfClient.missingClients?.isEmpty == false
 
         return hasMoreMissingClients
     }
 
 }
+
+// MARK: - UserClient
 
 extension UserClient {
 
@@ -346,49 +226,6 @@ extension Payload.ClientListByQualifiedUserID {
         }.flatMap { $0 }
 
         return Dictionary<ZMUser, [UserClient]>(userClientsByUserTuples, uniquingKeysWith: +)
-    }
-
-}
-
-extension Payload.MessageSendingStatus {
-
-    /// Updates the reported client changes after an attempt to send the message
-    ///
-    /// - Parameter message: message for which the message sending status was created
-    /// - Returns *True* if the message was missing clients in the original payload.
-    ///
-    /// If a message was missing clients we should attempt to send the message again
-    /// after establishing sessions with the missing clients.
-    ///
-    func updateClientsChanges(for message: OTREntity) -> Bool {
-
-        let deletedClients = deleted.fetchClients(in: message.context)
-        for (_, deletedClients) in deletedClients {
-            deletedClients.forEach { $0.deleteClientAndEndSession() }
-        }
-
-        let redundantUsers = redundant.fetchUsers(in: message.context)
-        if !redundantUsers.isEmpty {
-            // if the BE tells us that these users are not in the
-            // conversation anymore, it means that we are out of sync
-            // with the list of participants
-            message.conversation?.needsToBeUpdatedFromBackend = true
-
-            // The missing users might have been deleted so we need re-fetch their profiles
-            // to verify if that's the case.
-            redundantUsers.forEach { $0.needsToBeUpdatedFromBackend = true }
-
-            message.detectedRedundantUsers(redundantUsers)
-        }
-
-        let missingClients = missing.fetchOrCreateClients(in: message.context)
-        for (user, userClients) in missingClients {
-            userClients.forEach({ $0.discoveredByMessage = message as? ZMOTRMessage })
-            message.registersNewMissingClients(Set(userClients))
-            message.conversation?.addParticipantAndSystemMessageIfMissing(user, date: nil)
-        }
-
-        return !missingClients.isEmpty
     }
 
 }

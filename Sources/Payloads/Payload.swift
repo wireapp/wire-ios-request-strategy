@@ -36,25 +36,14 @@ enum Payload {
             case qualifiedIDs = "qualified_ids"
         }
 
-        var qualifiedIDs: [QualifiedUserID]
+        var qualifiedIDs: [QualifiedID]
     }
 
     struct Prekey: Codable {
         let key: String
         let id: Int?
     }
-    
-    struct QualifiedUserID: Codable, Hashable {
-        
-        enum CodingKeys: String, CodingKey {
-            case uuid = "id"
-            case domain
-        }
-        
-        let uuid: UUID
-        let domain: String
-    }
-        
+            
     struct Location: Codable {
         
         enum CodingKeys: String, CodingKey {
@@ -166,7 +155,7 @@ enum Payload {
         }
 
         let id: UUID?
-        let qualifiedID: QualifiedUserID?
+        let qualifiedID: QualifiedID?
         let teamID: UUID?
         let serviceID: ServiceID?
         let SSOID: SSOID?
@@ -189,7 +178,7 @@ enum Payload {
         let updatedKeys: Set<CodingKeys>
 
         init(id: UUID? = nil,
-             qualifiedID: QualifiedUserID? = nil,
+             qualifiedID: QualifiedID? = nil,
              teamID: UUID? = nil,
              serviceID: ServiceID? = nil,
              SSOID: SSOID? = nil,
@@ -226,7 +215,7 @@ enum Payload {
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             self.id = try container.decodeIfPresent(UUID.self, forKey: .id)
-            self.qualifiedID = try container.decodeIfPresent(QualifiedUserID.self, forKey: .qualifiedID)
+            self.qualifiedID = try container.decodeIfPresent(QualifiedID.self, forKey: .qualifiedID)
             self.teamID = try container.decodeIfPresent(UUID.self, forKey: .teamID)
             self.serviceID = try container.decodeIfPresent(ServiceID.self, forKey: .serviceID)
             self.SSOID = try container.decodeIfPresent(Payload.SSOID.self, forKey: .SSOID)
@@ -249,8 +238,11 @@ enum Payload {
         enum Label: String, Codable {
             case notFound = "not-found"
             case noEndpoint = "no-endpoint"
+            case noIdentity = "no-identity"
             case unknownClient = "unknown-client"
             case missingLegalholdConsent = "missing-legalhold-consent"
+            case notConnected = "not-connected"
+            case connectionLimit = "connection-limit"
             case unknown
 
             init(from decoder: Decoder) throws {
@@ -298,5 +290,22 @@ enum Payload {
         /// didn't receive the message.
         let failedToSend: ClientListByQualifiedUserID
     }
+
+    struct PaginationStatus: Codable {
+
+        enum CodingKeys: String, CodingKey {
+            case pagingState = "paging_state"
+            case size
+        }
+
+        let pagingState: String?
+        let size: Int?
+
+        init(pagingState: String?, size: Int) {
+            self.pagingState = pagingState?.isEmpty == true ? nil : pagingState
+            self.size = size
+        }
+    }
+
 }
 
