@@ -37,7 +37,7 @@ extension Payload {
         }
 
         let users: [UUID]?
-        let qualifiedUsers: QualifiedUserIDList?
+        let qualifiedUsers: [QualifiedID]?
         let access: [String]?
         let accessRole: String?
         let name: String?
@@ -47,8 +47,14 @@ extension Payload {
         let conversationRole: String?
 
         init(_ conversation: ZMConversation) {
-            users = conversation.localParticipantsExcludingSelf.map(\.remoteIdentifier)
-            qualifiedUsers = conversation.localParticipantsExcludingSelf.qualifiedUserIDs.map({ Payload.QualifiedUserIDList(qualifiedIDs: $0) })
+            if let qualifiedUsers = conversation.localParticipantsExcludingSelf.qualifiedUserIDs {
+                self.qualifiedUsers = qualifiedUsers
+                self.users = nil
+            } else {
+                qualifiedUsers = nil
+                users = conversation.localParticipantsExcludingSelf.map(\.remoteIdentifier)
+            }
+
             name = conversation.userDefinedName
             access = conversation.accessMode?.stringValue
             accessRole = conversation.accessRole?.rawValue
@@ -305,6 +311,26 @@ extension Payload {
                 archived = conversation.isArchived
                 archivedReference = reference
             }
+        }
+    }
+
+    // MARK: - Actions
+
+    struct ConversationAddMember: Codable {
+        enum CodingKeys: String, CodingKey {
+            case userIDs = "users"
+            case qualifiedUserIDs = "qualified_users"
+            case role = "conversation_role"
+        }
+
+        let userIDs: [UUID]?
+        let qualifiedUserIDs: [QualifiedID]?
+        let role: String
+
+        init?(userIDs: [UUID]? = nil, qualifiedUserIDs: [QualifiedID]? = nil) {
+            self.userIDs = userIDs
+            self.qualifiedUserIDs = qualifiedUserIDs
+            self.role = ZMConversation.defaultMemberRoleName
         }
     }
 

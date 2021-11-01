@@ -30,6 +30,14 @@ enum Payload {
     typealias ClientListByQualifiedUserID = [String: ClientListByUserID]
     typealias UserProfiles = [Payload.UserProfile]
 
+    struct EventContainer<T: Codable>: Codable {
+        enum CodingKeys: String, CodingKey {
+            case event
+        }
+
+        let event: T
+    }
+
     struct QualifiedUserIDList: Codable, Hashable {
 
         enum CodingKeys: String, CodingKey {
@@ -43,18 +51,7 @@ enum Payload {
         let key: String
         let id: Int?
     }
-    
-    struct QualifiedID: Codable, Hashable {
-        
-        enum CodingKeys: String, CodingKey {
-            case uuid = "id"
-            case domain
-        }
-        
-        let uuid: UUID
-        let domain: String
-    }
-        
+            
     struct Location: Codable {
         
         enum CodingKeys: String, CodingKey {
@@ -249,8 +246,11 @@ enum Payload {
         enum Label: String, Codable {
             case notFound = "not-found"
             case noEndpoint = "no-endpoint"
+            case noIdentity = "no-identity"
             case unknownClient = "unknown-client"
             case missingLegalholdConsent = "missing-legalhold-consent"
+            case notConnected = "not-connected"
+            case connectionLimit = "connection-limit"
             case unknown
 
             init(from decoder: Decoder) throws {
