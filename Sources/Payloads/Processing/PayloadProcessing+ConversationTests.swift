@@ -27,7 +27,8 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             // given
             self.syncMOC.zm_isFederationEnabled = true
             let qualifiedID = self.groupConversation.qualifiedID!
-            let conversation = Payload.Conversation(qualifiedID: qualifiedID)
+            let conversation = Payload.Conversation(qualifiedID: qualifiedID,
+                                                    type: BackendConversationType.group.rawValue)
 
             // when
             conversation.updateOrCreate(in: self.syncMOC)
@@ -43,14 +44,16 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             // given
             self.syncMOC.zm_isFederationEnabled = false
             let qualifiedID = self.groupConversation.qualifiedID!
-            let conversation = Payload.Conversation(qualifiedID: qualifiedID, id: qualifiedID.uuid)
+            let conversation = Payload.Conversation(qualifiedID: qualifiedID,
+                                                    id: qualifiedID.uuid,
+                                                    type: BackendConversationType.group.rawValue)
 
             // when
             conversation.updateOrCreate(in: self.syncMOC)
 
             // then
             XCTAssertEqual(self.groupConversation.remoteIdentifier, qualifiedID.uuid)
-            XCTAssertEqual(self.groupConversation.domain, qualifiedID.domain)
+            XCTAssertNil(self.groupConversation.domain)
         }
     }
 
