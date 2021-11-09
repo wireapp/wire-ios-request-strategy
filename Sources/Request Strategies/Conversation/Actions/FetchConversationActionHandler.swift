@@ -17,7 +17,7 @@
 
 import Foundation
 
-extension ConversationFetchIDAndNameError {
+extension ConversationFetchError {
     
     init(response: ZMTransportResponse) {
         switch (response.httpStatus, response.payloadLabel()) {
@@ -31,9 +31,9 @@ extension ConversationFetchIDAndNameError {
     
 }
 
-class FetchIDAndNameActionHandler: ActionHandler<FetchIDAndNameAction> {
+class FetchConversationActionHandler: ActionHandler<FetchConversationAction> {
     
-    override func request(for action: FetchIDAndNameAction) -> ZMTransportRequest? {
+    override func request(for action: FetchConversationAction) -> ZMTransportRequest? {
         var url = URLComponents()
         url.path = "/conversations/join"
         url.queryItems = [URLQueryItem(name: "key", value: action.key),
@@ -45,16 +45,15 @@ class FetchIDAndNameActionHandler: ActionHandler<FetchIDAndNameAction> {
         return ZMTransportRequest(path: urlString, method: .methodGET, payload: nil)
     }
     
-    override func handleResponse(_ response: ZMTransportResponse, action: FetchIDAndNameAction) {
+    override func handleResponse(_ response: ZMTransportResponse, action: FetchConversationAction) {
         var action = action
         
         switch response.httpStatus {
         case 200:
             guard
-                let payload = response.payload as? [AnyHashable : Any],
-                let id = payload["id"] as? String,
-                let conversationID = UUID(uuidString: id),
-                let conversationName = payload["name"] as? String
+                let payload = Payload.ConversationFetch(response),
+                let conversationID = UUID(uuidString: payload.id),
+                let conversationName = payload.name
             else {
                 action.notifyResult(.failure(.unknown))
                 return
@@ -63,7 +62,7 @@ class FetchIDAndNameActionHandler: ActionHandler<FetchIDAndNameAction> {
             let fetchResult = (conversationID, conversationName)
             action.notifyResult(.success(fetchResult))
         default:
-            let error = ConversationFetchIDAndNameError(response: response)
+            let error = ConversationFetchError(response: response)
             Logging.network.debug("Error fetching conversation ID and name using a reusable code: \(error)")
             action.notifyResult(.failure(error))
         }

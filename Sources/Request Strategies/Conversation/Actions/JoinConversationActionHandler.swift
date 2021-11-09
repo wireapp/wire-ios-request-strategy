@@ -30,9 +30,9 @@ extension ConversationJoinError {
     
 }
 
-class JoinActionHandler: ActionHandler<JoinAction> {
+class JoinConversationActionHandler: ActionHandler<JoinConversationAction> {
     
-    override func request(for action: JoinAction) -> ZMTransportRequest? {
+    override func request(for action: JoinConversationAction) -> ZMTransportRequest? {
         let path = "/conversations/join"
         let payload = Payload.ConversationJoin(key: action.key, code: action.code)
         
@@ -49,7 +49,7 @@ class JoinActionHandler: ActionHandler<JoinAction> {
         return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData)
     }
     
-    override func handleResponse(_ response: ZMTransportResponse, action: JoinAction) {
+    override func handleResponse(_ response: ZMTransportResponse, action: JoinConversationAction) {
         var action = action
         
         switch response.httpStatus {
@@ -59,12 +59,12 @@ class JoinActionHandler: ActionHandler<JoinAction> {
                 let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil),
                 let rawData = response.rawData,
                 let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberJoin>(rawData, decoder: .defaultDecoder),
-                let conversationID = event.payload["conversation"] as? String
+                let conversationID = conversationEvent.id?.uuidString
             else {
                 action.notifyResult(.failure(.unknown))
                 return
             }
-            
+
             conversationEvent.process(in: context, originalEvent: event)
           
             action.notifyResult(.success(conversationID))

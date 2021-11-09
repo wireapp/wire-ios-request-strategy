@@ -128,10 +128,10 @@
 		5E68F22722452CDC00298376 /* LinkPreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E68F22622452CDC00298376 /* LinkPreprocessor.swift */; };
 		5E9EA4DE2243C10400D401B2 /* LinkAttachmentsPreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4DD2243C10400D401B2 /* LinkAttachmentsPreprocessor.swift */; };
 		5E9EA4E02243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4DF2243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift */; };
-		701BB7BF27395DEF005F74A2 /* JoinActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 701BB7BE27395DEF005F74A2 /* JoinActionHandlerTests.swift */; };
-		701BB7C327397558005F74A2 /* FetchIDAndNameActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 701BB7C227397558005F74A2 /* FetchIDAndNameActionHandlerTests.swift */; };
-		70C782592733DB700059DF07 /* JoinActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C782582733DB700059DF07 /* JoinActionHandler.swift */; };
-		70C7825D2733E34D0059DF07 /* FetchIDAndNameActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C7825C2733E34D0059DF07 /* FetchIDAndNameActionHandler.swift */; };
+		701BB7BF27395DEF005F74A2 /* JoinConversationActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 701BB7BE27395DEF005F74A2 /* JoinConversationActionHandlerTests.swift */; };
+		701BB7C327397558005F74A2 /* FetchConversationActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 701BB7C227397558005F74A2 /* FetchConversationActionHandlerTests.swift */; };
+		70C782592733DB700059DF07 /* JoinConversationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C782582733DB700059DF07 /* JoinConversationActionHandler.swift */; };
+		70C7825D2733E34D0059DF07 /* FetchConversationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C7825C2733E34D0059DF07 /* FetchConversationActionHandler.swift */; };
 		8792F55721AD944100795027 /* UserPropertyRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */; };
 		87F7288521AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F7288421AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift */; };
 		A90C56E62685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C56E52685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift */; };
@@ -397,10 +397,10 @@
 		5E68F22622452CDC00298376 /* LinkPreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkPreprocessor.swift; sourceTree = "<group>"; };
 		5E9EA4DD2243C10400D401B2 /* LinkAttachmentsPreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkAttachmentsPreprocessor.swift; sourceTree = "<group>"; };
 		5E9EA4DF2243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkAttachmentsPreprocessorTests.swift; sourceTree = "<group>"; };
-		701BB7BE27395DEF005F74A2 /* JoinActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinActionHandlerTests.swift; sourceTree = "<group>"; };
-		701BB7C227397558005F74A2 /* FetchIDAndNameActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchIDAndNameActionHandlerTests.swift; sourceTree = "<group>"; };
-		70C782582733DB700059DF07 /* JoinActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinActionHandler.swift; sourceTree = "<group>"; };
-		70C7825C2733E34D0059DF07 /* FetchIDAndNameActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchIDAndNameActionHandler.swift; sourceTree = "<group>"; };
+		701BB7BE27395DEF005F74A2 /* JoinConversationActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinConversationActionHandlerTests.swift; sourceTree = "<group>"; };
+		701BB7C227397558005F74A2 /* FetchConversationActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchConversationActionHandlerTests.swift; sourceTree = "<group>"; };
+		70C782582733DB700059DF07 /* JoinConversationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinConversationActionHandler.swift; sourceTree = "<group>"; };
+		70C7825C2733E34D0059DF07 /* FetchConversationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchConversationActionHandler.swift; sourceTree = "<group>"; };
 		8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPropertyRequestStrategy.swift; sourceTree = "<group>"; };
 		87F7288421AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPropertyRequestStrategyTests.swift; sourceTree = "<group>"; };
 		A90C56E52685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMImagePreprocessingTrackerTests.swift; sourceTree = "<group>"; };
@@ -721,10 +721,10 @@
 				168D7CCD26FB303A00789960 /* AddParticipantActionHandlerTests.swift */,
 				168D7CBA26FB21D900789960 /* RemoveParticipantActionHandler.swift */,
 				168D7CF526FC6D3300789960 /* RemoveParticipantActionHandlerTests.swift */,
-				70C782582733DB700059DF07 /* JoinActionHandler.swift */,
-				701BB7BE27395DEF005F74A2 /* JoinActionHandlerTests.swift */,
-				70C7825C2733E34D0059DF07 /* FetchIDAndNameActionHandler.swift */,
-				701BB7C227397558005F74A2 /* FetchIDAndNameActionHandlerTests.swift */,
+				70C782582733DB700059DF07 /* JoinConversationActionHandler.swift */,
+				701BB7BE27395DEF005F74A2 /* JoinConversationActionHandlerTests.swift */,
+				70C7825C2733E34D0059DF07 /* FetchConversationActionHandler.swift */,
+				701BB7C227397558005F74A2 /* FetchConversationActionHandlerTests.swift */,
 			);
 			path = Actions;
 			sourceTree = "<group>";
@@ -1334,7 +1334,7 @@
 				166901D61D7081C7000FE4AF /* ZMDownstreamObjectSyncWithWhitelist.m in Sources */,
 				16E70F8A270EEB2300718E5D /* PayloadProcessing+Conversation.swift in Sources */,
 				16E5F6D626EF1BE100F35FBA /* PaginatedSync.swift in Sources */,
-				70C7825D2733E34D0059DF07 /* FetchIDAndNameActionHandler.swift in Sources */,
+				70C7825D2733E34D0059DF07 /* FetchConversationActionHandler.swift in Sources */,
 				161E055026655E4500DADC3D /* UserProfileRequestStrategy.swift in Sources */,
 				F18401D42073BE0800E9F4CC /* MessageExpirationTimer.swift in Sources */,
 				1622946B221C18BE00A98679 /* AssetV3UploadRequestStrategy.swift in Sources */,
@@ -1356,7 +1356,7 @@
 				F18401B42073BE0800E9F4CC /* ZMAbstractRequestStrategy.m in Sources */,
 				169BA1CD25E95DC900374343 /* Payload+Processing.swift in Sources */,
 				F18401D82073BE0800E9F4CC /* ZMConversation+Notifications.swift in Sources */,
-				70C782592733DB700059DF07 /* JoinActionHandler.swift in Sources */,
+				70C782592733DB700059DF07 /* JoinConversationActionHandler.swift in Sources */,
 				F18401D92073BE0800E9F4CC /* EncryptionSessionDirectory+UpdateEvents.swift in Sources */,
 				F18401C72073BE0800E9F4CC /* AssetV3PreviewDownloadStrategy.swift in Sources */,
 				F18401B52073BE0800E9F4CC /* OTREntityTranscoder.swift in Sources */,
@@ -1426,7 +1426,7 @@
 				F19561F1202A1325005347C0 /* ZMSingleRequestSyncTests.m in Sources */,
 				F19561F7202A1389005347C0 /* ZMLocallyInsertedObjectSetTests.m in Sources */,
 				168D7D0C26FC81AD00789960 /* ActionHandlerTests.swift in Sources */,
-				701BB7BF27395DEF005F74A2 /* JoinActionHandlerTests.swift in Sources */,
+				701BB7BF27395DEF005F74A2 /* JoinConversationActionHandlerTests.swift in Sources */,
 				160ADE9C270DBD0A003FA638 /* ConnectToUserActionHandlerTests.swift in Sources */,
 				F1956201202A141E005347C0 /* ZMDownstreamObjectSyncTests.m in Sources */,
 				F18401F32073C26C00E9F4CC /* AssetClientMessageRequestStrategyTests.swift in Sources */,
@@ -1471,7 +1471,7 @@
 				F18401F02073C26C00E9F4CC /* LinkPreviewAssetDownloadRequestStrategyTests.swift in Sources */,
 				F18401FF2073C2EA00E9F4CC /* MessagingTestBase.swift in Sources */,
 				16189D02268B104C004831BE /* ProteusMessageSyncTests.swift in Sources */,
-				701BB7C327397558005F74A2 /* FetchIDAndNameActionHandlerTests.swift in Sources */,
+				701BB7C327397558005F74A2 /* FetchConversationActionHandlerTests.swift in Sources */,
 				16E70F94270EEEEB00718E5D /* PayloadProcessing+ConnectionTests.swift in Sources */,
 				16189D0A268B2C34004831BE /* ModifiedKeyObjectSyncTests.swift in Sources */,
 				F1956200202A141B005347C0 /* ZMDownstreamObjectSyncOrderingTests.m in Sources */,

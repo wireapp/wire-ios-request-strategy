@@ -338,6 +338,11 @@ extension Payload {
         let key: String
         let code: String
     }
+    
+    struct ConversationFetch: Codable {
+        let id: String
+        let name: String?
+    }
 
     // MARK: - Events
 

@@ -18,14 +18,14 @@
 import XCTest
 @testable import WireRequestStrategy
 
-final class JoinActionHandlerTests: MessagingTestBase {
+final class JoinConversationActionHandlerTests: MessagingTestBase {
     
     private var conversation: ZMConversation!
     
     private var key: String!
     private var code: String!
     
-    private var sut: JoinActionHandler!
+    private var sut: JoinConversationActionHandler!
     
     override func setUp() {
         super.setUp()
@@ -42,7 +42,7 @@ final class JoinActionHandlerTests: MessagingTestBase {
         key = UUID().uuidString
         code = UUID().uuidString
         
-        sut = JoinActionHandler(context: syncMOC)
+        sut = JoinConversationActionHandler(context: syncMOC)
     }
     
     override func tearDown() {
@@ -54,7 +54,7 @@ final class JoinActionHandlerTests: MessagingTestBase {
     func testThatItCreatesAnExpectedRequestForJoiningConversation() throws {
         try syncMOC.performGroupedAndWait { [self] syncMOC in
             // given
-            let action = JoinAction(key: key, code: code)
+            let action = JoinConversationAction(key: key, code: code)
             
             // when
             let request = try XCTUnwrap(sut.request(for: action))
@@ -76,7 +76,7 @@ final class JoinActionHandlerTests: MessagingTestBase {
             let selfUser = ZMUser.selfUser(in: syncMOC)
             
             var resultConversationID: String?
-            var action = JoinAction(key: key, code: code)
+            var action = JoinConversationAction(key: key, code: code)
             action.onResult { result in
                 if case .success(let id) = result {
                     resultConversationID = id
@@ -105,7 +105,7 @@ final class JoinActionHandlerTests: MessagingTestBase {
             // given
             let expectation = self.expectation(description: "Result Handler was called")
             
-            var action = JoinAction(key: key, code: code)
+            var action = JoinConversationAction(key: key, code: code)
             action.onResult { result in
                 if case .failure = result {
                     expectation.fulfill()
@@ -127,7 +127,7 @@ final class JoinActionHandlerTests: MessagingTestBase {
             // given
             let expectation = self.expectation(description: "Result Handler was called")
             
-            var action = JoinAction(key: key, code: code)
+            var action = JoinConversationAction(key: key, code: code)
             action.onResult { result in
                 if case .failure = result {
                     expectation.fulfill()
@@ -141,6 +141,23 @@ final class JoinActionHandlerTests: MessagingTestBase {
             
             // then
             XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+        }
+    }
+    
+    func testThatItParsesAllKnownConnectionToUserErrorResponses() {
+
+        let errorResponses: [(ConversationJoinError, ZMTransportResponse)] = [
+            (ConversationJoinError.tooManyMembers, ZMTransportResponse(payload: ["label": "too-many-members"] as ZMTransportData, httpStatus: 403, transportSessionError: nil)),
+            (ConversationJoinError.invalidCode, ZMTransportResponse(payload: ["label": "no-conversation-code"] as ZMTransportData, httpStatus: 404, transportSessionError: nil)),
+            (ConversationJoinError.noConversation, ZMTransportResponse(payload: ["label": "no-conversation"] as ZMTransportData, httpStatus: 404, transportSessionError: nil))
+        ]
+
+        for (expectedError, response) in errorResponses {
+            if case ConversationJoinError(response: response) = expectedError {
+                // success
+            } else {
+                XCTFail()
+            }
         }
     }
 }

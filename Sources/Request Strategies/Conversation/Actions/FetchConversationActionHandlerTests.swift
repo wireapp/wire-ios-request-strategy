@@ -18,12 +18,12 @@
 import XCTest
 @testable import WireRequestStrategy
 
-final class FetchIDAndNameActionHandlerTests: MessagingTestBase {
+final class FetchConversationActionHandlerTests: MessagingTestBase {
     
     private var key: String!
     private var code: String!
     
-    private var sut: FetchIDAndNameActionHandler!
+    private var sut: FetchConversationActionHandler!
 
     override func setUp() {
         super.setUp()
@@ -31,7 +31,7 @@ final class FetchIDAndNameActionHandlerTests: MessagingTestBase {
         key = UUID().uuidString
         code = UUID().uuidString
         
-        sut = FetchIDAndNameActionHandler(context: syncMOC)
+        sut = FetchConversationActionHandler(context: syncMOC)
     }
     
     override func tearDown() {
@@ -43,7 +43,7 @@ final class FetchIDAndNameActionHandlerTests: MessagingTestBase {
     func testThatItCreatesAnExpectedRequestForFetchingConversationInformation() throws {
         try syncMOC.performGroupedAndWait { [self] syncMOC in
             // given
-            let action = FetchIDAndNameAction(key: key, code: code)
+            let action = FetchConversationAction(key: key, code: code)
             
             // when
             let request = try XCTUnwrap(sut.request(for: action))
@@ -63,7 +63,7 @@ final class FetchIDAndNameActionHandlerTests: MessagingTestBase {
             
             var resultConversationID: UUID?
             var resultConversationName: String?
-            var action = FetchIDAndNameAction(key: key, code: code)
+            var action = FetchConversationAction(key: key, code: code)
             action.onResult { result in
                 if case .success((let id, let name)) = result {
                     resultConversationID = id
@@ -91,7 +91,7 @@ final class FetchIDAndNameActionHandlerTests: MessagingTestBase {
             // given
             let expectation = self.expectation(description: "Result Handler was called")
             
-            var action = FetchIDAndNameAction(key: key, code: code)
+            var action = FetchConversationAction(key: key, code: code)
             action.onResult { result in
                 if case .failure = result {
                     expectation.fulfill()
@@ -105,6 +105,23 @@ final class FetchIDAndNameActionHandlerTests: MessagingTestBase {
             
             // then
             XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+        }
+    }
+    
+    func testThatItParsesAllKnownConnectionToUserErrorResponses() {
+        let errorResponses: [(ConversationFetchError, ZMTransportResponse)] = [
+            (.noTeamMember, ZMTransportResponse(payload: ["label": "no-team-member"] as ZMTransportData, httpStatus: 403, transportSessionError: nil)),
+            (.accessDenied, ZMTransportResponse(payload: ["label": "access-denied"] as ZMTransportData, httpStatus: 403, transportSessionError: nil)),
+            (.invalidCode, ZMTransportResponse(payload: ["label": "no-conversation-code"] as ZMTransportData, httpStatus: 404, transportSessionError: nil)),
+            (.noConversation, ZMTransportResponse(payload: ["label": "no-conversation"] as ZMTransportData, httpStatus: 404, transportSessionError: nil))
+        ]
+
+        for (expectedError, response) in errorResponses {
+            if case ConversationFetchError(response: response) = expectedError {
+                // success
+            } else {
+                XCTFail()
+            }
         }
     }
 

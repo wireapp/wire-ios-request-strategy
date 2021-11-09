@@ -4,7 +4,11 @@ github "wireapp/Starscream" "4.0.4_xcode13"
 github "wireapp/ocmock" "v3.4.3_xcframework"
 github "wireapp/swift-protobuf" "1.15.0_xcframework"
 github "wireapp/wire-ios-cryptobox" "31.0.0"
+<<<<<<< HEAD
 github "wireapp/wire-ios-data-model" "9f9cec695d8220f99ad9ad8306752a11903b02de"
+=======
+github "wireapp/wire-ios-data-model" "45207dd2a0c8edf6e587bb18433da90d9325bb8d"
+>>>>>>> 7517667 (apply suggestions)
 github "wireapp/wire-ios-images" "40.0.0"
 github "wireapp/wire-ios-link-preview" "34.0.0"
 github "wireapp/wire-ios-protos" "30.0.0"
