@@ -333,6 +333,11 @@ extension Payload {
             self.role = ZMConversation.defaultMemberRoleName
         }
     }
+    
+    struct ConversationJoin: Codable {
+        let key: String
+        let code: String
+    }
 
     // MARK: - Events
 
