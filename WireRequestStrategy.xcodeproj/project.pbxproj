@@ -1504,7 +1504,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F1E47FED207E0B72008D4299 /* project-debug.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 			};
 			name = Debug;
