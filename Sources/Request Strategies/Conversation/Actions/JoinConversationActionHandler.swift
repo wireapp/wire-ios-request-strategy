@@ -66,15 +66,19 @@ class JoinConversationActionHandler: ActionHandler<JoinConversationAction> {
 
             conversationEvent.process(in: context, originalEvent: event)
             
-            guard
-                let conversationID = conversationEvent.id,
-                let conversation = ZMConversation.fetch(with: conversationID, in: context)
-            else {
-                action.notifyResult(.failure(.unknown))
-                return
+            let viewContext = action.viewContext
+            
+            viewContext.performGroupedBlock {
+                guard
+                    let conversationID = conversationEvent.id,
+                    let conversation = ZMConversation.fetch(with: conversationID, in: viewContext)
+                else {
+                    action.notifyResult(.failure(.unknown))
+                    return
+                }
+              
+                action.notifyResult(.success(conversation))
             }
-          
-            action.notifyResult(.success(conversation))
 
         /// The user is already a participant in the conversation
         case 204:
