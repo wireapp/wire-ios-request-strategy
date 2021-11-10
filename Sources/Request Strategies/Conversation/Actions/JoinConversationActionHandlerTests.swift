@@ -75,17 +75,17 @@ final class JoinConversationActionHandlerTests: MessagingTestBase {
             
             let selfUser = ZMUser.selfUser(in: syncMOC)
             
-            var resultConversationID: String?
+            var resultConversation: ZMConversation?
             var action = JoinConversationAction(key: key, code: code)
             action.onResult { result in
-                if case .success(let id) = result {
-                    resultConversationID = id
+                if case .success(let conversation) = result {
+                    resultConversation = conversation
                     expectation.fulfill()
                 }
             }
             
             let eventData = Payload.UpdateConverationMemberJoin(userIDs: nil, users: nil)
-            let conversationID = QualifiedID(uuid: expectedConversationID!, domain: "bcd")
+            let conversationID = QualifiedID(uuid: expectedConversationID!, domain: UUID().uuidString)
             let conversationEvent = conversationEventPayload(from: eventData, conversationID: conversationID, senderID: nil, timestamp: nil)
             let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 200, transportSessionError: nil)
@@ -95,7 +95,7 @@ final class JoinConversationActionHandlerTests: MessagingTestBase {
             
             // then
             XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
-            XCTAssertEqual(resultConversationID!, expectedConversationID!.uuidString)
+            XCTAssertEqual(resultConversation!, conversation)
             XCTAssertTrue(self.conversation.localParticipantsContain(user: selfUser))
         }
     }

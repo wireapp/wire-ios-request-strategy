@@ -58,16 +58,23 @@ class JoinConversationActionHandler: ActionHandler<JoinConversationAction> {
                 let payload = response.payload,
                 let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil),
                 let rawData = response.rawData,
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberJoin>(rawData, decoder: .defaultDecoder),
-                let conversationID = conversationEvent.id?.uuidString
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberJoin>(rawData, decoder: .defaultDecoder)
             else {
                 action.notifyResult(.failure(.unknown))
                 return
             }
 
             conversationEvent.process(in: context, originalEvent: event)
+            
+            guard
+                let conversationID = conversationEvent.id,
+                let conversation = ZMConversation.fetch(with: conversationID, in: context)
+            else {
+                action.notifyResult(.failure(.unknown))
+                return
+            }
           
-            action.notifyResult(.success(conversationID))
+            action.notifyResult(.success(conversation))
 
         /// The user is already a participant in the conversation
         case 204:
