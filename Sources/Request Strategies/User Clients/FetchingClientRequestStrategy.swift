@@ -166,12 +166,16 @@ final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
     
     public func request(for identifiers: Set<UserClientID>) -> ZMTransportRequest? {
         guard let identifier = identifiers.first else { return nil }
+
+        print("Fetching \(identifiers)")
         
         //GET /users/<user-id>/clients/<client-id>
         return ZMTransportRequest(path: "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)", method: .methodGET, payload: nil)
     }
     
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UserClientID>) {
+
+        print("Received \(response)")
 
         guard
             let identifier = identifiers.first,
