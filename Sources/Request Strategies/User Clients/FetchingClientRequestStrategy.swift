@@ -191,6 +191,8 @@ final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
                   let payload = Payload.UserClient(rawData, decoder: decoder) {
             payload.update(client)
             let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
+            selfClient?.missesClients(Set(arrayLiteral: client))
+            selfClient?.addNewClientsToIgnored(Set(arrayLiteral: client))
             selfClient?.updateSecurityLevelAfterDiscovering(Set(arrayLiteral: client))
         }
     }
