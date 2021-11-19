@@ -96,6 +96,7 @@
 		16972DED2668E699008AF3A2 /* UserProfileRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16972DEC2668E699008AF3A2 /* UserProfileRequestStrategyTests.swift */; };
 		169BA1CB25E9507600374343 /* Payload+Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169BA1CA25E9507600374343 /* Payload+Decoding.swift */; };
 		169BA1CD25E95DC900374343 /* Payload+Processing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169BA1CC25E95DC900374343 /* Payload+Processing.swift */; };
+		169FF4232718891C00330C2E /* ObjectSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169FF4222718891C00330C2E /* ObjectSync.swift */; };
 		16A4891A2685CECD001F9127 /* ProteusMessageSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A489192685CECC001F9127 /* ProteusMessageSync.swift */; };
 		16A48936268A0665001F9127 /* ModifiedKeyObjectSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A48935268A0665001F9127 /* ModifiedKeyObjectSync.swift */; };
 		16A4893A268A080E001F9127 /* InsertedObjectSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A48939268A080E001F9127 /* InsertedObjectSync.swift */; };
@@ -361,6 +362,7 @@
 		16972DEC2668E699008AF3A2 /* UserProfileRequestStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileRequestStrategyTests.swift; sourceTree = "<group>"; };
 		169BA1CA25E9507600374343 /* Payload+Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Payload+Decoding.swift"; sourceTree = "<group>"; };
 		169BA1CC25E95DC900374343 /* Payload+Processing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Payload+Processing.swift"; sourceTree = "<group>"; };
+		169FF4222718891C00330C2E /* ObjectSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectSync.swift; sourceTree = "<group>"; };
 		16A4891526849258001F9127 /* PayloadProcessing+MessageSendingStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PayloadProcessing+MessageSendingStatusTests.swift"; sourceTree = "<group>"; };
 		16A489192685CECC001F9127 /* ProteusMessageSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProteusMessageSync.swift; sourceTree = "<group>"; };
 		16A48935268A0665001F9127 /* ModifiedKeyObjectSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifiedKeyObjectSync.swift; sourceTree = "<group>"; };
@@ -944,6 +946,7 @@
 				F1CD5D852024C281008C574E /* Protocols */,
 				F1CD5D872024C46C008C574E /* Upstream */,
 				F1CD5D882024C47D008C574E /* Downstream */,
+				169FF4222718891C00330C2E /* ObjectSync.swift */,
 			);
 			path = "Object Syncs";
 			sourceTree = "<group>";
@@ -1350,6 +1353,7 @@
 				1662ADB322B0E8B300D84071 /* VerifyLegalHoldRequestStrategy.swift in Sources */,
 				166901EC1D7081C7000FE4AF /* ZMTimedSingleRequestSync.m in Sources */,
 				F184019A2073BE0800E9F4CC /* ClientMessageRequestFactory.swift in Sources */,
+				169FF4232718891C00330C2E /* ObjectSync.swift in Sources */,
 				168D7CB226FB0E3F00789960 /* EntityActionSync.swift in Sources */,
 				168D7CBB26FB21D900789960 /* RemoveParticipantActionHandler.swift in Sources */,
 				F963E8E11D955D5500098AD3 /* SharedProtocols.swift in Sources */,
