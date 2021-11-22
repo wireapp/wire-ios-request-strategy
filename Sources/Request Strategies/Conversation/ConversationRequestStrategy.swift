@@ -258,6 +258,9 @@ extension ConversationRequestStrategy: ZMEventConsumer {
 }
 
 extension ConversationRequestStrategy: IdentifierObjectSyncDelegate, ObjectSyncDelegate {
+    func scheduledRequestForObject<Object>(_ object: Object) {
+        
+    }
 
     public func didFinishSyncingAllObjects() {
         guard
@@ -280,6 +283,8 @@ extension ConversationRequestStrategy: IdentifierObjectSyncDelegate, ObjectSyncD
             isFetchingAllConversations = false
         }
     }
+
+
 
 }
 

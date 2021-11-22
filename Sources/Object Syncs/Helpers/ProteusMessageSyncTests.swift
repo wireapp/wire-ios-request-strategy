@@ -21,7 +21,7 @@ import XCTest
 
 class ProteusMessageSyncTests: MessagingTestBase {
 
-    var sut: ProteusMessageSync<MockOTREntity>!
+    var sut: ProteusMessageSync_<MockOTREntity>!
     var mockApplicationStatus: MockApplicationStatus!
     let domain =  "example.com"
     var qualifiedEndpoint: String!
@@ -31,8 +31,8 @@ class ProteusMessageSyncTests: MessagingTestBase {
         super.setUp()
 
         mockApplicationStatus = MockApplicationStatus()
-        sut = ProteusMessageSync<MockOTREntity>(context: syncMOC, applicationStatus: mockApplicationStatus)
-        sut.isFederationEndpointAvailable = true
+        sut = ProteusMessageSync_<MockOTREntity>(context: syncMOC, applicationStatus: mockApplicationStatus)
+        sut.useFederationEndpoint = true
 
         syncMOC.performGroupedBlockAndWait { [self] in
             otherUser.domain = domain
@@ -51,7 +51,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
                     handler: nil)
 
         // when
-        sut.sync(message) { (_, _) in }
+        sut.synchronize(message) { (_, _) in }
 
         // then
         XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
@@ -64,7 +64,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
 
             // expect
             let expectation = self.expectation(description: "completion is called")
-            sut.sync(message) { (result, _) in
+            sut.synchronize(message) { (result, _) in
                 if case .success(()) = result {
                     expectation.fulfill()
                 }
@@ -88,7 +88,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait { [self] in
             // given
             message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
-            sut.sync(message, completion: { (_, _) in })
+            sut.synchronize(message, completion: { (_, _) in })
 
             // when
             let payload = Payload.MessageSendingStatus(time: Date(),
@@ -113,7 +113,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
 
             // expect
             let expectation = self.expectation(description: "completion is called")
-            sut.sync(message) { (result, _) in
+            sut.synchronize(message) { (result, _) in
                 if case .failure(let error) = result, error == .gaveUpRetrying {
                     expectation.fulfill()
                 }
@@ -126,30 +126,11 @@ class ProteusMessageSyncTests: MessagingTestBase {
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
     }
 
-    func testThatItRetriesTheRequest_WhenQualifiedEndpointIsNotAvailble() throws {
-        syncMOC.performGroupedBlockAndWait { [self] in
-            // given
-            let message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
-            sut.sync(message) { (result, _) in }
-
-            // when
-            let payload = Payload.ResponseFailure(code: 404, label: .noEndpoint, message: "")
-            let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: payload.code, transportSessionError: nil))
-        }
-        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-
-        syncMOC.performGroupedBlockAndWait { [self] in
-            // then
-            XCTAssertEqual(sut.nextRequest()?.path, legacyEndpoint)
-        }
-    }
-
     func testThatItRetriesTheRequest_WhenResponseSaysItsATemporaryError() throws {
         syncMOC.performGroupedBlockAndWait { [self] in
             // given
             let message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
-            sut.sync(message) { (result, _) in }
+            sut.synchronize(message) { (result, _) in }
 
             // when
             sut.nextRequest()?.complete(with: ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError()))
@@ -166,7 +147,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait { [self] in
             // given
             let message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
-            sut.sync(message) { (result, _) in }
+            sut.synchronize(message) { (result, _) in }
 
             // when
             let clientID = UUID().transportString()
@@ -194,7 +175,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
             syncMOC.performGroupedBlockAndWait { [self] in
                 // given
                 let message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
-                sut.sync(message) { (result, _) in }
+                sut.synchronize(message) { (result, _) in }
 
                 // when
                 let payload = Payload.ResponseFailure(code: 403, label: .unknownClient, message: "")
@@ -215,7 +196,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
             let expirationDate = Date(timeIntervalSinceNow: 100)
             let message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
             message.expirationDate = expirationDate
-            sut.sync(message) { (result, _) in }
+            sut.synchronize(message) { (result, _) in }
 
             // when
             let request = sut.nextRequest()

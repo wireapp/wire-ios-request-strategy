@@ -68,7 +68,7 @@ protocol ObjectTranscoder {
     ///
     /// The default is 1.
     var fetchLimit: Int { get }
-    var supportBatchRequests: Bool { get }
+    var shouldRetryOnExpiration: Bool { get }
 
     /// Returns a request for synchronzing a single object
     func requestFor(_ object: Object) -> ZMTransportRequest?
@@ -81,6 +81,9 @@ protocol ObjectTranscoder {
 
     /// Handle the response for synchronzing a set of objects objects
     func handleResponse(response: ZMTransportResponse, for objects: Set<Object>)
+
+    func shouldTryToResend(_ object: Object, afterFailureWithResponse: ZMTransportResponse) -> Bool
+    func shouldTryToResend(_ objects: Set<Object>, afterFailureWithResponse: ZMTransportResponse) -> Bool
 }
 
 extension ObjectTranscoder {
@@ -89,16 +92,33 @@ extension ObjectTranscoder {
         1
     }
 
-    var supportBatchRequests: Bool {
-        return fetchLimit > 1
+    var shouldRetryOnExpiration: Bool {
+        return true
     }
 
     func requestFor(_ objects: Set<Object>) -> ZMTransportRequest? {
-        requestFor(objects.first!)
+        guard let object = objects.first else {
+            return nil
+        }
+        return requestFor(object)
     }
 
     func handleResponse(response: ZMTransportResponse, for objects: Set<Object>) {
-        handleResponse(response: response, for: objects.first!)
+        guard let object = objects.first else {
+            return
+        }
+        handleResponse(response: response, for: object)
+    }
+
+    func shouldTryToResend(_ object: Object, afterFailureWithResponse response: ZMTransportResponse) -> Bool {
+        return !response.isPermanentylUnavailableError()
+    }
+
+    func shouldTryToResend(_ objects: Set<Object>, afterFailureWithResponse response: ZMTransportResponse) -> Bool {
+        guard let object = objects.first else {
+            return false
+        }
+        return shouldTryToResend(object, afterFailureWithResponse: response)
     }
 
 }
@@ -225,9 +245,19 @@ protocol ObjectSyncDelegate: AnyObject {
 
 }
 
+public enum ObjectSyncError: Error {
+    case expired
+    case gaveUpRetrying
+}
+
+public typealias ObjectSyncHandler = (_ result: Swift.Result<Void, ObjectSyncError>, _ response: ZMTransportResponse) -> Void
+
 /// Synchronizes objects using a configurable sources, filters and transcoder.
 ///
 class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator, ZMContextChangeTrackerSource where Trans.Object == Object {
+
+    public typealias ScheduledHandler = (_ object: Object) -> Void
+    public typealias CompletedHandler = (_ object: Object, _ result: Swift.Result<Void, ObjectSyncError>, _ response: ZMTransportResponse) -> Void
 
     var pending: Set<Object> = Set()
     var downloading: Set<Object> = Set()
@@ -235,7 +265,11 @@ class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator,
     var sources: [Any] = []
     var transcoder: Trans
     var context: NSManagedObjectContext
+    var scheduledHandler: ScheduledHandler?
+    var completedHandler: CompletedHandler?
+    var completionHandlers: [Object: ObjectSyncHandler] = [:]
     weak var delegate: ObjectSyncDelegate?
+
 
     var contextChangeTrackers: [ZMContextChangeTracker] {
         return sources.compactMap({ $0 as? ZMContextChangeTracker })
@@ -249,6 +283,16 @@ class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator,
     init(_ transcoder: Trans, context: NSManagedObjectContext) {
         self.transcoder = transcoder
         self.context = context
+    }
+
+    /// Add handler which is called when objects are scheduled for synchronization
+    func onScheduled(_ handler: @escaping ScheduledHandler) {
+        scheduledHandler = handler
+    }
+
+    /// Add handler which is called when objects complete their synchronization
+    func onCompleted(_ handler: @escaping CompletedHandler) {
+        completedHandler = handler
     }
 
     /// Add an object source
@@ -277,8 +321,11 @@ class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator,
     /// Synchronize an object
     ///
     /// - parameter object: Object to synchronize.
-    func synchronize(_ object: Object) {
+    /// - parameter completion: Completion handler which is called when object has been synchronized.
+    func synchronize(_ object: Object, completion completionHandler: ObjectSyncHandler? = nil) {
+        completionHandlers[object] = completionHandler
         synchronize([object])
+        RequestAvailableNotification.notifyNewRequestsAvailable(nil)
     }
 
     /// Synchronize a set of objects
@@ -331,26 +378,55 @@ class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator,
             guard let strongSelf = self else { return }
 
             switch response.result {
-            case .permanentError, .success:
-                strongSelf.downloading.subtract(scheduled)
+            case .success:
+                strongSelf.clear(scheduled)
                 strongSelf.transcoder.handleResponse(response: response, for: scheduled)
-
-                if case .permanentError = response.result {
+                strongSelf.reportResult(scheduled, result: .success(()), response)
+            case .expired:
+                if strongSelf.transcoder.shouldRetryOnExpiration {
+                    strongSelf.reschedule(scheduled)
+                } else {
+                    strongSelf.clear(scheduled)
+                    strongSelf.reportResult(scheduled, result: .failure(.expired), response)
                     self?.delegate?.didFailToSyncAllObjects()
                 }
             default:
-                strongSelf.downloading.subtract(scheduled)
-                strongSelf.pending.formUnion(scheduled)
+                if strongSelf.transcoder.shouldTryToResend(scheduled, afterFailureWithResponse: response) {
+                    strongSelf.reschedule(scheduled)
+                } else {
+                    strongSelf.clear(scheduled)
+                    strongSelf.reportResult(scheduled, result: .failure(.gaveUpRetrying), response)
+                    self?.delegate?.didFailToSyncAllObjects()
+                }
             }
 
             if !strongSelf.isSyncing {
                 self?.delegate?.didFinishSyncingAllObjects()
             }
-
-            strongSelf.transcoder.handleResponse(response: response, for: scheduled)
         }))
 
+        scheduled.forEach({ object in
+            scheduledHandler?(object)
+        })
+
         return request
+    }
+
+    private func clear(_ objects: Set<Object>) {
+        downloading.subtract(objects)
+    }
+
+    private func reschedule(_ objects: Set<Object>) {
+        downloading.subtract(objects)
+        pending.formUnion(objects)
+    }
+
+    private func reportResult(_ objects: Set<Object>, result: Swift.Result<Void, ObjectSyncError>, _ response: ZMTransportResponse) {
+        for object in objects {
+            let completionHandler = completionHandlers.removeValue(forKey: object)
+            completionHandler?(result, response)
+            completedHandler?(object, result, response)
+        }
     }
 
 }

@@ -20,18 +20,18 @@ import Foundation
 
 public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
 
-    let insertedObjectSync: InsertedObjectSync<ClientMessageRequestStrategy>
-    let messageSync: ProteusMessageSync<ZMClientMessage>
+//    let insertedObjectSync: InsertedObjectSync<ClientMessageRequestStrategy>
+    let messageSync: ProteusMessageSync_<ZMClientMessage>
     let messageExpirationTimer: MessageExpirationTimer
     let linkAttachmentsPreprocessor: LinkAttachmentsPreprocessor
     let localNotificationDispatcher: PushMessageHandler
 
     public var useFederationEndpoint: Bool {
-        set {
-            messageSync.isFederationEndpointAvailable = newValue
-        }
         get {
-            messageSync.isFederationEndpointAvailable
+            messageSync.useFederationEndpoint
+        }
+        set {
+            messageSync.useFederationEndpoint = newValue
         }
     }
 
@@ -46,9 +46,8 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
                 localNotificationDispatcher: PushMessageHandler,
                 applicationStatus: ApplicationStatus) {
 
-        self.insertedObjectSync = InsertedObjectSync(insertPredicate: Self.shouldBeSentPredicate(context: managedObjectContext))
-        self.messageSync = ProteusMessageSync<ZMClientMessage>(context: managedObjectContext,
-                                                               applicationStatus: applicationStatus)
+        messageSync = ProteusMessageSync_(context: managedObjectContext, applicationStatus: applicationStatus)
+        messageSync.addSource(PredicateSource(Self.shouldBeSentPredicate(context: managedObjectContext)))
         self.localNotificationDispatcher = localNotificationDispatcher
         self.messageExpirationTimer = MessageExpirationTimer(moc: managedObjectContext, entityNames: [ZMClientMessage.entityName(), ZMAssetClientMessage.entityName()], localNotificationDispatcher: localNotificationDispatcher)
         self.linkAttachmentsPreprocessor = LinkAttachmentsPreprocessor(linkAttachmentDetector: LinkAttachmentDetectorHelper.defaultDetector(), managedObjectContext: managedObjectContext)
@@ -59,33 +58,11 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
         self.configuration = [.allowsRequestsWhileOnline,
                               .allowsRequestsWhileInBackground]
 
-        self.insertedObjectSync.transcoder = self
-
-        self.messageSync.onRequestScheduled { [weak self] (message, _) in
+        self.messageSync.onScheduled { [weak self] (message) in
             self?.messageExpirationTimer.stop(for: message)
         }
-    }
 
-    public var contextChangeTrackers: [ZMContextChangeTracker] {
-        return [insertedObjectSync, messageExpirationTimer, self.linkAttachmentsPreprocessor] + messageSync.contextChangeTrackers
-    }
-
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return messageSync.nextRequest()
-    }
-
-    deinit {
-        self.messageExpirationTimer.tearDown()
-    }
-
-}
-
-extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
-
-    typealias Object = ZMClientMessage
-
-    func insert(object: ZMClientMessage, completion: @escaping () -> Void) {
-        messageSync.sync(object) { [weak self] (result, response) in
+        self.messageSync.onCompleted { [weak self] object, result, response in
             switch result {
             case .success:
                 object.markAsSent()
@@ -106,6 +83,18 @@ extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
                 }
             }
         }
+    }
+
+    public var contextChangeTrackers: [ZMContextChangeTracker] {
+        return [messageExpirationTimer, self.linkAttachmentsPreprocessor] + messageSync.contextChangeTrackers
+    }
+
+    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
+        return messageSync.nextRequest()
+    }
+
+    deinit {
+        self.messageExpirationTimer.tearDown()
     }
 
     private func deleteMessageIfNecessary(_ message: ZMClientMessage) {
