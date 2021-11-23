@@ -26,18 +26,24 @@ class MessagingTestBase: ZMTBaseTest {
     fileprivate(set) var oneToOneConversation: ZMConversation!
     fileprivate(set) var selfClient: UserClient!
     fileprivate(set) var otherUser: ZMUser!
+    fileprivate(set) var thirdUser: ZMUser!
     fileprivate(set) var otherClient: UserClient!
     fileprivate(set) var otherEncryptionContext: EncryptionContext!
-    fileprivate(set) var contextDirectory: ManagedObjectContextDirectory!
+    fileprivate(set) var coreDataStack: CoreDataStack!
     fileprivate(set) var accountIdentifier: UUID!
-    fileprivate(set) var sharedContainerURL: URL!
+
+    let owningDomain = "example.com"
+
+    var useInMemoryStore: Bool {
+        true
+    }
     
     var syncMOC: NSManagedObjectContext! {
-        return self.contextDirectory.syncContext
+        return self.coreDataStack.syncContext
     }
     
     var uiMOC: NSManagedObjectContext! {
-        return self.contextDirectory.uiContext
+        return self.coreDataStack.viewContext
     }
 
     override func setUp() {
@@ -47,10 +53,11 @@ class MessagingTestBase: ZMTBaseTest {
         
         self.deleteAllOtherEncryptionContexts()
         self.deleteAllFilesInCache()
-        
-        self.sharedContainerURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         self.accountIdentifier = UUID()
-        self.setupManagedObjectContexes()
+        self.coreDataStack = createCoreDataStack(userIdentifier: accountIdentifier,
+                                                 inMemoryStore: useInMemoryStore)
+        setupCaches(in: coreDataStack)
+        setupTimers()
         
         self.syncMOC.performGroupedBlockAndWait {
             self.syncMOC.zm_cryptKeyStore.deleteAndCreateNewBox()
@@ -66,6 +73,7 @@ class MessagingTestBase: ZMTBaseTest {
         BackgroundActivityFactory.shared.activityManager = nil
 
         _ = self.waitForAllGroupsToBeEmpty(withTimeout: 10)
+
         self.syncMOC.performGroupedBlockAndWait {
             self.otherUser = nil
             self.otherClient = nil
@@ -73,21 +81,14 @@ class MessagingTestBase: ZMTBaseTest {
             self.groupConversation = nil
         }
         self.stopEphemeralMessageTimers()
-        self.deleteAllFilesInCache()
-        self.deleteAllOtherEncryptionContexts()
-        
+
         _ = self.waitForAllGroupsToBeEmpty(withTimeout: 10)
 
-        StorageStack.reset()
-        _ = self.waitForAllGroupsToBeEmpty(withTimeout: 10)
-
-        try? FileManager.default.contentsOfDirectory(at: sharedContainerURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles).forEach {
-            try? FileManager.default.removeItem(at: $0)
-        }
+        deleteAllFilesInCache()
+        deleteAllOtherEncryptionContexts()
 
         accountIdentifier = nil
-        sharedContainerURL = nil
-        contextDirectory = nil
+        coreDataStack = nil
 
         super.tearDown()
     }
@@ -171,12 +172,12 @@ extension MessagingTestBase {
     /// Extract the outgoing message wrapper (non-encrypted) protobuf
     func outgoingMessageWrapper(from request: ZMTransportRequest,
                                 file: StaticString = #file,
-                                line: UInt = #line) -> NewOtrMessage? {
+                                line: UInt = #line) -> Proteus_NewOtrMessage? {
         guard let data = request.binaryData else {
             XCTFail("No binary data", file: file, line: line)
             return nil
         }
-        return try? NewOtrMessage(serializedData: data)
+        return try? Proteus_NewOtrMessage(serializedData: data)
     }
     
     /// Extract encrypted payload from a request
@@ -186,7 +187,7 @@ extension MessagingTestBase {
                                   file: StaticString = #file
         ) -> GenericMessage? {
         
-        guard let data = request.binaryData, let protobuf = try? NewOtrMessage(serializedData: data) else {
+        guard let data = request.binaryData, let protobuf = try? Proteus_NewOtrMessage(serializedData: data) else {
             XCTFail("No binary data", file: file, line: line)
             return nil
         }
@@ -218,6 +219,7 @@ extension MessagingTestBase {
     
     func setupOneToOneConversation(with user: ZMUser) -> ZMConversation {
         let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+        conversation.domain = owningDomain
         conversation.conversationType = .oneOnOne
         conversation.remoteIdentifier = UUID.create()
         conversation.connection = ZMConnection.insertNewObject(in: self.syncMOC)
@@ -232,6 +234,7 @@ extension MessagingTestBase {
     func createUser(alsoCreateClient: Bool = false) -> ZMUser {
         let user = ZMUser.insertNewObject(in: self.syncMOC)
         user.remoteIdentifier = UUID.create()
+        user.domain = owningDomain
         if alsoCreateClient {
             _ = self.createClient(user: user)
         }
@@ -251,6 +254,7 @@ extension MessagingTestBase {
     func createGroupConversation(with user: ZMUser) -> ZMConversation {
         let conversation = ZMConversation.insertNewObject(in: syncMOC)
         conversation.conversationType = .group
+        conversation.domain = owningDomain
         conversation.remoteIdentifier = UUID.create()
         conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
         conversation.addParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: syncMOC), role: nil)
@@ -263,6 +267,7 @@ extension MessagingTestBase {
         
         self.otherUser = self.createUser(alsoCreateClient: true)
         self.otherClient = self.otherUser.clients.first!
+        self.thirdUser = self.createUser(alsoCreateClient: true)
         self.selfClient = self.createSelfClient()
         
         self.syncMOC.saveOrRollback()
@@ -274,6 +279,7 @@ extension MessagingTestBase {
     fileprivate func createSelfClient() -> UserClient {
         let user = ZMUser.selfUser(in: self.syncMOC)
         user.remoteIdentifier = UUID.create()
+        user.domain = owningDomain
         
         let selfClient = UserClient.insertNewObject(in: self.syncMOC)
         selfClient.remoteIdentifier = "baddeed"
@@ -311,36 +317,6 @@ extension MessagingTestBase {
 
 // MARK: - Contexts
 extension MessagingTestBase {
-
-    fileprivate func setupManagedObjectContexes() {
-        StorageStack.reset()
-        StorageStack.shared.createStorageAsInMemory = true
-
-        StorageStack.shared.createManagedObjectContextDirectory(
-            accountIdentifier: accountIdentifier,
-            applicationContainer: sharedContainerURL,
-            dispatchGroup: dispatchGroup,
-            completionHandler: { self.contextDirectory = $0 }
-        )
-
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.1))
-
-        let fileAssetCache = FileAssetCache(location: nil)
-        self.uiMOC.userInfo["TestName"] = self.name
-        
-        self.syncMOC.performGroupedBlockAndWait {
-            self.syncMOC.userInfo["TestName"] = self.name
-            self.syncMOC.saveOrRollback()
-            
-            self.syncMOC.zm_userInterface = self.uiMOC
-            self.syncMOC.zm_fileAssetCache = fileAssetCache
-        }
-        
-        self.uiMOC.zm_sync = self.syncMOC
-        self.uiMOC.zm_fileAssetCache = fileAssetCache
-        
-        setupTimers()
-    }
 
     override var allDispatchGroups: [ZMSDispatchGroup] {
         return super.allDispatchGroups + [self.syncMOC?.dispatchGroup, self.uiMOC?.dispatchGroup].compactMap { $0 }

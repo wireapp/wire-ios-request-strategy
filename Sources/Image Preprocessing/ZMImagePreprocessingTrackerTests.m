@@ -21,24 +21,10 @@
 @import WireDataModel;
 @import WireTesting;
 
+#import "ZMImagePreprocessingTrackerTests.h"
+
 #import <WireRequestStrategy/ZMImagePreprocessingTracker+Testing.h>
-
-
-@interface ZMImagePreprocessingTrackerTests : ZMTBaseTest
-
-@property (nonatomic) id preprocessor;
-@property (nonatomic) ZMTestSession *testSession;
-@property (nonatomic) NSOperationQueue *imagePreprocessingQueue;
-@property (nonatomic) ZMImagePreprocessingTracker *sut;
-@property (nonatomic) NSPredicate *fetchPredicate;
-@property (nonatomic) NSPredicate *needsProcessingPredicate;
-
-@property (nonatomic)  ZMClientMessage *linkPreviewMessage1;
-@property (nonatomic)  ZMClientMessage *linkPreviewMessage2;
-@property (nonatomic)  ZMClientMessage *linkPreviewMessage3;
-@property (nonatomic)  ZMClientMessage *linkPreviewMessageExcludedByPredicate;
-
-@end
+#import "WireRequestStrategyTests-Swift.h"
 
 
 
@@ -46,26 +32,19 @@
 
 - (void)setUp {
     [super setUp];
-    
-    self.testSession = [[ZMTestSession alloc] initWithDispatchGroup:self.dispatchGroup];
-    [self.testSession prepareForTestNamed:self.name];
-    
-    
-    self.linkPreviewMessage1 = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.testSession.uiMOC];
-    self.linkPreviewMessage2 = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.testSession.uiMOC];
-    self.linkPreviewMessage3 = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.testSession.uiMOC];
-    self.linkPreviewMessageExcludedByPredicate = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.testSession.uiMOC];
+
+    self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
+                                                       inMemoryStore:YES];
+    [self setupCachesIn:self.coreDataStack];
+
+    [self setUpLinkPreviewMessage];
     self.linkPreviewMessageExcludedByPredicate.nonce = nil;
     
     self.fetchPredicate = [NSPredicate predicateWithValue:NO];
     self.needsProcessingPredicate = [NSPredicate predicateWithFormat:@"nonce_data != nil"];
     self.preprocessor = [OCMockObject niceMockForClass:[ZMAssetsPreprocessor class]];
     self.imagePreprocessingQueue = [[NSOperationQueue alloc] init];
-    self.sut = [[ZMImagePreprocessingTracker alloc] initWithManagedObjectContext:self.testSession.uiMOC
-                                                            imageProcessingQueue:self.imagePreprocessingQueue
-                                                                  fetchPredicate:self.fetchPredicate
-                                                        needsProcessingPredicate:self.needsProcessingPredicate
-                                                                     entityClass:[ZMClientMessage class] preprocessor:self.preprocessor];
+    [self setupSut];
     
     [[[self.preprocessor stub] andReturn:@[[[NSOperation alloc] init]]] operationsForPreprocessingImageOwner:self.linkPreviewMessage1];
     [[[self.preprocessor stub] andReturn:@[[[NSOperation alloc] init]]] operationsForPreprocessingImageOwner:self.linkPreviewMessage2];
@@ -83,21 +62,9 @@
     self.imagePreprocessingQueue = nil;
     [self.sut tearDown];
     self.sut = nil;
-    [self.testSession tearDown];
-    self.testSession = nil;
+    self.coreDataStack = nil;
     [super tearDown];
 }
-
-- (void)testThatItReturnsTheCorrectFetchRequest
-{
-    // when
-    NSFetchRequest *request = [self.sut fetchRequestForTrackedObjects];
-    
-    // then
-    NSFetchRequest *expectedRequest = [ZMClientMessage sortedFetchRequestWithPredicate:self.fetchPredicate];
-    XCTAssertEqualObjects(request, expectedRequest);
-}
-
 
 - (void)testThatItAddsTrackedObjects
 {
@@ -134,17 +101,11 @@
 
 @implementation ZMImagePreprocessingTrackerTests (OutstandingItems)
 
-- (void)testThatItHasNoOutstandingItems;
-{
-    XCTAssertFalse(self.sut.hasOutstandingItems, @"%u / %u",
-                   (unsigned) self.sut.imageOwnersThatNeedPreprocessing, (unsigned) self.sut.imageOwnersBeingPreprocessed);
-}
-
 - (void)testThatItHasOutstandingItemsWhenItemsAreAdded
 {
     // given
-    [self.testSession.uiMOC.zm_fileAssetCache storeAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"1" length:1]];
-    [self.testSession.uiMOC.zm_fileAssetCache storeAssetData:self.linkPreviewMessage2 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"2" length:1]];
+    [self.coreDataStack.viewContext.zm_fileAssetCache storeAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"1" length:1]];
+    [self.coreDataStack.viewContext.zm_fileAssetCache storeAssetData:self.linkPreviewMessage2 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"2" length:1]];
     NSSet *objects = [NSSet setWithArray:@[self.linkPreviewMessage1, self.linkPreviewMessage2]];
     
     // when
@@ -160,14 +121,14 @@
 - (void)testThatItHasOutstandingItemsWhenItemsAreAddedAndOneIsRemoved
 {
     // given
-    [self.testSession.uiMOC.zm_fileAssetCache storeAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"1" length:1]];
-    [self.testSession.uiMOC.zm_fileAssetCache storeAssetData:self.linkPreviewMessage2 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"2" length:1]];
+    [self.coreDataStack.viewContext.zm_fileAssetCache storeAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"1" length:1]];
+    [self.coreDataStack.viewContext.zm_fileAssetCache storeAssetData:self.linkPreviewMessage2 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"2" length:1]];
     NSSet *objects = [NSSet setWithArray:@[self.linkPreviewMessage1, self.linkPreviewMessage2]];
     
     // when
     self.imagePreprocessingQueue.suspended = YES;
     [self.sut objectsDidChange:objects];
-    [self.testSession.uiMOC.zm_fileAssetCache deleteAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO];
+    [self.coreDataStack.viewContext.zm_fileAssetCache deleteAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO];
     [self.sut objectsDidChange:objects];
     
     // then
@@ -179,8 +140,8 @@
 - (void)testThatItHasNoOutstandingItemsWhenItemsAreAddedAndThenRemoved;
 {
     // given
-    [self.testSession.uiMOC.zm_fileAssetCache storeAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"1" length:1]];
-    [self.testSession.uiMOC.zm_fileAssetCache storeAssetData:self.linkPreviewMessage2 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"2" length:1]];
+    [self.coreDataStack.viewContext.zm_fileAssetCache storeAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"1" length:1]];
+    [self.coreDataStack.viewContext.zm_fileAssetCache storeAssetData:self.linkPreviewMessage2 format:ZMImageFormatOriginal encrypted:NO data:[NSData dataWithBytes:"2" length:1]];
     NSSet *objects = [NSSet setWithArray:@[self.linkPreviewMessage1, self.linkPreviewMessage2]];
     
     // when
@@ -188,14 +149,13 @@
     [self.sut objectsDidChange:objects];
     self.imagePreprocessingQueue.suspended = NO;
     [self.imagePreprocessingQueue waitUntilAllOperationsAreFinished];
-    [self.testSession.uiMOC.zm_fileAssetCache deleteAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO];
-    [self.testSession.uiMOC.zm_fileAssetCache deleteAssetData:self.linkPreviewMessage2 format:ZMImageFormatOriginal encrypted:NO];
+    [self.coreDataStack.viewContext.zm_fileAssetCache deleteAssetData:self.linkPreviewMessage1 format:ZMImageFormatOriginal encrypted:NO];
+    [self.coreDataStack.viewContext.zm_fileAssetCache deleteAssetData:self.linkPreviewMessage2 format:ZMImageFormatOriginal encrypted:NO];
     [self.sut objectsDidChange:objects];
     XCTAssert([self waitForAllGroupsToBeEmptyWithTimeout:0.3]);
     
     // then
-    XCTAssertFalse(self.sut.hasOutstandingItems, @"%u / %u",
-                   (unsigned) self.sut.imageOwnersThatNeedPreprocessing, (unsigned) self.sut.imageOwnersBeingPreprocessed);
+    [self assertHasOutstandingItems];
 }
 
 - (void)testThatItHasNoOutstandingItemsWhenItemsNotMatchingThePredicateChange

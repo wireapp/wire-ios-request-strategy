@@ -27,7 +27,6 @@ extension EncryptionSessionsDirectory {
     /// Decrypts an event (if needed) and return a decrypted copy (or the original if no
     /// decryption was needed) and information about the decryption result.
     ///
-    @objc(decryptUpdateEventAndAddClient:managedObjectContext:)
     public func decryptAndAddClient(_ event: ZMUpdateEvent, in moc: NSManagedObjectContext) -> ZMUpdateEvent? {
         guard !event.wasDecrypted else { return event }
         guard event.type == .conversationOtrMessageAdd || event.type == .conversationOtrAssetAdd else {
@@ -71,6 +70,7 @@ extension EncryptionSessionsDirectory {
         if createdNewSession {
             selfUser.selfClient()?.decrementNumberOfRemainingKeys()
             selfUser.selfClient()?.addNewClientToIgnored(senderClient)
+            selfUser.selfClient()?.updateSecurityLevelAfterDiscovering(Set(arrayLiteral: senderClient))
         }
         
         return decryptedEvent
@@ -89,7 +89,7 @@ extension EncryptionSessionsDirectory {
         
         var conversation : ZMConversation?
         if let conversationUUID = event.conversationUUID {
-            conversation = ZMConversation(remoteID: conversationUUID, createIfNeeded: false, in: moc)
+            conversation = ZMConversation.fetch(with: conversationUUID, domain: event.conversationDomain, in: moc)
             conversation?.appendDecryptionFailedSystemMessage(at: event.timestamp, sender: sender.user!, client: sender, errorCode: Int(error?.rawValue ?? 0))
         }
         
@@ -134,9 +134,11 @@ extension EncryptionSessionsDirectory {
     
     /// Create user and client if needed. The client will not be trusted
     fileprivate func createClientIfNeeded(from updateEvent: ZMUpdateEvent, in moc: NSManagedObjectContext) -> UserClient? {
-        guard let senderUUID = updateEvent.senderUUID, let senderClientID = updateEvent.senderClientID else { return nil }
-        
-        let user = ZMUser(remoteID: senderUUID, createIfNeeded: true, in: moc)!
+        guard let senderUUID = updateEvent.senderUUID,
+              let senderClientID = updateEvent.senderClientID else { return nil }
+
+        let domain = updateEvent.senderDomain
+        let user = ZMUser.fetchOrCreate(with: senderUUID, domain: domain, in: moc)
         let client = UserClient.fetchUserClient(withRemoteId: senderClientID, forUser: user, createIfNeeded: true)!
         
         client.discoveryDate = updateEvent.timestamp

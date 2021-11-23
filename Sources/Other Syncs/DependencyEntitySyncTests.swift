@@ -21,7 +21,8 @@ import WireTesting
 
 @testable import WireRequestStrategy
 
-class MockDependencyEntity : DependencyEntity, Hashable {
+class MockDependencyEntity: DependencyEntity, Hashable {
+    public var expirationDate: Date?
     public var isExpired: Bool = false
     fileprivate let uuid = UUID()
     
@@ -40,9 +41,9 @@ func ==(lhs: MockDependencyEntity, rhs: MockDependencyEntity) -> Bool {
     return lhs === rhs
 }
 
-class MockEntityTranscoder : EntityTranscoder {
-    
-    var didCallRequestForEntity : Bool = false
+class MockEntityTranscoder: EntityTranscoder {
+
+    var didCallRequestForEntityCount: Int = 0
     var didCallRequestForEntityDidCompleteWithResponse : Bool = false
     var didCallShouldTryToResendAfterFailure : Bool = false
     
@@ -55,7 +56,7 @@ class MockEntityTranscoder : EntityTranscoder {
     
     func request(forEntity entity: MockDependencyEntity) -> ZMTransportRequest? {
         requestForEntityExpectation?.fulfill()
-        didCallRequestForEntity = true
+        didCallRequestForEntityCount += 1
         return generatedRequest
     }
     
@@ -72,7 +73,7 @@ class MockEntityTranscoder : EntityTranscoder {
     
 }
 
-class DependencyEntitySyncTests : ZMTBaseTest {
+class DependencyEntitySyncTests: ZMTBaseTest {
 
     var context : NSManagedObjectContext!
     var mockTranscoder = MockEntityTranscoder()
@@ -102,7 +103,7 @@ class DependencyEntitySyncTests : ZMTBaseTest {
         _ = sut.nextRequest()
         
         // then
-        XCTAssertTrue(mockTranscoder.didCallRequestForEntity)
+        XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 1)
     }
     
     func testThatTranscoderIsNotAskedToCreateRequest_whenEntityHasDependencies() {
@@ -116,7 +117,7 @@ class DependencyEntitySyncTests : ZMTBaseTest {
         _ = sut.nextRequest()
         
         // then
-        XCTAssertFalse(mockTranscoder.didCallRequestForEntity)
+        XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 0)
     }
     
     func testThatEntityIsExpired_whenExpiringEntitiesWithDependencies() {
@@ -145,7 +146,7 @@ class DependencyEntitySyncTests : ZMTBaseTest {
         _ = sut.nextRequest()
         
         // then
-        XCTAssertFalse(mockTranscoder.didCallRequestForEntity)
+        XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 0)
     }
     
     func testThatTranscoderIsNotAskedToCreateRequest_whenEntityHasExpired() {
@@ -159,7 +160,7 @@ class DependencyEntitySyncTests : ZMTBaseTest {
         _ = sut.nextRequest()
         
         // then
-        XCTAssertFalse(mockTranscoder.didCallRequestForEntity)
+        XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 0)
     }
     
     func testThatTranscoderIsAskedToCreateRequest_whenEntityHasNoDependenciesAfterAnUpdate() {
@@ -175,7 +176,27 @@ class DependencyEntitySyncTests : ZMTBaseTest {
         _ = sut.nextRequest()
         
         // then
-         XCTAssertTrue(mockTranscoder.didCallRequestForEntity)
+        XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 1)
+    }
+
+    func testThatTranscoderIsAskedToCreateRequestOnlyOnce_whenEntityHadMultipleDependencies() {
+
+        // given
+        let entity = MockDependencyEntity()
+        entity.dependentObjectNeedingUpdateBeforeProcessing = dependency
+        sut.synchronize(entity: entity)
+
+        entity.dependentObjectNeedingUpdateBeforeProcessing = anotherDependency
+        sut.objectsDidChange(Set(arrayLiteral: dependency))
+
+        // when
+        entity.dependentObjectNeedingUpdateBeforeProcessing = nil
+        sut.objectsDidChange(Set(arrayLiteral: dependency, anotherDependency))
+        _ = sut.nextRequest()
+        _ = sut.nextRequest()
+
+        // then
+        XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 1)
     }
     
     // Mark - Response handling
@@ -228,13 +249,13 @@ class DependencyEntitySyncTests : ZMTBaseTest {
         request?.complete(with: response)
         
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5)) // wait for response to fail
-        mockTranscoder.didCallRequestForEntity = false //reset since we expect it be called again
+        mockTranscoder.didCallRequestForEntityCount = 0 // reset since we expect it be called again
         
         // when
         _ = sut.nextRequest()
         
         // then
-        XCTAssertTrue(mockTranscoder.didCallRequestForEntity)
+        XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 1)
     }
     
 }

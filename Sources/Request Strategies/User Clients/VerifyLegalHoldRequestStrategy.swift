@@ -75,6 +75,10 @@ extension VerifyLegalHoldRequestStrategy: IdentifierObjectSyncTranscoder {
     public var fetchLimit: Int {
         return 1
     }
+
+    public var isAvailable: Bool {
+        return true
+    }
     
     public func request(for identifiers: Set<ZMConversation>) -> ZMTransportRequest? {
         guard let conversationID = identifiers.first?.remoteIdentifier, identifiers.count == 1,
@@ -112,10 +116,16 @@ fileprivate class VerifyClientsParser: OTREntity {
     func detectedRedundantUsers(_ users: [ZMUser]) {
         // no-op
     }
+
+    func delivered(with response: ZMTransportResponse) {
+        // no-op
+    }
         
     var dependentObjectNeedingUpdateBeforeProcessing: NSObject? = nil
     
     var isExpired: Bool = false
+
+    var expirationDate: Date? = nil
     
     func expire() {
         // no-op

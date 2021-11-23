@@ -22,8 +22,8 @@ import XCTest
 import WireRequestStrategy
 
 class DependentObjectsTests: ZMTBaseTest {
-    
-    var testSession: ZMTestSession!
+
+    var coreDataStack: CoreDataStack!
     var sut: DependentObjects<ZMManagedObject, ZMConversation>!
     var conversation1: ZMConversation!
     var conversation2: ZMConversation!
@@ -34,19 +34,17 @@ class DependentObjectsTests: ZMTBaseTest {
     override func setUp() {
         super.setUp()
         self.sut = DependentObjects()
-        self.testSession = ZMTestSession(dispatchGroup: self.dispatchGroup)
-        self.testSession.prepare(forTestNamed: self.name)
-        self.conversation1 = ZMConversation.insertNewObject(in: self.testSession.uiMOC)
-        self.conversation2 = ZMConversation.insertNewObject(in: self.testSession.uiMOC)
-        self.messageA = ZMClientMessage(nonce: UUID(), managedObjectContext: self.testSession.uiMOC)
-        self.messageB = ZMClientMessage(nonce: UUID(), managedObjectContext: self.testSession.uiMOC)
-        self.messageC = ZMClientMessage(nonce: UUID(), managedObjectContext: self.testSession.uiMOC)
+        self.coreDataStack = createCoreDataStack()
+        self.conversation1 = ZMConversation.insertNewObject(in: coreDataStack.viewContext)
+        self.conversation2 = ZMConversation.insertNewObject(in: coreDataStack.viewContext)
+        self.messageA = ZMClientMessage(nonce: UUID(), managedObjectContext: coreDataStack.viewContext)
+        self.messageB = ZMClientMessage(nonce: UUID(), managedObjectContext: coreDataStack.viewContext)
+        self.messageC = ZMClientMessage(nonce: UUID(), managedObjectContext: coreDataStack.viewContext)
     }
-    
+
     override func tearDown() {
         self.sut = nil
-        self.testSession.tearDown()
-        self.testSession = nil
+        self.coreDataStack = nil
         super.tearDown()
     }
 
@@ -129,6 +127,18 @@ class DependentObjectsTests: ZMTBaseTest {
             return true
         }
         XCTAssertEqual(Set([self.messageB!, self.messageC!]), Set(result))
+    }
+
+    func testThatItRemovesAllObjects() {
+        // GIVEN
+        self.sut.add(dependency: self.conversation1!, for: self.messageA!)
+        self.sut.add(dependency: self.conversation2!, for: self.messageA!)
+
+        // WHEN
+        sut.removeAllDependencies(for: messageA)
+
+        // THEN
+        XCTAssertTrue(sut.dependencies(for: messageA).isEmpty)
     }
     
     func testThatItEnumeratesObjectsForTheCorrectDependency() {
