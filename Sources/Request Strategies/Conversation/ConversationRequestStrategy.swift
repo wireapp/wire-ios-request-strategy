@@ -478,7 +478,7 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
 
 }
 
-class ConversationByIDTranscoder: Transcoder {
+class ConversationByIDTranscoder: ObjectTranscoder {
     typealias Object = ZMConversation
 
     let context: NSManagedObjectContext
@@ -536,7 +536,7 @@ class ConversationByIDTranscoder: Transcoder {
 
 }
 
-class ConversationByQualifiedIDTranscoder: Transcoder {
+class ConversationByQualifiedIDTranscoder: ObjectTranscoder {
     public typealias Object = ZMConversation
 
     let context: NSManagedObjectContext
@@ -598,7 +598,7 @@ class ConversationByQualifiedIDTranscoder: Transcoder {
 
 }
 
-class ConversationByIDListTranscoder: Transcoder {
+class ConversationByIDListTranscoder: ObjectTranscoder {
     public typealias Object = UUID
 
     var fetchLimit: Int = 32
@@ -650,7 +650,7 @@ class ConversationByIDListTranscoder: Transcoder {
 
 }
 
-class ConversationByQualifiedIDListTranscoder: Transcoder {
+class ConversationByQualifiedIDListTranscoder: ObjectTranscoder {
     public typealias Object = QualifiedID
 
     var fetchLimit: Int = 100

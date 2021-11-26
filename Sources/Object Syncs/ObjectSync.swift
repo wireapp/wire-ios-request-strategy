@@ -17,7 +17,9 @@
 
 import Foundation
 
-protocol Source {
+/// An object source observes when objects needs to be synchronized
+///
+protocol ObjectSource {
     associatedtype Object
 
     typealias OnPublish = (_ object: Object) -> Void
@@ -27,7 +29,7 @@ protocol Source {
     var onUnpublish: OnUnpublish? { get set }
 }
 
-extension Source {
+extension ObjectSource {
 
     mutating func onPublish(_ onPublish: @escaping OnPublish) {
         self.onPublish = onPublish
@@ -37,36 +39,51 @@ extension Source {
         self.onUnpublish = onUnpublish
     }
 
+    /// Call when the objects needs to be synchronized
     func publish(_ object: Object) {
         onPublish?(object)
     }
 
+    /// Call when the objects no longer needs to be synchronized
     func unpublish(_ object: Object) {
         onUnpublish?(object)
     }
 
 }
 
-protocol Filter {
+/// An object filter temporarily filters objects have been selected to be be synchronized
+///
+protocol ObjectFilter {
     associatedtype Object
 
     func isIncluded(_ object: Object) -> Bool
 }
 
-protocol Transcoder {
+/// An object transcoder turns an object into a HTTP request and handles the response
+///
+protocol ObjectTranscoder {
     associatedtype Object: Hashable
 
+    /// How many objects the transcoder can synchronize in one request.
+    ///
+    /// The default is 1.
     var fetchLimit: Int { get }
     var supportBatchRequests: Bool { get }
 
+    /// Returns a request for synchronzing a single object
     func requestFor(_ object: Object) -> ZMTransportRequest?
+
+    /// /// Returns a request for synchronzing a set of objects
     func requestFor(_ objects: Set<Object>) -> ZMTransportRequest?
 
+    /// Handle the response for synchronzing a single object
     func handleResponse(response: ZMTransportResponse, for object: Object)
+
+    /// Handle the response for synchronzing a set of objects objects
     func handleResponse(response: ZMTransportResponse, for objects: Set<Object>)
 }
 
-extension Transcoder {
+extension ObjectTranscoder {
 
     var fetchLimit: Int {
         1
@@ -86,13 +103,14 @@ extension Transcoder {
 
 }
 
-struct AnyFilter<P> {
+struct AnyObjectFilter<P> {
     typealias Object = P
 
     let isIncluded: (P) -> Bool
 }
 
-struct KeyPathFilter<Object: ZMManagedObject>: Filter {
+/// Filters objects using a boolean keypath
+struct KeyPathFilter<Object: ZMManagedObject>: ObjectFilter {
     typealias Object = Object
 
     let keyPath: WritableKeyPath<Object, Bool>
@@ -107,7 +125,8 @@ struct KeyPathFilter<Object: ZMManagedObject>: Filter {
 
 }
 
-struct PredicateFilter<Object>: Filter {
+/// Filters objects using a predicate
+struct PredicateFilter<Object>: ObjectFilter {
     typealias Object = Object
 
     let predicate: NSPredicate
@@ -121,7 +140,8 @@ struct PredicateFilter<Object>: Filter {
     }
 }
 
-class KeyPathSource<T: ZMManagedObject>: NSObject, Source, ZMContextChangeTracker {
+/// Observes a boolean keypath on an entity and schedules them to be synchronize when `True`.
+class KeyPathSource<T: ZMManagedObject>: NSObject, ObjectSource, ZMContextChangeTracker {
     typealias Object = T
 
     var onPublish: OnPublish?
@@ -163,7 +183,8 @@ class KeyPathSource<T: ZMManagedObject>: NSObject, Source, ZMContextChangeTracke
     }
 }
 
-class PredicateSource<Object: ZMManagedObject>: NSObject, Source, ZMContextChangeTracker {
+/// Observes an entity and schedules them to be synchronize when the predicate evaluates to `True`.
+class PredicateSource<Object: ZMManagedObject>: NSObject, ObjectSource, ZMContextChangeTracker {
     typealias Object = Object
 
     let predicate: NSPredicate
@@ -196,16 +217,21 @@ class PredicateSource<Object: ZMManagedObject>: NSObject, Source, ZMContextChang
 
 protocol ObjectSyncDelegate: AnyObject {
 
+    /// Called when all scheduled objects have been synchronized
     func didFinishSyncingAllObjects()
+
+    /// Called when any of scheduled objects failed to been synchronized
     func didFailToSyncAllObjects()
 
 }
 
-class ObjectSync<Object, Trans: Transcoder>: NSObject, ZMRequestGenerator, ZMContextChangeTrackerSource where Trans.Object == Object {
+/// Synchronizes objects using a configurable sources, filters and transcoder.
+///
+class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator, ZMContextChangeTrackerSource where Trans.Object == Object {
 
     var pending: Set<Object> = Set()
     var downloading: Set<Object> = Set()
-    var filters: [AnyFilter<Object>] = []
+    var filters: [AnyObjectFilter<Object>] = []
     var sources: [Any] = []
     var transcoder: Trans
     var context: NSManagedObjectContext
@@ -215,7 +241,8 @@ class ObjectSync<Object, Trans: Transcoder>: NSObject, ZMRequestGenerator, ZMCon
         return sources.compactMap({ $0 as? ZMContextChangeTracker })
     }
 
-    var isSyncing: Bool {
+    /// `True` is any objects are still waiting or is currently being synchronized.
+    public var isSyncing: Bool {
         return !pending.isEmpty || !downloading.isEmpty
     }
 
@@ -224,7 +251,11 @@ class ObjectSync<Object, Trans: Transcoder>: NSObject, ZMRequestGenerator, ZMCon
         self.context = context
     }
 
-    func addSource<S: Source>(_ source: S) where S.Object == Object {
+    /// Add an object source
+    ///
+    /// - parameter source: source which will track when objects needs to be synchronized
+    ///
+    func addSource<S: ObjectSource>(_ source: S) where S.Object == Object {
         var source = source
         source.onPublish { [weak self] object in
             self?.synchronize(object)
@@ -236,14 +267,24 @@ class ObjectSync<Object, Trans: Transcoder>: NSObject, ZMRequestGenerator, ZMCon
         sources.append(source)
     }
 
-    func addFilter<F: Filter>(filter: F) where F.Object == Object {
-        filters.append(AnyFilter<Object>(isIncluded: filter.isIncluded))
+    /// Add a filter
+    ///
+    /// - parameter filter: filter which will prevent objects from being synchronized.
+    func addFilter<F: ObjectFilter>(filter: F) where F.Object == Object {
+        filters.append(AnyObjectFilter<Object>(isIncluded: filter.isIncluded))
     }
 
+    /// Synchronize an object
+    ///
+    /// - parameter object: Object to synchronize.
     func synchronize(_ object: Object) {
         synchronize([object])
     }
 
+    /// Synchronize a set of objects
+    ///
+    /// - parameter objects: Objects to synchronize.
+    ///
     func synchronize<S: Sequence>(_ objects: S) where S.Element == Object {
         let newObjects = Set(objects)
 
@@ -254,10 +295,18 @@ class ObjectSync<Object, Trans: Transcoder>: NSObject, ZMRequestGenerator, ZMCon
         }
     }
 
+    /// Cancel the synchronization of an object
+    ///
+    /// - parameter object: Object which will be canceled if it's not already in progress.
+    ///
     func cancel(_ object: Object) {
         cancel([object])
     }
 
+    /// Cancel the synchronization of a set of objects
+    ///
+    /// - parameter object: Objects which will be canceled if they are not already in progress.
+    ///
     func cancel<S: Sequence>(_ objects: S) where S.Element == Object {
         pending.subtract(objects)
     }
@@ -293,8 +342,6 @@ class ObjectSync<Object, Trans: Transcoder>: NSObject, ZMRequestGenerator, ZMCon
                 strongSelf.downloading.subtract(scheduled)
                 strongSelf.pending.formUnion(scheduled)
             }
-
-//            strongSelf.managedObjectContext.enqueueDelayedSave()
 
             if !strongSelf.isSyncing {
                 self?.delegate?.didFinishSyncingAllObjects()
