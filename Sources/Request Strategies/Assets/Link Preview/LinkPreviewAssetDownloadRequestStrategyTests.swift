@@ -19,8 +19,6 @@
 import Foundation
 import WireDataModel
 import XCTest
-import WireRequestStrategy
-
 @testable import WireRequestStrategy
 
 class LinkPreviewAssetDownloadRequestStrategyTests: MessagingTestBase {
