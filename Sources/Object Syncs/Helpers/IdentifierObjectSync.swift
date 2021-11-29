@@ -20,7 +20,7 @@ import Foundation
 
 /// Delegate protocol which the user of the IdentifierObjectSync class should implement.
 
-public protocol IdentifierObjectSyncTranscoder: class {
+public protocol IdentifierObjectSyncTranscoder: AnyObject {
     associatedtype T: Hashable
     
     var fetchLimit: Int { get }
@@ -33,6 +33,13 @@ public protocol IdentifierObjectSyncTranscoder: class {
     
 }
 
+public protocol IdentifierObjectSyncDelegate: AnyObject {
+
+    func didFinishSyncingAllObjects()
+    func didFailToSyncAllObjects()
+
+}
+
 /// Class for syncing objects based on an identifier.
 
 public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: NSObject, ZMRequestGenerator {
@@ -41,6 +48,12 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
     fileprivate var pending: Set<Transcoder.T> = Set()
     fileprivate var downloading: Set<Transcoder.T> = Set()
     fileprivate weak var transcoder: Transcoder?
+
+    weak var delegate: IdentifierObjectSyncDelegate?
+
+    var isSyncing: Bool {
+        return !pending.isEmpty || !downloading.isEmpty
+    }
 
     var isAvailable: Bool {
         transcoder?.isAvailable ?? false
@@ -65,7 +78,23 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
     /// If the identifiers have already been added this method has no effect.
     
     public func sync<S: Sequence>(identifiers: S) where S.Element == Transcoder.T {
-        pending.formUnion(Set(identifiers).subtracting(downloading))
+        let newIdentifiers = Set(identifiers)
+
+        if newIdentifiers.isEmpty && downloading.isEmpty && pending.isEmpty {
+            delegate?.didFinishSyncingAllObjects()
+        } else {
+            pending.formUnion(Set(identifiers).subtracting(downloading))
+        }
+    }
+
+    /// Remove identifiers from the list of objects to be fetched
+    ///
+    /// - parameter identifiers: Set of identifiers to remove
+    ///
+    /// If the identifiers have been or are currently being downloaded this method has no effect.
+    
+    public func cancel<S: Sequence>(identifiers: S) where S.Element == Transcoder.T {
+        pending.subtract(identifiers)
     }
     
     public func nextRequest() -> ZMTransportRequest? {
@@ -79,16 +108,26 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
         pending.subtract(scheduled)
         
         request.add(ZMCompletionHandler(on: managedObjectContext, block: { [weak self] (response) in
+            guard let strongSelf = self else { return }
+
             switch response.result {
             case .permanentError, .success:
-                self?.downloading.subtract(scheduled)
-                self?.transcoder?.didReceive(response: response, for: scheduled)
+                strongSelf.downloading.subtract(scheduled)
+                strongSelf.transcoder?.didReceive(response: response, for: scheduled)
+
+                if case .permanentError = response.result {
+                    self?.delegate?.didFailToSyncAllObjects()
+                }
             default:
-                self?.downloading.subtract(scheduled)
-                self?.pending.formUnion(scheduled)
+                strongSelf.downloading.subtract(scheduled)
+                strongSelf.pending.formUnion(scheduled)
             }
             
-            self?.managedObjectContext.enqueueDelayedSave()
+            strongSelf.managedObjectContext.enqueueDelayedSave()
+
+            if !strongSelf.isSyncing {
+                self?.delegate?.didFinishSyncingAllObjects()
+            }
         }))
         
         return request

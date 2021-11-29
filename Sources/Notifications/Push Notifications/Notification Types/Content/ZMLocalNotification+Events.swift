@@ -86,7 +86,7 @@ fileprivate class EventNotificationBuilder: NotificationBuilder {
         self.moc = managedObjectContext
         
         if let senderID = event.senderUUID {
-            self.sender = ZMUser(remoteID: senderID, createIfNeeded: false, in: self.moc)
+            self.sender = ZMUser.fetch(with: senderID, domain: event.senderDomain, in: moc)
         }
     }
     
@@ -320,7 +320,8 @@ private class NewMessageNotificationBuilder: EventNotificationBuilder {
             let senderUUID = event.senderUUID,
             !conversation.isMessageSilenced(message, senderID: senderUUID)
         else {
-            Logging.push.safePublic("Not creating local notification for message with nonce = \(event.messageNonce) because conversation is silenced")
+            /// TODO Katerina resync files
+//            Logging.push.safePublic("Not creating local notification for message with nonce = \(event.messageNonce) because conversation is silenced")
             return false
         }
         

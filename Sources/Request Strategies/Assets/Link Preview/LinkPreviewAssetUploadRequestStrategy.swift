@@ -149,11 +149,11 @@ extension LinkPreviewAssetUploadRequestStrategy : ZMUpstreamTranscoder {
 
             let updatedText = Text.with {
                 $0.content = messageText
-                $0.mentions = mentions.compactMap { WireProtos.Mention($0) }
+                $0.mentions = mentions.compactMap { $0.convertToProtosMention() }
                 $0.linkPreview = [linkPreview]
             }
 
-            let genericMessage = GenericMessage(content: updatedText, nonce: message.nonce!, expiresAfter: message.deletionTimeout)
+            let genericMessage = GenericMessage(content: updatedText, nonce: message.nonce!, expiresAfterTimeInterval: message.deletionTimeout)
 
             do {
                 try message.setUnderlyingMessage(genericMessage)

@@ -18,33 +18,40 @@
 
 import Foundation
 
-public class ResetSessionRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
-    
+public class ResetSessionRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
+
     fileprivate let keyPathSync: KeyPathObjectSync<ResetSessionRequestStrategy>
-    fileprivate let genericMessageStrategy: GenericMessageRequestStrategy
+    fileprivate let messageSync: ProteusMessageSync<GenericMessageEntity>
+
+    public var useFederationEndpoint: Bool {
+        set {
+            messageSync.isFederationEndpointAvailable = newValue
+        }
+        get {
+            messageSync.isFederationEndpointAvailable
+        }
+    }
 
     public init(managedObjectContext: NSManagedObjectContext,
                 applicationStatus: ApplicationStatus,
                 clientRegistrationDelegate: ClientRegistrationDelegate) {
-        
+
         self.keyPathSync = KeyPathObjectSync(entityName: UserClient.entityName(), \.needsToNotifyOtherUserAboutSessionReset)
-        self.genericMessageStrategy = GenericMessageRequestStrategy(
-            context: managedObjectContext,
-            clientRegistrationDelegate: clientRegistrationDelegate
-        )
-        
+        self.messageSync = ProteusMessageSync(context: managedObjectContext,
+                                              applicationStatus: applicationStatus)
+
         super.init(withManagedObjectContext: managedObjectContext,
                    applicationStatus: applicationStatus)
-        
+
         keyPathSync.transcoder = self
     }
-    
+
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return genericMessageStrategy.nextRequest()
+        return messageSync.nextRequest()
     }
-    
+
     public var contextChangeTrackers: [ZMContextChangeTracker] {
-        return [genericMessageStrategy, keyPathSync]
+        return [keyPathSync] + messageSync.contextChangeTrackers
     }
 
 }
@@ -52,25 +59,31 @@ public class ResetSessionRequestStrategy: AbstractRequestStrategy, ZMContextChan
 extension ResetSessionRequestStrategy: KeyPathObjectSyncTranscoder {
 
     typealias T = UserClient
-            
+
     func synchronize(_ userClient: UserClient, completion: @escaping () -> Void) {
-                
-        guard let converation = userClient.user?.oneToOneConversation else {
+
+        guard let conversation = userClient.user?.oneToOneConversation else {
             return
         }
-        
-        genericMessageStrategy.schedule(message: GenericMessage(clientAction: .resetSession),
-                                        inConversation: converation)
-        { (response) in
-            
-            switch response.result {
-            case .success, .permanentError:
+
+        let message = GenericMessageEntity(conversation: conversation,
+                                           message: GenericMessage(clientAction: .resetSession),
+                                           completionHandler: nil)
+
+        messageSync.sync(message) { (result, _) in
+            switch result {
+            case .success():
                 userClient.resolveDecryptionFailedSystemMessages()
-                completion()
-            default:
+            case .failure:
                 break
             }
+
+            completion()
         }
     }
-    
+
+    func cancel(_ object: UserClient) {
+
+    }
+
 }

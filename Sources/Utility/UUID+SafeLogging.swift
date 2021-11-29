@@ -20,8 +20,22 @@ import Foundation
 import WireSystem
 import WireUtilities
 
-extension UUID: SafeForLoggingStringConvertible {
-    public var safeForLoggingDescription: String {
-        return transportString().readableHash
-    }
+enum Logging {
+
+    /// For logs related to processing message data, which may included
+    /// work related to `GenericMessage` profotobuf data or the `ZMClientMessage`
+    /// and `ZMAssetClientMessage` container types.
+
+    static let messageProcessing = ZMSLog(tag: "Message Processing")
+
+    /// For logs related to processing update events.
+
+    static let eventProcessing = ZMSLog(tag: "event-processing")
+
+    /// For logs related to network requests.
+
+    static let network = ZMSLog(tag: "Network")
+
+    static let push = ZMSLog(tag: "Push")
+
 }
