@@ -145,9 +145,9 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
             let response = try decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: data)
             featureService.storeSelfDeletingMessages(.init(status: response.status, config: response.config))
 
-        case .guestLinks:
+        case .conversationGuestLinks:
             let response = try decoder.decode(SimpleConfigResponse.self, from: data)
-            featureService.storeGuestLinks(.init(status: response.status))
+            featureService.storeConversationGuestLinks(.init(status: response.status))
         }
     }
 
@@ -261,8 +261,8 @@ private extension Feature {
         case .selfDeletingMessages:
             return "selfDeletingMessages"
 
-        case .guestLinks:
-            return "guestLinks"
+        case .conversationGuestLinks:
+            return "conversationGuestLinks"
         }
     }
 
