@@ -35,11 +35,11 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
     let userProfileByQualifiedIDTranscoder: UserProfileByQualifiedIDTranscoder
 
     public var useFederationEndpoint: Bool {
-        set {
-            userProfileByQualifiedIDTranscoder.isAvailable = newValue
-        }
         get {
             userProfileByQualifiedIDTranscoder.isAvailable
+        }
+        set {
+            userProfileByQualifiedIDTranscoder.isAvailable = newValue
         }
     }
 

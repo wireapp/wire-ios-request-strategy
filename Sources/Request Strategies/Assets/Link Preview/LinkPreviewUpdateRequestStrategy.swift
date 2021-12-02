@@ -24,11 +24,11 @@ public class LinkPreviewUpdateRequestStrategy: AbstractRequestStrategy, ZMContex
     let messageSync: ProteusMessageSync<ZMClientMessage>
 
     public var useFederationEndpoint: Bool {
-        set {
-            messageSync.isFederationEndpointAvailable = newValue
-        }
         get {
             messageSync.isFederationEndpointAvailable
+        }
+        set {
+            messageSync.isFederationEndpointAvailable = newValue
         }
     }
 
