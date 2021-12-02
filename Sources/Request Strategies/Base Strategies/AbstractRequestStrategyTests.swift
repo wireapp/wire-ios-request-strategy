@@ -21,7 +21,7 @@ import XCTest
 
 @testable import WireRequestStrategy
 
-protocol TestableAbstractRequestStrategy: class {
+protocol TestableAbstractRequestStrategy: AnyObject {
 
     var mutableConfiguration: ZMStrategyConfigurationOption { get set }
 
