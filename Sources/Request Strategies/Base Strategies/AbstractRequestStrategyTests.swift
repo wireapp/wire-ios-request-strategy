@@ -36,9 +36,7 @@ class TestRequestStrategyObjc: ZMAbstractRequestStrategy, TestableAbstractReques
     }
 
     override var configuration: ZMStrategyConfigurationOption {
-        get {
-            return mutableConfiguration
-        }
+        return mutableConfiguration
     }
 
 }
