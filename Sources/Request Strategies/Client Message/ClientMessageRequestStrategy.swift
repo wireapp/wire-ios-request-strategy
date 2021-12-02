@@ -20,8 +20,7 @@ import Foundation
 
 public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
 
-//    let insertedObjectSync: InsertedObjectSync<ClientMessageRequestStrategy>
-    let messageSync: ProteusMessageSync_<ZMClientMessage>
+    let messageSync: ProteusMessageSync<ZMClientMessage>
     let messageExpirationTimer: MessageExpirationTimer
     let linkAttachmentsPreprocessor: LinkAttachmentsPreprocessor
     let localNotificationDispatcher: PushMessageHandler
@@ -46,7 +45,7 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
                 localNotificationDispatcher: PushMessageHandler,
                 applicationStatus: ApplicationStatus) {
 
-        messageSync = ProteusMessageSync_(context: managedObjectContext, applicationStatus: applicationStatus)
+        messageSync = ProteusMessageSync(context: managedObjectContext, applicationStatus: applicationStatus)
         messageSync.addSource(PredicateSource(Self.shouldBeSentPredicate(context: managedObjectContext)))
         self.localNotificationDispatcher = localNotificationDispatcher
         self.messageExpirationTimer = MessageExpirationTimer(moc: managedObjectContext, entityNames: [ZMClientMessage.entityName(), ZMAssetClientMessage.entityName()], localNotificationDispatcher: localNotificationDispatcher)

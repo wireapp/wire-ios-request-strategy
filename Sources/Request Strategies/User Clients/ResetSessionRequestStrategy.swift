@@ -25,10 +25,10 @@ public class ResetSessionRequestStrategy: AbstractRequestStrategy, ZMContextChan
 
     public var useFederationEndpoint: Bool {
         set {
-            messageSync.isFederationEndpointAvailable = newValue
+            messageSync.useFederationEndpoint = newValue
         }
         get {
-            messageSync.isFederationEndpointAvailable
+            messageSync.useFederationEndpoint
         }
     }
 
@@ -70,7 +70,7 @@ extension ResetSessionRequestStrategy: KeyPathObjectSyncTranscoder {
                                            message: GenericMessage(clientAction: .resetSession),
                                            completionHandler: nil)
 
-        messageSync.sync(message) { (result, _) in
+        messageSync.synchronize(message) { (result, _) in
             switch result {
             case .success():
                 userClient.resolveDecryptionFailedSystemMessages()

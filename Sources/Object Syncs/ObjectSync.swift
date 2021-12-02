@@ -218,8 +218,12 @@ class PredicateSource<Object: ZMManagedObject>: NSObject, ObjectSource, ZMContex
     func objectsDidChange(_ objects: Set<NSManagedObject>) {
         let objects = objects.compactMap({ $0 as? Object })
 
-        objects.filter({ predicate.evaluate(with: $0) }).forEach { object in
-            publish(object)
+        objects.forEach { object in
+            if predicate.evaluate(with: object) {
+                publish(object)
+            } else {
+                unpublish(object)
+            }
         }
     }
 
@@ -227,6 +231,48 @@ class PredicateSource<Object: ZMManagedObject>: NSObject, ObjectSource, ZMContex
         let fetchRequest = Object.fetchRequest()
         fetchRequest.predicate = predicate
         return fetchRequest
+    }
+
+    func addTrackedObjects(_ objects: Set<NSManagedObject>) {
+        objectsDidChange(objects)
+    }
+
+}
+
+/// Observes an entity and schedules them to be synchronize when the predicate evaluates to `True`.
+class ModifiedKeySource<Object: ZMManagedObject>: NSObject, ObjectSource, ZMContextChangeTracker {
+    typealias Object = Object
+
+    let trackedKey: String
+    let predicate: NSPredicate?
+    var onPublish: OnPublish?
+    var onUnpublish: OnPublish?
+
+    /// - Parameters:
+    ///   - trackedKey: Key / property which should synchchronized when modified.
+    ///   - modifiedPredicate: Predicate which determine if an object has been modified or not. If omitted
+    ///                        an object is considered modified in all cases when the tracked key has been changed.
+    init(trackedKey: String,
+         modifiedPredicate: NSPredicate? = nil) {
+        self.trackedKey = trackedKey
+        self.predicate = modifiedPredicate
+    }
+
+    func objectsDidChange(_ objects: Set<NSManagedObject>) {
+        let objects = objects.compactMap({ $0 as? Object })
+
+        objects.filter({ ($0.modifiedKeys?.contains(trackedKey) ?? false) &&
+                         predicate?.evaluate(with: $0) ?? true }).forEach { object in
+            publish(object)
+        }
+    }
+
+    func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
+        if let predicate = predicate {
+            return Object.sortedFetchRequest(with: predicate)
+        } else {
+            return Object.sortedFetchRequest()
+        }
     }
 
     func addTrackedObjects(_ objects: Set<NSManagedObject>) {
@@ -269,7 +315,6 @@ class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator,
     var completedHandler: CompletedHandler?
     var completionHandlers: [Object: ObjectSyncHandler] = [:]
     weak var delegate: ObjectSyncDelegate?
-
 
     var contextChangeTrackers: [ZMContextChangeTracker] {
         return sources.compactMap({ $0 as? ZMContextChangeTracker })
@@ -394,6 +439,7 @@ class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator,
                 if strongSelf.transcoder.shouldTryToResend(scheduled, afterFailureWithResponse: response) {
                     strongSelf.reschedule(scheduled)
                 } else {
+                    strongSelf.transcoder.handleResponse(response: response, for: scheduled)
                     strongSelf.clear(scheduled)
                     strongSelf.reportResult(scheduled, result: .failure(.gaveUpRetrying), response)
                     self?.delegate?.didFailToSyncAllObjects()

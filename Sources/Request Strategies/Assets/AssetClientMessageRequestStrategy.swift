@@ -26,55 +26,25 @@ import Foundation
 /// as the fan-out was previously done by the backend when uploading a v2 asset.
 public final class AssetClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
 
-    let insertedObjectSync: InsertedObjectSync<AssetClientMessageRequestStrategy>
     let messageSync: ProteusMessageSync<ZMAssetClientMessage>
 
     public var useFederationEndpoint: Bool {
         set {
-            messageSync.isFederationEndpointAvailable = newValue
+            messageSync.useFederationEndpoint = newValue
         }
         get {
-            messageSync.isFederationEndpointAvailable
+            messageSync.useFederationEndpoint
         }
     }
 
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
 
-        self.insertedObjectSync = InsertedObjectSync(insertPredicate: Self.shouldBeSentPredicate(context: managedObjectContext))
         self.messageSync = ProteusMessageSync(context: managedObjectContext, applicationStatus: applicationStatus)
+        messageSync.addSource(PredicateSource(Self.shouldBeSentPredicate(context: managedObjectContext)))
 
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
 
-        insertedObjectSync.transcoder = self
-        configuration = [.allowsRequestsWhileOnline,
-                         .allowsRequestsWhileInBackground]
-    }
-
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return messageSync.nextRequest()
-    }
-
-    public var contextChangeTrackers: [ZMContextChangeTracker] {
-        return [insertedObjectSync] + messageSync.contextChangeTrackers
-    }
-
-    static func shouldBeSentPredicate(context: NSManagedObjectContext) -> NSPredicate {
-        let notDelivered = NSPredicate(format: "%K == FALSE", DeliveredKey)
-        let notExpired = NSPredicate(format: "%K == 0", ZMMessageIsExpiredKey)
-        let isUploaded = NSPredicate(format: "%K == \(AssetTransferState.uploaded.rawValue)", "transferState")
-        let isAssetV3 = NSPredicate(format: "version == 3")
-        let fromSelf = NSPredicate(format: "%K == %@", ZMMessageSenderKey, ZMUser.selfUser(in: context))
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [notDelivered, notExpired, isAssetV3, isUploaded, fromSelf])
-    }
-
-}
-
-extension AssetClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
-
-    typealias Object = ZMAssetClientMessage
-
-    func insert(object: ZMAssetClientMessage, completion: @escaping () -> Void) {
-        messageSync.sync(object) { [weak self] (result, response) in
+        messageSync.onCompleted { [weak self] object, result, response in
             switch result {
             case .success:
                 object.markAsSent()
@@ -93,6 +63,26 @@ extension AssetClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
                 }
             }
         }
+
+        configuration = [.allowsRequestsWhileOnline,
+                         .allowsRequestsWhileInBackground]
     }
-    
+
+    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
+        return messageSync.nextRequest()
+    }
+
+    public var contextChangeTrackers: [ZMContextChangeTracker] {
+        return messageSync.contextChangeTrackers
+    }
+
+    static func shouldBeSentPredicate(context: NSManagedObjectContext) -> NSPredicate {
+        let notDelivered = NSPredicate(format: "%K == FALSE", DeliveredKey)
+        let notExpired = NSPredicate(format: "%K == 0", ZMMessageIsExpiredKey)
+        let isUploaded = NSPredicate(format: "%K == \(AssetTransferState.uploaded.rawValue)", "transferState")
+        let isAssetV3 = NSPredicate(format: "version == 3")
+        let fromSelf = NSPredicate(format: "%K == %@", ZMMessageSenderKey, ZMUser.selfUser(in: context))
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [notDelivered, notExpired, isAssetV3, isUploaded, fromSelf])
+    }
+
 }

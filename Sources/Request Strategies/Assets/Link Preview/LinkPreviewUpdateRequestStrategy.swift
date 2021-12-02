@@ -20,15 +20,14 @@ import Foundation
 
 public class LinkPreviewUpdateRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
 
-    let modifiedKeysSync: ModifiedKeyObjectSync<LinkPreviewUpdateRequestStrategy>
     let messageSync: ProteusMessageSync<ZMClientMessage>
 
     public var useFederationEndpoint: Bool {
         set {
-            messageSync.isFederationEndpointAvailable = newValue
+            messageSync.useFederationEndpoint = newValue
         }
         get {
-            messageSync.isFederationEndpointAvailable
+            messageSync.useFederationEndpoint
         }
     }
 
@@ -42,37 +41,29 @@ public class LinkPreviewUpdateRequestStrategy: AbstractRequestStrategy, ZMContex
                   applicationStatus: ApplicationStatus) {
 
         let modifiedPredicate = Self.linkPreviewIsUploadedPredicate(context: managedObjectContext)
-        self.modifiedKeysSync = ModifiedKeyObjectSync(trackedKey: ZMClientMessage.linkPreviewStateKey,
-                                                      modifiedPredicate: modifiedPredicate)
         self.messageSync = ProteusMessageSync<ZMClientMessage>(context: managedObjectContext,
                                                                applicationStatus: applicationStatus)
+
+        messageSync.onCompleted { object, _, _ in
+            object.linkPreviewState = .done
+            object.resetLocallyModifiedKeys(Set(arrayLiteral: ZMClientMessage.linkPreviewStateKey))
+        }
+
+        messageSync.addSource(ModifiedKeySource(trackedKey: ZMClientMessage.linkPreviewStateKey,
+                                                modifiedPredicate: modifiedPredicate))
 
         super.init(withManagedObjectContext: managedObjectContext,
                    applicationStatus: applicationStatus)
 
         self.configuration = .allowsRequestsWhileOnline
-        self.modifiedKeysSync.transcoder = self
     }
 
     public var contextChangeTrackers: [ZMContextChangeTracker] {
-        return [modifiedKeysSync] + messageSync.contextChangeTrackers
+        return messageSync.contextChangeTrackers
     }
 
     public override func nextRequestIfAllowed() -> ZMTransportRequest? {
         return messageSync.nextRequest()
-    }
-
-}
-
-extension LinkPreviewUpdateRequestStrategy: ModifiedKeyObjectSyncTranscoder {
-
-    typealias Object = ZMClientMessage
-
-    func synchronize(key: String, for object: ZMClientMessage, completion: @escaping () -> Void) {
-        messageSync.sync(object) { (_, _) in
-            object.linkPreviewState = .done
-            completion()
-        }
     }
 
 }

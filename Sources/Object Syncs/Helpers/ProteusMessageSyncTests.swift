@@ -21,7 +21,7 @@ import XCTest
 
 class ProteusMessageSyncTests: MessagingTestBase {
 
-    var sut: ProteusMessageSync_<MockOTREntity>!
+    var sut: ProteusMessageSync<MockOTREntity>!
     var mockApplicationStatus: MockApplicationStatus!
     let domain =  "example.com"
     var qualifiedEndpoint: String!
@@ -31,7 +31,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
         super.setUp()
 
         mockApplicationStatus = MockApplicationStatus()
-        sut = ProteusMessageSync_<MockOTREntity>(context: syncMOC, applicationStatus: mockApplicationStatus)
+        sut = ProteusMessageSync<MockOTREntity>(context: syncMOC, applicationStatus: mockApplicationStatus)
         sut.useFederationEndpoint = true
 
         syncMOC.performGroupedBlockAndWait { [self] in

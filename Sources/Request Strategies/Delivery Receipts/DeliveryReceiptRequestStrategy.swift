@@ -49,11 +49,11 @@ public final class DeliveryReceiptRequestStrategy: AbstractRequestStrategy, Fede
     private let messageSync: ProteusMessageSync<GenericMessageEntity>
 
     public var useFederationEndpoint: Bool {
-        set {
-            messageSync.isFederationEndpointAvailable = newValue
-        }
         get {
-            messageSync.isFederationEndpointAvailable
+            messageSync.useFederationEndpoint
+        }
+        set {
+            messageSync.useFederationEndpoint = newValue
         }
     }
 
@@ -112,11 +112,10 @@ extension DeliveryReceiptRequestStrategy: ZMEventConsumer {
         guard let confirmation = Confirmation.init(messageIds: deliveryReceipt.messageIDs,
                                                    type: .delivered) else { return }
 
-        messageSync.sync(GenericMessageEntity(conversation: deliveryReceipt.conversation,
+        messageSync.synchronize(GenericMessageEntity(conversation: deliveryReceipt.conversation,
                                               message: GenericMessage(content: confirmation),
                                               targetRecipients: .users(Set(arrayLiteral: deliveryReceipt.sender)),
-                                              completionHandler: nil),
-                         completion: {_, _ in })
+                                              completionHandler: nil))
     }
 
     func deliveryReceipts(for events: [ZMUpdateEvent]) -> [DeliveryReceipt] {

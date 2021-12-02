@@ -67,24 +67,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    func testThatLegacyRequestToFetchConversationIsGenerated_WhenDomainIsNotSet() {
-        syncMOC.performGroupedBlockAndWait {
-            // given
-            ZMUser.selfUser(in: self.syncMOC).domain = nil
-            let conversationID = self.groupConversation.remoteIdentifier!
-            self.groupConversation.domain = nil
-            self.groupConversation.needsToBeUpdatedFromBackend = true
-            self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([self.groupConversation])) }
-
-            // when
-            let request = self.sut.nextRequest()!
-
-            // then
-            XCTAssertEqual(request.path, "/conversations/\(conversationID.transportString())")
-            XCTAssertEqual(request.method, .methodGET)
-        }
-    }
-
     func testThatRequestToCreateConversationIsGenerated_WhenRemoteIdentifierIsNotSet() {
         syncMOC.performGroupedBlockAndWait {
             // given

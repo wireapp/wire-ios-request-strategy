@@ -188,6 +188,10 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         ZMChangeTrackerBootstrap.bootStrapChangeTrackers(sut.contextChangeTrackers, on: syncMOC)
     }
 
+    func simulateObjectsDidChange(_ object: NSManagedObject) {
+        sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set(arrayLiteral: object))})
+    }
+
     // MARK: Request Generation
 
     func testThatItDoesNotCreateARequestIfThereIsNoMatchingMessage() {
@@ -209,6 +213,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             // GIVEN
             let message = self.createMessage(uploaded: true)
             message.expire()
+            self.simulateObjectsDidChange(message)
             
             // THEN
             XCTAssertNil(self.sut.nextRequest())
