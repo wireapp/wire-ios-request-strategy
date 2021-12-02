@@ -31,11 +31,11 @@ class ProteusDependencyFilter<Message: ProteusMessage>: ObjectFilter {
     }
 }
 
-class ProteusMessageTrancoder<Message: ProteusMessage>: NSObject, ObjectTranscoder, FederationAware {
-    typealias Object = Message
+public class ProteusMessageTrancoder<Message: ProteusMessage>: NSObject, ObjectTranscoder, FederationAware {
+    public typealias Object = Message
 
-    var shouldRetryOnExpiration: Bool = false
-    var useFederationEndpoint: Bool = false
+    public var shouldRetryOnExpiration: Bool = false
+    public var useFederationEndpoint: Bool = false
     let requestFactory = ClientMessageRequestFactory()
     let applicationStatus: ApplicationStatus
     let context: NSManagedObjectContext
@@ -45,7 +45,7 @@ class ProteusMessageTrancoder<Message: ProteusMessage>: NSObject, ObjectTranscod
         self.applicationStatus = applicationStatus
     }
 
-    func requestFor(_ entity: Message) -> ZMTransportRequest? {
+    public func requestFor(_ entity: Message) -> ZMTransportRequest? {
         guard
             let conversation = entity.conversation,
             let request = requestFactory.upstreamRequestForMessage(entity,
@@ -62,7 +62,7 @@ class ProteusMessageTrancoder<Message: ProteusMessage>: NSObject, ObjectTranscod
         return request
     }
 
-    func handleResponse(response: ZMTransportResponse, for entity: Message) {
+    public func handleResponse(response: ZMTransportResponse, for entity: Message) {
         entity.delivered(with: response)
 
         if useFederationEndpoint {
@@ -108,11 +108,11 @@ class ProteusMessageTrancoder<Message: ProteusMessage>: NSObject, ObjectTranscod
     }
 }
 
-class ProteusMessageSync<Message: ProteusMessage>: ObjectSync<Message, ProteusMessageTrancoder<Message>>, FederationAware {
+public class ProteusMessageSync<Message: ProteusMessage>: ObjectSync<Message, ProteusMessageTrancoder<Message>>, FederationAware {
 
     let proteusMessageTrancoder: ProteusMessageTrancoder<Message>
 
-    var useFederationEndpoint: Bool {
+    public var useFederationEndpoint: Bool {
         get {
             proteusMessageTrancoder.useFederationEndpoint
         }

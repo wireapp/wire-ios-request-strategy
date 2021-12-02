@@ -61,7 +61,7 @@ protocol ObjectFilter {
 
 /// An object transcoder turns an object into a HTTP request and handles the response
 ///
-protocol ObjectTranscoder {
+public protocol ObjectTranscoder {
     associatedtype Object: Hashable
 
     /// How many objects the transcoder can synchronize in one request.
@@ -88,33 +88,33 @@ protocol ObjectTranscoder {
 
 extension ObjectTranscoder {
 
-    var fetchLimit: Int {
+    public var fetchLimit: Int {
         1
     }
 
-    var shouldRetryOnExpiration: Bool {
+    public var shouldRetryOnExpiration: Bool {
         return true
     }
 
-    func requestFor(_ objects: Set<Object>) -> ZMTransportRequest? {
+    public func requestFor(_ objects: Set<Object>) -> ZMTransportRequest? {
         guard let object = objects.first else {
             return nil
         }
         return requestFor(object)
     }
 
-    func handleResponse(response: ZMTransportResponse, for objects: Set<Object>) {
+    public func handleResponse(response: ZMTransportResponse, for objects: Set<Object>) {
         guard let object = objects.first else {
             return
         }
         handleResponse(response: response, for: object)
     }
 
-    func shouldTryToResend(_ object: Object, afterFailureWithResponse response: ZMTransportResponse) -> Bool {
+    public func shouldTryToResend(_ object: Object, afterFailureWithResponse response: ZMTransportResponse) -> Bool {
         return !response.isPermanentylUnavailableError()
     }
 
-    func shouldTryToResend(_ objects: Set<Object>, afterFailureWithResponse response: ZMTransportResponse) -> Bool {
+    public func shouldTryToResend(_ objects: Set<Object>, afterFailureWithResponse response: ZMTransportResponse) -> Bool {
         guard let object = objects.first else {
             return false
         }
@@ -300,7 +300,7 @@ public typealias ObjectSyncHandler = (_ result: Swift.Result<Void, ObjectSyncErr
 
 /// Synchronizes objects using a configurable sources, filters and transcoder.
 ///
-class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator, ZMContextChangeTrackerSource where Trans.Object == Object {
+public class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator, ZMContextChangeTrackerSource where Trans.Object == Object {
 
     public typealias ScheduledHandler = (_ object: Object) -> Void
     public typealias CompletedHandler = (_ object: Object, _ result: Swift.Result<Void, ObjectSyncError>, _ response: ZMTransportResponse) -> Void
@@ -316,7 +316,7 @@ class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator,
     var completionHandlers: [Object: ObjectSyncHandler] = [:]
     weak var delegate: ObjectSyncDelegate?
 
-    var contextChangeTrackers: [ZMContextChangeTracker] {
+    public var contextChangeTrackers: [ZMContextChangeTracker] {
         return sources.compactMap({ $0 as? ZMContextChangeTracker })
     }
 
@@ -403,7 +403,7 @@ class ObjectSync<Object, Trans: ObjectTranscoder>: NSObject, ZMRequestGenerator,
         pending.subtract(objects)
     }
 
-    func nextRequest() -> ZMTransportRequest? {
+    public func nextRequest() -> ZMTransportRequest? {
         let nextObjects = pending.filter({ (foo) -> Bool in
             filters.reduce(true) { (result, filter) -> Bool in
                 result && filter.isIncluded(foo)
