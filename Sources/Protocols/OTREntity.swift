@@ -107,7 +107,7 @@ extension OTREntity {
            let missingClients = selfClient.missingClients, missingClients.count > 0 {
             // Don't block sending of messages if they are not affected by the missing clients
             // Is Disjoint Violation: Prefer using `Set.isDisjoint(with:)` over `Set.intersection(_:).isEmpty`. (is_disjoint)
-            if !missingClients.intersection(recipientClients).isEmpty {
+            if !missingClients.isDisjoint(with: recipientClients) {
 
                 // make sure that we fetch those clients, even if we somehow gave up on fetching them
                 if !(selfClient.modifiedKeys?.contains(ZMUserClientMissingKey) ?? false) {
