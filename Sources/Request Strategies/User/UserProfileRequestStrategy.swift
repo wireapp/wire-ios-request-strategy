@@ -44,8 +44,8 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
     }
 
     public init(managedObjectContext: NSManagedObjectContext,
-         applicationStatus: ApplicationStatus,
-         syncProgress: SyncProgress) {
+                applicationStatus: ApplicationStatus,
+                syncProgress: SyncProgress) {
 
         self.syncProgress = syncProgress
         self.userProfileByIDTranscoder = UserProfileByIDTranscoder(context: managedObjectContext)

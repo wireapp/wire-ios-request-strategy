@@ -39,7 +39,7 @@ public class LinkPreviewUpdateRequestStrategy: AbstractRequestStrategy, ZMContex
     }
 
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
-                  applicationStatus: ApplicationStatus) {
+                         applicationStatus: ApplicationStatus) {
 
         let modifiedPredicate = Self.linkPreviewIsUploadedPredicate(context: managedObjectContext)
         self.modifiedKeysSync = ModifiedKeyObjectSync(trackedKey: ZMClientMessage.linkPreviewStateKey,
