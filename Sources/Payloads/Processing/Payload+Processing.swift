@@ -37,7 +37,7 @@ extension Payload.UserClient {
 
         return client
     }
-    
+
 }
 
 extension Array where Array.Element == Payload.UserClient {
@@ -60,6 +60,8 @@ extension Array where Array.Element == Payload.UserClient {
 
 }
 
+// MARK: - Prekeys
+
 extension Payload.PrekeyByUserID {
 
     /// Establish new sessions using the prekeys retreived for each client.
@@ -76,7 +78,7 @@ extension Payload.PrekeyByUserID {
             for (clientID, prekey) in prekeyByClientID {
                 guard
                     let userID = UUID(uuidString: userID),
-                    let user = ZMUser(remoteID: userID, createIfNeeded: false, in: context),
+                    let user = ZMUser.fetch(with: userID, domain: domain, in: context),
                     let missingClient = UserClient.fetchUserClient(withRemoteId: clientID,
                                                                    forUser: user,
                                                                    createIfNeeded: true)
@@ -90,7 +92,6 @@ extension Payload.PrekeyByUserID {
                 } else {
                     missingClient.markClientAsInvalidAfterFailingToRetrievePrekey(selfClient: selfClient)
                 }
-
 
             }
         }
@@ -115,12 +116,14 @@ extension Payload.PrekeyByQualifiedUserID {
             _ = prekeyByUserID.establishSessions(with: selfClient, context: context, domain: domain)
         }
 
-        let hasMoreMissingClients = (selfClient.missingClients?.count ?? 0) > 0
+        let hasMoreMissingClients = selfClient.missingClients?.isEmpty == false
 
         return hasMoreMissingClients
     }
 
 }
+
+// MARK: - UserClient
 
 extension UserClient {
 
@@ -152,6 +155,76 @@ extension UserClient {
                 mutableSetValue(forKey: "messagesMissingRecipient").remove($0)
             }
         }
+    }
+
+}
+
+extension Payload.ClientListByQualifiedUserID {
+
+    func fetchUsers(in context: NSManagedObjectContext) -> [ZMUser] {
+        return flatMap { (domain, userClientsByUserID) in
+            return userClientsByUserID.compactMap { (userID, _) -> ZMUser? in
+                guard
+                    let userID = UUID(uuidString: userID),
+                    let user = ZMUser.fetch(with: userID, domain: domain, in: context)
+                else {
+                    return nil
+                }
+
+                return user
+            }
+        }
+    }
+
+    func fetchClients(in context: NSManagedObjectContext) -> [ZMUser: [UserClient]] {
+        let userClientsByUserTuples = flatMap { (domain, userClientsByUserID) in
+            return userClientsByUserID.compactMap { (userID, userClientIDs) -> [ZMUser: [UserClient]]? in
+                guard
+                    let userID = UUID(uuidString: userID),
+                    let user = ZMUser.fetch(with: userID, domain: domain, in: context)
+                else {
+                    return nil
+                }
+
+                let userClients = user.clients.filter({
+                    guard let clientID = $0.remoteIdentifier else { return false }
+                    return userClientIDs.contains(clientID)
+                })
+
+                return [user: Array(userClients)]
+            }
+        }.flatMap { $0 }
+
+        return [ZMUser: [UserClient]](userClientsByUserTuples, uniquingKeysWith: +)
+    }
+
+    func fetchOrCreateClients(in context: NSManagedObjectContext) -> [ZMUser: [UserClient]] {
+        let userClientsByUserTuples = flatMap { (domain, userClientsByUserID) in
+            return userClientsByUserID.compactMap { (userID, userClientIDs) -> [ZMUser: [UserClient]]? in
+                guard
+                    let userID = UUID(uuidString: userID)
+                else {
+                    return nil
+                }
+
+                let user = ZMUser.fetchOrCreate(with: userID, domain: domain, in: context)
+                let userClients = userClientIDs.compactMap { (clientID) -> UserClient? in
+                    guard
+                        let userClient = UserClient.fetchUserClient(withRemoteId: clientID,
+                                                                    forUser: user,
+                                                                    createIfNeeded: true),
+                        !userClient.hasSessionWithSelfClient
+                    else {
+                        return nil
+                    }
+                    return userClient
+                }
+
+                return [user: userClients]
+            }
+        }.flatMap { $0 }
+
+        return [ZMUser: [UserClient]](userClientsByUserTuples, uniquingKeysWith: +)
     }
 
 }

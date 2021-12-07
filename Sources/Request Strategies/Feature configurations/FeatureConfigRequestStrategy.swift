@@ -20,6 +20,9 @@ import Foundation
 
 private let zmLog = ZMSLog(tag: "feature configurations")
 
+public extension Notification.Name {
+    static let fetchAllConfigsTriggerNotification = Notification.Name("fetchAllConfigsTriggerNotification")
+}
 
 @objcMembers
 public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
@@ -37,8 +40,6 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
     private var fetchSingleConfigSync: ZMDownstreamObjectSync!
     private var fetchAllConfigsSync: ZMSingleRequestSync!
 
-    private var featureController: FeatureController!
-
     private var team: Team? {
         return ZMUser.selfUser(in: managedObjectContext).team
     }
@@ -55,15 +56,13 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
                          applicationStatus: ApplicationStatus) {
 
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
-        
+
         configuration = [
             .allowsRequestsWhileOnline,
             .allowsRequestsDuringQuickSync,
             .allowsRequestsWhileWaitingForWebsocket,
             .allowsRequestsWhileInBackground
         ]
-        
-        featureController = FeatureController(managedObjectContext: managedObjectContext)
 
         fetchSingleConfigSync = ZMDownstreamObjectSync(
             transcoder: self,
@@ -75,7 +74,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
         fetchAllConfigsSync = ZMSingleRequestSync(singleRequestTranscoder: self, groupQueue: managedObjectContext)
 
         observerToken = NotificationCenter.default.addObserver(
-            forName: Self.fetchAllConfigsTriggerNotification,
+            forName: .fetchAllConfigsTriggerNotification,
             object: nil,
             queue: nil,
             using: { [weak self] _ in self?.needsToFetchAllConfigs = true }
@@ -100,8 +99,7 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
     }
 
     private func requestToFetchConfig(for feature: Feature) -> ZMTransportRequest? {
-        guard let teamId = feature.team?.remoteIdentifier?.transportString() else { return nil }
-        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features/\(feature.transportName)")
+        return ZMTransportRequest(getFromPath: "/feature-configs/\(feature.transportName)")
     }
 
     public func update(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
@@ -115,18 +113,8 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
         }
 
         do {
-            let decoder = JSONDecoder()
-            let encoder = JSONEncoder()
-
-            switch feature.name {
-            case .appLock:
-                let config = try decoder.decode(ConfigResponse<Feature.AppLock>.self, from: responseData)
-                feature.status = config.status
-                feature.config = try encoder.encode(config.config)
-            }
-
+            try processResponse(featureName: feature.name, data: responseData)
             feature.needsToBeUpdatedFromBackend = false
-
         } catch {
             zmLog.error("Failed to process feature config response: \(error.localizedDescription)")
         }
@@ -134,6 +122,29 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
 
     public func delete(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
         // No op
+    }
+
+    private func processResponse(featureName: Feature.Name, data: Data) throws {
+        let featureService = FeatureService(context: managedObjectContext)
+        let decoder = JSONDecoder()
+
+        switch featureName {
+        case .conferenceCalling:
+            let response = try decoder.decode(SimpleConfigResponse.self, from: data)
+            featureService.storeConferenceCalling(.init(status: response.status))
+
+        case .fileSharing:
+            let response = try decoder.decode(SimpleConfigResponse.self, from: data)
+            featureService.storeFileSharing(.init(status: response.status))
+
+        case .appLock:
+            let response = try decoder.decode(ConfigResponse<Feature.AppLock.Config>.self, from: data)
+            featureService.storeAppLock(.init(status: response.status, config: response.config))
+
+        case .selfDeletingMessages:
+            let response = try decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: data)
+            featureService.storeSelfDeletingMessages(.init(status: response.status, config: response.config))
+        }
     }
 
 }
@@ -155,7 +166,6 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
     public func didReceive(_ response: ZMTransportResponse, forSingleRequest sync: ZMSingleRequestSync) {
         guard
             sync == fetchAllConfigsSync,
-            let team = team,
             response.result == .success,
             let responseData = response.rawData
         else {
@@ -164,34 +174,66 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
 
         do {
             let allConfigs = try JSONDecoder().decode(AllConfigsResponse.self, from: responseData)
-            featureController.store(feature: allConfigs.applock.asFeature, in: team)
+
+            let featureService = FeatureService(context: managedObjectContext)
+            featureService.storeAppLock(.init(status: allConfigs.applock.status, config: allConfigs.applock.config))
+            featureService.storeFileSharing(.init(status: allConfigs.fileSharing.status))
+            featureService.storeSelfDeletingMessages(.init(status: allConfigs.selfDeletingMessages.status, config: allConfigs.selfDeletingMessages.config))
+
         } catch {
             zmLog.error("Failed to decode feature config response: \(error)")
         }
     }
 }
 
+// MARK: - ZMEventConsumer
+
+extension FeatureConfigRequestStrategy: ZMEventConsumer {
+
+    public func processEvents(_ events: [ZMUpdateEvent], liveEvents: Bool, prefetchResult: ZMFetchRequestBatchResult?) {
+        events.forEach(processEvent)
+    }
+
+    private func processEvent(_ event: ZMUpdateEvent) {
+        guard
+            event.type == .featureConfigUpdate,
+            let name = event.payload["name"] as? String,
+            let featureName = Feature.Name(rawValue: name),
+            let data = event.payload["data"]
+        else {
+            return
+        }
+
+        do {
+            let payload = try JSONSerialization.data(withJSONObject: data, options: [])
+            try processResponse(featureName: featureName, data: payload)
+        } catch {
+            zmLog.error("Failed to process feature config update event: \(error.localizedDescription)")
+        }
+    }
+
+}
 
 // MARK: - Response models
 
-private extension FeatureConfigRequestStrategy {
+private struct AllConfigsResponse: Decodable {
 
-    struct ConfigResponse<T: FeatureLike>: Decodable {
+    let applock: ConfigResponse<Feature.AppLock.Config>
+    let fileSharing: SimpleConfigResponse
+    let selfDeletingMessages: ConfigResponse<Feature.SelfDeletingMessages.Config>
 
-        let status: Feature.Status
-        let config: T.Config
+}
 
-        var asFeature: T {
-            return T(status: status, config: config)
-        }
+private struct SimpleConfigResponse: Decodable {
 
-    }
+    let status: Feature.Status
 
-    struct AllConfigsResponse: Decodable {
+}
 
-        var applock: ConfigResponse<Feature.AppLock>
+private struct ConfigResponse<T: Decodable>: Decodable {
 
-    }
+    let status: Feature.Status
+    let config: T
 
 }
 
@@ -205,6 +247,15 @@ private extension Feature {
         switch name {
         case .appLock:
             return "appLock"
+
+        case .conferenceCalling:
+            return "conferenceCalling"
+
+        case .fileSharing:
+            return "fileSharing"
+
+        case .selfDeletingMessages:
+            return "selfDeletingMessages"
         }
     }
 
@@ -214,15 +265,9 @@ public extension Feature {
 
     static func triggerBackendRefreshForAllConfigs() {
         NotificationCenter.default.post(
-            name: FeatureConfigRequestStrategy.fetchAllConfigsTriggerNotification,
+            name: .fetchAllConfigsTriggerNotification,
             object: nil
         )
     }
-
-}
-
-private extension FeatureConfigRequestStrategy {
-
-    static let fetchAllConfigsTriggerNotification = Notification.Name("fetchAlLConfigsTriggerNotification")
 
 }

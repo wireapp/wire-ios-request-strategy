@@ -22,12 +22,12 @@ import XCTest
 class ResetSessionRequestStrategyTests: MessagingTestBase {
 
     var sut: ResetSessionRequestStrategy!
-    var mockApplicationStatus : MockApplicationStatus!
+    var mockApplicationStatus: MockApplicationStatus!
 
     override var useInMemoryStore: Bool {
         return false
     }
-    
+
     override func setUp() {
         super.setUp()
         mockApplicationStatus = MockApplicationStatus()
@@ -35,32 +35,34 @@ class ResetSessionRequestStrategyTests: MessagingTestBase {
         sut = ResetSessionRequestStrategy(managedObjectContext: self.syncMOC,
                                     applicationStatus: mockApplicationStatus,
                                     clientRegistrationDelegate: mockApplicationStatus.clientRegistrationDelegate)
+        sut.useFederationEndpoint = true
     }
-    
+
     override func tearDown() {
         mockApplicationStatus = nil
         sut = nil
         super.tearDown()
     }
-    
+
     // MARK: Request generation
-    
+
     func testThatItCreatesARequest_WhenUserClientNeedsToNotifyOtherUserAboutSessionReset() {
         syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let otherUser = self.createUser()
-            let conversation = self.setupOneToOneConversation(with: otherUser)
             let otherClient = self.createClient(user: otherUser)
+            let conversation = self.setupOneToOneConversation(with: otherUser)
+            let conversationID = conversation.remoteIdentifier!.transportString()
+            let conversationDomain = conversation.domain!
             otherClient.needsToNotifyOtherUserAboutSessionReset = true
-            
-            
+
             // WHEN
             self.sut.contextChangeTrackers.forEach {
                 $0.objectsDidChange(Set(arrayLiteral: otherClient))
             }
-            
+
             // THEN
-            XCTAssertEqual(self.sut.nextRequest()?.path, "/conversations/\(conversation.remoteIdentifier!.transportString())/otr/messages")
+            XCTAssertEqual(self.sut.nextRequest()?.path, "/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
         }
     }
 
@@ -74,12 +76,12 @@ class ResetSessionRequestStrategyTests: MessagingTestBase {
             _ = self.setupOneToOneConversation(with: otherUser)
             otherClient = self.createClient(user: otherUser)
             otherClient.needsToNotifyOtherUserAboutSessionReset = true
-            
+
             self.sut.contextChangeTrackers.forEach {
                 $0.objectsDidChange(Set(arrayLiteral: otherClient))
             }
             let request = self.sut.nextRequest()
-            
+
             // WHEN
             request?.complete(with: ZMTransportResponse(payload: [:] as ZMTransportData, httpStatus: 200, transportSessionError: nil))
         }
@@ -90,5 +92,5 @@ class ResetSessionRequestStrategyTests: MessagingTestBase {
             XCTAssertFalse(otherClient.needsToNotifyOtherUserAboutSessionReset)
         }
     }
-    
+
 }

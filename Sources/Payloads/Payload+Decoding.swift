@@ -52,7 +52,6 @@ extension JSONEncoder {
 
 extension Decodable {
 
-
     /// Initialize object from JSON Data or log an error if fails
     ///
     /// - parameter payloadData: JSON data as raw bytes
@@ -64,6 +63,18 @@ extension Decodable {
             Logging.network.warn("Failed to decode payload: \(error)")
             return nil
         }
+    }
+
+    /// Initialize object from a transport response
+    ///
+    /// - parameter response: ZMTransportResponse with a JSON payload
+
+    init?(_ response: ZMTransportResponse, decoder: JSONDecoder = .defaultDecoder) {
+        guard let rawData = response.rawData else {
+            return nil
+        }
+
+        self.init(rawData, decoder: decoder)
     }
 
 }

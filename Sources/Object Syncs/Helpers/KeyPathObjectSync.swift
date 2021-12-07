@@ -19,16 +19,22 @@
 import Foundation
 
 protocol KeyPathObjectSyncTranscoder: class {
-    
+
     associatedtype T: Hashable
-        
+
     /// Called when a object needs to be synchronized. It's the transcoder's responsibillity to call the `completion` handler when the synchronization is successfull or cancel.
     ///
     /// - parameters:
     ///   - object: Object which should be synchronized
     ///   - completion: called when the object as been synchronized
     func synchronize(_ object: T, completion: @escaping () -> Void)
-    
+
+    /// Called when a object was previously requested to be synchronized but the the condition for synchronizing stop being fulfilled before the object finished synchronizing.
+    ///
+    /// - parameters:
+    ///   - object: Object which no longer needs be synchronized.
+    func cancel(_ object: T)
+
 }
 
 /**
@@ -38,30 +44,30 @@ protocol KeyPathObjectSyncTranscoder: class {
  
  */
 class KeyPathObjectSync<Transcoder: KeyPathObjectSyncTranscoder>: NSObject, ZMContextChangeTracker {
-    
+
     // MARK: - Life Cycle
-        
-    init(entityName: String ,_ keyPath: WritableKeyPath<Transcoder.T, Bool>) {
+
+    init(entityName: String, _ keyPath: WritableKeyPath<Transcoder.T, Bool>) {
         self.entityName = entityName
         self.keyPath = keyPath
     }
-    
+
     // MARK: - Properties
-    
+
     weak var transcoder: Transcoder?
-    
+
     let entityName: String
     let keyPath: WritableKeyPath<Transcoder.T, Bool>
     var pending: Set<Transcoder.T> = Set()
-        
+
     // MARK: - ZMContextChangeTracker
-    
+
     func objectsDidChange(_ objects: Set<NSManagedObject>) {
         let objects = objects.compactMap({ $0 as? Transcoder.T })
-    
+
         objects.forEach { object in
             var mutableObject = object
-            
+
             if object[keyPath: keyPath] {
                 if !pending.contains(object) {
                     pending.insert(object)
@@ -70,11 +76,12 @@ class KeyPathObjectSync<Transcoder: KeyPathObjectSyncTranscoder>: NSObject, ZMCo
                     }
                 }
             } else if pending.contains(object) {
-                 pending.remove(object)
+                pending.remove(object)
+                transcoder?.cancel(object)
             }
         }
     }
-    
+
     func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
         let keypathExpression =  NSExpression(forKeyPath: keyPath)
         let valueExpression = NSExpression(forConstantValue: true)
@@ -82,15 +89,15 @@ class KeyPathObjectSync<Transcoder: KeyPathObjectSyncTranscoder>: NSObject, ZMCo
                               rightExpression: valueExpression,
                               modifier: .direct,
                               type: .equalTo)
-        
+
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         fetchRequest.predicate = predicate
-        
+
         return fetchRequest
     }
-    
+
     func addTrackedObjects(_ objects: Set<NSManagedObject>) {
         objectsDidChange(objects)
     }
-    
+
 }

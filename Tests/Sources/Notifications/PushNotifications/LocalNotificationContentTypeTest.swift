@@ -31,7 +31,7 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
         }
         let message = GenericMessage(content: location)
         let event = createUpdateEvent(UUID.create(), conversationID: UUID.create(), genericMessage: message)
-        
+
         // when
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
@@ -43,7 +43,7 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
         // given
         let message = GenericMessage(content: WireProtos.Knock.with { $0.hotKnock = true })
         let event = createUpdateEvent(UUID.create(), conversationID: UUID.create(), genericMessage: message)
-        
+
         // when
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
@@ -53,16 +53,16 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
 
     func testThatItCreatesACorrectLocalNotificationContentTypeForTheEphemeralMessage() {
         // given
-        let message = GenericMessage(content: Text(content: "Ephemeral Message"), nonce: UUID(), expiresAfter: 100)
+        let message = GenericMessage(content: Text(content: "Ephemeral Message"), nonce: UUID(), expiresAfterTimeInterval: 100)
         let event = createUpdateEvent(UUID.create(), conversationID: UUID.create(), genericMessage: message)
-        
+
         // when
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
         // then
         XCTAssertEqual(contentType, .ephemeral(isMention: false, isReply: false))
     }
-    
+
     func testThatItCreatesACorrectLocalNotificationContentTypeForTheTextMessage() {
            // given
            let message = GenericMessage(content: Text(content: "Text Message"))
@@ -77,11 +77,11 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
 
     func testThatItCreatesACorrectLocalNotificationContentTypeForTheAudioMessage() {
         // given
-        let url = Bundle(for: ZMLocalNotificationSetTests.self).url(forResource: "video", withExtension: "mp4")
+        let url = Bundle(for: LocalNotificationDispatcherTests.self).url(forResource: "video", withExtension: "mp4")
         let audioMetadata = ZMAudioMetadata(fileURL: url!, duration: 100)
         let message = GenericMessage(content: WireProtos.Asset(audioMetadata))
         let event = createUpdateEvent(UUID.create(), conversationID: UUID.create(), genericMessage: message)
-        
+
         // when
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
@@ -94,7 +94,7 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
         let videoMetadata = ZMVideoMetadata(fileURL: fileURL(forResource: "video", extension: "mp4"), thumbnail: verySmallJPEGData())
         let message = GenericMessage(content: WireProtos.Asset(videoMetadata))
         let event = createUpdateEvent(UUID.create(), conversationID: UUID.create(), genericMessage: message)
-        
+
         // when
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
@@ -107,18 +107,18 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
         let fileMetaData = createFileMetadata()
         let message = GenericMessage(content: WireProtos.Asset(fileMetaData))
         let event = createUpdateEvent(UUID.create(), conversationID: UUID.create(), genericMessage: message)
-        
+
         // when
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
         // then
         XCTAssertEqual(contentType!, .fileUpload)
     }
-    
+
     func testThatItCreatesASystemMessageNotificationContentTypeForTheMemberJoinEvent() {
         // given
         let event = createMemberJoinUpdateEvent(UUID.create(), conversationID: UUID.create(), users: [selfUser])
-        
+
         // when
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
@@ -126,29 +126,27 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
         XCTAssertEqual(contentType, .participantsAdded)
     }
 
-    
     func testThatItCreatesASystemMessageNotificationContentTypeForTheMemberLeaveEvent() {
         // given
         let event = createMemberLeaveUpdateEvent(UUID.create(), conversationID: UUID.create(), users: [selfUser])
-        
+
         // when
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
         // then
         XCTAssertEqual(contentType, .participantsRemoved(reason: .none))
     }
-    
+
     func testThatItCreatesASystemMessageNotificationContentTypeForTheMessageTimerUpdateEvent() {
         // given
         let event = createMessageTimerUpdateEvent(UUID.create(), conversationID: UUID.create())
-        
+
         // when
         let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
 
         // then
         XCTAssertEqual(contentType, .messageTimerUpdate("1 year"))
     }
-
 
     private func createFileMetadata(filename: String? = nil) -> ZMFileMetadata {
         let fileURL: URL
@@ -175,6 +173,5 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
         try! data.write(to: url, options: [])
         return data
     }
-    
-}
 
+}
