@@ -36,6 +36,8 @@ enum Logging {
 
     static let network = ZMSLog(tag: "Network")
 
+    /// For logs related to push notifications.
+
     static let push = ZMSLog(tag: "Push")
 
 }
