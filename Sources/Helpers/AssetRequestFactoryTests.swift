@@ -202,7 +202,8 @@ class AssetRequestFactoryTests: ZMTBaseTest {
             
             let conversation = ZMConversation.insertNewObject(in: syncContext)
             conversation.remoteIdentifier = UUID()
-            conversation.domain = domain
+
+            ZMUser.selfUser(in: syncContext).domain = domain
             
             let user = ZMUser.insertNewObject(in: syncContext)
             user.remoteIdentifier = UUID()
@@ -213,7 +214,7 @@ class AssetRequestFactoryTests: ZMTBaseTest {
             
             self.coreDataStack.syncContext.zm_fileAssetCache = FileAssetCache(location: nil)
             
-            let expectedPath = "/assets/v4/\(domain)"
+            let expectedPath = "/assets/v4/\(ZMUser.selfUser(in: syncContext).domain!)"
             
             // when
             self.sut.useFederationEndpoint = true

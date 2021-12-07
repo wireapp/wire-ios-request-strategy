@@ -65,8 +65,9 @@ public final class AssetRequestFactory: NSObject, FederationAware {
 
     public func backgroundUpstreamRequestForAsset(message: ZMAssetClientMessage, withData data: Data, shareable: Bool = true, retention: Retention) -> ZMTransportRequest? {
         guard
-            let uploadURL = uploadURL(for: message, in: message.managedObjectContext!, shareable: shareable, retention: retention, data: data),
-            let path = Constant.path(whenFederation: useFederationEndpoint, with: message.conversation?.domain)
+            let context = message.managedObjectContext,
+            let uploadURL = uploadURL(for: message, in: context, shareable: shareable, retention: retention, data: data),
+            let path = Constant.path(whenFederation: useFederationEndpoint, with: ZMUser.selfUser(in: context).domain)
         else {
             return nil
         }
