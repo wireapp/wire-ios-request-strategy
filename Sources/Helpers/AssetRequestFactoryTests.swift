@@ -103,20 +103,20 @@ class AssetRequestFactoryTests: ZMTBaseTest {
         // given
         let domain = UUID().uuidString
         let expectedPath = "/assets/v3"
-        
+
         // when
         sut.useFederationEndpoint = false
         let request = sut.upstreamRequestForAsset(withData: Data(), retention: .eternal, domain: domain)
-        
+
         // then
         XCTAssertEqual(request?.path, expectedPath)
     }
-    
+
     func testThatUpstreamRequestForAssetReturnsNil_whenFederationIsEnabled_whenDomainIsMissing() {
         // when
         sut.useFederationEndpoint = true
         let request = sut.upstreamRequestForAsset(withData: Data(), retention: .eternal, domain: nil)
-        
+
         // then
         XCTAssertNil(request)
     }

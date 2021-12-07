@@ -19,7 +19,7 @@
 import Foundation
 
 public final class AssetRequestFactory: NSObject, FederationAware {
-    
+
     public var useFederationEndpoint: Bool = false
 
     public enum Retention: String {
@@ -51,11 +51,11 @@ public final class AssetRequestFactory: NSObject, FederationAware {
             static let octetStream = "application/octet-stream"
             static let multipart = "multipart/mixed; boundary=frontier"
         }
-        
+
         static func path(whenFederation enabled: Bool, with domain: String?) -> String? {
             if enabled {
                 guard let domain = domain else { return nil }
-                
+
                 return "/assets/v4/\(domain)"
             } else {
                 return "/assets/v3"
