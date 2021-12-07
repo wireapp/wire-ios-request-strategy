@@ -52,7 +52,7 @@ public final class AssetRequestFactory: NSObject, FederationAware {
             static let multipart = "multipart/mixed; boundary=frontier"
         }
         
-        static func path(whenFederation enabled:Bool, with domain: String?) -> String? {
+        static func path(whenFederation enabled: Bool, with domain: String?) -> String? {
             if enabled {
                 guard let domain = domain else { return nil }
                 
