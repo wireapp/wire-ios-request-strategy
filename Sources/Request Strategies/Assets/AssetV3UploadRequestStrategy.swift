@@ -21,8 +21,18 @@ import Foundation
 /// AssetV3UploadRequestStrategy is responsible for uploading all the assets associated with a asset message
 /// after they've been preprocessed (downscaled & encrypted). After all the assets have been uploaded
 /// transfer state is changed to .uploaded which is the signal that the asset message is ready to be sent.
-public final class AssetV3UploadRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
-
+public final class AssetV3UploadRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
+    
+    public var useFederationEndpoint: Bool {
+        get {
+            requestFactory.useFederationEndpoint
+        }
+        
+        set {
+            requestFactory.useFederationEndpoint = newValue
+        }
+    }
+    
     internal let requestFactory = AssetRequestFactory()
     internal var upstreamSync: ZMUpstreamModifiedObjectSync!
     internal var preprocessor: AssetsPreprocessor

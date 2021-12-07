@@ -18,7 +18,9 @@
 
 import Foundation
 
-public final class AssetRequestFactory: NSObject {
+public final class AssetRequestFactory: NSObject, FederationAware {
+    
+    public var useFederationEndpoint: Bool = false
 
     public enum Retention: String {
         /// The asset will be automatically removed from the backend
@@ -39,7 +41,6 @@ public final class AssetRequestFactory: NSObject {
     }
 
     private enum Constant {
-        static let path = "/assets/v3"
         static let md5 = "Content-MD5"
         static let accessLevel = "public"
         static let retention = "retention"
@@ -50,18 +51,40 @@ public final class AssetRequestFactory: NSObject {
             static let octetStream = "application/octet-stream"
             static let multipart = "multipart/mixed; boundary=frontier"
         }
+        
+        static func path(whenFederation enabled:Bool, with domain: String?) -> String? {
+            if enabled {
+                guard let domain = domain else { return nil }
+                
+                return "/assets/v4/\(domain)"
+            } else {
+                return "/assets/v3"
+            }
+        }
     }
 
     public func backgroundUpstreamRequestForAsset(message: ZMAssetClientMessage, withData data: Data, shareable: Bool = true, retention: Retention) -> ZMTransportRequest? {
-        guard let uploadURL = uploadURL(for: message, in: message.managedObjectContext!, shareable: shareable, retention: retention, data: data) else { return nil }
-        let request = ZMTransportRequest.uploadRequest(withFileURL: uploadURL, path: Constant.path, contentType: Constant.ContentType.multipart)
+        guard
+            let uploadURL = uploadURL(for: message, in: message.managedObjectContext!, shareable: shareable, retention: retention, data: data),
+            let path = Constant.path(whenFederation: useFederationEndpoint, with: message.conversation?.domain)
+        else {
+            return nil
+        }
+
+        let request = ZMTransportRequest.uploadRequest(withFileURL: uploadURL, path: path, contentType: Constant.ContentType.multipart)
         request.addContentDebugInformation("Uploading full asset to /assets/v3")
         return request
     }
 
-    public func upstreamRequestForAsset(withData data: Data, shareable: Bool = true, retention: Retention) -> ZMTransportRequest? {
-        guard let multipartData = try? dataForMultipartAssetUploadRequest(data, shareable: shareable, retention: retention) else { return nil }
-        return ZMTransportRequest(path: Constant.path, method: .methodPOST, binaryData: multipartData, type: Constant.ContentType.multipart, contentDisposition: nil)
+    public func upstreamRequestForAsset(withData data: Data, shareable: Bool = true, retention: Retention, domain: String?) -> ZMTransportRequest? {
+        guard
+            let multipartData = try? dataForMultipartAssetUploadRequest(data, shareable: shareable, retention: retention),
+            let path = Constant.path(whenFederation: useFederationEndpoint, with: domain)
+        else {
+            return nil
+        }
+
+        return ZMTransportRequest(path: path, method: .methodPOST, binaryData: multipartData, type: Constant.ContentType.multipart, contentDisposition: nil)
     }
 
     func dataForMultipartAssetUploadRequest(_ data: Data, shareable: Bool, retention: Retention) throws -> Data {

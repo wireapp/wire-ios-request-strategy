@@ -21,16 +21,19 @@ import WireTesting
 
 class AssetRequestFactoryTests: ZMTBaseTest {
 
-    var coreDataStack: CoreDataStack!
+    private var coreDataStack: CoreDataStack!
+    private var sut: AssetRequestFactory!
 
     override func setUp() {
         super.setUp()
-        self.coreDataStack = createCoreDataStack()
+        coreDataStack = createCoreDataStack()
+        sut = AssetRequestFactory()
     }
 
     override func tearDown() {
         XCTAssert(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        self.coreDataStack = nil
+        coreDataStack = nil
+        sut = nil
         super.tearDown()
     }
 
@@ -94,5 +97,131 @@ class AssetRequestFactoryTests: ZMTBaseTest {
         // then
         XCTAssert(conversation.containsTeamUser)
         XCTAssertEqual(AssetRequestFactory.Retention(conversation: conversation), .eternalInfrequentAccess)
+    }
+
+    func testThatUpstreamRequestForAssetReturnsRequestWithExpectedV3Path_whenFederationIsNotEnabled() {
+        // given
+        let domain = UUID().uuidString
+        let expectedPath = "/assets/v3"
+        
+        // when
+        sut.useFederationEndpoint = false
+        let request = sut.upstreamRequestForAsset(withData: Data(), retention: .eternal, domain: domain)
+        
+        // then
+        XCTAssertEqual(request?.path, expectedPath)
+    }
+    
+    func testThatUpstreamRequestForAssetReturnsNil_whenFederationIsEnabled_whenDomainIsMissing() {
+        // when
+        sut.useFederationEndpoint = true
+        let request = sut.upstreamRequestForAsset(withData: Data(), retention: .eternal, domain: nil)
+        
+        // then
+        XCTAssertNil(request)
+    }
+    
+    func testThatUpstreamRequestForAssetReturnsRequesstWithExpectedV4Path_whenFederationIsEnabled_whenDomainIsAvailable() {
+        // given
+        let domain = UUID().uuidString
+        let expectedPath = "/assets/v4/\(domain)"
+        
+        // when
+        sut.useFederationEndpoint = true
+        let request = sut.upstreamRequestForAsset(withData: Data(), retention: .eternal, domain: domain)
+        
+        // then
+        XCTAssertEqual(request?.path, expectedPath)
+    }
+    
+    func testThatBackgroundUpstreamRequestForAssetReturnsRequestWithExpectedV3Path_whenFederationIsNotEnabled() {
+        let syncContext = coreDataStack.syncContext
+        syncContext.performGroupedBlock {
+            // given
+            let domain = UUID().uuidString
+            
+            let conversation = ZMConversation.insertNewObject(in: syncContext)
+            conversation.remoteIdentifier = UUID()
+            conversation.domain = domain
+            
+            let user = ZMUser.insertNewObject(in: syncContext)
+            user.remoteIdentifier = UUID()
+            
+            let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: syncContext)
+            message.visibleInConversation = conversation
+            message.sender = user
+            
+            self.coreDataStack.syncContext.zm_fileAssetCache = FileAssetCache(location: nil)
+            
+            let expectedPath = "/assets/v3"
+            
+            // when
+            self.sut.useFederationEndpoint = false
+            let request = self.sut.backgroundUpstreamRequestForAsset(message: message, withData: Data(), retention: .eternal)
+            
+            // then
+            XCTAssertEqual(request?.path, expectedPath)
+        }
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
+    }
+    
+    func testThatBackgroundUpstreamRequestForAssetReturnsNil_whenFederationIsEnabled_whenDomainIsMissing() {
+        let syncContext = coreDataStack.syncContext
+        syncContext.performGroupedBlock {
+            // given
+            let domain = UUID().uuidString
+            
+            let conversation = ZMConversation.insertNewObject(in: syncContext)
+            conversation.remoteIdentifier = nil
+            conversation.domain = domain
+            
+            let user = ZMUser.insertNewObject(in: syncContext)
+            user.remoteIdentifier = UUID()
+            
+            let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: syncContext)
+            message.visibleInConversation = conversation
+            message.sender = user
+            
+            self.coreDataStack.syncContext.zm_fileAssetCache = FileAssetCache(location: nil)
+            
+            // when
+            self.sut.useFederationEndpoint = true
+            let request = self.sut.backgroundUpstreamRequestForAsset(message: message, withData: Data(), retention: .eternal)
+            
+            // then
+            XCTAssertNil(request)
+        }
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
+    }
+    
+    func testThatBackgroundUpstreamRequestForAssetReturnsRequesstWithExpectedV4Path_whenFederationIsEnabled_whenDomainIsAvailable() {
+        let syncContext = coreDataStack.syncContext
+        syncContext.performGroupedBlock {
+            // given
+            let domain = UUID().uuidString
+            
+            let conversation = ZMConversation.insertNewObject(in: syncContext)
+            conversation.remoteIdentifier = UUID()
+            conversation.domain = domain
+            
+            let user = ZMUser.insertNewObject(in: syncContext)
+            user.remoteIdentifier = UUID()
+            
+            let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: syncContext)
+            message.visibleInConversation = conversation
+            message.sender = user
+            
+            self.coreDataStack.syncContext.zm_fileAssetCache = FileAssetCache(location: nil)
+            
+            let expectedPath = "/assets/v4/\(domain)"
+            
+            // when
+            self.sut.useFederationEndpoint = true
+            let request = self.sut.backgroundUpstreamRequestForAsset(message: message, withData: Data(), retention: .eternal)
+            
+            // then
+            XCTAssertEqual(request?.path, expectedPath)
+        }
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
     }
 }
