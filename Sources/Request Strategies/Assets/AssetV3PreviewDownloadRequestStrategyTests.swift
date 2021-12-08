@@ -29,7 +29,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
     var sut: AssetV3PreviewDownloadRequestStrategy!
     var conversation: ZMConversation!
 
-    typealias PreviewMeta = (otr: Data, sha: Data, assetId: String, token: String)
+    typealias PreviewMeta = (otr: Data, sha: Data, assetId: String, token: String, domain: String)
 
     override func setUp() {
         super.setUp()
@@ -55,13 +55,13 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         return conversation
     }
 
-    fileprivate func createMessage(in conversation: ZMConversation) -> (message: ZMAssetClientMessage, assetId: String, assetToken: String)? {
+    fileprivate func createMessage(in conversation: ZMConversation) -> (message: ZMAssetClientMessage, assetId: String, assetToken: String, assetDomain: String)? {
 
         let message = try! conversation.appendFile(with: ZMFileMetadata(fileURL: testDataURL)) as! ZMAssetClientMessage
         let (otrKey, sha) = (Data.randomEncryptionKey(), Data.randomEncryptionKey())
-        let (assetId, token) = (UUID.create().transportString(), UUID.create().transportString())
+        let (assetId, token, domain) = (UUID.create().transportString(), UUID.create().transportString(), UUID.create().transportString())
         var uploaded = GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: otrKey, sha256: sha), nonce: message.nonce!, expiresAfter: conversation.activeMessageDestructionTimeoutValue)
-        uploaded.updateUploaded(assetId: assetId, token: token)
+        uploaded.updateUploaded(assetId: assetId, token: token, domain: domain)
 
         do {
             try message.setUnderlyingMessage(uploaded)
