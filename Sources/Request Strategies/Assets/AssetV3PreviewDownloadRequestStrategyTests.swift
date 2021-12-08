@@ -72,16 +72,17 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         message.updateTransferState(.uploaded, synchronize: false)
         syncMOC.saveOrRollback()
 
-        return (message, assetId, token)
+        return (message, assetId, token, domain)
     }
 
     func createPreview(with nonce: UUID, otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (genericMessage: GenericMessage, meta: PreviewMeta) {
-        let (assetId, token) = (UUID.create().transportString(), UUID.create().transportString())
+        let (assetId, token, domain) = (UUID.create().transportString(), UUID.create().transportString(), UUID.create().transportString())
 
         let remote = WireProtos.Asset.RemoteData(withOTRKey: otr,
                                                 sha256: sha,
                                                 assetId: assetId,
-                                                assetToken: token)
+                                                assetToken: token,
+                                                assetDomain: domain)
         let preview = WireProtos.Asset.Preview.with {
             $0.size = 512
             $0.mimeType = "image/jpg"
@@ -89,7 +90,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         }
         let asset = WireProtos.Asset(original: nil, preview: preview)
 
-        let previewMeta = (otr, sha, assetId, token)
+        let previewMeta = (otr, sha, assetId, token, domain)
         return (GenericMessage(content: asset, nonce: nonce), previewMeta)
     }
 
@@ -115,7 +116,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedBlockAndWait {
 
             // GIVEN
-            let (message, _, _) = self.createMessage(in: self.conversation)!
+            let (message, _, _, _) = self.createMessage(in: self.conversation)!
             let (previewGenericMessage, _) = self.createPreview(with: message.nonce!)
 
             do {
@@ -136,7 +137,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
         self.syncMOC.performGroupedBlockAndWait {
 
-            let (message, _, _) = self.createMessage(in: self.conversation)!
+            let (message, _, _, _) = self.createMessage(in: self.conversation)!
             let preview = self.createPreview(with: message.nonce!)
             previewMeta = preview.meta
 

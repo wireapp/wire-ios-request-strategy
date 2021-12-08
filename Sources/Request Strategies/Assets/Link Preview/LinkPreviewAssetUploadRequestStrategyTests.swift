@@ -209,6 +209,7 @@ extension LinkPreviewAssetUploadRequestStrategyTests {
         // GIVEN
         let assetId = "id123"
         let token = "qJ8JPFLsiYGx7fnrlL+7Yk9="
+        let domain = UUID().uuidString
         var message: ZMClientMessage! = nil
         var otrKey: Data! = nil
         var sha256: Data! = nil
@@ -229,7 +230,7 @@ extension LinkPreviewAssetUploadRequestStrategyTests {
             let request = self.sut.nextRequest()
 
             // WHEN
-            self.completeRequest(message, request: request, assetId: assetId, token: token)
+            self.completeRequest(message, request: request, assetId: assetId, token: token, domain: domain)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -240,6 +241,7 @@ extension LinkPreviewAssetUploadRequestStrategyTests {
             XCTAssertEqual(linkPreview.image.uploaded.sha256, sha256)
             XCTAssertEqual(linkPreview.image.uploaded.assetID, assetId)
             XCTAssertEqual(linkPreview.image.uploaded.assetToken, token)
+            XCTAssertEqual(linkPreview.image.uploaded.assetDomain, domain)
         }
     }
 
@@ -260,9 +262,10 @@ extension LinkPreviewAssetUploadRequestStrategyTests {
 
             let assetId = "id123"
             let token = "qJ8JPFLsiYGx7fnrlL+7Yk9="
+            let domain = UUID().uuidString
 
             // WHEN
-            self.completeRequest(message, request: request, assetId: assetId, token: token)
+            self.completeRequest(message, request: request, assetId: assetId, token: token, domain: domain)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -280,6 +283,7 @@ extension LinkPreviewAssetUploadRequestStrategyTests {
         // GIVEN
         let assetId = "id123"
         let token = "qJ8JPFLsiYGx7fnrlL+7Yk9="
+        let domain = UUID().uuidString
         var message: ZMClientMessage! = nil
         var otrKey: Data! = nil
         var sha256: Data! = nil
@@ -302,7 +306,7 @@ extension LinkPreviewAssetUploadRequestStrategyTests {
             XCTAssertTrue(message.isEphemeral)
 
             // WHEN
-            self.completeRequest(message, request: request, assetId: assetId, token: token)
+            self.completeRequest(message, request: request, assetId: assetId, token: token, domain: domain)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -320,6 +324,7 @@ extension LinkPreviewAssetUploadRequestStrategyTests {
             XCTAssertEqual(linkPreview.image.uploaded.sha256, sha256)
             XCTAssertEqual(linkPreview.image.uploaded.assetID, assetId)
             XCTAssertEqual(linkPreview.image.uploaded.assetToken, token)
+            XCTAssertEqual(linkPreview.image.uploaded.assetDomain, domain)
         }
     }
 
