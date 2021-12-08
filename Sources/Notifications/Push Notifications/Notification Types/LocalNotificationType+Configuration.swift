@@ -18,7 +18,6 @@
 
 import Foundation
 
-
 extension LocalNotificationType {
 
     func category(hasTeam: Bool, encryptionAtRestEnabled: Bool) -> PushNotificationCategory {
@@ -26,9 +25,10 @@ extension LocalNotificationType {
             .addEncryptionAtRestIfNeeded(encryptionAtRestEnabled: encryptionAtRestEnabled)
             .addMuteIfNeeded(hasTeam: hasTeam)
     }
-    
+
     var sound: NotificationSound {
         switch self {
+/// TODO Katerina fix it
 //        case .calling(let callState):
 //            switch callState {
 //            case .incoming:
@@ -36,7 +36,6 @@ extension LocalNotificationType {
 //            default:
 //                return .newMessage
 //            }
-        ///TODO Katerina fix it
         case .calling:
             return .newMessage
         case .event:
@@ -52,14 +51,14 @@ extension LocalNotificationType {
             return .newMessage
         }
     }
-    
+
 }
 
 private extension PushNotificationCategory {
 
     init(notificationType: LocalNotificationType) {
         switch notificationType {
-        ///TODO Katerina fix it
+            /// TODO Katerina fix it
 //        case .calling(let callState):
 //            self.init(callState: callState)
         case .calling:
@@ -75,8 +74,7 @@ private extension PushNotificationCategory {
         }
     }
 
-    ///TODO Katerina fix it
-    
+    /// TODO Katerina fix it
 //    init(callState: CallState) {
 //        switch (callState) {
 //        case .incoming:
@@ -87,6 +85,7 @@ private extension PushNotificationCategory {
 //            self = .conversation
 //        }
 //    }
+
     init(eventType: LocalNotificationEventType) {
         switch eventType {
         case .connectionRequestPending, .conversationCreated:

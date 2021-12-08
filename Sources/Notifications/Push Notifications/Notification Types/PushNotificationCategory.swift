@@ -25,7 +25,7 @@ import UserNotifications
  */
 
 public enum PushNotificationCategory: String, CaseIterable {
-    
+
     case incomingCall = "incomingCallCategory"
     case missedCall = "missedCallCategory"
     case conversation = "conversationCategory"
@@ -75,6 +75,5 @@ public enum PushNotificationCategory: String, CaseIterable {
         let userActions = self.actions.map(\.userAction)
         return UNNotificationCategory(identifier: rawValue, actions: userActions, intentIdentifiers: [], options: [])
     }
-    
-}
 
+}

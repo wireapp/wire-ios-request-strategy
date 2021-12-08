@@ -24,7 +24,7 @@ public enum LocalNotificationEventType {
 }
 
 public enum LocalNotificationContentType: Equatable {
-    
+
     case text(String, isMention: Bool, isReply: Bool)
     case image
     case video
@@ -48,7 +48,7 @@ public enum LocalNotificationContentType: Equatable {
             self = .participantsRemoved(reason: event.participantsRemovedReason)
 
         case .conversationMessageTimerUpdate:
-            guard let payload = event.payload["data"] as? [String : AnyHashable] else { return nil }
+            guard let payload = event.payload["data"] as? [String: AnyHashable] else { return nil }
             let timeoutIntegerValue = (payload["message_timer"] as? Int64) ?? 0
             let timeoutValue = MessageDestructionTimeoutValue(rawValue: TimeInterval(timeoutIntegerValue))
             self = timeoutValue == .none ? .messageTimerUpdate(nil) : .messageTimerUpdate(timeoutValue.displayString)
@@ -123,4 +123,3 @@ public enum LocalNotificationContentType: Equatable {
     }
 
 }
-

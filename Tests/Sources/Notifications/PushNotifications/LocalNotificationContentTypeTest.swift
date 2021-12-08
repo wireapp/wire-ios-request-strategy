@@ -77,8 +77,10 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
 
     func testThatItCreatesACorrectLocalNotificationContentTypeForTheAudioMessage() {
         // given
-        let url = Bundle(for: LocalNotificationDispatcherTests.self).url(forResource: "video", withExtension: "mp4")
-        let audioMetadata = ZMAudioMetadata(fileURL: url!, duration: 100)
+        /// TODO Katerina fix it
+//        let url = Bundle(for: LocalNotificationDispatcherTests.self).url(forResource: "video", withExtension: "mp4")
+//        let audioMetadata = ZMAudioMetadata(fileURL: url!, duration: 100)
+        let audioMetadata = ZMAudioMetadata(fileURL: fileURL(forResource: "video", extension: "mp4"), duration: 100)
         let message = GenericMessage(content: WireProtos.Asset(audioMetadata))
         let event = createUpdateEvent(UUID.create(), conversationID: UUID.create(), genericMessage: message)
 
