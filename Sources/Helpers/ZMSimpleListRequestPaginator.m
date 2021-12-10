@@ -89,7 +89,7 @@ ZM_EMPTY_ASSERTING_INIT()
     }
     NSMutableArray *queryItems = [NSMutableArray array];
     [queryItems addObject:[NSURLQueryItem queryItemWithName:@"size" value:[@(self.pageSize) stringValue]]];
-    
+
     if (self.lastUUIDOfPreviousPage != nil) {
         [queryItems addObject:[NSURLQueryItem queryItemWithName:self.startKey value:self.lastUUIDOfPreviousPage.transportString]];
     }
@@ -102,7 +102,7 @@ ZM_EMPTY_ASSERTING_INIT()
 
     NSURLComponents *components = [NSURLComponents componentsWithString:self.basePath];
     components.queryItems = queryItems;
-    
+
     ZMTransportRequest *request = [ZMTransportRequest requestGetFromPath:components.string];
     return request;
 }
@@ -154,5 +154,4 @@ ZM_EMPTY_ASSERTING_INIT()
 }
 
 @end
-
 

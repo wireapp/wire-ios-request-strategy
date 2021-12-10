@@ -31,7 +31,7 @@ class StoreUpdateEventTests: MessagingTestBase {
         encryptionKeys = try! EncryptionKeys.createKeys(for: account)
         publicKey = try! EncryptionKeys.publicKey(for: account)
     }
-    
+
     override func tearDown() {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         account = nil
@@ -39,16 +39,16 @@ class StoreUpdateEventTests: MessagingTestBase {
         encryptionKeys = nil
         super.tearDown()
     }
-    
+
     func testThatYouCanCreateAnEvent() {
-        
+
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
         let payload = self.payloadForMessage(in: conversation, type: EventConversation.add, data: ["foo": "bar"])!
         let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: UUID.create())!
         event.appendDebugInformation("Highly informative description")
-        
+
         // when
         if let storedEvent = StoredUpdateEvent.encryptAndCreate(event, managedObjectContext: eventMOC, index: 2) {
 
@@ -63,9 +63,9 @@ class StoreUpdateEventTests: MessagingTestBase {
             XCTFail("Did not create storedEvent")
         }
     }
-    
+
     func testThatItFetchesAllStoredEvents() {
-        
+
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
@@ -87,11 +87,11 @@ class StoreUpdateEventTests: MessagingTestBase {
         XCTAssertTrue(batch.contains(storedEvent1))
         XCTAssertTrue(batch.contains(storedEvent2))
         XCTAssertTrue(batch.contains(storedEvent3))
-        batch.forEach{ XCTAssertFalse($0.isFault) }
+        batch.forEach { XCTAssertFalse($0.isFault) }
     }
-    
+
     func testThatItOrdersEventsBySortIndex() {
-        
+
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
@@ -113,9 +113,9 @@ class StoreUpdateEventTests: MessagingTestBase {
         XCTAssertEqual(storedEvents[1], storedEvent3)
         XCTAssertEqual(storedEvents[2], storedEvent2)
     }
-    
+
     func testThatItReturnsOnlyDefinedBatchSize() {
-        
+
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
@@ -146,9 +146,9 @@ class StoreUpdateEventTests: MessagingTestBase {
         XCTAssertEqual(secondBatch.count, 1)
         XCTAssertTrue(secondBatch.contains(storedEvent3))
     }
-    
+
     func testThatItReturnsHighestIndex() {
-        
+
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
@@ -168,15 +168,15 @@ class StoreUpdateEventTests: MessagingTestBase {
         // then
         XCTAssertEqual(highestIndex, 2)
     }
-    
+
     func testThatItCanConvertAnEventToStoredEventAndBack() {
-        
+
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
         let payload = payloadForMessage(in: conversation, type: EventConversation.add, data: ["foo": "bar"])!
         let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: UUID.create())!
-        
+
         // when
         guard let storedEvent = StoredUpdateEvent.encryptAndCreate(event, managedObjectContext: eventMOC, index: 0)
             else {
@@ -200,6 +200,7 @@ class StoreUpdateEventTests: MessagingTestBase {
 }
 
 // MARK: - Encrypting / Decrypting events using public / private keys
+
 extension StoreUpdateEventTests {
     func testThatItEncryptsEventIfThePublicKeyIsNotNil() throws {
         // given
@@ -208,7 +209,7 @@ extension StoreUpdateEventTests {
         let payload = self.payloadForMessage(in: conversation, type: EventConversation.add, data: ["foo": "bar"])!
         let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: UUID.create())!
         event.appendDebugInformation("Highly informative description")
-        
+
         // when
         if let storedEvent = StoredUpdateEvent.encryptAndCreate(event, managedObjectContext: eventMOC, index: 2, publicKey: self.publicKey) {
             XCTAssertEqual(storedEvent.debugInformation, event.debugInformation)
@@ -230,17 +231,17 @@ extension StoreUpdateEventTests {
             XCTFail("Did not create storedEvent")
         }
     }
-    
+
     func testThatItDoesNotEncryptEventIfThePublicKeyIsNil() throws {
         // given
         publicKey = nil
-        
+
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
         let payload = self.payloadForMessage(in: conversation, type: EventConversation.add, data: ["foo": "bar"])!
         let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: UUID.create())!
         event.appendDebugInformation("Highly informative description")
-        
+
         // when
         if let storedEvent = StoredUpdateEvent.encryptAndCreate(event, managedObjectContext: eventMOC, index: 2, publicKey: publicKey) {
             XCTAssertEqual(storedEvent.debugInformation, event.debugInformation)
@@ -255,7 +256,7 @@ extension StoreUpdateEventTests {
             XCTFail("Did not create storedEvent")
         }
     }
-    
+
     func testThatItDecryptsAndConvertsStoreEventToTheUpdateEventIfThePrivateKeyIsNotNil() throws {
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
@@ -263,7 +264,6 @@ extension StoreUpdateEventTests {
         let payload = self.payloadForMessage(in: conversation, type: EventConversation.add, data: ["foo": "bar"])!
         let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: UUID.create())!
         event.appendDebugInformation("Highly informative description")
-
 
         if let storedEvent = StoredUpdateEvent.encryptAndCreate(event, managedObjectContext: eventMOC, index: 2, publicKey: publicKey) {
             XCTAssertEqual(storedEvent.debugInformation, event.debugInformation)
@@ -288,7 +288,7 @@ extension StoreUpdateEventTests {
             XCTFail("Did not create storedEvent")
         }
     }
-    
+
     func testThatItConvertsStoreEventToTheUpdateEventIfThePrivateKeyIsNil() throws {
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
@@ -321,7 +321,7 @@ extension StoreUpdateEventTests {
             XCTFail("Did not create storedEvent")
         }
     }
-    
+
     func testThatItCanNotConvertEncryptedStoredEventWithoutPrivateKey() throws {
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)

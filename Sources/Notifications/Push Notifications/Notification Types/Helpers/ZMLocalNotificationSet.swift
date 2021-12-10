@@ -20,12 +20,12 @@ import UIKit
 import WireTransport
 import UserNotifications
 
-@objc public class ZMLocalNotificationSet : NSObject  {
-    
-    let archivingKey : String
-    let keyValueStore : ZMSynchonizableKeyValueStore
+@objc public class ZMLocalNotificationSet: NSObject {
+
+    let archivingKey: String
+    let keyValueStore: ZMSynchonizableKeyValueStore
     public var notificationCenter: UserNotificationCenter = UNUserNotificationCenter.current()
-    
+
     public var notifications = Set<ZMLocalNotification>() {
         didSet { updateArchive() }
     }
@@ -35,7 +35,7 @@ import UserNotifications
     private var allNotifications: [NotificationUserInfo] {
         return notifications.compactMap { $0.userInfo } + oldNotifications
     }
-    
+
     public init(archivingKey: String, keyValueStore: ZMSynchonizableKeyValueStore) {
         self.archivingKey = archivingKey
         self.keyValueStore = keyValueStore
@@ -43,36 +43,36 @@ import UserNotifications
 
         unarchiveOldNotifications()
     }
-    
+
     /// Unarchives all previously created notifications that haven't been cancelled yet
-    func unarchiveOldNotifications(){
+    func unarchiveOldNotifications() {
         guard let archive = keyValueStore.storedValue(key: archivingKey) as? Data,
         let unarchivedNotes =  NSKeyedUnarchiver.unarchiveObject(with: archive) as? [NotificationUserInfo]
             else { return }
         self.oldNotifications = unarchivedNotes
     }
-    
+
     /// Archives all scheduled notifications - this could be optimized
-    func updateArchive(){
+    func updateArchive() {
         let data = NSKeyedArchiver.archivedData(withRootObject: allNotifications)
         keyValueStore.store(value: data as NSData, key: archivingKey)
         keyValueStore.enqueueDelayedSave() // we need to save otherwise changes might not be stored
     }
-    
+
     @discardableResult
     public func remove(_ notification: ZMLocalNotification) -> ZMLocalNotification? {
         return notifications.remove(notification)
     }
-    
+
     public func addObject(_ notification: ZMLocalNotification) {
         notifications.insert(notification)
     }
-    
+
     func replaceObject(_ toReplace: ZMLocalNotification, newObject: ZMLocalNotification) {
         notifications.remove(toReplace)
         notifications.insert(newObject)
     }
-    
+
     /// Cancels all notifications
     public func cancelAllNotifications() {
         let ids = allNotifications.compactMap { $0.requestID?.uuidString }
@@ -80,13 +80,13 @@ import UserNotifications
         notifications = Set()
         oldNotifications = []
     }
-    
+
     /// This cancels all notifications of a specific conversation
     public func cancelNotifications(_ conversation: ZMConversation) {
         cancelOldNotifications(conversation)
         cancelCurrentNotifications(conversation)
     }
-    
+
     /// Cancel all notifications created in this run
     func cancelCurrentNotifications(_ conversation: ZMConversation) {
         guard notifications.count > 0 else { return }
@@ -94,22 +94,22 @@ import UserNotifications
         notificationCenter.removeAllNotifications(withIdentifiers: toRemove.map { $0.id.uuidString })
         notifications.subtract(toRemove)
     }
-    
+
     /// Cancels all notifications created in previous runs
     func cancelOldNotifications(_ conversation: ZMConversation) {
         guard oldNotifications.count > 0 else { return }
-        
+
         oldNotifications = oldNotifications.filter { userInfo in
             guard
                 userInfo.conversationID == conversation.remoteIdentifier,
                 let requestID = userInfo.requestID?.uuidString
                 else { return true }
-            
+
             notificationCenter.removeAllNotifications(withIdentifiers: [requestID])
             return false
         }
     }
-    
+
     /// Cancal all notifications with the given message nonce
     public func cancelCurrentNotifications(messageNonce: UUID) {
         guard notifications.count > 0 else { return }
@@ -118,7 +118,6 @@ import UserNotifications
         notifications.subtract(toRemove)
     }
 }
-
 
 // Event Notifications
 extension ZMLocalNotificationSet {
@@ -134,11 +133,11 @@ extension ZMLocalNotificationSet {
 
 extension ZMConversation {
     func localizedCallerName(with user: ZMUser) -> String {
-        
+
         let conversationName = self.userDefinedName
         let callerName : String? = user.name
         var result : String? = nil
-        
+
         switch conversationType {
         case .group:
             if let conversationName = conversationName, let callerName = callerName {
@@ -153,7 +152,7 @@ extension ZMConversation {
         default:
             break
         }
-        
+
         return result ?? String.localizedStringWithFormat("callkit.call.started.group.nousername.noconversationname".pushFormatString)
     }
 }

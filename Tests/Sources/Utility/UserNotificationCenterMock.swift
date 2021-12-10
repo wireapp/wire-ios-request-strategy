@@ -21,43 +21,42 @@ import UserNotifications
 
 @objc
 public class UserNotificationCenterMock: NSObject, UserNotificationCenter {
-    
+
     weak public var delegate: UNUserNotificationCenterDelegate?
-    
+
     /// Identifiers of scheduled notification requests.
     @objc public var scheduledRequests = [UNNotificationRequest]()
 
     /// Identifiers of removed notifications.
     @objc public var removedNotifications = Set<String>()
-    
+
     /// The registered notification categories for the app.
     @objc public var registeredNotificationCategories = Set<UNNotificationCategory>()
-    
+
     /// The requested authorization options for the app.
     @objc public var requestedAuthorizationOptions: UNAuthorizationOptions = []
-    
+
     public func setNotificationCategories(_ categories: Set<UNNotificationCategory>) {
         registeredNotificationCategories.formUnion(categories)
     }
-    
+
     public func requestAuthorization(options: UNAuthorizationOptions,
-                              completionHandler: @escaping (Bool, Error?) -> Void)
-    {
+                              completionHandler: @escaping (Bool, Error?) -> Void) {
         requestedAuthorizationOptions.insert(options)
     }
-    
+
     public func add(_ request: UNNotificationRequest, withCompletionHandler: ((Error?) -> Void)?) {
         scheduledRequests.append(request)
     }
-    
+
     public func removePendingNotificationRequests(withIdentifiers identifiers: [String]) {
         removedNotifications.formUnion(identifiers)
     }
-    
+
     public func removeDeliveredNotifications(withIdentifiers identifiers: [String]) {
         removedNotifications.formUnion(identifiers)
     }
-    
+
     public func removeAllNotifications(withIdentifiers identifiers: [String]) {
         removePendingNotificationRequests(withIdentifiers: identifiers)
         removeDeliveredNotifications(withIdentifiers: identifiers)

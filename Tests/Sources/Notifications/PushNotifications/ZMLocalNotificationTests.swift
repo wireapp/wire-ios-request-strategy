@@ -114,8 +114,7 @@ class ZMLocalNotificationTests: MessagingTestBase {
         name: String?,
         type: ZMConversationType,
         mutedMessages: MutedMessageTypes,
-        otherParticipants: [ZMUser]) -> ZMConversation
-    {
+        otherParticipants: [ZMUser]) -> ZMConversation {
         var conversation: ZMConversation!
             conversation = ZMConversation.insertNewObject(in: self.uiMOC)
             conversation.remoteIdentifier = remoteID
@@ -152,16 +151,16 @@ class ZMLocalNotificationTests: MessagingTestBase {
         let serverTimeStamp = conversation.lastReadServerTimeStamp?.addingTimeInterval(5) ?? Date()
 
         return NSMutableDictionary(dictionary: [
-            "conversation" : convRemoteID.transportString(),
-            "data" : data ?? [:],
-            "from" : userRemoteID.transportString(),
-            "type" : type,
-            "time" : serverTimeStamp.transportString()
+            "conversation": convRemoteID.transportString(),
+            "data": data ?? [:],
+            "from": userRemoteID.transportString(),
+            "type": type,
+            "time": serverTimeStamp.transportString()
         ]).mutableCopy() as! NSMutableDictionary
     }
 
     func createUpdateEvent(_ nonce: UUID, conversationID: UUID, genericMessage: GenericMessage, senderID: UUID = UUID.create()) -> ZMUpdateEvent {
-        let payload : [String : Any] = [
+        let payload: [String: Any] = [
             "id": UUID.create().transportString(),
             "conversation": conversationID.transportString(),
             "from": senderID.transportString(),
@@ -175,12 +174,12 @@ class ZMLocalNotificationTests: MessagingTestBase {
 
     func createMemberJoinUpdateEvent(_ nonce: UUID, conversationID: UUID, users: [ZMUser], senderID: UUID = UUID.create()) -> ZMUpdateEvent {
         let userIds = users.map { $0.remoteIdentifier.transportString() }
-        let usersWithRoles = users.map { (user) -> [String : String] in
+        let usersWithRoles = users.map { (user) -> [String: String] in
             return ["id": user.remoteIdentifier.transportString(),
                     "conversation_role": "wire_admin"]
         }
 
-        let payload : [String : Any] = [
+        let payload: [String: Any] = [
             "from": senderID.transportString(),
             "conversation": conversationID.transportString(),
             "time": NSDate().transportString(),
@@ -195,12 +194,12 @@ class ZMLocalNotificationTests: MessagingTestBase {
 
     func createMemberLeaveUpdateEvent(_ nonce: UUID, conversationID: UUID, users: [ZMUser], senderID: UUID = UUID.create()) -> ZMUpdateEvent {
         let userIds = users.map { $0.remoteIdentifier.transportString() }
-        let payload : [String : Any] = [
+        let payload: [String: Any] = [
             "from": senderID.transportString(),
             "conversation": conversationID.transportString(),
             "time": NSDate().transportString(),
             "data": [
-                "user_ids": userIds,
+                "user_ids": userIds
             ],
             "type": "conversation.member-leave"
         ]
@@ -220,4 +219,3 @@ class ZMLocalNotificationTests: MessagingTestBase {
     }
 
 }
-
