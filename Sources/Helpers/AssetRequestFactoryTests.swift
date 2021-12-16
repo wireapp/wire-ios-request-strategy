@@ -99,130 +99,149 @@ class AssetRequestFactoryTests: ZMTBaseTest {
         XCTAssertEqual(AssetRequestFactory.Retention(conversation: conversation), .eternalInfrequentAccess)
     }
 
-    func testThatUpstreamRequestForAssetReturnsRequestWithExpectedV3Path_whenFederationIsNotEnabled() {
+    func testThatUpstreamRequestForAssetReturnsRequestWithExpectedPathAndWithoutDomainInJSON_whenFederationIsNotEnabled() {
         // given
-        let domain = UUID().uuidString
         let expectedPath = "/assets/v3"
+        let domain = UUID().uuidString
 
         // when
         sut.useFederationEndpoint = false
         let request = sut.upstreamRequestForAsset(withData: Data(), retention: .eternal, domain: domain)
 
         // then
+        guard let json = json(from: request?.multipartBodyItems()) else {
+            XCTFail("No JSON found in request")
+            return
+        }
+
         XCTAssertEqual(request?.path, expectedPath)
+        XCTAssertFalse(json.keys.contains("domain"))
     }
 
-    func testThatUpstreamRequestForAssetReturnsNil_whenFederationIsEnabled_whenDomainIsMissing() {
+    func testThatUpstreamRequestForAssetReturnsRequestWithExpectedPathAndWithoutDomain_whenFederationIsEnabled_whenDomainIsMissing() {
+        // given
+        let expectedPath = "/assets/v3"
+
         // when
         sut.useFederationEndpoint = true
         let request = sut.upstreamRequestForAsset(withData: Data(), retention: .eternal, domain: nil)
 
         // then
-        XCTAssertNil(request)
+        XCTAssertEqual(request?.path, expectedPath)
     }
-    
-    func testThatUpstreamRequestForAssetReturnsRequesstWithExpectedV4Path_whenFederationIsEnabled_whenDomainIsAvailable() {
+
+    func testThatUpstreamRequestForAssetReturnsRequestWithDomainInJSONAndExpectedPath_whenFederationIsEnabled_whenDomainIsAvailable() {
         // given
+        let expectedPath = "/assets/v3"
         let domain = UUID().uuidString
-        let expectedPath = "/assets/v4/\(domain)"
-        
+
         // when
         sut.useFederationEndpoint = true
         let request = sut.upstreamRequestForAsset(withData: Data(), retention: .eternal, domain: domain)
-        
+
         // then
+        guard let json = json(from: request?.multipartBodyItems()) else {
+            XCTFail("No JSON found in request")
+            return
+        }
+
         XCTAssertEqual(request?.path, expectedPath)
+        XCTAssertEqual(json["domain"] as! String, domain)
     }
-    
-    func testThatBackgroundUpstreamRequestForAssetReturnsRequestWithExpectedV3Path_whenFederationIsNotEnabled() {
+
+    func testThatBackgroundUpstreamRequestForAssetReturnsRequestWithExpectedPath() {
         let syncContext = coreDataStack.syncContext
         syncContext.performGroupedBlock {
             // given
             let domain = UUID().uuidString
-            
+
             let conversation = ZMConversation.insertNewObject(in: syncContext)
             conversation.remoteIdentifier = UUID()
             conversation.domain = domain
-            
+
             let user = ZMUser.insertNewObject(in: syncContext)
             user.remoteIdentifier = UUID()
-            
+
             let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: syncContext)
             message.visibleInConversation = conversation
             message.sender = user
-            
+
             self.coreDataStack.syncContext.zm_fileAssetCache = FileAssetCache(location: nil)
-            
+
             let expectedPath = "/assets/v3"
-            
+
             // when
             self.sut.useFederationEndpoint = false
-            let request = self.sut.backgroundUpstreamRequestForAsset(message: message, withData: Data(), retention: .eternal)
-            
-            // then
-            XCTAssertEqual(request?.path, expectedPath)
-        }
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
-    }
-    
-    func testThatBackgroundUpstreamRequestForAssetReturnsNil_whenFederationIsEnabled_whenDomainIsMissing() {
-        let syncContext = coreDataStack.syncContext
-        syncContext.performGroupedBlock {
-            // given
-            let domain = UUID().uuidString
-            
-            let conversation = ZMConversation.insertNewObject(in: syncContext)
-            conversation.remoteIdentifier = nil
-            conversation.domain = domain
-            
-            let user = ZMUser.insertNewObject(in: syncContext)
-            user.remoteIdentifier = UUID()
-            
-            let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: syncContext)
-            message.visibleInConversation = conversation
-            message.sender = user
-            
-            self.coreDataStack.syncContext.zm_fileAssetCache = FileAssetCache(location: nil)
-            
-            // when
-            self.sut.useFederationEndpoint = true
-            let request = self.sut.backgroundUpstreamRequestForAsset(message: message, withData: Data(), retention: .eternal)
-            
-            // then
-            XCTAssertNil(request)
-        }
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
-    }
-    
-    func testThatBackgroundUpstreamRequestForAssetReturnsRequesstWithExpectedV4Path_whenFederationIsEnabled_whenDomainIsAvailable() {
-        let syncContext = coreDataStack.syncContext
-        syncContext.performGroupedBlock {
-            // given
-            let domain = UUID().uuidString
-            
-            let conversation = ZMConversation.insertNewObject(in: syncContext)
-            conversation.remoteIdentifier = UUID()
+            let request = self.sut.backgroundUpstreamRequestForAsset(message: message, withData: Data(), retention: .eternal, domain: domain)
 
-            ZMUser.selfUser(in: syncContext).domain = domain
-            
-            let user = ZMUser.insertNewObject(in: syncContext)
-            user.remoteIdentifier = UUID()
-            
-            let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: syncContext)
-            message.visibleInConversation = conversation
-            message.sender = user
-            
-            self.coreDataStack.syncContext.zm_fileAssetCache = FileAssetCache(location: nil)
-            
-            let expectedPath = "/assets/v4/\(ZMUser.selfUser(in: syncContext).domain!)"
-            
-            // when
-            self.sut.useFederationEndpoint = true
-            let request = self.sut.backgroundUpstreamRequestForAsset(message: message, withData: Data(), retention: .eternal)
-            
             // then
             XCTAssertEqual(request?.path, expectedPath)
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
+    }
+
+    func testThatDataForMultipartAssetUploadRequestReturnsExpectedDataWithDomainInJSON_whenFederationIsEnabled_whenDomainIsAvailable() {
+        // given
+        let domain = UUID().uuidString
+
+        // when
+        sut.useFederationEndpoint = true
+        let data = try! sut.dataForMultipartAssetUploadRequest(Data(), shareable: true, retention: .eternal, domain: domain)
+
+        // then
+        let multipart = (data as NSData).multipartDataItemsSeparated(withBoundary: "frontier")
+
+        guard let json = json(from: multipart) else {
+            XCTFail("No JSON data")
+            return
+        }
+
+        XCTAssertEqual(json["domain"] as! String, domain)
+    }
+
+    func testThatDataForMultipartAssetUploadRequestReturnsExpectedDataWithoutDomainInJSON_whenFederationIsEnabled_whenDomainIsNotAvailable() {
+        // when
+        sut.useFederationEndpoint = true
+        let data = try! sut.dataForMultipartAssetUploadRequest(Data(), shareable: true, retention: .eternal, domain: nil)
+
+        // then
+        let multipart = (data as NSData).multipartDataItemsSeparated(withBoundary: "frontier")
+
+        guard let json = json(from: multipart) else {
+            XCTFail("No JSON data")
+            return
+        }
+
+        XCTAssertFalse(json.keys.contains("domain"))
+    }
+
+    func testThatDataForMultipartAssetUploadRequestReturnsExpectedDataWithoutDomainInJSON_whenFederationIsNotEnabled() {
+        // when
+        sut.useFederationEndpoint = false
+        let data = try! sut.dataForMultipartAssetUploadRequest(Data(), shareable: true, retention: .eternal, domain: nil)
+
+        // then
+        let multipart = (data as NSData).multipartDataItemsSeparated(withBoundary: "frontier")
+
+        guard let json = json(from: multipart) else {
+            XCTFail("No JSON data")
+            return
+        }
+
+        XCTAssertFalse(json.keys.contains("domain"))
+    }
+
+}
+
+private extension AssetRequestFactoryTests {
+    func json(from multipart: [Any]?) -> [String: Any]? {
+        guard
+            let jsonData = (multipart as? [ZMMultipartBodyItem])?.filter({ $0.contentType == "application/json"}).first?.data,
+            let json = (try? JSONSerialization.jsonObject(with: jsonData, options: .fragmentsAllowed)) as? [String: Any]
+        else {
+            return nil
+        }
+
+        return json
     }
 }
