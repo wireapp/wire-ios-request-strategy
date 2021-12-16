@@ -50,7 +50,16 @@ class ZMLocalNotificationTests_Message: ZMLocalNotificationTests {
             quotedMessage?.serverTimestamp = conversation.lastReadServerTimeStamp!.addingTimeInterval(10)
         }
 
-        let event = createUpdateEvent(UUID.create(), conversationID: conversation.remoteIdentifier!, genericMessage: GenericMessage(content: Text(content: text ?? "Hello Hello!", mentions: mentions, linkPreviews: [], replyingTo: quotedMessage), nonce: UUID.create(), expiresAfterTimeInterval: expiresAfter), senderID: sender.remoteIdentifier)
+        let event = createUpdateEvent(UUID.create(),
+                                      conversationID: conversation.remoteIdentifier!,
+                                      genericMessage: GenericMessage(content:
+                                                                        Text(content: text ?? "Hello Hello!",
+                                                                             mentions: mentions,
+                                                                             linkPreviews: [],
+                                                                             replyingTo: quotedMessage),
+                                                                     nonce: UUID.create(),
+                                                                     expiresAfterTimeInterval: expiresAfter),
+                                      senderID: sender.remoteIdentifier)
 
         return ZMLocalNotification(event: event, conversation: conversation, managedObjectContext: uiMOC)
     }
