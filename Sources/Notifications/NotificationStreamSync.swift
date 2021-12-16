@@ -18,21 +18,7 @@
 
 import Foundation
 
-@objc
-public protocol UpdateEventProcessor: class {
-
-    @objc(storeUpdateEvents:ignoreBuffer:)
-    func storeUpdateEvents(_ updateEvents: [ZMUpdateEvent], ignoreBuffer: Bool)
-
-    @objc(storeAndProcessUpdateEvents:ignoreBuffer:)
-    func storeAndProcessUpdateEvents(_ updateEvents: [ZMUpdateEvent], ignoreBuffer: Bool)
-
-    func processEventsIfReady() -> Bool
-
-    var eventConsumers: [ZMEventConsumer] { get set }
-}
-
-public protocol NotificationStreamSyncDelegate: class {
+public protocol NotificationStreamSyncDelegate: AnyObject {
     func fetchedEvents(_ events: [ZMUpdateEvent], hasMoreToFetch: Bool)
     func failedFetchingEvents()
 }
