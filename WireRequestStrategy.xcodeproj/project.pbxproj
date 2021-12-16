@@ -15,7 +15,6 @@
 		06474D4D24AF68AD002C695D /* StoreUpdateEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474D4C24AF68AD002C695D /* StoreUpdateEvent.swift */; };
 		06474D5E24B30C79002C695D /* PushNotificationStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474D5C24B30C75002C695D /* PushNotificationStatusTests.swift */; };
 		06474D6024B310B6002C695D /* NotificationsTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474D5F24B310B6002C695D /* NotificationsTrackerTests.swift */; };
-		06474D6424B31CC5002C695D /* AnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474D6324B31CC5002C695D /* AnalyticsTests.swift */; };
 		06474D6624B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06474D6524B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m */; };
 		06474DA624B4B1EA002C695D /* EventDecoderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474DA524B4B1EA002C695D /* EventDecoderTest.swift */; };
 		06474DA824B4BB01002C695D /* StoreUpdateEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474DA724B4BB01002C695D /* StoreUpdateEventTests.swift */; };
@@ -301,7 +300,6 @@
 		06474D4C24AF68AD002C695D /* StoreUpdateEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreUpdateEvent.swift; sourceTree = "<group>"; };
 		06474D5C24B30C75002C695D /* PushNotificationStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationStatusTests.swift; sourceTree = "<group>"; };
 		06474D5F24B310B6002C695D /* NotificationsTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsTrackerTests.swift; sourceTree = "<group>"; };
-		06474D6324B31CC5002C695D /* AnalyticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsTests.swift; sourceTree = "<group>"; };
 		06474D6524B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZMSimpleListRequestPaginatorTests.m; sourceTree = "<group>"; };
 		06474DA524B4B1EA002C695D /* EventDecoderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDecoderTest.swift; sourceTree = "<group>"; };
 		06474DA724B4BB01002C695D /* StoreUpdateEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreUpdateEventTests.swift; sourceTree = "<group>"; };
@@ -692,7 +690,6 @@
 		06474D6224B31CB2002C695D /* Utility */ = {
 			isa = PBXGroup;
 			children = (
-				06474D6324B31CC5002C695D /* AnalyticsTests.swift */,
 				0693114F24F79E2500D14DF5 /* UserNotificationCenterMock.swift */,
 			);
 			path = Utility;
@@ -1756,7 +1753,6 @@
 				1662ADD122B14CBA00D84071 /* VerifyLegalHoldRequestStrategyTests.swift in Sources */,
 				F19561EF202A1309005347C0 /* DependencyEntitySyncTests.swift in Sources */,
 				F18401E42073C25E00E9F4CC /* GenericMessageRequestStrategyTests.swift in Sources */,
-				06474D6424B31CC5002C695D /* AnalyticsTests.swift in Sources */,
 				06474DA824B4BB01002C695D /* StoreUpdateEventTests.swift in Sources */,
 				F18402002073C2EA00E9F4CC /* MockObjects.swift in Sources */,
 				F18401E82073C26700E9F4CC /* ZMOTRMessageMissingTests.swift in Sources */,
