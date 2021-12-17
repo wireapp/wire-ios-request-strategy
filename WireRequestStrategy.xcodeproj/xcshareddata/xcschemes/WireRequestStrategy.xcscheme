@@ -61,6 +61,9 @@
                   Identifier = "StoreUpdateEventTests/testThatItEncryptsEventIfThePublicKeyIsNotNil()">
                </Test>
                <Test
+                  Identifier = "ZMLocalNotificationLocalizationTests/testThatItLocalizesCallkitCallerName()">
+               </Test>
+               <Test
                   Identifier = "ZMLocalNotificationTests_Event">
                </Test>
                <Test
@@ -68,6 +71,9 @@
                </Test>
                <Test
                   Identifier = "ZMLocalNotificationTests_SystemMessage">
+               </Test>
+               <Test
+                  Identifier = "ZMLocalNotificationTests_UnreadCount">
                </Test>
             </SkippedTests>
          </TestableReference>
