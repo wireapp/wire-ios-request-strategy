@@ -35,49 +35,52 @@ class ZMLocalNotificationTests: MessagingTestBase {
 
     override func setUp() {
         super.setUp()
-        selfUser = ZMUser.selfUser(in: self.uiMOC)
-        selfUser.remoteIdentifier = UUID.create()
-        sender = insertUser(with: UUID.create(), name: "Super User")
-        otherUser1 = insertUser(with: UUID.create(), name: "Other User1")
-        otherUser2 = insertUser(with: UUID.create(), name: "Other User2")
-        userWithNoName = insertUser(with: UUID.create(), name: nil)
-        oneOnOneConversation = insertConversation(
-            with: UUID.create(),
-            name: "Super Conversation",
-            type: .oneOnOne,
-            mutedMessages: .none,
-            otherParticipants: [selfUser, sender])
-        groupConversation = insertConversation(
-            with: UUID.create(),
-            name: "Super Conversation",
-            type: .group,
-            mutedMessages: .none,
-            otherParticipants: [sender, otherUser1]
-        )
+        self.performPretendingUiMocIsSyncMoc {
+            self.selfUser = ZMUser.selfUser(in: self.uiMOC)
+            self.selfUser.remoteIdentifier = UUID.create()
+            self.sender = self.insertUser(with: UUID.create(), name: "Super User")
+            self.otherUser1 = self.insertUser(with: UUID.create(), name: "Other User1")
+            self.otherUser2 = self.insertUser(with: UUID.create(), name: "Other User2")
+            self.userWithNoName = self.insertUser(with: UUID.create(), name: nil)
+            self.oneOnOneConversation = self.insertConversation(
+                with: UUID.create(),
+                name: "Super Conversation",
+                type: .oneOnOne,
+                mutedMessages: .none,
+                otherParticipants: [self.selfUser, self.sender])
+            self.groupConversation = self.insertConversation(
+                with: UUID.create(),
+                name: "Super Conversation",
+                type: .group,
+                mutedMessages: .none,
+                otherParticipants: [self.sender, self.otherUser1]
+            )
 
-        // an empty conversation will have no meaninful display name
-        groupConversationWithoutName = insertConversation(
-            with: UUID.create(),
-            name: nil,
-            type: .group,
-            mutedMessages: .none,
-            otherParticipants: []
-        )
-        groupConversationWithoutUserDefinedName = insertConversation(
-            with: UUID.create(),
-            name: nil,
-            type: .group,
-            mutedMessages: .none,
-            otherParticipants: [sender, otherUser1]
-        )
-        invalidConversation = insertConversation(
-            with: UUID.create(),
-            name: nil,
-            type: .invalid,
-            mutedMessages: .none,
-            otherParticipants: []
-        )
-        uiMOC.saveOrRollback()
+            // an empty conversation will have no meaninful display name
+            self.groupConversationWithoutName = self.insertConversation(
+                with: UUID.create(),
+                name: nil,
+                type: .group,
+                mutedMessages: .none,
+                otherParticipants: []
+            )
+            self.groupConversationWithoutUserDefinedName = self.insertConversation(
+                with: UUID.create(),
+                name: nil,
+                type: .group,
+                mutedMessages: .none,
+                otherParticipants: [self.sender, self.otherUser1]
+            )
+            self.invalidConversation = self.insertConversation(
+                with: UUID.create(),
+                name: nil,
+                type: .invalid,
+                mutedMessages: .none,
+                otherParticipants: []
+            )
+            self.uiMOC.saveOrRollback()
+        }
+        //        uiMOC.saveOrRollback()
         _ = waitForAllGroupsToBeEmpty(withTimeout: 0.5)
     }
 
@@ -115,28 +118,31 @@ class ZMLocalNotificationTests: MessagingTestBase {
         type: ZMConversationType,
         mutedMessages: MutedMessageTypes,
         otherParticipants: [ZMUser]) -> ZMConversation {
-        var conversation: ZMConversation!
-            conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-            conversation.remoteIdentifier = remoteID
-            conversation.userDefinedName = name
-            conversation.conversationType = type
-            conversation.mutedMessageTypes = mutedMessages
-            conversation.lastServerTimeStamp = Date()
-            conversation.lastReadServerTimeStamp = conversation.lastServerTimeStamp
-            conversation?.addParticipantsAndUpdateConversationState(
-                users: Set(otherParticipants + [selfUser]),
-                role: nil)
-            self.uiMOC.saveOrRollback()
-        return conversation
-    }
+            var conversation: ZMConversation!
+            self.performPretendingUiMocIsSyncMoc {
+                conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+                conversation.remoteIdentifier = remoteID
+                conversation.userDefinedName = name
+                conversation.conversationType = type
+                conversation.mutedMessageTypes = mutedMessages
+                conversation.lastServerTimeStamp = Date()
+                conversation.lastReadServerTimeStamp = conversation.lastServerTimeStamp
+                conversation?.addParticipantsAndUpdateConversationState(
+                    users: Set(otherParticipants + [self.selfUser]),
+                    role: nil)
+                self.uiMOC.saveOrRollback()
+            }
+            return conversation
+        }
 
     func noteWithPayload(_ data: NSDictionary?, fromUserID: UUID?, in conversation: ZMConversation, type: String) -> ZMLocalNotification? {
         var note: ZMLocalNotification?
-        uiMOC.performGroupedBlockAndWait {
+        self.performPretendingUiMocIsSyncMoc {
             let payload = self.payloadForEvent(in: conversation, type: type, data: data, from: fromUserID)
             if let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil) {
                 note = ZMLocalNotification(event: event, conversation: conversation, managedObjectContext: self.uiMOC)
             }
+            self.uiMOC.saveOrRollback()
         }
         return note
     }

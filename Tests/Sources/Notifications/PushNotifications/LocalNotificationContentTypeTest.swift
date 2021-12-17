@@ -25,18 +25,20 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
 
     func testThatItCreatesACorrectLocalNotificationContentTypeForTheLocationMessage() {
         // given
-        let location = WireProtos.Location.with {
-            $0.latitude = 0.0
-            $0.longitude = 0.0
+        self.performPretendingUiMocIsSyncMoc {
+            let location = WireProtos.Location.with {
+                $0.latitude = 0.0
+                $0.longitude = 0.0
+            }
+            let message = GenericMessage(content: location)
+            let event = self.createUpdateEvent(UUID.create(), conversationID: UUID.create(), genericMessage: message)
+
+            // when
+            let contentType = Sut(event: event, conversation: self.groupConversation, in: self.uiMOC)
+
+            // then
+            XCTAssertEqual(contentType, .location)
         }
-        let message = GenericMessage(content: location)
-        let event = createUpdateEvent(UUID.create(), conversationID: UUID.create(), genericMessage: message)
-
-        // when
-        let contentType = Sut(event: event, conversation: groupConversation, in: syncMOC)
-
-        // then
-        XCTAssertEqual(contentType, .location)
     }
 
     func testThatItCreatesACorrectLocalNotificationContentTypeForTheKnockMessage() {

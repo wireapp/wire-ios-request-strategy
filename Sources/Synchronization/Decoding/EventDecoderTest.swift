@@ -35,12 +35,13 @@ class EventDecoderTest: MessagingTestBase {
         super.setUp()
         sut = EventDecoder(eventMOC: eventMOC, syncMOC: syncMOC)
 
-        let selfUser = ZMUser.selfUser(in: syncMOC)
-        selfUser.remoteIdentifier = self.accountIdentifier
-        let selfConversation = ZMConversation.insertNewObject(in: syncMOC)
-        selfConversation.remoteIdentifier = self.accountIdentifier
-        selfConversation.conversationType = .self
-        syncMOC.saveOrRollback()
+        syncMOC.performGroupedBlockAndWait {
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            selfUser.remoteIdentifier = self.accountIdentifier
+            let selfConversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            selfConversation.remoteIdentifier = self.accountIdentifier
+            selfConversation.conversationType = .self
+        }
     }
 
     override func tearDown() {
@@ -79,7 +80,7 @@ extension EventDecoderTest {
 
         var didCallBlock = false
         let account = Account(userName: "John Doe", userIdentifier: UUID())
-        let encryptionKeys = try! EncryptionKeys.createKeys(for: account)
+        let encryptionKeys = try? EncryptionKeys.createKeys(for: account)
 
         syncMOC.performGroupedBlock {
             // given

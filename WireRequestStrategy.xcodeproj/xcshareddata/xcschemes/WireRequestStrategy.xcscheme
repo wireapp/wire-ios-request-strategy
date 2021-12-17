@@ -47,6 +47,29 @@
                BlueprintName = "WireRequestStrategyTests"
                ReferencedContainer = "container:WireRequestStrategy.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "LocalNotificationContentTypeTest">
+               </Test>
+               <Test
+                  Identifier = "StoreUpdateEventTests/testThatItCanNotConvertEncryptedStoredEventWithoutPrivateKey()">
+               </Test>
+               <Test
+                  Identifier = "StoreUpdateEventTests/testThatItDecryptsAndConvertsStoreEventToTheUpdateEventIfThePrivateKeyIsNotNil()">
+               </Test>
+               <Test
+                  Identifier = "StoreUpdateEventTests/testThatItEncryptsEventIfThePublicKeyIsNotNil()">
+               </Test>
+               <Test
+                  Identifier = "ZMLocalNotificationTests_Event">
+               </Test>
+               <Test
+                  Identifier = "ZMLocalNotificationTests_Message">
+               </Test>
+               <Test
+                  Identifier = "ZMLocalNotificationTests_SystemMessage">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

@@ -54,7 +54,9 @@ class PushNotificationStatusTests: MessagingTestBase {
         let eventId = UUID.timeBasedUUID() as UUID
 
         // when
-        sut.fetch(eventId: eventId) { }
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.fetch(eventId: eventId) { }
+        }
 
         // then
         XCTAssertTrue(sut.hasEventsToFetch)
@@ -65,8 +67,10 @@ class PushNotificationStatusTests: MessagingTestBase {
         let eventId1 = UUID.timeBasedUUID() as UUID
         let eventId2 = UUID.timeBasedUUID() as UUID
 
-        sut.fetch(eventId: eventId1) { }
-        sut.fetch(eventId: eventId2) { }
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.fetch(eventId: eventId1) { }
+            self.sut.fetch(eventId: eventId2) { }
+        }
 
         // when
         sut.didFetch(eventIds: [eventId1], lastEventId: eventId1, finished: true)
@@ -78,7 +82,9 @@ class PushNotificationStatusTests: MessagingTestBase {
     func testThatStatusIsDoneAfterEventIdIsFetched() {
         // given
         let eventId = UUID.timeBasedUUID() as UUID
-        sut.fetch(eventId: eventId) { }
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.fetch(eventId: eventId) { }
+        }
 
         // when
         sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: true)
@@ -90,7 +96,9 @@ class PushNotificationStatusTests: MessagingTestBase {
     func testThatStatusIsDoneAfterEventIdIsFetchedEvenIfMoreEventsWillBeFetched() {
         // given
         let eventId = UUID.timeBasedUUID() as UUID
-        sut.fetch(eventId: eventId) { }
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.fetch(eventId: eventId) { }
+        }
 
         // when
         sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: false)
@@ -102,7 +110,9 @@ class PushNotificationStatusTests: MessagingTestBase {
     func testThatStatusIsDoneAfterEventIdIsFetchedEvenIfNoEventsWereDownloaded() {
         // given
         let eventId = UUID.timeBasedUUID() as UUID
-        sut.fetch(eventId: eventId) { }
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.fetch(eventId: eventId) { }
+        }
 
         // when
         sut.didFetch(eventIds: [], lastEventId: eventId, finished: true)
@@ -114,7 +124,9 @@ class PushNotificationStatusTests: MessagingTestBase {
     func testThatStatusIsDoneIfEventsCantBeFetched() {
         // given
         let eventId = UUID.timeBasedUUID() as UUID
-        sut.fetch(eventId: eventId) { }
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.fetch(eventId: eventId) { }
+        }
 
         // when
         sut.didFailToFetchEvents()
@@ -128,8 +140,10 @@ class PushNotificationStatusTests: MessagingTestBase {
         let eventId = UUID.timeBasedUUID() as UUID
 
         // expect
-        sut.fetch(eventId: eventId) {
-            XCTFail("Didn't expect completion handler to be called")
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.fetch(eventId: eventId) {
+                XCTFail("Didn't expect completion handler to be called")
+            }
         }
 
         // when
@@ -145,8 +159,10 @@ class PushNotificationStatusTests: MessagingTestBase {
         let expectation = self.expectation(description: "completion handler was called")
 
         // expect
-        sut.fetch(eventId: eventId) {
-            expectation.fulfill()
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.fetch(eventId: eventId) {
+                expectation.fulfill()
+            }
         }
 
         // when
@@ -163,8 +179,10 @@ class PushNotificationStatusTests: MessagingTestBase {
         let expectation = self.expectation(description: "completion handler was called")
 
         // expect
-        sut.fetch(eventId: eventId) {
-            expectation.fulfill()
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.fetch(eventId: eventId) {
+                expectation.fulfill()
+            }
         }
 
         // when
@@ -179,13 +197,15 @@ class PushNotificationStatusTests: MessagingTestBase {
         // given
         let eventId = UUID.timeBasedUUID() as UUID
         let expectation = self.expectation(description: "completion handler was called")
-        syncMOC.zm_lastNotificationID = eventId
+        syncMOC.performGroupedBlockAndWait {
+            self.syncMOC.zm_lastNotificationID = eventId
 
-        // when
-        sut.fetch(eventId: eventId) {
-            expectation.fulfill()
+            // when
+            self.sut.fetch(eventId: eventId) {
+                expectation.fulfill()
+            }
         }
-
+        
         // then
         XCTAssertFalse(sut.hasEventsToFetch)
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
