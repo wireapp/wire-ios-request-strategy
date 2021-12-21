@@ -47,7 +47,7 @@ class AvailabilityRequestStrategyTests: MessagingTestBase {
             // given
             let selfUser = ZMUser.selfUser(in: moc)
             selfUser.needsToBeUpdatedFromBackend = false
-            selfUser.setLocallyModifiedKeys(Set(arrayLiteral: AvailabilityKey))
+            selfUser.setLocallyModifiedKeys(Set(arrayLiteral: ZMUser.availabilityKey))
             self.sut.contextChangeTrackers.forEach({ $0.addTrackedObjects(Set<NSManagedObject>(arrayLiteral: selfUser)) })
 
             // when
@@ -64,7 +64,7 @@ class AvailabilityRequestStrategyTests: MessagingTestBase {
             // given
             let selfUser = ZMUser.selfUser(in: moc)
             selfUser.needsToBeUpdatedFromBackend = false
-            selfUser.setLocallyModifiedKeys(Set(arrayLiteral: AvailabilityKey))
+            selfUser.setLocallyModifiedKeys(Set(arrayLiteral: ZMUser.availabilityKey))
 
             let team = Team.insertNewObject(in: moc)
 
@@ -86,7 +86,7 @@ class AvailabilityRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedAndWait { _ in
             // given
             self.otherUser.needsToBeUpdatedFromBackend = false
-            self.otherUser.modifiedKeys = Set(arrayLiteral: AvailabilityKey)
+            self.otherUser.modifiedKeys = Set(arrayLiteral: ZMUser.availabilityKey)
             self.sut.contextChangeTrackers.forEach({ $0.addTrackedObjects(Set<NSManagedObject>(arrayLiteral: self.otherUser)) })
 
             // when

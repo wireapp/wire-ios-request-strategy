@@ -32,7 +32,7 @@ public class AvailabilityRequestStrategy: AbstractRequestStrategy {
                                                          entityName: ZMUser.entityName(),
                                                          update: nil,
                                                          filter: ZMUser.predicateForSelfUser(),
-                                                         keysToSync: [AvailabilityKey],
+                                                         keysToSync: [ZMUser.availabilityKey],
                                                          managedObjectContext: managedObjectContext)
     }
 
