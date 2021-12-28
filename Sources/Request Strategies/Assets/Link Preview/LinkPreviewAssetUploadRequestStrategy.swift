@@ -118,7 +118,7 @@ extension LinkPreviewAssetUploadRequestStrategy: ZMUpstreamTranscoder {
         guard let retention = message.conversation.map(AssetRequestFactory.Retention.init) else { fatal("Trying to send message that doesn't have a conversation") }
         guard let imageData = managedObjectContext.zm_fileAssetCache.assetData(message, format: .medium, encrypted: true) else { return nil }
 
-        return ZMUpstreamRequest(keys: [ZMClientMessage.linkPreviewStateKey], transportRequest: requestFactory.upstreamRequestForAsset(withData: imageData, retention: retention))
+        return ZMUpstreamRequest(keys: [ZMClientMessage.linkPreviewStateKey], transportRequest: requestFactory.upstreamRequestForAsset(withData: imageData, retention: retention, domain: message.conversation?.domain))
     }
 
     public func request(forInserting managedObject: ZMManagedObject, forKeys keys: Set<String>?) -> ZMUpstreamRequest? {
