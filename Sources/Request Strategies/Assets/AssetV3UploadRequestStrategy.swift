@@ -153,8 +153,9 @@ extension AssetV3UploadRequestStrategy: ZMUpstreamTranscoder {
         }
 
         let token = payload["token"] as? String
+        let domain = payload["domain"] as? String
 
-        asset.updateWithAssetId(assetId, token: token)
+        asset.updateWithAssetId(assetId, token: token, domain: domain)
 
         if message.processingState == .done {
             message.updateTransferState(.uploaded, synchronize: false)
