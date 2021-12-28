@@ -102,7 +102,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
 
     // MARK: - Request Generation
 
-    func testThatItGeneratesARequestForAWhitelistedMessageWithNoImageInCache() {
+    func testThatItGeneratesAnExpectedV3RequestForAWhitelistedMessageWithNoImageInCache_whenFederationIsNotEnabled() {
         // GIVEN
         let assetID = UUID.create().transportString()
         let linkPreview = self.createLinkPreview(assetID)
@@ -110,6 +110,8 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
         text.linkPreview.append(linkPreview)
         let genericMessage = GenericMessage(content: text, nonce: nonce)
+
+        sut.useFederationEndpoint = false
 
         self.syncMOC.performGroupedAndWait { syncMOC in
             let message = try! self.oneToOneconversationOnSync.appendClientMessage(with: genericMessage)
@@ -127,7 +129,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
     }
 
-    func testThatItGeneratesARequestForAWhitelistedEphemeralMessageWithNoImageInCache() {
+    func testThatItGeneratesAnExpectedV3RequestForAWhitelistedEphemeralMessageWithNoImageInCache_whenFederationIsNotEnabled() {
         let assetID = UUID.create().transportString()
 
         self.syncMOC.performGroupedAndWait { syncMOC in
@@ -140,6 +142,8 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
             let message = try! self.oneToOneconversationOnSync.appendClientMessage(with: genericMessage)
             _ = try? syncMOC.obtainPermanentIDs(for: [message])
 
+            self.sut.useFederationEndpoint = false
+
             // WHEN
             message.textMessageData?.requestLinkPreviewImageDownload()
         }
@@ -147,6 +151,60 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
             // THEN
             guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
             XCTAssertEqual(request.path, "/assets/v3/\(assetID)")
+            XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
+            XCTAssertNil(self.sut.nextRequest())
+        }
+    }
+    
+    func testThatItGeneratesAnExpectedV4RequestForAWhitelistedMessageWithNoImageInCache_whenFederationIsEnabled() {
+        // GIVEN
+        let assetID = UUID.create().transportString()
+        let linkPreview = self.createLinkPreview(assetID)
+        let nonce = UUID.create()
+        var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
+        text.linkPreview.append(linkPreview)
+        let genericMessage = GenericMessage(content: text, nonce: nonce)
+
+        sut.useFederationEndpoint = true
+
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            let message = try! self.oneToOneconversationOnSync.appendClientMessage(with: genericMessage)
+            _ = try? syncMOC.obtainPermanentIDs(for: [message])
+
+            // WHEN
+            message.textMessageData?.requestLinkPreviewImageDownload()
+        }
+        self.syncMOC.performGroupedAndWait { _ in
+            // THEN
+            guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
+            XCTAssertEqual(request.path, "/assets/v4/\(self.oneToOneConversation.domain!)/\(assetID)")
+            XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
+            XCTAssertNil(self.sut.nextRequest())
+        }
+    }
+
+    func testThatItGeneratesAnExpectedV4RequestForAWhitelistedEphemeralMessageWithNoImageInCache_whenFederationIsEnabled() {
+        let assetID = UUID.create().transportString()
+        self.syncMOC.performGroupedAndWait { syncMOC in
+            // GIVEN
+            let linkPreview = self.createLinkPreview(assetID)
+            let nonce = UUID.create()
+            var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
+            text.linkPreview.append(linkPreview)
+            let genericMessage = GenericMessage(content: text, nonce: nonce, expiresAfterTimeInterval: 20)
+
+            let message = try! self.oneToOneconversationOnSync.appendClientMessage(with: genericMessage)
+            _ = try? syncMOC.obtainPermanentIDs(for: [message])
+
+            self.sut.useFederationEndpoint = true
+
+            // WHEN
+            message.textMessageData?.requestLinkPreviewImageDownload()
+        }
+        self.syncMOC.performGroupedAndWait { _ in
+            // THEN
+            guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
+            XCTAssertEqual(request.path, "/assets/v4/\(self.oneToOneConversation.domain!)/\(assetID)")
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
             XCTAssertNil(self.sut.nextRequest())
         }
