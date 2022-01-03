@@ -17,11 +17,10 @@
 //
 
 import XCTest
-@testable import WireRequestStrategy
 import WireUtilities
 import WireTesting
 import WireDataModel
-import WireRequestStrategy
+@testable import WireRequestStrategy
 
 class MissingClientsRequestStrategyTests: MessagingTestBase {
 
@@ -177,7 +176,8 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedAndWait { _ in
             // GIVEN
             self.selfClient.missingClients = nil
-            self.selfClient.setLocallyModifiedKeys(Set(arrayLiteral: ZMUserClientMissingKey))
+            let userClientMissingKey: Set<AnyHashable> = [ZMUserClientMissingKey]
+            self.selfClient.setLocallyModifiedKeys(userClientMissingKey)
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
@@ -535,10 +535,11 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             let response = ZMTransportResponse(payload: responseString! as ZMTransportData, httpStatus: 200, transportSessionError: nil)
 
             // WHEN
+            let userClientMissingKey: Set<String> = [ZMUserClientMissingKey]
             _ = self.sut.updateUpdatedObject(self.selfClient,
                                                  requestUserInfo: nil,
                                                  response: response,
-                                                 keysToParse: Set(arrayLiteral: ZMUserClientMissingKey))
+                                             keysToParse: userClientMissingKey)
 
             // THEN
             XCTAssertEqual(message.missingRecipients.count, 0)
@@ -558,10 +559,11 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             let response = ZMTransportResponse(payload: responseString! as ZMTransportData, httpStatus: 200, transportSessionError: nil)
 
             // WHEN
+            let userClientMissingKey: Set<String> = [ZMUserClientMissingKey]
             _ = self.sut.updateUpdatedObject(self.selfClient,
                                                  requestUserInfo: nil,
                                                  response: response,
-                                                 keysToParse: Set(arrayLiteral: ZMUserClientMissingKey))
+                                             keysToParse: userClientMissingKey)
 
             // THEN
             XCTAssertFalse(message.isExpired)
@@ -605,12 +607,12 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
     func testThatItResetsKeyForMissingClientIfThereIsNoMissingClient() {
         self.syncMOC.performGroupedAndWait { _ in
             // GIVEN
-            self.selfClient.setLocallyModifiedKeys(Set(arrayLiteral: ZMUserClientMissingKey))
+            self.selfClient.setLocallyModifiedKeys([ZMUserClientMissingKey])
             XCTAssertTrue(self.selfClient.keysThatHaveLocalModifications.contains(ZMUserClientMissingKey))
 
             // WHEN
             let shouldCreateRequest = self.sut.shouldCreateRequest(toSyncObject: self.selfClient,
-                                                              forKeys: Set(arrayLiteral: ZMUserClientMissingKey),
+                                                              forKeys: [ZMUserClientMissingKey],
                                                               withSync: self.sut.modifiedSync!)
 
             // THEN
@@ -623,12 +625,12 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedAndWait { _ in
             // GIVEN
             self.selfClient.missesClient(self.otherClient)
-            self.selfClient.setLocallyModifiedKeys(Set(arrayLiteral: ZMUserClientMissingKey))
+            self.selfClient.setLocallyModifiedKeys([ZMUserClientMissingKey])
             XCTAssertTrue(self.selfClient.keysThatHaveLocalModifications.contains(ZMUserClientMissingKey))
 
             // WHEN
             let shouldCreateRequest = self.sut.shouldCreateRequest(toSyncObject: self.selfClient,
-                                                              forKeys: Set(arrayLiteral: ZMUserClientMissingKey),
+                                                              forKeys: [ZMUserClientMissingKey],
                                                               withSync: self.sut.modifiedSync!)
 
             // THEN
