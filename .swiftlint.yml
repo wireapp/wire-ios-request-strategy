@@ -18,7 +18,6 @@ disabled_rules:
     - legacy_hashing
     - nesting
     - xctfail_message
-    - compiler_protocol_init
     
 included:
     - Sources
