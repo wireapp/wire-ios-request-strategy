@@ -25,7 +25,7 @@ import UserNotifications
  */
 
 public enum PushNotificationCategory: String, CaseIterable {
-    
+
     case incomingCall = "incomingCallCategory"
     case missedCall = "missedCallCategory"
     case conversation = "conversationCategory"
@@ -48,17 +48,17 @@ public enum PushNotificationCategory: String, CaseIterable {
     var actions: [NotificationAction] {
         switch self {
         case .incomingCall:
-            return [CallNotificationAction.ignore, CallNotificationAction.message]
+            return [CallNotificationAction.ignore]
         case .missedCall:
-            return [CallNotificationAction.callBack, CallNotificationAction.message]
+            return [CallNotificationAction.callBack]
         case .conversation:
-            return [ConversationNotificationAction.reply]
+            return []
         case .conversationWithMute:
-            return [ConversationNotificationAction.reply, ConversationNotificationAction.mute]
+            return [ConversationNotificationAction.mute]
         case .conversationWithLike:
-            return [ConversationNotificationAction.reply, ConversationNotificationAction.like]
+            return []
         case .conversationWithLikeAndMute:
-            return [ConversationNotificationAction.reply, ConversationNotificationAction.like, ConversationNotificationAction.mute]
+            return [ConversationNotificationAction.mute]
         case .connect:
             return [ConversationNotificationAction.connect]
         case .alert:
@@ -75,6 +75,5 @@ public enum PushNotificationCategory: String, CaseIterable {
         let userActions = self.actions.map(\.userAction)
         return UNNotificationCategory(identifier: rawValue, actions: userActions, intentIdentifiers: [], options: [])
     }
-    
-}
 
+}
