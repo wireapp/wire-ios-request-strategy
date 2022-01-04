@@ -22,7 +22,7 @@ import WireCryptobox
 
 class MessagingTestBase: ZMTBaseTest {
 
-    fileprivate(set) var groupConversation: ZMConversation!
+    var groupConversation: ZMConversation!
     fileprivate(set) var oneToOneConversation: ZMConversation!
     fileprivate(set) var selfClient: UserClient!
     fileprivate(set) var otherUser: ZMUser!
