@@ -19,40 +19,40 @@
 import XCTest
 @testable import WireRequestStrategy
 
-@objc class FakeGroupQueue : NSObject, ZMSGroupQueue {
-    
-    var dispatchGroup : ZMSDispatchGroup! {
+@objc class FakeGroupQueue: NSObject, ZMSGroupQueue {
+
+    var dispatchGroup: ZMSDispatchGroup! {
         return nil
     }
-    
+
     func performGroupedBlock(_ block : @escaping () -> Void) {
         block()
     }
-    
+
 }
 
 // MARK: - Tests
+
 class PushNotificationStatusTests: MessagingTestBase {
-    
+
     var sut: PushNotificationStatus!
-    
+
     override func setUp() {
         super.setUp()
-        
+
         sut = PushNotificationStatus(managedObjectContext: syncMOC)
     }
-    
+
     override func tearDown() {
         sut = nil
-        
+
         super.tearDown()
     }
-    
+
     func testThatStatusIsInProgressWhenAddingEventIdToFetch() {
         // given
         let eventId = UUID.timeBasedUUID() as UUID
 
-        
         // when
         sut.fetch(eventId: eventId) { }
 
@@ -82,7 +82,7 @@ class PushNotificationStatusTests: MessagingTestBase {
 
         // when
         sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: true)
-        
+
         // then
         XCTAssertFalse(sut.hasEventsToFetch)
     }
