@@ -140,7 +140,7 @@ class CryptoboxUpdateEventsTests: MessagingTestBase {
 
             // Then
             guard let lastMessage = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Last Message is invalid")
+                return XCTFail("Last message is invalid")
             }
             XCTAssertEqual(lastMessage.systemMessageType, .decryptionFailed)
         }
