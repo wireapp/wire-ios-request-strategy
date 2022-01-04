@@ -24,7 +24,7 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
     let EventConversationDelete = "conversation.delete"
     let EventConversationCreate = "conversation.create"
     let EventNewConnection = "user.contact-join"
-    
+
     // MARK: Helpers
 
     func payloadForConnectionRequest(to remoteID: UUID, status: String) -> [AnyHashable: Any] {
