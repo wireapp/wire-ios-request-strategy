@@ -81,7 +81,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
         do {
             try message.setUnderlyingMessage(uploaded)
         } catch {
-            XCTFail()
+            XCTFail("Message is invalid")
         }
 
         deleteDownloadedFileFor(message: message)

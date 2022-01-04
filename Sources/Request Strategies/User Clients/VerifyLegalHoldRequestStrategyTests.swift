@@ -117,7 +117,7 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
 
         // THEN
         syncMOC.performGroupedBlockAndWait {
-            guard let client = UserClient.fetchUserClient(withRemoteId: clientID, forUser: self.otherUser, createIfNeeded: false) else { return XCTFail() }
+            guard let client = UserClient.fetchUserClient(withRemoteId: clientID, forUser: self.otherUser, createIfNeeded: false) else { return XCTFail("Client is invalid") }
 
             XCTAssertEqual(client.remoteIdentifier, clientID)
         }
@@ -147,7 +147,7 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
 
         // THEN
         syncMOC.performGroupedBlockAndWait {
-            guard let existingClient = UserClient.fetchUserClient(withRemoteId: existingClientID, forUser: self.otherUser, createIfNeeded: false) else { return XCTFail() }
+            guard let existingClient = UserClient.fetchUserClient(withRemoteId: existingClientID, forUser: self.otherUser, createIfNeeded: false) else { return XCTFail("Existing Client is invalid") }
 
             XCTAssertNil(UserClient.fetchUserClient(withRemoteId: deletedClientID, forUser: self.otherUser, createIfNeeded: false))
             XCTAssertEqual(existingClient.remoteIdentifier, existingClientID)

@@ -654,7 +654,9 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
             XCTAssertNil(self.groupConversation?.activeMessageDestructionTimeoutValue)
 
-            guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
+            guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else {
+                return XCTFail("First message is invalid")
+            }
             XCTAssertEqual(firstMessage.systemMessageType, .messageTimerUpdate)
 
             // Third event with timer = nil
@@ -662,7 +664,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             XCTAssertNil(self.groupConversation?.activeMessageDestructionTimeoutValue)
-            guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
+            guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail("Second message is invalid")
+            }
             XCTAssertEqual(firstMessage, secondMessage) // Check that no other messages are appended in the conversation
         }
     }
@@ -771,7 +774,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             guard let message = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                XCTFail()
+                XCTFail("Message is invalid")
                 return
             }
             print(message.systemMessageType.rawValue)
@@ -955,7 +958,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             let listRequest = self.sut.nextRequest()!
             guard let listPayload = Payload.PaginationStatus(listRequest) else {
-                return XCTFail()
+                return XCTFail("List payload is invalid")
             }
 
             listRequest.complete(with: self.successfulResponse(request: listPayload, conversations: [qualifiedConversationID]))
@@ -967,7 +970,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             let request = self.sut.nextRequest()!
             guard let listPayload = Payload.PaginationStatus(request) else {
-                return XCTFail()
+                return XCTFail("List payload is invalid")
             }
 
             request.complete(with: self.successfulResponse(request: listPayload, conversations: []))
@@ -991,7 +994,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest()!
 
             guard let payload = Payload.QualifiedUserIDList(request) else {
-                return XCTFail()
+                return XCTFail("Payload is invalid")
             }
 
             request.complete(with: self.successfulResponse(request: payload, notFound: notFound, failed: failed))

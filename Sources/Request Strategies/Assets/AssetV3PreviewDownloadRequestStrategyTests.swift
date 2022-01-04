@@ -66,7 +66,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         do {
             try message.setUnderlyingMessage(uploaded)
         } catch {
-            XCTFail()
+            XCTFail("Message is invalid")
         }
 
         message.updateTransferState(.uploaded, synchronize: false)
@@ -121,7 +121,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(previewGenericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Message is invalid")
             }
 
             XCTAssertFalse(message.hasDownloadedPreview)
@@ -143,7 +143,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(preview.genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Message is invalid")
             }
 
             XCTAssertFalse(message.hasDownloadedPreview)
@@ -174,7 +174,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(preview.genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Message is invalid")
             }
 
             // WHEN
@@ -217,7 +217,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(previewGenericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Message is invalid")
             }
 
             message.fileMessageData?.requestImagePreviewDownload()
@@ -245,7 +245,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(previewGenericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Message is invalid")
             }
         }
 

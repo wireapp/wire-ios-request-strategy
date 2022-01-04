@@ -415,7 +415,7 @@ extension FetchClientRequestStrategyTests {
                 XCTAssertEqual(request.path, path)
                 XCTAssertEqual(request.method, .methodGET)
             } else {
-                XCTFail()
+                XCTFail("Request is invalid")
             }
         }
     }
@@ -441,7 +441,7 @@ extension FetchClientRequestStrategyTests {
                 XCTAssertEqual(request.path, path)
                 XCTAssertEqual(request.method, .methodPOST)
             } else {
-                XCTFail()
+                XCTFail("Request is invalid")
             }
         }
     }
