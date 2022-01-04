@@ -23,7 +23,7 @@ import UserNotifications
 ///
 public enum LocalNotificationType {
     case event(LocalNotificationEventType)
-/// TODO Katerina to fix calling state
+// TODO Katerina to fix calling state
     case calling//calling(CallState)
     case message(LocalNotificationContentType)
     case failedMessage
