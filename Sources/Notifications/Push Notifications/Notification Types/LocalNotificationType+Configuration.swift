@@ -58,7 +58,7 @@ private extension PushNotificationCategory {
 
     init(notificationType: LocalNotificationType) {
         switch notificationType {
-            // TODO Katerina fix it
+           // TODO Katerina fix it
 //        case .calling(let callState):
 //            self.init(callState: callState)
         case .calling:
