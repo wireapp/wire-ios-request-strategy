@@ -111,7 +111,7 @@ extension LocalNotificationType {
             case .messageTimerUpdate:
                 return ZMPushStringMessageTimerUpdate
             }
-        ///TODO Katerina fix it
+        // TODO Katerina fix it
 //        case .calling(let callState):
 //            switch callState {
 //            case .incoming(video: true, shouldRing: _, degraded: _):

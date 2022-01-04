@@ -154,8 +154,7 @@ extension EventDecoderTest {
                 } else if callCount == 1 {
                     XCTAssertTrue(events.contains(event3))
                     XCTAssertTrue(events.contains(event4))
-                }
-                else {
+                } else {
                     XCTFail("called too often")
                 }
                 callCount += 1

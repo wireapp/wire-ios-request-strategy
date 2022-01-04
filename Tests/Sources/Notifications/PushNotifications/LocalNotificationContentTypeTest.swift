@@ -79,7 +79,7 @@ class LocalNotificationContentTypeTest: ZMLocalNotificationTests {
 
     func testThatItCreatesACorrectLocalNotificationContentTypeForTheAudioMessage() {
         // given
-        /// TODO Katerina fix it
+        // TODO Katerina fix it
 //        let url = Bundle(for: LocalNotificationDispatcherTests.self).url(forResource: "video", withExtension: "mp4")
 //        let audioMetadata = ZMAudioMetadata(fileURL: url!, duration: 100)
         let audioMetadata = ZMAudioMetadata(fileURL: fileURL(forResource: "video", extension: "mp4"), duration: 100)
