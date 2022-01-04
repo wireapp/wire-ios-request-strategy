@@ -305,7 +305,7 @@ extension LocalNotificationType {
 
 public extension String {
 
-    internal var pushFormatString: String {
+    var pushFormatString: String {
         return Bundle(for: ZMSingleRequestSync.self).localizedString(forKey: "push.notification.\(self)", value: "", table: "Push")
     }
 

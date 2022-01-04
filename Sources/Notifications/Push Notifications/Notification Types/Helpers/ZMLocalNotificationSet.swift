@@ -135,8 +135,8 @@ extension ZMConversation {
     func localizedCallerName(with user: ZMUser) -> String {
 
         let conversationName = self.userDefinedName
-        let callerName : String? = user.name
-        var result : String? = nil
+        let callerName: String? = user.name
+        var result: String?
 
         switch conversationType {
         case .group:
