@@ -52,11 +52,10 @@ class ZMLocalNotificationTests_Message: ZMLocalNotificationTests {
 
         let event = createUpdateEvent(UUID.create(),
                                       conversationID: conversation.remoteIdentifier!,
-                                      genericMessage: GenericMessage(content:
-                                                                        Text(content: text ?? "Hello Hello!",
-                                                                             mentions: mentions,
-                                                                             linkPreviews: [],
-                                                                             replyingTo: quotedMessage),
+                                      genericMessage: GenericMessage(content: Text(content: text ?? "Hello Hello!",
+                                                                                   mentions: mentions,
+                                                                                   linkPreviews: [],
+                                                                                   replyingTo: quotedMessage),
                                                                      nonce: UUID.create(),
                                                                      expiresAfterTimeInterval: expiresAfter),
                                       senderID: sender.remoteIdentifier)
