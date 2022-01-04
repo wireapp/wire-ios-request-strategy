@@ -182,7 +182,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(assetData.uploaded.assetID, assetId)
             XCTAssertEqual(assetData.uploaded.assetToken, token)
             guard case .ephemeral? = message.underlyingMessage!.content else {
-                return XCTFail()
+                return XCTFail("Ephemeral's message content is invalid")
             }
             message.requestFileDownload()
         }
@@ -223,7 +223,9 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
     func testThatItGeneratesNoRequestsIfMessageIsUploading_V3() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
-            guard let (message, _, _) = self.createFileMessageWithAssetId(in: self.conversation) else { return XCTFail() } // V3
+            guard let (message, _, _) = self.createFileMessageWithAssetId(in: self.conversation) else {
+                return XCTFail("Message is invalid")
+            } // V3
             message.updateTransferState(.uploading, synchronize: false)
             message.requestFileDownload()
         }

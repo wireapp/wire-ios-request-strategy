@@ -174,7 +174,7 @@ extension LinkPreviewPreprocessorTests {
             do {
                 message = try conversation.appendKnock() as? ZMClientMessage
             } catch {
-                XCTFail()
+                XCTFail("Message is invalid")
             }
 
             // WHEN
@@ -259,7 +259,7 @@ extension LinkPreviewPreprocessorTests {
             XCTAssertEqual(data, preview.imageData.first!)
             guard let genericMessage = message.underlyingMessage else { return XCTFail("No generic message") }
             guard case .ephemeral? = genericMessage.content else {
-                return XCTFail()
+                return XCTFail("Ephimeral message is invalid")
             }
             XCTAssertFalse(genericMessage.ephemeral.text.linkPreview.isEmpty)
         }
@@ -287,7 +287,7 @@ extension LinkPreviewPreprocessorTests {
             // THEN
             guard let genericMessage = message.underlyingMessage else { return XCTFail("No generic message") }
             if case .ephemeral? = genericMessage.content {
-                return XCTFail()
+                return XCTFail("Ephimeral message is invalid")
             }
             XCTAssertEqual(genericMessage.linkPreviews.count, 0)
             XCTAssertEqual(message.linkPreviewState, .done)
