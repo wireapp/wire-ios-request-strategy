@@ -22,8 +22,6 @@ public extension ZMLocalNotification {
 
     static let ZMShouldHideNotificationContentKey = "ZMShouldHideNotificationContentKey"
 
-    // for each supported event type, use the corresponding notification builder.
-    //
     convenience init?(event: ZMUpdateEvent, conversation: ZMConversation?, managedObjectContext moc: NSManagedObjectContext) {
         var builderType: EventNotificationBuilder.Type?
 
@@ -59,10 +57,8 @@ public extension ZMLocalNotification {
         }
     }
 
-    // TODO katerina method was copied from LocalNotificationDispatcher, check if we need it here
-    /// Determines if the notification content should be hidden as reflected in the store
-    /// metatdata for the given managed object context.
-    ///
+    // Determines if the notification content should be hidden as reflected in the store
+    // metatdata for the given managed object context.
     static func shouldHideNotificationContent(moc: NSManagedObjectContext?) -> Bool {
         let value = moc?.persistentStoreMetadata(forKey: ZMShouldHideNotificationContentKey) as? NSNumber
         return value?.boolValue ?? false
@@ -72,7 +68,6 @@ public extension ZMLocalNotification {
 
 // Base class for event notification builders. Subclass this for each
 // event type, and override the components specific for that type.
-///
 private class EventNotificationBuilder: NotificationBuilder {
 
     let event: ZMUpdateEvent

@@ -79,7 +79,6 @@ class ZMLocalNotificationTests: MessagingTestBase {
                 otherParticipants: []
             )
         }
-       // _ = waitForAllGroupsToBeEmpty(withTimeout: 0.5)
     }
 
     override func tearDown() {
@@ -91,7 +90,6 @@ class ZMLocalNotificationTests: MessagingTestBase {
         groupConversationWithoutName = nil
         groupConversationWithoutUserDefinedName = nil
         invalidConversation = nil
-       // selfUser.remoteIdentifier = nil
         _ = waitForAllGroupsToBeEmpty(withTimeout: 0.5)
         super.tearDown()
     }
@@ -104,7 +102,6 @@ class ZMLocalNotificationTests: MessagingTestBase {
             user = ZMUser.insertNewObject(in: self.syncMOC)
             user.name = name
             user.remoteIdentifier = remoteID
-            //self.uiMOC.saveOrRollback()
         }
         return user
     }
