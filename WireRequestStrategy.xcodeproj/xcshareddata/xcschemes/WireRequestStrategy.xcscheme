@@ -49,31 +49,13 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "LocalNotificationContentTypeTest">
+                  Identifier = "AssetV3UploadRequestStrategyTests">
                </Test>
                <Test
-                  Identifier = "StoreUpdateEventTests/testThatItCanNotConvertEncryptedStoredEventWithoutPrivateKey()">
+                  Identifier = "FetchClientRequestStrategyTests">
                </Test>
                <Test
-                  Identifier = "StoreUpdateEventTests/testThatItDecryptsAndConvertsStoreEventToTheUpdateEventIfThePrivateKeyIsNotNil()">
-               </Test>
-               <Test
-                  Identifier = "StoreUpdateEventTests/testThatItEncryptsEventIfThePublicKeyIsNotNil()">
-               </Test>
-               <Test
-                  Identifier = "ZMLocalNotificationLocalizationTests/testThatItLocalizesCallkitCallerName()">
-               </Test>
-               <Test
-                  Identifier = "ZMLocalNotificationTests_Event">
-               </Test>
-               <Test
-                  Identifier = "ZMLocalNotificationTests_Message">
-               </Test>
-               <Test
-                  Identifier = "ZMLocalNotificationTests_SystemMessage">
-               </Test>
-               <Test
-                  Identifier = "ZMLocalNotificationTests_UnreadCount">
+                  Identifier = "VerifyLegalHoldRequestStrategyTests">
                </Test>
             </SkippedTests>
          </TestableReference>

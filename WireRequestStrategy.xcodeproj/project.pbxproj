@@ -20,6 +20,7 @@
 		06474D6624B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06474D6524B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m */; };
 		06474DA624B4B1EA002C695D /* EventDecoderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474DA524B4B1EA002C695D /* EventDecoderTest.swift */; };
 		06474DA824B4BB01002C695D /* StoreUpdateEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06474DA724B4BB01002C695D /* StoreUpdateEventTests.swift */; };
+		0648FC1227851661006519D1 /* audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 0648FC1027851623006519D1 /* audio.m4a */; };
 		0649D12224F5C5EF001DDC78 /* ZMLocalNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D12124F5C5EF001DDC78 /* ZMLocalNotification.swift */; };
 		0649D14024F63AA0001DDC78 /* LocalNotificationContentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D13F24F63AA0001DDC78 /* LocalNotificationContentType.swift */; };
 		0649D14324F63B52001DDC78 /* NotificationUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0649D14224F63B52001DDC78 /* NotificationUserInfo.swift */; };
@@ -307,6 +308,7 @@
 		06474D6524B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZMSimpleListRequestPaginatorTests.m; sourceTree = "<group>"; };
 		06474DA524B4B1EA002C695D /* EventDecoderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDecoderTest.swift; sourceTree = "<group>"; };
 		06474DA724B4BB01002C695D /* StoreUpdateEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreUpdateEventTests.swift; sourceTree = "<group>"; };
+		0648FC1027851623006519D1 /* audio.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = audio.m4a; sourceTree = "<group>"; };
 		0649D12124F5C5EF001DDC78 /* ZMLocalNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMLocalNotification.swift; sourceTree = "<group>"; };
 		0649D13F24F63AA0001DDC78 /* LocalNotificationContentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationContentType.swift; sourceTree = "<group>"; };
 		0649D14224F63B52001DDC78 /* NotificationUserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationUserInfo.swift; sourceTree = "<group>"; };
@@ -1004,6 +1006,7 @@
 		F12CD7932035FC4400EAAEBC /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				0648FC1027851623006519D1 /* audio.m4a */,
 				F18402042073C2FF00E9F4CC /* 1900x1500.jpg */,
 				F18402022073C2FF00E9F4CC /* animated.gif */,
 				F18402072073C30000E9F4CC /* Bridging-Header.h */,
@@ -1558,6 +1561,7 @@
 				F18402142073C6B100E9F4CC /* 1900x1500.jpg in Resources */,
 				F18402192073C6B100E9F4CC /* tiny.jpg in Resources */,
 				F18402162073C6B100E9F4CC /* Lorem Ipsum.txt in Resources */,
+				0648FC1227851661006519D1 /* audio.m4a in Resources */,
 				F18402172073C6B100E9F4CC /* medium.jpg in Resources */,
 				F184021A2073C6B100E9F4CC /* video.mp4 in Resources */,
 				F18402182073C6B100E9F4CC /* not_animated.gif in Resources */,

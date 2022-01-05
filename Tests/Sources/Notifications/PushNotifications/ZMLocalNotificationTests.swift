@@ -35,8 +35,8 @@ class ZMLocalNotificationTests: MessagingTestBase {
 
     override func setUp() {
         super.setUp()
-        self.performPretendingUiMocIsSyncMoc {
-            self.selfUser = ZMUser.selfUser(in: self.uiMOC)
+        self.syncMOC.performGroupedBlockAndWait {
+            self.selfUser = ZMUser.selfUser(in: self.syncMOC)
             self.selfUser.remoteIdentifier = UUID.create()
             self.sender = self.insertUser(with: UUID.create(), name: "Super User")
             self.otherUser1 = self.insertUser(with: UUID.create(), name: "Other User1")
@@ -78,10 +78,8 @@ class ZMLocalNotificationTests: MessagingTestBase {
                 mutedMessages: .none,
                 otherParticipants: []
             )
-            self.uiMOC.saveOrRollback()
         }
-        //        uiMOC.saveOrRollback()
-        _ = waitForAllGroupsToBeEmpty(withTimeout: 0.5)
+       // _ = waitForAllGroupsToBeEmpty(withTimeout: 0.5)
     }
 
     override func tearDown() {
@@ -90,11 +88,10 @@ class ZMLocalNotificationTests: MessagingTestBase {
         otherUser2 = nil
         userWithNoName = nil
         oneOnOneConversation = nil
-        groupConversation = nil
         groupConversationWithoutName = nil
         groupConversationWithoutUserDefinedName = nil
         invalidConversation = nil
-        selfUser.remoteIdentifier = nil
+       // selfUser.remoteIdentifier = nil
         _ = waitForAllGroupsToBeEmpty(withTimeout: 0.5)
         super.tearDown()
     }
@@ -103,11 +100,11 @@ class ZMLocalNotificationTests: MessagingTestBase {
 
     func insertUser(with remoteID: UUID, name: String?) -> ZMUser {
         var user: ZMUser!
-        self.performPretendingUiMocIsSyncMoc {
-            user = ZMUser.insertNewObject(in: self.uiMOC)
+        self.syncMOC.performGroupedBlockAndWait {
+            user = ZMUser.insertNewObject(in: self.syncMOC)
             user.name = name
             user.remoteIdentifier = remoteID
-            self.uiMOC.saveOrRollback()
+            //self.uiMOC.saveOrRollback()
         }
         return user
     }
@@ -119,8 +116,8 @@ class ZMLocalNotificationTests: MessagingTestBase {
         mutedMessages: MutedMessageTypes,
         otherParticipants: [ZMUser]) -> ZMConversation {
             var conversation: ZMConversation!
-            self.performPretendingUiMocIsSyncMoc {
-                conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+            self.syncMOC.performGroupedBlockAndWait {
+                conversation = ZMConversation.insertNewObject(in: self.syncMOC)
                 conversation.remoteIdentifier = remoteID
                 conversation.userDefinedName = name
                 conversation.conversationType = type
@@ -130,19 +127,18 @@ class ZMLocalNotificationTests: MessagingTestBase {
                 conversation?.addParticipantsAndUpdateConversationState(
                     users: Set(otherParticipants + [self.selfUser]),
                     role: nil)
-                self.uiMOC.saveOrRollback()
+               // self.uiMOC.saveOrRollback()
             }
             return conversation
         }
 
     func noteWithPayload(_ data: NSDictionary?, fromUserID: UUID?, in conversation: ZMConversation, type: String) -> ZMLocalNotification? {
         var note: ZMLocalNotification?
-        self.performPretendingUiMocIsSyncMoc {
+        self.syncMOC.performGroupedBlockAndWait {
             let payload = self.payloadForEvent(in: conversation, type: type, data: data, from: fromUserID)
             if let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil) {
-                note = ZMLocalNotification(event: event, conversation: conversation, managedObjectContext: self.uiMOC)
+                note = ZMLocalNotification(event: event, conversation: conversation, managedObjectContext: self.syncMOC)
             }
-            self.uiMOC.saveOrRollback()
         }
         return note
     }
