@@ -69,13 +69,16 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(request.transportRequest.path, "/users/prekeys")
 
             guard let payloadData = (request.transportRequest.payload as? String)?.data(using: .utf8) else {
-                XCTFail("Payload data is invalid"); return
+                XCTFail("Payload data is missing")
+                return
             }
             guard let payload = Payload.ClientListByUserID(payloadData) else {
-                XCTFail("Payload is invalid"); return
+                XCTFail("Payload is missing")
+                return
             }
             guard let clientList = payload[missingUser.remoteIdentifier.transportString()] else {
-                XCTFail("Client List is invalid"); return
+                XCTFail("Client List is missing")
+                return
             }
 
             XCTAssertEqual(clientList.sorted(), [firstMissingClient.remoteIdentifier!,
