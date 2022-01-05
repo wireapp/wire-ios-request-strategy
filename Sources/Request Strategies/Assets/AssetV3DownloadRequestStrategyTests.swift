@@ -81,7 +81,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
         do {
             try message.setUnderlyingMessage(uploaded)
         } catch {
-            XCTFail("Message is invalid")
+            XCTFail("Could not set generic message")
         }
 
         deleteDownloadedFileFor(message: message)
@@ -224,7 +224,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             guard let (message, _, _) = self.createFileMessageWithAssetId(in: self.conversation) else {
-                return XCTFail("Message is invalid")
+                return XCTFail("Failed to create message")
             } // V3
             message.updateTransferState(.uploading, synchronize: false)
             message.requestFileDownload()

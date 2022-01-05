@@ -105,7 +105,7 @@ extension ClientMessageRequestStrategyTests {
             case .text(let data)?:
                 XCTAssertTrue(data.expectsReadConfirmation)
             default:
-                XCTFail("Message's content is invalid")
+                XCTFail("Unexpected message content")
             }
         }
     }
@@ -131,7 +131,7 @@ extension ClientMessageRequestStrategyTests {
             case .text(let data)?:
                 XCTAssertFalse(data.expectsReadConfirmation)
             default:
-                XCTFail("Message's content is invalid")
+                XCTFail("Unexpected message content")
             }
         }
     }
@@ -419,7 +419,7 @@ extension ClientMessageRequestStrategyTests {
                 "from": self.otherUser.remoteIdentifier.transportString()
                 ] as NSDictionary
             guard let event = ZMUpdateEvent.decryptedUpdateEvent(fromEventStreamPayload: eventPayload, uuid: nil, transient: false, source: .webSocket) else {
-                XCTFail("Event is invalid")
+                XCTFail("Failed to create event")
                 return
             }
 

@@ -193,7 +193,7 @@ class DependentObjectsTests: ZMTBaseTest {
 
     func testThatItDoesNotEnumerateWhenNoObjectsAreAdded() {
         self.sut.enumerateAndRemoveObjects(for: self.conversation1!) { (_) -> Bool in
-            XCTFail("Enumaration failed")
+            XCTFail("It enumerated when it shouldn't")
             return true
         }
     }

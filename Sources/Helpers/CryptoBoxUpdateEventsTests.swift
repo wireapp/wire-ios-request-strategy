@@ -38,7 +38,7 @@ class CryptoboxUpdateEventsTests: MessagingTestBase {
             XCTAssertEqual(decryptedEvent.recipientClientID, self.selfClient.remoteIdentifier!)
 
             guard let decryptedMessage = ZMClientMessage.createOrUpdate(from: decryptedEvent, in: self.syncMOC, prefetchResult: nil) else {
-                return XCTFail("Decrypted message is invalid")
+                return XCTFail("Failed to create client message")
             }
             XCTAssertEqual(decryptedMessage.nonce?.transportString(), generic.messageID)
             XCTAssertEqual(decryptedMessage.textMessageData?.messageText, text)
@@ -59,7 +59,7 @@ class CryptoboxUpdateEventsTests: MessagingTestBase {
 
             // THEN
             guard let decryptedMessage = ZMAssetClientMessage.createOrUpdate(from: decryptedEvent, in: self.syncMOC, prefetchResult: nil) else {
-                return XCTFail("Decrypted message is invalid")
+                return XCTFail("Failed to create client message")
             }
 
             XCTAssertEqual(decryptedMessage.nonce?.transportString(), generic.messageID)
@@ -98,7 +98,7 @@ class CryptoboxUpdateEventsTests: MessagingTestBase {
 
             // THEN
             guard let lastMessage = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Last message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(lastMessage.systemMessageType, .decryptionFailed)
         }
@@ -140,7 +140,7 @@ class CryptoboxUpdateEventsTests: MessagingTestBase {
 
             // Then
             guard let lastMessage = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Last message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(lastMessage.systemMessageType, .decryptionFailed)
         }
@@ -182,7 +182,7 @@ class CryptoboxUpdateEventsTests: MessagingTestBase {
 
             // Then
             guard let lastMessage = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Last message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(lastMessage.systemMessageType, .decryptionFailed)
         }

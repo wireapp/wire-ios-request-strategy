@@ -114,7 +114,7 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
             if case error = expectedError {
                 // success
             } else {
-                XCTFail("Error is invalid since it doesn't match the expected error")
+                XCTFail("Unexpected error")
             }
         }
     }

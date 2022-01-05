@@ -439,7 +439,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(message.systemMessageType, .readReceiptsEnabled)
         }
@@ -455,7 +455,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(message.systemMessageType, .readReceiptsDisabled)
         }
@@ -527,7 +527,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, .init(rawValue: 31536000))
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
             guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(message.systemMessageType, .messageTimerUpdate)
         }
@@ -552,7 +552,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             // THEN
             XCTAssertNil(self.groupConversation.activeMessageDestructionTimeoutValue)
             guard let message = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(message.systemMessageType, .messageTimerUpdate)
         }
@@ -585,7 +585,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, .fiveMinutes)
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .selfUser)
             guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(message.systemMessageType, .messageTimerUpdate)
 
@@ -617,7 +617,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, messageTimer)
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
             guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else {
-                return XCTFail("First message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(firstMessage.systemMessageType, .messageTimerUpdate)
 
@@ -627,7 +627,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, messageTimer)
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
             guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else {
-                return XCTFail("Second message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(firstMessage, secondMessage) // Check that no other messages are appended in the conversation
         }
@@ -669,7 +669,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             XCTAssertNil(self.groupConversation?.activeMessageDestructionTimeoutValue)
 
             guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else {
-                return XCTFail("First message is invalid")
+                return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(firstMessage.systemMessageType, .messageTimerUpdate)
 
@@ -678,7 +678,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             XCTAssertNil(self.groupConversation?.activeMessageDestructionTimeoutValue)
-            guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail("Second message is invalid")
+            guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail("Last conversation message is not a system message")
             }
             XCTAssertEqual(firstMessage, secondMessage) // Check that no other messages are appended in the conversation
         }
@@ -704,7 +704,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             guard let message = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                XCTFail("Message is invalid")
+                XCTFail("Last conversation message is not a system message")
                 return
             }
             XCTAssertEqual(message.systemMessageType, .participantsAdded)
@@ -788,7 +788,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             guard let message = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                XCTFail("Message is invalid")
+                XCTFail("Last conversation message is not a system message")
                 return
             }
             print(message.systemMessageType.rawValue)

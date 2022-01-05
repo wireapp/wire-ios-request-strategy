@@ -54,7 +54,7 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedAndWait { context -> Void in
             // Given
             guard let feature = Feature.fetch(name: .appLock, context: context) else {
-                return XCTFail("Feature is invalid")
+                return XCTFail("Failed to fetch feature")
             }
             feature.needsToBeUpdatedFromBackend = true
 
@@ -75,7 +75,7 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
             _ = self.setUpTeam(in: context)
 
             guard let feature = Feature.fetch(name: .appLock, context: context) else {
-                return XCTFail("Feature is invalid")
+                return XCTFail("Failed to fetch feature")
             }
             feature.needsToBeUpdatedFromBackend = false
 
@@ -93,7 +93,9 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             // given
             feature = Feature.fetch(name: .fileSharing, context: self.syncMOC)
-            guard let feature = feature else { return XCTFail("Feature is invalid") }
+            guard let feature = feature else {
+                return XCTFail("Failed to fetch feature")
+            }
             feature.needsToBeUpdatedFromBackend = true
 
             self.boostrapChangeTrackers(with: feature)

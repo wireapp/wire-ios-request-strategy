@@ -281,7 +281,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             case .asset(let data)?:
                 XCTAssertTrue(data.expectsReadConfirmation)
             default:
-                XCTFail("Message's content is invalid")
+                XCTFail("Unexpected message content")
             }
         }
     }
@@ -300,7 +300,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             case .asset(let data)?:
                 XCTAssertFalse(data.expectsReadConfirmation)
             default:
-                XCTFail("Message's content is invalid")
+                XCTFail("Unexpected message content")
             }
         }
     }
@@ -316,7 +316,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(genericMessage)
             } catch {
-                XCTFail("Message is invalid")
+                XCTFail("Could not set generic message")
             }
 
             // WHEN
@@ -338,7 +338,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(genericMessage)
             } catch {
-                XCTFail("Message's content is invalid")
+                XCTFail("Could not set generic message")
             }
 
             // WHEN
@@ -369,7 +369,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(genericMessage)
             } catch {
-                XCTFail("Message is invalid")
+                XCTFail("Could not set generic message")
             }
 
             self.syncMOC.saveOrRollback()
@@ -400,7 +400,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(genericMessage)
             } catch {
-                XCTFail("Message is invalid")
+                XCTFail("Could not set generic message")
             }
 
             self.syncMOC.saveOrRollback()
@@ -429,7 +429,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation) else {
-                return XCTFail("Request is invalid")
+                return XCTFail("Failed to create request")
             }
             request.complete(withHttpStatus: 400)
         }
@@ -461,7 +461,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation) else {
-                return XCTFail("Request is invalid")
+                return XCTFail("Failed to create request")
             }
             let payload = ["label": "missing-legalhold-consent", "code": 403, "message": ""] as NSDictionary
             request.complete(with: ZMTransportResponse(payload: payload, httpStatus: 403, transportSessionError: nil))

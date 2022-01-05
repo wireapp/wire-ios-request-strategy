@@ -220,7 +220,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(firstRequest.path, "/users/prekeys")
             XCTAssertEqual(firstPayload.count, 1)
             guard let first = firstPayload.first else {
-                XCTFail("First Payload is invalid"); return
+                XCTFail("First payload is missing"); return
             }
             firstEntry = first
             firstRequest.complete(with: self.successfulResponse(for: firstPayload))
@@ -240,7 +240,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(secondRequest.path, "/users/prekeys")
             XCTAssertEqual(secondPayload.count, 1)
             guard let second = secondPayload.first else {
-                XCTFail("Second payload is invalid"); return
+                XCTFail("Second payload is missing"); return
             }
             secondEntry = second
             secondRequest.complete(with: self.successfulResponse(for: secondPayload))
@@ -316,7 +316,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(secondRequest.path, "/users/list-prekeys")
             XCTAssertEqual(secondPayload.count, 1)
             guard let second = secondPayload.first?.value.first else {
-                XCTFail("Second payload is invalid"); return
+                XCTFail("Second payload is missing"); return
             }
             secondEntry = second
             secondRequest.complete(with: self.successfulFederatedResponse(for: secondPayload))
