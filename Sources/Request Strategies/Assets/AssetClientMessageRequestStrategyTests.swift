@@ -16,15 +16,10 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-
 import Foundation
 import WireRequestStrategy
-@testable import WireRequestStrategy
 import XCTest
-import WireRequestStrategy
 import WireDataModel
-
-
 
 fileprivate extension AssetClientMessageRequestStrategy {
 
@@ -67,25 +62,24 @@ fileprivate extension ZMTransportRequest {
 
 }
 
-
 class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
-    fileprivate var mockApplicationStatus : MockApplicationStatus!
+    fileprivate var mockApplicationStatus: MockApplicationStatus!
     fileprivate var sut: AssetClientMessageRequestStrategy!
     fileprivate var imageData = mediumJPEGData()
 
     override func setUp() {
         super.setUp()
-        
+
         mockApplicationStatus = MockApplicationStatus()
         mockApplicationStatus.mockSynchronizationState = .online
-        
+
         self.syncMOC.performGroupedBlockAndWait {
             self.sut = AssetClientMessageRequestStrategy(withManagedObjectContext: self.syncMOC, applicationStatus: self.mockApplicationStatus)
             self.sut.useFederationEndpoint = false
         }
     }
-    
+
     override func tearDown() {
         mockApplicationStatus = nil
         self.sut = nil
@@ -133,18 +127,18 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
                                                         mimeType: "image/jpg",
                                                         remoteData: remote,
                                                         imageMetadata: imageMetadata)
-            
+
             let previewMessage = GenericMessage(
                 content: WireProtos.Asset(original: nil, preview: previewAsset),
                 nonce: message.nonce!,
-                expiresAfter: targetConversation.messageDestructionTimeoutValue
+                expiresAfter: targetConversation.activeMessageDestructionTimeoutValue
             )
 
             XCTAssertNoThrow(try message.setUnderlyingMessage(previewMessage))
 
             XCTAssertTrue(message.underlyingMessage!.assetData!.hasPreview, line: line)
             XCTAssertEqual(message.underlyingMessage!.assetData!.preview.remote.hasAssetID, previewAssetId, line: line)
-            XCTAssertEqual(message.isEphemeral, targetConversation.messageDestructionTimeoutValue != 0, line: line)
+            XCTAssertEqual(message.isEphemeral, targetConversation.activeMessageDestructionTimeoutValue != nil, line: line)
         }
 
         if uploaded {
@@ -152,7 +146,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             var uploaded = GenericMessage(
                 content: WireProtos.Asset(withUploadedOTRKey: otr, sha256: sha),
                 nonce: message.nonce!,
-                expiresAfter: targetConversation.messageDestructionTimeoutValue
+                expiresAfter: targetConversation.activeMessageDestructionTimeoutValue
             )
             if assetId {
                 uploaded.updateUploaded(assetId: UUID.create().transportString(), token: nil)
@@ -162,18 +156,18 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
             message.updateTransferState(.uploaded, synchronize: true)
             XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded, line: line)
-            XCTAssertEqual(message.isEphemeral, self.groupConversation.messageDestructionTimeoutValue != 0, line: line)
-        } else  {
+            XCTAssertEqual(message.isEphemeral, self.groupConversation.activeMessageDestructionTimeoutValue != nil, line: line)
+        } else {
             message.updateTransferState(transferState, synchronize: true) // TODO jacob
         }
 
         if let sender = sender {
             message.sender = sender
         }
-        
+
         syncMOC.saveOrRollback()
         prepareUpload(of: message)
-        
+
         XCTAssertEqual(message.version, 3, line: line)
         guard case .image? = message.underlyingMessage?.assetData?.original.metaData else {
             XCTAssertEqual(false, isImage, line: line)
@@ -193,23 +187,23 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
     func testThatItDoesNotCreateARequestIfThereIsNoMatchingMessage() {
         XCTAssertNil(sut.nextRequest())
     }
-    
+
     func testThatItDoesNotCreateARequestForAnImageMessageUploadedByOtherUser() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             self.createMessage(uploaded: true, sender: self.otherUser)
-            
+
             // THEN
             XCTAssertNil(self.sut.nextRequest())
         }
     }
-    
+
     func testThatItDoesNotCreateARequestForAnImageMessageWhichIsExpired() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let message = self.createMessage(uploaded: true)
             message.expire()
-            
+
             // THEN
             XCTAssertNil(self.sut.nextRequest())
         }
@@ -260,7 +254,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
     func testThatItCreatesARequestForAnUploadedImageMessage_Ephemeral() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
-            self.groupConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 15))
+            self.groupConversation.setMessageDestructionTimeoutValue(.custom(15), for: .selfUser)
             self.createMessage(uploaded: true, assetId: true)
 
             // WHEN
@@ -278,10 +272,10 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             // GIVEN
             ZMUser.selfUser(in: self.syncMOC).readReceiptsEnabled = true
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.oneToOneConversation)
-            
+
             // WHEN
             XCTAssertNotNil(self.sut.nextRequest())
-            
+
             // THEN
             switch message.underlyingMessage?.content {
             case .asset(let data)?:
@@ -291,16 +285,16 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             }
         }
     }
-    
+
     func testThatItDoesntUpdateExpectsReadConfirmationFlagWhenSendingMessageInGroup() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             ZMUser.selfUser(in: self.syncMOC).readReceiptsEnabled = true
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.groupConversation)
-            
+
             // WHEN
             XCTAssertNotNil(self.sut.nextRequest())
-            
+
             // THEN
             switch message.underlyingMessage?.content {
             case .asset(let data)?:
@@ -310,7 +304,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             }
         }
     }
-    
+
     func testThatItUpdateExpectsReadConfirmationFlagWhenReadReceiptsAreDisabled() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
@@ -324,10 +318,10 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             } catch {
                 XCTFail()
             }
-            
+
             // WHEN
             XCTAssertNotNil(self.sut.nextRequest())
-            
+
             // THEN
             XCTAssertFalse(message.underlyingMessage!.asset.expectsReadConfirmation)
         }
@@ -408,7 +402,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             } catch {
                 XCTFail()
             }
-            
+
             self.syncMOC.saveOrRollback()
 
             // WHEN
@@ -423,17 +417,15 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         }
     }
 
-
-
     // MARK: Response handling
-    
+
     func testThatItExpiresAMessageWhenItReceivesAFailureResponse() {
         // GIVEN
         var message: ZMAssetClientMessage!
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(uploaded: true, assetId: true)
         }
-        
+
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation) else {
@@ -442,7 +434,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             request.complete(withHttpStatus: 400)
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
+
         // THEN
         self.syncMOC.performGroupedBlockAndWait {
             XCTAssert(message.isExpired)
@@ -455,7 +447,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
         // GIVEN
         var message: ZMAssetClientMessage!
-        var token: Any? = nil
+        var token: Any?
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(uploaded: true, assetId: true)
             let expectation = self.expectation(description: "Notification fired")
@@ -477,19 +469,19 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         // THEN
-        withExtendedLifetime(token) { () -> () in
+        withExtendedLifetime(token) { () -> Void in
             XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
         }
     }
 
     func testThatItMarksAnImageMessageAsSentWhenItReceivesASuccesfulResponse() {
-        
+
         // GIVEN
         var message: ZMAssetClientMessage!
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(uploaded: true, assetId: true)
         }
-        
+
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation)
@@ -497,7 +489,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             request.complete(withHttpStatus: 200)
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
+
         // THEN
         self.syncMOC.performGroupedBlockAndWait {
             XCTAssert(message.delivered)
@@ -510,10 +502,10 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         // GIVEN
         var message: ZMAssetClientMessage!
         self.syncMOC.performGroupedBlockAndWait {
-            self.groupConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 15))
+            self.groupConversation.setMessageDestructionTimeoutValue(.custom(15), for: .selfUser)
             message = self.createMessage(uploaded: true, assetId: true)
         }
-        
+
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.nextRequest()
@@ -530,5 +522,5 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             XCTAssertNil(self.sut.nextRequest())
         }
     }
-    
+
 }

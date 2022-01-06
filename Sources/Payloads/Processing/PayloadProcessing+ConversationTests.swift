@@ -25,8 +25,10 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
     func testUpdateOrCreateConversation_Group_UpdatesQualifiedID() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
+            self.syncMOC.zm_isFederationEnabled = true
             let qualifiedID = self.groupConversation.qualifiedID!
-            let conversation = Payload.Conversation(qualifiedID: qualifiedID)
+            let conversation = Payload.Conversation(qualifiedID: qualifiedID,
+                                                    type: BackendConversationType.group.rawValue)
 
             // when
             conversation.updateOrCreate(in: self.syncMOC)
@@ -34,6 +36,24 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             // then
             XCTAssertEqual(self.groupConversation.remoteIdentifier, qualifiedID.uuid)
             XCTAssertEqual(self.groupConversation.domain, qualifiedID.domain)
+        }
+    }
+
+    func testUpdateOrCreateConversation_Group_DoesntUpdatesQualifiedID_WhenFederationIsDisabled() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            self.syncMOC.zm_isFederationEnabled = false
+            let qualifiedID = self.groupConversation.qualifiedID!
+            let conversation = Payload.Conversation(qualifiedID: qualifiedID,
+                                                    id: qualifiedID.uuid,
+                                                    type: BackendConversationType.group.rawValue)
+
+            // when
+            conversation.updateOrCreate(in: self.syncMOC)
+
+            // then
+            XCTAssertEqual(self.groupConversation.remoteIdentifier, qualifiedID.uuid)
+            XCTAssertNil(self.groupConversation.domain)
         }
     }
 
@@ -159,7 +179,8 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             conversationPayload.updateOrCreate(in: self.syncMOC)
 
             // then
-            XCTAssertEqual(self.groupConversation.localParticipants, Set(arrayLiteral: self.otherUser, selfUser))
+            let otherUserSet: Set<ZMUser?> = [self.otherUser, selfUser]
+            XCTAssertEqual(self.groupConversation.localParticipants, otherUserSet)
         }
     }
 
@@ -211,7 +232,8 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             conversationPayload.updateOrCreate(in: self.syncMOC)
 
             // then
-            XCTAssertEqual(self.groupConversation.messageDestructionTimeout, .synced(messageTimer))
+            XCTAssertEqual(self.groupConversation.activeMessageDestructionTimeoutValue, messageTimer)
+            XCTAssertEqual(self.groupConversation.activeMessageDestructionTimeoutType, .groupConversation)
         }
     }
 
@@ -261,6 +283,35 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
     func testUpdateOrCreateConversation_OneToOne_CreatesConversation() throws {
         syncMOC.performGroupedAndWait { syncMOC in
             // given
+            self.syncMOC.zm_isFederationEnabled = true
+            self.otherUser.connection?.conversation = nil
+
+            let conversationID = UUID()
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            let selfMember = Payload.ConversationMember(qualifiedID: selfUser.qualifiedID!)
+            let otherMember = Payload.ConversationMember(qualifiedID: self.otherUser.qualifiedID!)
+            let members = Payload.ConversationMembers(selfMember: selfMember, others: [otherMember])
+            let qualifiedID = QualifiedID(uuid: conversationID, domain: self.owningDomain)
+            let conversationPayload = Payload.Conversation(qualifiedID: qualifiedID,
+                                                           type: BackendConversationType.oneOnOne.rawValue,
+                                                           members: members)
+            let otherUserSet: Set<ZMUser> = [selfUser, self.otherUser]
+
+            // when
+            conversationPayload.updateOrCreate(in: self.syncMOC)
+
+            // then
+            XCTAssertEqual(self.otherUser.connection?.conversation?.remoteIdentifier, conversationID)
+            XCTAssertEqual(self.otherUser.connection?.conversation?.domain, self.owningDomain)
+            XCTAssertEqual(self.otherUser.connection?.conversation?.conversationType, .oneOnOne)
+            XCTAssertEqual(self.otherUser.connection?.conversation?.localParticipants, otherUserSet)
+        }
+    }
+
+    func testUpdateOrCreateConversation_OneToOne_DoesntAssignDomain_WhenFederationIsDisabled() throws {
+        syncMOC.performGroupedAndWait { syncMOC in
+            // given
+            self.syncMOC.zm_isFederationEnabled = false
             self.otherUser.connection?.conversation = nil
 
             let conversationID = UUID()
@@ -278,9 +329,7 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
 
             // then
             XCTAssertEqual(self.otherUser.connection?.conversation?.remoteIdentifier, conversationID)
-            XCTAssertEqual(self.otherUser.connection?.conversation?.domain, self.owningDomain)
-            XCTAssertEqual(self.otherUser.connection?.conversation?.conversationType, .oneOnOne)
-            XCTAssertEqual(self.otherUser.connection?.conversation?.localParticipants, Set(arrayLiteral: selfUser, self.otherUser))
+            XCTAssertNil(self.otherUser.connection?.conversation?.domain)
         }
     }
 
@@ -402,6 +451,7 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
     func testUpdateOrCreateConversation_Self_CreatesConversation() throws {
         try syncMOC.performGroupedAndWait { syncMOC in
             // given
+            self.syncMOC.zm_isFederationEnabled = true
             let qualifiedID = QualifiedID(uuid: UUID(), domain: self.owningDomain)
             let conversationPayload = Payload.Conversation(qualifiedID: qualifiedID, type: BackendConversationType.`self`.rawValue)
 
@@ -411,6 +461,23 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             // then
             let conversation = try XCTUnwrap(ZMConversation.fetch(with: qualifiedID.uuid, domain: qualifiedID.domain, in: self.syncMOC))
             XCTAssertEqual(conversation.conversationType, .`self`)
+        }
+    }
+
+    func testUpdateOrCreateConversation_Self_DoesntAssignDomain_WhenFederationIsDisabled() throws {
+        try syncMOC.performGroupedAndWait { syncMOC in
+            // given
+            self.syncMOC.zm_isFederationEnabled = false
+            let qualifiedID = QualifiedID(uuid: UUID(), domain: self.owningDomain)
+            let conversationPayload = Payload.Conversation(qualifiedID: qualifiedID, type: BackendConversationType.`self`.rawValue)
+
+            // when
+            conversationPayload.updateOrCreate(in: self.syncMOC)
+
+            // then
+            let conversation = try XCTUnwrap(ZMConversation.fetch(with: qualifiedID.uuid, domain: nil, in: self.syncMOC))
+            XCTAssertEqual(conversation.conversationType, .`self`)
+            XCTAssertNil(conversation.domain)
         }
     }
 
@@ -448,6 +515,5 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             XCTAssertEqual(selfConversation.lastServerTimeStamp, serverTimestamp)
         }
     }
-
 
 }

@@ -31,7 +31,9 @@ extension Payload.UserProfile {
     ///                            the entity.
     func updateUserProfile(for user: ZMUser, authoritative: Bool = true) {
 
-        if let qualifiedID = qualifiedID {
+        let isFederationEnabled = user.managedObjectContext?.zm_isFederationEnabled == true
+
+        if let qualifiedID = qualifiedID, isFederationEnabled {
             precondition(user.remoteIdentifier == nil || user.remoteIdentifier == qualifiedID.uuid)
             precondition(user.domain == nil || user.domain == qualifiedID.domain)
 
@@ -48,7 +50,7 @@ extension Payload.UserProfile {
             user.providerIdentifier = serviceID.provider.transportString()
         }
 
-        if (updatedKeys.contains(.teamID) || authoritative) {
+        if updatedKeys.contains(.teamID) || authoritative {
             user.teamIdentifier = teamID
             user.createOrDeleteMembershipIfBelongingToTeam()
         }
@@ -77,7 +79,7 @@ extension Payload.UserProfile {
             user.handle = handle
         }
 
-        if (managedBy != nil || authoritative) {
+        if managedBy != nil || authoritative {
              user.managedBy = managedBy
         }
 
@@ -99,7 +101,7 @@ extension Payload.UserProfile {
     }
 
     func updateAssets(for user: ZMUser, authoritative: Bool = true) {
-        let assetKeys = Set(arrayLiteral: ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey)
+        let assetKeys: Set<String> = [ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey]
         guard !user.hasLocalModifications(forKeys: assetKeys) else {
             return
         }
@@ -120,7 +122,6 @@ extension Payload.UserProfile {
 }
 
 extension Payload.UserProfiles {
-
 
     /// Update all user entities with the data from the user profiles.
     ///

@@ -15,8 +15,6 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import XCTest
-
 import Foundation
 import XCTest
 @testable import WireRequestStrategy
@@ -114,7 +112,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let domain = self.groupConversation.domain!
             let conversationID = self.groupConversation.remoteIdentifier!
             self.groupConversation.userDefinedName = "Hello World"
-            self.groupConversation.setLocallyModifiedKeys(Set(arrayLiteral: ZMConversationUserDefinedNameKey))
+            let conversationUserDefinedNameKeySet: Set<AnyHashable> = [ZMConversationUserDefinedNameKey]
+            self.groupConversation.setLocallyModifiedKeys(conversationUserDefinedNameKeySet)
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
 
             // when
@@ -134,7 +133,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let domain = self.groupConversation.domain!
             let conversationID = self.groupConversation.remoteIdentifier!
             self.groupConversation.isArchived = true
-            self.groupConversation.setLocallyModifiedKeys(Set(arrayLiteral: ZMConversationArchivedChangedTimeStampKey))
+            let conversationArchivedChangedTimeStampKeySet: Set<AnyHashable> = [ZMConversationArchivedChangedTimeStampKey]
+            self.groupConversation.setLocallyModifiedKeys(conversationArchivedChangedTimeStampKeySet)
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
 
             // when
@@ -154,7 +154,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let domain = self.groupConversation.domain!
             let conversationID = self.groupConversation.remoteIdentifier!
             self.groupConversation.mutedMessageTypes = .all
-            self.groupConversation.setLocallyModifiedKeys(Set(arrayLiteral: ZMConversationSilencedChangedTimeStampKey))
+            let conversationSilencedChangedTimeStampKeySet: Set<AnyHashable> = [ZMConversationSilencedChangedTimeStampKey]
+            self.groupConversation.setLocallyModifiedKeys(conversationSilencedChangedTimeStampKeySet)
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
 
             // when
@@ -415,7 +416,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         return ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
     }
 
-
     func testThatItUpdatesHasReadReceiptsEnabled_WhenReceivingReceiptModeUpdateEvent() {
         self.syncMOC.performAndWait {
             // GIVEN
@@ -507,7 +507,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func testThatItHandlesMessageTimerUpdateEvent_Value() {
         syncMOC.performGroupedBlockAndWait {
-            XCTAssertNil(self.groupConversation.messageDestructionTimeout)
+            XCTAssertNil(self.groupConversation.activeMessageDestructionTimeoutValue)
 
             // GIVEN
             let event = self.updateEvent(type: "conversation.message-timer-update",
@@ -520,7 +520,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
-            XCTAssertEqual(self.groupConversation?.messageDestructionTimeout!, MessageDestructionTimeout.synced(31536000))
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, .init(rawValue: 31536000))
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
             guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
             XCTAssertEqual(message.systemMessageType, .messageTimerUpdate)
         }
@@ -528,8 +529,9 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func testThatItHandlesMessageTimerUpdateEvent_NoValue() {
         syncMOC.performGroupedBlockAndWait {
-            self.groupConversation.messageDestructionTimeout = .synced(300)
-            XCTAssertEqual(self.groupConversation.messageDestructionTimeout!, MessageDestructionTimeout.synced(.fiveMinutes))
+            self.groupConversation.setMessageDestructionTimeoutValue(.init(rawValue: 300), for: .groupConversation)
+            XCTAssertEqual(self.groupConversation.activeMessageDestructionTimeoutValue!, .fiveMinutes)
+            XCTAssertEqual(self.groupConversation.activeMessageDestructionTimeoutType!, .groupConversation)
 
             // Given
             let event = self.updateEvent(type: "conversation.message-timer-update",
@@ -542,7 +544,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
-            XCTAssertNil(self.groupConversation.messageDestructionTimeout)
+            XCTAssertNil(self.groupConversation.activeMessageDestructionTimeoutValue)
             guard let message = self.groupConversation.lastMessage as? ZMSystemMessage else { return XCTFail() }
             XCTAssertEqual(message.systemMessageType, .messageTimerUpdate)
         }
@@ -551,15 +553,15 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     func testThatItGeneratesCorrectSystemMessageWhenSyncedTimeoutTurnedOff() {
         // GIVEN: local & synced timeouts exist
         syncMOC.performGroupedBlockAndWait {
-            self.groupConversation.messageDestructionTimeout = .local(.fiveMinutes)
+            self.groupConversation.setMessageDestructionTimeoutValue(.fiveMinutes, for: .selfUser)
         }
 
         syncMOC.performGroupedBlockAndWait {
-            self.groupConversation.messageDestructionTimeout = .synced(.oneHour)
+            self.groupConversation.setMessageDestructionTimeoutValue(.oneHour, for: .groupConversation)
         }
 
         syncMOC.performGroupedBlockAndWait {
-            XCTAssertNotNil(self.groupConversation.messageDestructionTimeout)
+            XCTAssertNotNil(self.groupConversation.activeMessageDestructionTimeoutValue)
 
             // "turn off" synced timeout
             let event = self.updateEvent(type: "conversation.message-timer-update",
@@ -572,7 +574,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN: the local timeout still exists
-            XCTAssertEqual(self.groupConversation?.messageDestructionTimeout!, MessageDestructionTimeout.local(.fiveMinutes))
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, .fiveMinutes)
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .selfUser)
             guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
             XCTAssertEqual(message.systemMessageType, .messageTimerUpdate)
 
@@ -584,7 +587,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     func testThatItDiscardsDoubleSystemMessageWhenSyncedTimeoutChanges_Value() {
 
         syncMOC.performGroupedBlockAndWait {
-            XCTAssertNil(self.groupConversation.messageDestructionTimeout)
+            XCTAssertNil(self.groupConversation.activeMessageDestructionTimeoutValue)
 
             // Given
             let messageTimerMillis = 31536000000
@@ -599,25 +602,27 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                          dataPayload: ["message_timer": messageTimerMillis])
 
             // WHEN
-            self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil) //First event
+            self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil) // First event
 
-            XCTAssertEqual(self.groupConversation?.messageDestructionTimeout!, MessageDestructionTimeout.synced(messageTimer))
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, messageTimer)
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
             guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
             XCTAssertEqual(firstMessage.systemMessageType, .messageTimerUpdate)
 
-            self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil) //Second duplicated event
+            self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil) // Second duplicated event
 
             // THEN
-            XCTAssertEqual(self.groupConversation?.messageDestructionTimeout!, MessageDestructionTimeout.synced(messageTimer))
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, messageTimer)
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
             guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
-            XCTAssertEqual(firstMessage, secondMessage) //Check that no other messages are appended in the conversation
+            XCTAssertEqual(firstMessage, secondMessage) // Check that no other messages are appended in the conversation
         }
     }
 
     func testThatItDiscardsDoubleSystemMessageWhenSyncedTimeoutChanges_NoValue() {
 
         syncMOC.performGroupedBlockAndWait {
-            XCTAssertNil(self.groupConversation.messageDestructionTimeout)
+            XCTAssertNil(self.groupConversation.activeMessageDestructionTimeoutValue)
 
             // Given
             let valuedMessageTimerMillis = 31536000000
@@ -640,24 +645,25 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // WHEN
 
-            //First event with valued timer
+            // First event with valued timer
             self.sut?.processEvents([valuedEvent], liveEvents: true, prefetchResult: nil)
-            XCTAssertEqual(self.groupConversation?.messageDestructionTimeout!, MessageDestructionTimeout.synced(valuedMessageTimer))
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
+            XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, valuedMessageTimer)
 
-            //Second event with timer = nil
+            // Second event with timer = nil
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
-            XCTAssertNil(self.groupConversation?.messageDestructionTimeout)
+            XCTAssertNil(self.groupConversation?.activeMessageDestructionTimeoutValue)
 
             guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
             XCTAssertEqual(firstMessage.systemMessageType, .messageTimerUpdate)
 
-            //Third event with timer = nil
+            // Third event with timer = nil
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
-            XCTAssertNil(self.groupConversation?.messageDestructionTimeout)
+            XCTAssertNil(self.groupConversation?.activeMessageDestructionTimeoutValue)
             guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
-            XCTAssertEqual(firstMessage, secondMessage) //Check that no other messages are appended in the conversation
+            XCTAssertEqual(firstMessage, secondMessage) // Check that no other messages are appended in the conversation
         }
     }
 
@@ -672,7 +678,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                          senderID: self.otherUser.remoteIdentifier!,
                                          conversationID: self.groupConversation.remoteIdentifier!,
                                          timestamp: Date(),
-                                         dataPayload:  [
+                                         dataPayload: [
                                             "user_ids": [self.thirdUser.remoteIdentifier!.transportString()]
                                          ])
 
@@ -698,7 +704,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                          senderID: self.otherUser.remoteIdentifier!,
                                          conversationID: self.groupConversation.remoteIdentifier!,
                                          timestamp: Date(),
-                                         dataPayload:  [
+                                         dataPayload: [
                                             "user_ids": [user2.remoteIdentifier!.transportString()],
                                             "users": [[
                                                 "id": user2.remoteIdentifier!.transportString(),
@@ -744,7 +750,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    // MARK:  Member leave
+    // MARK: Member leave
 
     func testThatItCreatesAndNotifiesSystemMessagesFromAMemberLeaveEvent() {
 
@@ -815,13 +821,12 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                             "conversation_role": "new"
                                          ])
 
-
             // WHEN
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
             guard let participant = self.groupConversation.participantRoles
-                    .first(where: {$0.user.remoteIdentifier == userId}) else {
+                    .first(where: {$0.user?.remoteIdentifier == userId}) else {
                 return XCTFail("No user in convo")
             }
             XCTAssertEqual(participant.role?.name, "new")
@@ -913,7 +918,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         }
     }
 
-
     // MARK: - Helpers
 
     func qualifiedID(for conversation: ZMConversation) -> QualifiedID {
@@ -958,7 +962,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }
-    
 
     func fetchConversationListDuringSlowSyncWithEmptyResponse() {
         syncMOC.performGroupedBlockAndWait {
@@ -1014,7 +1017,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     func successfulResponse(request: Payload.QualifiedUserIDList,
                             notFound: [QualifiedID],
                             failed: [QualifiedID]) -> ZMTransportResponse {
-
 
         let found = request.qualifiedIDs.map({ conversation(uuid: $0.uuid, domain: $0.domain)})
         let payload = Payload.QualifiedConversationList(found: found, notFound: notFound, failed: failed)

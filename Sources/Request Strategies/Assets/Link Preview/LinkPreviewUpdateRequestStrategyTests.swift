@@ -31,6 +31,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             self.applicationStatus = MockApplicationStatus()
             self.applicationStatus.mockSynchronizationState = .online
             self.sut = LinkPreviewUpdateRequestStrategy(withManagedObjectContext: syncMOC, applicationStatus: self.applicationStatus)
+            self.sut.useFederationEndpoint = true
         }
     }
 
@@ -57,7 +58,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
     }
 
     func testThatItDoesNotCreateARequestInState_Uploaded_ForOtherUser() {
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             // Given
             let message = self.insertMessage(with: .uploaded)
             message.sender = self.otherUser
@@ -65,7 +66,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             // When
             self.process(message)
         }
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
 
             // Then
             XCTAssertNil(self.sut.nextRequest())
@@ -73,21 +74,21 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
     }
 
     func testThatItDoesCreateARequestInState_Uploaded() {
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             // Given
             let message = self.insertMessage(with: .uploaded)
 
             // When
             self.process(message)
         }
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             // Then
             self.verifyItCreatesARequest(in: self.groupConversation)
         }
     }
 
     func testThatItDoesCreateARequestInState_Uploaded_WhenFederationEndpointIsDisabled() {
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             // Given
             self.sut.useFederationEndpoint = false
             let message = self.insertMessage(with: .uploaded)
@@ -95,7 +96,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             // When
             self.process(message)
         }
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             // Then
             self.verifyItCreatesALegacyRequest(in: self.groupConversation)
         }
@@ -104,7 +105,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
     func testThatItDoesCreateARequestInState_Uploaded_WhenTheFirstRequestFailed() {
         var message: ZMClientMessage!
 
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
 
             // Given
             message = self.insertMessage(with: .uploaded)
@@ -112,14 +113,14 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             // When
             self.process(message)
         }
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             guard let request = self.verifyItCreatesARequest(in: self.groupConversation) else { return }
 
             // When
             let response = ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError())
             request.complete(with: response)
         }
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
 
             XCTAssertEqual(message.linkPreviewState, .uploaded)
 
@@ -130,12 +131,12 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
 
     func testThatItDoesNotCreateARequestAfterGettingsAResponseForIt() {
         var message: ZMClientMessage!
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             // Given
             message = self.insertMessage(with: .uploaded)
             self.process(message)
         }
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             // Then
             guard let request = self.verifyItCreatesARequest(in: self.groupConversation) else { return }
 
@@ -151,7 +152,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
                                                transportSessionError: nil)
             request.complete(with: response)
         }
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             // Then
             XCTAssertEqual(message.linkPreviewState, .done)
             XCTAssertNil(self.sut.nextRequest())
@@ -169,14 +170,14 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
     }
 
     func verifyThatItDoesNotCreateARequest(for state: ZMLinkPreviewState, file: StaticString = #file, line: UInt = #line) {
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
             // Given
             let message = self.insertMessage(with: state)
 
             // When
             self.process(message)
         }
-        self.syncMOC.performGroupedAndWait { moc in
+        self.syncMOC.performGroupedAndWait { _ in
 
             // Then
             XCTAssertNil(self.sut.nextRequest())

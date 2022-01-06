@@ -19,7 +19,6 @@
 import Foundation
 import WireDataModel
 
-
 extension Collection where Element == UserClient {
 
     var clientListByUserID: Payload.ClientListByUserID {
@@ -55,8 +54,8 @@ extension Collection where Element == UserClient {
 }
 
 public final class MissingClientsRequestFactory {
-    
-    let pageSize : Int
+
+    let pageSize: Int
     let defaultEncoder = JSONEncoder.defaultEncoder
 
     public init(pageSize: Int = 128) {
@@ -74,7 +73,8 @@ public final class MissingClientsRequestFactory {
         let request = ZMTransportRequest(path: "/users/prekeys",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?)
-        return ZMUpstreamRequest(keys: Set(arrayLiteral: ZMUserClientMissingKey),
+        let userClientMissingKeySet: Set<String> = [ZMUserClientMissingKey]
+        return ZMUpstreamRequest(keys: userClientMissingKeySet,
                                  transportRequest: request,
                                  userInfo: nil)
     }
@@ -90,11 +90,12 @@ public final class MissingClientsRequestFactory {
         let request = ZMTransportRequest(path: "/users/list-prekeys",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?)
-        return ZMUpstreamRequest(keys: Set(arrayLiteral: ZMUserClientMissingKey),
+        let userClientMissingKeySet: Set<String> = [ZMUserClientMissingKey]
+        return ZMUpstreamRequest(keys: userClientMissingKeySet,
                                  transportRequest: request,
                                  userInfo: nil)
     }
-    
+
 }
 
 public func identity<T>(value: T) -> T {

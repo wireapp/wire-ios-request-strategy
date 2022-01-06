@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-data-model" "feature/update-role-action-handler-SQCORE-1135"
+github "wireapp/wire-ios-data-model" ~> 280.0.2
