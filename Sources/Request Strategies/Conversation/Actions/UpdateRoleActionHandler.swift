@@ -34,16 +34,16 @@ class UpdateRoleActionHandler: ActionHandler<UpdateRoleAction> {
             action.notifyResult(.failure(UpdateRoleError.unknown))
             return nil
         }
-        
+
         let path = "/conversations/\(conversationId.transportString())/members/\(userId.transportString())"
-        
+
         let request = ZMTransportRequest(path: path, method: .methodPUT, payload: payloadString as ZMTransportData)
         return request
     }
-    
+
     override func handleResponse(_ response: ZMTransportResponse, action: UpdateRoleAction) {
         var action = action
-        
+
         switch response.httpStatus {
         case 200..<300:
             guard
@@ -54,7 +54,7 @@ class UpdateRoleActionHandler: ActionHandler<UpdateRoleAction> {
                 action.notifyResult(.failure(UpdateRoleError.unknown))
                 return
             }
-            
+
             conversation.addParticipantAndUpdateConversationState(user: participant, role: role)
             conversation.managedObjectContext?.saveOrRollback()
             action.notifyResult(.success(()))

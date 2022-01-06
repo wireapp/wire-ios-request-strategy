@@ -49,7 +49,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
     let addParticipantActionHandler: AddParticipantActionHandler
     let removeParticipantActionHandler: RemoveParticipantActionHandler
-    
+
     let updateRoleActionHandler: UpdateRoleActionHandler
 
     let updateSync: KeyPathObjectSync<ConversationRequestStrategy>
@@ -120,7 +120,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
         self.addParticipantActionHandler = AddParticipantActionHandler(context: managedObjectContext)
         self.removeParticipantActionHandler = RemoveParticipantActionHandler(context: managedObjectContext)
-        
+
         self.updateRoleActionHandler = UpdateRoleActionHandler(context: managedObjectContext)
 
         self.actionSync = EntityActionSync(actionHandlers: [

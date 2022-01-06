@@ -332,14 +332,14 @@ extension Payload {
             self.role = ZMConversation.defaultMemberRoleName
         }
     }
-    
+
     struct ConversationUpdateRole: Codable {
         enum CodingKeys: String, CodingKey {
             case role = "conversation_role"
         }
-        
+
         let role: String
-        
+
         init?(role: String) {
             self.role = role
         }
