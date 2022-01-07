@@ -233,7 +233,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
                 return
             }
             guard let firstPayload = Payload.ClientListByUserID(payloadData) else {
-                XCTFail("First payload is missing")
+                XCTFail("Client list payload is missing")
                 return
             }
 
