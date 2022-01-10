@@ -21,12 +21,6 @@ import WireDataModel
 
 private let zmLog = ZMSLog(tag: "PushNotificationStatus")
 
-extension UUID {
-    func compare(withType1 uuid: UUID) -> ComparisonResult {
-        return (self as NSUUID).compare(withType1UUID: uuid as NSUUID)
-    }
-}
-
 @objcMembers
 open class PushNotificationStatus: NSObject {
 
