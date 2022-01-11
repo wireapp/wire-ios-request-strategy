@@ -185,7 +185,6 @@ extension Payload {
         let hasMore: Bool
     }
 
-
     struct Service: Codable {
         let id: UUID
         let provider: UUID
@@ -342,6 +341,18 @@ extension Payload {
     struct ConversationFetch: Codable {
         let id: String
         let name: String?
+    }
+
+    struct ConversationUpdateRole: Codable {
+        enum CodingKeys: String, CodingKey {
+            case role = "conversation_role"
+        }
+
+        let role: String
+
+        init?(role: String) {
+            self.role = role
+        }
     }
 
     // MARK: - Events

@@ -56,7 +56,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
                          applicationStatus: ApplicationStatus) {
 
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
-        
+
         configuration = [
             .allowsRequestsWhileOnline,
             .allowsRequestsDuringQuickSync,
@@ -144,6 +144,10 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
         case .selfDeletingMessages:
             let response = try decoder.decode(ConfigResponse<Feature.SelfDeletingMessages.Config>.self, from: data)
             featureService.storeSelfDeletingMessages(.init(status: response.status, config: response.config))
+
+        case .conversationGuestLinks:
+            let response = try decoder.decode(SimpleConfigResponse.self, from: data)
+            featureService.storeConversationGuestLinks(.init(status: response.status))
         }
     }
 
@@ -186,7 +190,7 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
     }
 }
 
-//MARK: - ZMEventConsumer
+// MARK: - ZMEventConsumer
 
 extension FeatureConfigRequestStrategy: ZMEventConsumer {
 
@@ -250,12 +254,15 @@ private extension Feature {
 
         case .conferenceCalling:
             return "conferenceCalling"
-            
+
         case .fileSharing:
             return "fileSharing"
 
         case .selfDeletingMessages:
             return "selfDeletingMessages"
+
+        case .conversationGuestLinks:
+            return "conversationGuestLinks"
         }
     }
 

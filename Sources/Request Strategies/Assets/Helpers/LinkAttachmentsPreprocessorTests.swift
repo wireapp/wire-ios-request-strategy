@@ -16,7 +16,6 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-
 import XCTest
 import WireLinkPreview
 import WireDataModel
@@ -57,7 +56,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
 
     // MARK: - Helper
 
-    func createMessage(text: String = "text message 123", mentions: [Mention] = [], needsUpdate: Bool = true, isEphemeral : Bool = false) -> ZMClientMessage {
+    func createMessage(text: String = "text message 123", mentions: [Mention] = [], needsUpdate: Bool = true, isEphemeral: Bool = false) -> ZMClientMessage {
         let conversation = ZMConversation.insertNewObject(in: syncMOC)
         conversation.remoteIdentifier = UUID.create()
         if isEphemeral {
@@ -104,7 +103,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
     }
 
     func testThatItDoesNotStoreTheOriginalImageDataInTheCacheAndFinishesWhenItReceivesAPreviewWithImage() {
-        var message : ZMClientMessage!
+        var message: ZMClientMessage!
         let attachment = self.createAttachment(withCachedImage: true)
 
         self.syncMOC.performGroupedBlockAndWait {
@@ -127,7 +126,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
     }
 
     func testThatItFinishesIfNoAttachmentsAreReturned() {
-        var message : ZMClientMessage!
+        var message: ZMClientMessage!
         self.syncMOC.performGroupedBlockAndWait {
 
             // GIVEN
@@ -145,7 +144,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
     }
 
     func testThatItFinishesIfTheMessageDoesNotHaveTextMessageData() {
-        var message : ZMClientMessage!
+        var message: ZMClientMessage!
 
         self.syncMOC.performGroupedBlockAndWait {
 
@@ -156,7 +155,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
             do {
                 try message = conversation.appendKnock() as? ZMClientMessage
             } catch {
-                XCTFail()
+                XCTFail("Failed to append knock message")
             }
 
             // WHEN
@@ -214,8 +213,8 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
     // MARK: - Ephemeral
 
     func testThatItReturnsAnEphemeralMessageAfterPreProcessingAnEphemeral() {
-        var message : ZMClientMessage!
-        var attachment : LinkAttachment!
+        var message: ZMClientMessage!
+        var attachment: LinkAttachment!
         self.syncMOC.performGroupedBlockAndWait {
 
             // GIVEN
@@ -236,7 +235,7 @@ class LinkAttachmentsPreprocessorTests: MessagingTestBase {
             XCTAssertNil(data)
             guard let genericMessage = message.underlyingMessage else { return XCTFail("No generic message") }
             guard case .ephemeral? = genericMessage.content else {
-                return XCTFail()
+                return XCTFail("No ephemeral content found")
             }
             XCTAssertTrue(message.linkAttachments?.isEmpty == false)
         }

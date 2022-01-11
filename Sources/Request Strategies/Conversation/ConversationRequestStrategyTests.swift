@@ -15,8 +15,6 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import XCTest
-
 import Foundation
 import XCTest
 @testable import WireRequestStrategy
@@ -114,7 +112,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let domain = self.groupConversation.domain!
             let conversationID = self.groupConversation.remoteIdentifier!
             self.groupConversation.userDefinedName = "Hello World"
-            self.groupConversation.setLocallyModifiedKeys(Set(arrayLiteral: ZMConversationUserDefinedNameKey))
+            let conversationUserDefinedNameKeySet: Set<AnyHashable> = [ZMConversationUserDefinedNameKey]
+            self.groupConversation.setLocallyModifiedKeys(conversationUserDefinedNameKeySet)
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
 
             // when
@@ -134,7 +133,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let domain = self.groupConversation.domain!
             let conversationID = self.groupConversation.remoteIdentifier!
             self.groupConversation.isArchived = true
-            self.groupConversation.setLocallyModifiedKeys(Set(arrayLiteral: ZMConversationArchivedChangedTimeStampKey))
+            let conversationArchivedChangedTimeStampKeySet: Set<AnyHashable> = [ZMConversationArchivedChangedTimeStampKey]
+            self.groupConversation.setLocallyModifiedKeys(conversationArchivedChangedTimeStampKeySet)
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
 
             // when
@@ -154,7 +154,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let domain = self.groupConversation.domain!
             let conversationID = self.groupConversation.remoteIdentifier!
             self.groupConversation.mutedMessageTypes = .all
-            self.groupConversation.setLocallyModifiedKeys(Set(arrayLiteral: ZMConversationSilencedChangedTimeStampKey))
+            let conversationSilencedChangedTimeStampKeySet: Set<AnyHashable> = [ZMConversationSilencedChangedTimeStampKey]
+            self.groupConversation.setLocallyModifiedKeys(conversationSilencedChangedTimeStampKeySet)
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
 
             // when
@@ -205,7 +206,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // then
             guard let fetchPayload = Payload.QualifiedUserIDList(fetchRequest) else {
-                return XCTFail()
+                return XCTFail("Fetch payload is invalid")
             }
 
             let qualifiedConversationID = QualifiedID(uuid: self.groupConversation.remoteIdentifier!,
@@ -415,7 +416,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         return ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
     }
 
-
     func testThatItUpdatesHasReadReceiptsEnabled_WhenReceivingReceiptModeUpdateEvent() {
         self.syncMOC.performAndWait {
             // GIVEN
@@ -438,7 +438,9 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
-            guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
+            guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else {
+                return XCTFail("Last conversation message is not a system message")
+            }
             XCTAssertEqual(message.systemMessageType, .readReceiptsEnabled)
         }
     }
@@ -452,7 +454,9 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
-            guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
+            guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else {
+                return XCTFail("Last conversation message is not a system message")
+            }
             XCTAssertEqual(message.systemMessageType, .readReceiptsDisabled)
         }
     }
@@ -522,7 +526,9 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             // THEN
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, .init(rawValue: 31536000))
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
-            guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
+            guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else {
+                return XCTFail("Last conversation message is not a system message")
+            }
             XCTAssertEqual(message.systemMessageType, .messageTimerUpdate)
         }
     }
@@ -545,7 +551,9 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             XCTAssertNil(self.groupConversation.activeMessageDestructionTimeoutValue)
-            guard let message = self.groupConversation.lastMessage as? ZMSystemMessage else { return XCTFail() }
+            guard let message = self.groupConversation.lastMessage as? ZMSystemMessage else {
+                return XCTFail("Last conversation message is not a system message")
+            }
             XCTAssertEqual(message.systemMessageType, .messageTimerUpdate)
         }
     }
@@ -576,7 +584,9 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             // THEN: the local timeout still exists
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, .fiveMinutes)
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .selfUser)
-            guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
+            guard let message = self.groupConversation?.lastMessage as? ZMSystemMessage else {
+                return XCTFail("Last conversation message is not a system message")
+            }
             XCTAssertEqual(message.systemMessageType, .messageTimerUpdate)
 
             // but the system message timer reflects the update to the synced timeout
@@ -602,20 +612,24 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                          dataPayload: ["message_timer": messageTimerMillis])
 
             // WHEN
-            self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil) //First event
+            self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil) // First event
 
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, messageTimer)
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
-            guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
+            guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else {
+                return XCTFail("Last conversation message is not a system message")
+            }
             XCTAssertEqual(firstMessage.systemMessageType, .messageTimerUpdate)
 
-            self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil) //Second duplicated event
+            self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil) // Second duplicated event
 
             // THEN
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, messageTimer)
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
-            guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
-            XCTAssertEqual(firstMessage, secondMessage) //Check that no other messages are appended in the conversation
+            guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else {
+                return XCTFail("Last conversation message is not a system message")
+            }
+            XCTAssertEqual(firstMessage, secondMessage) // Check that no other messages are appended in the conversation
         }
     }
 
@@ -645,25 +659,28 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // WHEN
 
-            //First event with valued timer
+            // First event with valued timer
             self.sut?.processEvents([valuedEvent], liveEvents: true, prefetchResult: nil)
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutType!, .groupConversation)
             XCTAssertEqual(self.groupConversation?.activeMessageDestructionTimeoutValue!, valuedMessageTimer)
 
-            //Second event with timer = nil
+            // Second event with timer = nil
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
             XCTAssertNil(self.groupConversation?.activeMessageDestructionTimeoutValue)
 
-            guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
+            guard let firstMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else {
+                return XCTFail("Last conversation message is not a system message")
+            }
             XCTAssertEqual(firstMessage.systemMessageType, .messageTimerUpdate)
 
-            //Third event with timer = nil
+            // Third event with timer = nil
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
 
             // THEN
             XCTAssertNil(self.groupConversation?.activeMessageDestructionTimeoutValue)
-            guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail() }
-            XCTAssertEqual(firstMessage, secondMessage) //Check that no other messages are appended in the conversation
+            guard let secondMessage = self.groupConversation?.lastMessage as? ZMSystemMessage else { return XCTFail("Last conversation message is not a system message")
+            }
+            XCTAssertEqual(firstMessage, secondMessage) // Check that no other messages are appended in the conversation
         }
     }
 
@@ -678,7 +695,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                          senderID: self.otherUser.remoteIdentifier!,
                                          conversationID: self.groupConversation.remoteIdentifier!,
                                          timestamp: Date(),
-                                         dataPayload:  [
+                                         dataPayload: [
                                             "user_ids": [self.thirdUser.remoteIdentifier!.transportString()]
                                          ])
 
@@ -687,7 +704,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             guard let message = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                XCTFail()
+                XCTFail("Last conversation message is not a system message")
                 return
             }
             XCTAssertEqual(message.systemMessageType, .participantsAdded)
@@ -704,7 +721,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                          senderID: self.otherUser.remoteIdentifier!,
                                          conversationID: self.groupConversation.remoteIdentifier!,
                                          timestamp: Date(),
-                                         dataPayload:  [
+                                         dataPayload: [
                                             "user_ids": [user2.remoteIdentifier!.transportString()],
                                             "users": [[
                                                 "id": user2.remoteIdentifier!.transportString(),
@@ -750,7 +767,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    // MARK:  Member leave
+    // MARK: Member leave
 
     func testThatItCreatesAndNotifiesSystemMessagesFromAMemberLeaveEvent() {
 
@@ -771,7 +788,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             // THEN
             guard let message = self.groupConversation.lastMessage as? ZMSystemMessage else {
-                XCTFail()
+                XCTFail("Last conversation message is not a system message")
                 return
             }
             print(message.systemMessageType.rawValue)
@@ -820,7 +837,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                             "target": userId.transportString(),
                                             "conversation_role": "new"
                                          ])
-
 
             // WHEN
             self.sut?.processEvents([event], liveEvents: true, prefetchResult: nil)
@@ -919,7 +935,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         }
     }
 
-
     // MARK: - Helpers
 
     func qualifiedID(for conversation: ZMConversation) -> QualifiedID {
@@ -957,20 +972,19 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
             let listRequest = self.sut.nextRequest()!
             guard let listPayload = Payload.PaginationStatus(listRequest) else {
-                return XCTFail()
+                return XCTFail("List payload is invalid")
             }
 
             listRequest.complete(with: self.successfulResponse(request: listPayload, conversations: [qualifiedConversationID]))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }
-    
 
     func fetchConversationListDuringSlowSyncWithEmptyResponse() {
         syncMOC.performGroupedBlockAndWait {
             let request = self.sut.nextRequest()!
             guard let listPayload = Payload.PaginationStatus(request) else {
-                return XCTFail()
+                return XCTFail("List payload is invalid")
             }
 
             request.complete(with: self.successfulResponse(request: listPayload, conversations: []))
@@ -994,7 +1008,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest()!
 
             guard let payload = Payload.QualifiedUserIDList(request) else {
-                return XCTFail()
+                return XCTFail("Payload is invalid")
             }
 
             request.complete(with: self.successfulResponse(request: payload, notFound: notFound, failed: failed))
@@ -1020,7 +1034,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     func successfulResponse(request: Payload.QualifiedUserIDList,
                             notFound: [QualifiedID],
                             failed: [QualifiedID]) -> ZMTransportResponse {
-
 
         let found = request.qualifiedIDs.map({ conversation(uuid: $0.uuid, domain: $0.domain)})
         let payload = Payload.QualifiedConversationList(found: found, notFound: notFound, failed: failed)

@@ -64,7 +64,7 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
     // MARK: - Request Generation
 
     func testThatItCreatesARequestForRemovingAParticipant_NonFederated() throws {
-        try syncMOC.performGroupedAndWait { syncMOC in
+        try syncMOC.performGroupedAndWait { _ in
             // given
             let userID = self.user.remoteIdentifier!.transportString()
             let conversationID = self.conversation.remoteIdentifier!.transportString()
@@ -80,7 +80,7 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
     }
 
     func testThatItCreatesARequestForRemovingAParticipant_Federated() throws {
-        try syncMOC.performGroupedAndWait { syncMOC in
+        try syncMOC.performGroupedAndWait { _ in
             // given
             self.sut.useFederationEndpoint = true
             let userID = self.user.remoteIdentifier!
@@ -107,12 +107,14 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
         ]
 
         for (expectedError, response) in errorResponses {
-            guard let error = ConversationRemoveParticipantError(response: response) else { return XCTFail() }
+            guard let error = ConversationRemoveParticipantError(response: response) else {
+                return XCTFail("Error is invalid")
+            }
 
             if case error = expectedError {
                 // success
             } else {
-                XCTFail()
+                XCTFail("Unexpected error")
             }
         }
     }
@@ -229,7 +231,7 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
     }
 
     func testThatItCallsResultHandler_On204() {
-        syncMOC.performGroupedAndWait { [self] syncMOC in
+        syncMOC.performGroupedAndWait { [self] _ in
             // given
             var action = RemoveParticipantAction(user: user, conversation: conversation)
 
@@ -252,7 +254,7 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
     }
 
     func testThatItCallsResultHandler_OnError() {
-        syncMOC.performGroupedAndWait { [self] syncMOC in
+        syncMOC.performGroupedAndWait { [self] _ in
             // given
             var action = RemoveParticipantAction(user: user, conversation: conversation)
 

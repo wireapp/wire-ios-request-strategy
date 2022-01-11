@@ -16,7 +16,6 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-
 import Foundation
 
 /// The `AssetClientMessageRequestStrategy` for creating requests to insert the genericMessage of a
@@ -30,11 +29,11 @@ public final class AssetClientMessageRequestStrategy: AbstractRequestStrategy, Z
     let messageSync: ProteusMessageSync<ZMAssetClientMessage>
 
     public var useFederationEndpoint: Bool {
-        set {
-            messageSync.isFederationEndpointAvailable = newValue
-        }
         get {
             messageSync.isFederationEndpointAvailable
+        }
+        set {
+            messageSync.isFederationEndpointAvailable = newValue
         }
     }
 
@@ -94,5 +93,5 @@ extension AssetClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
             }
         }
     }
-    
+
 }

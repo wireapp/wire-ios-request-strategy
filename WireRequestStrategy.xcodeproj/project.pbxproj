@@ -132,6 +132,8 @@
 		701BB7C327397558005F74A2 /* FetchConversationActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 701BB7C227397558005F74A2 /* FetchConversationActionHandlerTests.swift */; };
 		70C782592733DB700059DF07 /* JoinConversationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C782582733DB700059DF07 /* JoinConversationActionHandler.swift */; };
 		70C7825D2733E34D0059DF07 /* FetchConversationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C7825C2733E34D0059DF07 /* FetchConversationActionHandler.swift */; };
+		70C781FD2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C781FC2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift */; };
+		70E77B79273187660021EE70 /* UpdateRoleActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E77B78273187660021EE70 /* UpdateRoleActionHandler.swift */; };
 		8792F55721AD944100795027 /* UserPropertyRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */; };
 		87F7288521AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F7288421AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift */; };
 		A90C56E62685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C56E52685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift */; };
@@ -401,6 +403,8 @@
 		701BB7C227397558005F74A2 /* FetchConversationActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchConversationActionHandlerTests.swift; sourceTree = "<group>"; };
 		70C782582733DB700059DF07 /* JoinConversationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinConversationActionHandler.swift; sourceTree = "<group>"; };
 		70C7825C2733E34D0059DF07 /* FetchConversationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchConversationActionHandler.swift; sourceTree = "<group>"; };
+		70C781FC2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateRoleActionHandlerTests.swift; sourceTree = "<group>"; };
+		70E77B78273187660021EE70 /* UpdateRoleActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateRoleActionHandler.swift; sourceTree = "<group>"; };
 		8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPropertyRequestStrategy.swift; sourceTree = "<group>"; };
 		87F7288421AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPropertyRequestStrategyTests.swift; sourceTree = "<group>"; };
 		A90C56E52685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMImagePreprocessingTrackerTests.swift; sourceTree = "<group>"; };
@@ -725,6 +729,8 @@
 				701BB7BE27395DEF005F74A2 /* JoinConversationActionHandlerTests.swift */,
 				70C7825C2733E34D0059DF07 /* FetchConversationActionHandler.swift */,
 				701BB7C227397558005F74A2 /* FetchConversationActionHandlerTests.swift */,
+				70E77B78273187660021EE70 /* UpdateRoleActionHandler.swift */,
+				70C781FC2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift */,
 			);
 			path = Actions;
 			sourceTree = "<group>";
@@ -1184,6 +1190,7 @@
 				166901651D707509000FE4AF /* Sources */,
 				166901661D707509000FE4AF /* Frameworks */,
 				166901671D707509000FE4AF /* Headers */,
+				668E958827425E0A0028C1F8 /* Run Swiftlint */,
 				166901681D707509000FE4AF /* Resources */,
 			);
 			buildRules = (
@@ -1312,6 +1319,27 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		668E958827425E0A0028C1F8 /* Run Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Adds support for Apple Silicon brew directory\nexport PATH=\"$PATH:/opt/homebrew/bin\"\n \nif which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		166901651D707509000FE4AF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -1386,6 +1414,7 @@
 				16DABDA225D69335005F4C3A /* Payload.swift in Sources */,
 				16E70F7E270EEA5400718E5D /* PayloadProcessing+UserProfile.swift in Sources */,
 				168D7CB726FB0E9200789960 /* AddParticipantActionHandler.swift in Sources */,
+				70E77B79273187660021EE70 /* UpdateRoleActionHandler.swift in Sources */,
 				166901D91D7081C7000FE4AF /* ZMLocallyInsertedObjectSet.m in Sources */,
 				16367F2226FDB2A10028AF8B /* PayloadProcessing+Connection.swift in Sources */,
 				F18401B02073BE0800E9F4CC /* AbstractRequestStrategy.swift in Sources */,
@@ -1442,6 +1471,7 @@
 				F18401EB2073C26700E9F4CC /* OTREntityTranscoderTests.swift in Sources */,
 				16E70F73270EE9FC00718E5D /* PayloadProcessing+ConversationTests.swift in Sources */,
 				F18401E52073C26200E9F4CC /* FetchingClientRequestStrategyTests.swift in Sources */,
+				70C781FD2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift in Sources */,
 				164D00742225624E00A8F264 /* ZMImagePreprocessingTrackerTests.m in Sources */,
 				16E70F78270EEA0100718E5D /* PayloadProcessing+UserProfileTests.swift in Sources */,
 				16824631257A23E8002AF17B /* KeyPathObjectSyncTests.swift in Sources */,

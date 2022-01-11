@@ -59,10 +59,11 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
 
             // then
             XCTAssertEqual(request.path, "/list-users")
-            guard let payloadData = (request.payload as? String)?.data(using: .utf8),
-                  let payload = Payload.QualifiedUserIDList(payloadData)
-            else {
-                return XCTFail()
+            guard let payloadData = (request.payload as? String)?.data(using: .utf8) else {
+                return XCTFail("Payload data is invalid")
+            }
+            guard let payload = Payload.QualifiedUserIDList(payloadData) else {
+                return XCTFail("Payload is invalid")
             }
 
             XCTAssertEqual(payload.qualifiedIDs.count, 1)
@@ -101,7 +102,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             // then
             XCTAssertEqual(request.path, "/list-users")
             guard let payload = Payload.QualifiedUserIDList(request) else {
-                return XCTFail()
+                return XCTFail("Payload is invalid")
             }
 
             XCTAssertEqual(payload.qualifiedIDs.count, 1)
@@ -128,7 +129,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             // then
             XCTAssertEqual(request.path, "/list-users")
             guard let payload = Payload.QualifiedUserIDList(request) else {
-                return XCTFail()
+                return XCTFail("Payload is invalid")
             }
 
             XCTAssertEqual(payload.qualifiedIDs.count, 1)
@@ -358,7 +359,6 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
                                                 expiresAt: nil,
                                                 legalholdStatus: nil))
 
-
             // when
             self.sut.processEvents([event], liveEvents: true, prefetchResult: nil)
 
@@ -458,7 +458,6 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     }
 
 }
-
 
 extension Decodable {
 
