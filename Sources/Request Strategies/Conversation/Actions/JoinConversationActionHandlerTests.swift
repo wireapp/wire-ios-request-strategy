@@ -112,7 +112,7 @@ final class JoinConversationActionHandlerTests: MessagingTestBase {
                 }
             }
             
-            let response = ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil)
+            let response = ZMTransportResponse(payload: nil, httpStatus: 204, transportSessionError: nil)
             
             // when
             self.sut.handleResponse(response, action: action)
