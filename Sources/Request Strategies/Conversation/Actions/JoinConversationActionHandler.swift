@@ -18,7 +18,7 @@
 import Foundation
 
 extension ConversationJoinError {
-    
+
     public init(response: ZMTransportResponse) {
         switch (response.httpStatus, response.payloadLabel()) {
         case (403, "too-many-members"?): self = .tooManyMembers
@@ -27,15 +27,15 @@ extension ConversationJoinError {
         default: self = .unknown
         }
     }
-    
+
 }
 
 class JoinConversationActionHandler: ActionHandler<JoinConversationAction> {
-    
+
     override func request(for action: JoinConversationAction) -> ZMTransportRequest? {
         let path = "/conversations/join"
         let payload = Payload.ConversationJoin(key: action.key, code: action.code)
-        
+
         guard
             let payloadData = payload.payloadData(encoder: .defaultEncoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
@@ -44,13 +44,13 @@ class JoinConversationActionHandler: ActionHandler<JoinConversationAction> {
             action.notifyResult(.failure(.unknown))
             return nil
         }
-        
+
         return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData)
     }
-    
+
     override func handleResponse(_ response: ZMTransportResponse, action: JoinConversationAction) {
         var action = action
-        
+
         switch response.httpStatus {
         case 200:
             guard
@@ -64,25 +64,21 @@ class JoinConversationActionHandler: ActionHandler<JoinConversationAction> {
             }
 
             conversationEvent.process(in: context, originalEvent: event)
-            
-            let viewContext = action.viewContext
-            
-            viewContext.performGroupedBlock {
-                guard
-                    let conversationID = conversationEvent.id,
-                    let conversation = ZMConversation.fetch(with: conversationID, in: viewContext)
-                else {
-                    action.notifyResult(.failure(.unknown))
-                    return
-                }
-              
-                action.notifyResult(.success(conversation))
+
+            guard
+                let conversationID = conversationEvent.id,
+                let conversation = ZMConversation.fetch(with: conversationID, in: context)
+            else {
+                action.notifyResult(.failure(.unknown))
+                return
             }
 
-        /// The user is already a participant in the conversation
+            action.notifyResult(.success(conversation))
+
+            // The user is already a participant in the conversation
         case 204:
-            /// If we get to this case, then we need to re-sync local conversations
-            /// TODO: implement re-syncing conversations
+            // If we get to this case, then we need to re-sync local conversations
+            // TODO: implement re-syncing conversations
             Logging.network.debug("Local conversations should be re-synced with remote ones")
             action.notifyResult(.failure(.unknown))
 
@@ -92,5 +88,5 @@ class JoinConversationActionHandler: ActionHandler<JoinConversationAction> {
             action.notifyResult(.failure(error))
         }
     }
-    
+
 }

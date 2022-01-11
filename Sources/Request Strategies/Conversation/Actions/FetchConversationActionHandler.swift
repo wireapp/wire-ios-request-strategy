@@ -18,7 +18,7 @@
 import Foundation
 
 extension ConversationFetchError {
-    
+
     init(response: ZMTransportResponse) {
         switch (response.httpStatus, response.payloadLabel()) {
         case (403, "no-team-member"?): self = .noTeamMember
@@ -28,11 +28,11 @@ extension ConversationFetchError {
         default: self = .unknown
         }
     }
-    
+
 }
 
 class FetchConversationActionHandler: ActionHandler<FetchConversationAction> {
-    
+
     override func request(for action: FetchConversationAction) -> ZMTransportRequest? {
         var url = URLComponents()
         url.path = "/conversations/join"
@@ -41,13 +41,13 @@ class FetchConversationActionHandler: ActionHandler<FetchConversationAction> {
         guard let urlString = url.string else {
             return nil
         }
-        
+
         return ZMTransportRequest(path: urlString, method: .methodGET, payload: nil)
     }
-    
+
     override func handleResponse(_ response: ZMTransportResponse, action: FetchConversationAction) {
         var action = action
-        
+
         switch response.httpStatus {
         case 200:
             guard
@@ -58,7 +58,7 @@ class FetchConversationActionHandler: ActionHandler<FetchConversationAction> {
                 action.notifyResult(.failure(.unknown))
                 return
             }
-            
+
             let fetchResult = (conversationID, conversationName)
             action.notifyResult(.success(fetchResult))
         default:
@@ -67,5 +67,5 @@ class FetchConversationActionHandler: ActionHandler<FetchConversationAction> {
             action.notifyResult(.failure(error))
         }
     }
-    
+
 }

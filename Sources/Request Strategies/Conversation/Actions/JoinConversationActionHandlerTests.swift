@@ -19,131 +19,132 @@ import XCTest
 @testable import WireRequestStrategy
 
 final class JoinConversationActionHandlerTests: MessagingTestBase {
-    
+
     private var conversation: ZMConversation!
-    
+
     private var key: String!
     private var code: String!
-    
+
     private var sut: JoinConversationActionHandler!
-    
+
     override func setUp() {
         super.setUp()
-        
+
         syncMOC.performGroupedBlockAndWait {
             let conversation = ZMConversation.insertGroupConversation(moc: self.syncMOC, participants: [])!
             let conversationID = UUID()
             conversation.remoteIdentifier = conversationID
             conversation.conversationType = .group
             conversation.domain = self.owningDomain
+            conversation.addParticipantAndUpdateConversationState(user: self.otherUser, role: nil)
             self.conversation = conversation
         }
-        
+
         key = UUID().uuidString
         code = UUID().uuidString
-        
+
         sut = JoinConversationActionHandler(context: syncMOC)
     }
-    
+
     override func tearDown() {
         sut = nil
-        
+
         super.tearDown()
     }
-    
+
     func testThatItCreatesAnExpectedRequestForJoiningConversation() throws {
-        try syncMOC.performGroupedAndWait { [self] syncMOC in
+        try syncMOC.performGroupedAndWait { [self] _ in
             // given
-            let action = JoinConversationAction(key: key, code: code)
-            
+            let action = JoinConversationAction(key: key, code: code, viewContext: uiMOC)
+
             // when
             let request = try XCTUnwrap(sut.request(for: action))
-            
+
             // then
             XCTAssertEqual(request.path, "/conversations/join")
             let expectedPayload: [String: String] = ["key": key, "code": code]
             XCTAssertEqual(request.payload!.asDictionary()! as! [String: String], expectedPayload)
         }
     }
-    
+
     func testThatItShouldJoinConversationAndReturnsConversationIDWhenTheRequestSucceeded() {
         syncMOC.performGroupedAndWait { [self] syncMOC in
             // given
             let expectation = self.expectation(description: "Result Handler was called")
-            
-            let expectedConversationID = self.conversation.remoteIdentifier
-            
+
             let selfUser = ZMUser.selfUser(in: syncMOC)
-            
+
             var resultConversation: ZMConversation?
-            var action = JoinConversationAction(key: key, code: code)
+            var action = JoinConversationAction(key: key, code: code, viewContext: uiMOC)
             action.onResult { result in
                 if case .success(let conversation) = result {
                     resultConversation = conversation
                     expectation.fulfill()
                 }
             }
-            
-            let eventData = Payload.UpdateConverationMemberJoin(userIDs: nil, users: nil)
-            let conversationID = QualifiedID(uuid: expectedConversationID!, domain: UUID().uuidString)
-            let conversationEvent = conversationEventPayload(from: eventData, conversationID: conversationID, senderID: nil, timestamp: nil)
+
+            let member = Payload.ConversationMember(id: otherUser.remoteIdentifier,
+                                                    qualifiedID: otherUser.qualifiedID,
+                                                    conversationRole: ZMConversation.defaultMemberRoleName)
+            let eventData = Payload.UpdateConverationMemberJoin(userIDs: [otherUser.remoteIdentifier], users: [member])
+            let conversationEvent = conversationEventPayload(from: eventData, conversationID: conversation.qualifiedID, senderID: otherUser.qualifiedID)
             let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 200, transportSessionError: nil)
-            
+
             // when
             self.sut.handleResponse(response, action: action)
-            
+
             // then
             XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
             XCTAssertEqual(resultConversation!, conversation)
             XCTAssertTrue(self.conversation.localParticipantsContain(user: selfUser))
         }
     }
-    
+
     func testThatItFailsWhenTheResponseIs204() {
-        syncMOC.performGroupedAndWait { [self] syncMOC in
+        syncMOC.performGroupedAndWait { [self] _ in
             // given
             let expectation = self.expectation(description: "Result Handler was called")
-            
-            var action = JoinConversationAction(key: key, code: code)
+
+            var action = JoinConversationAction(key: key, code: code, viewContext: uiMOC)
             action.onResult { result in
                 if case .failure = result {
                     expectation.fulfill()
                 }
             }
-            
+
             let response = ZMTransportResponse(payload: nil, httpStatus: 204, transportSessionError: nil)
-            
+
             // when
             self.sut.handleResponse(response, action: action)
-            
+
             // then
             XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
         }
     }
-    
+
     func testThatItFailsWhenTheRequestIsFailed() {
-        syncMOC.performGroupedAndWait { [self] syncMOC in
+        syncMOC.performGroupedAndWait { [self] _ in
             // given
             let expectation = self.expectation(description: "Result Handler was called")
-            
-            var action = JoinConversationAction(key: key, code: code)
+
+            var action = JoinConversationAction(key: key, code: code, viewContext: uiMOC)
             action.onResult { result in
                 if case .failure = result {
                     expectation.fulfill()
                 }
             }
-            
+
             let response = ZMTransportResponse(payload: nil, httpStatus: 400, transportSessionError: nil)
-            
+
             // when
             self.sut.handleResponse(response, action: action)
-            
+
             // then
             XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
         }
     }
-    
+
     func testThatItParsesAllKnownConnectionToUserErrorResponses() {
 
         let errorResponses: [(ConversationJoinError, ZMTransportResponse)] = [
@@ -156,7 +157,7 @@ final class JoinConversationActionHandlerTests: MessagingTestBase {
             if case ConversationJoinError(response: response) = expectedError {
                 // success
             } else {
-                XCTFail()
+                XCTFail("Unexpected error found")
             }
         }
     }
