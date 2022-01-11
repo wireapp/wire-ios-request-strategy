@@ -144,7 +144,11 @@ class ZMLocalNotificationTests_Message: ZMLocalNotificationTests {
 
     func testThatObfuscatesNotificationsForEphemeralMessages() {
         syncMOC.performGroupedBlockAndWait {
-            [self.oneOnOneConversation, self.groupConversation, self.groupConversationWithoutUserDefinedName, self.groupConversationWithoutName, self.invalidConversation].forEach {
+            [self.oneOnOneConversation,
+             self.groupConversation,
+             self.groupConversationWithoutUserDefinedName,
+             self.groupConversationWithoutName,
+             self.invalidConversation].forEach {
                 let note = self.textNotification($0!, sender: self.sender, isEphemeral: true)
                 XCTAssertEqual(note?.title, "Someone")
                 XCTAssertEqual(note?.body, "Sent a message")
@@ -184,7 +188,11 @@ class ZMLocalNotificationTests_Message: ZMLocalNotificationTests {
 
         // given
         syncMOC.performGroupedBlockAndWait {
-            let event = self.createUpdateEvent(UUID.create(), conversationID: self.oneOnOneConversation.remoteIdentifier!, genericMessage: GenericMessage(content: Text(content: "Hello Hello!"), nonce: UUID.create()), senderID: self.sender.remoteIdentifier)
+            let event = self.createUpdateEvent(UUID.create(),
+                                               conversationID: self.oneOnOneConversation.remoteIdentifier!,
+                                               genericMessage: GenericMessage(content: Text(content: "Hello Hello!"),
+                                                                              nonce: UUID.create()),
+                                               senderID: self.sender.remoteIdentifier)
 
             let note = ZMLocalNotification(event: event, conversation: self.oneOnOneConversation, managedObjectContext: self.syncMOC)
 
