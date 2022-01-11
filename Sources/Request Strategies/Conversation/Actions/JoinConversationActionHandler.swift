@@ -45,7 +45,6 @@ class JoinConversationActionHandler: ActionHandler<JoinConversationAction> {
             return nil
         }
         
-        
         return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData)
     }
     
