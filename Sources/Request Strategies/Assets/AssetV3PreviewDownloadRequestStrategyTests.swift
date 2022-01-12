@@ -66,7 +66,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         do {
             try message.setUnderlyingMessage(uploaded)
         } catch {
-            XCTFail()
+            XCTFail("Could not set generic message")
         }
 
         message.updateTransferState(.uploaded, synchronize: false)
@@ -122,7 +122,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(previewGenericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Could not set generic message")
             }
 
             XCTAssertFalse(message.hasDownloadedPreview)
@@ -144,7 +144,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(preview.genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Could not set generic message")
             }
 
             XCTAssertFalse(message.hasDownloadedPreview)
@@ -175,7 +175,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(preview.genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Could not set generic message")
             }
 
             // WHEN
@@ -218,7 +218,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(previewGenericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Could not set generic message")
             }
 
             message.fileMessageData?.requestImagePreviewDownload()
@@ -246,7 +246,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(previewGenericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Could not set generic message")
             }
         }
 
