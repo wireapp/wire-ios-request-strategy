@@ -46,7 +46,6 @@ public final class AssetRequestFactory: NSObject, FederationAware {
         static let accessLevel = "public"
         static let retention = "retention"
         static let boundary = "frontier"
-        static let domain = "domain"
 
         enum ContentType {
             static let json = "application/json"
@@ -69,14 +68,11 @@ public final class AssetRequestFactory: NSObject, FederationAware {
 
     func dataForMultipartAssetUploadRequest(_ data: Data, shareable: Bool, retention: Retention, domain: String?) throws -> Data {
         let fileDataHeader = [Constant.md5: (data as NSData).zmMD5Digest().base64String()]
-        var jsonObject: [String: Any] = [
+        let jsonObject: [String: Any] = [
             Constant.accessLevel: shareable,
             Constant.retention: retention.rawValue
         ]
-        if useFederationEndpoint,
-           let domain = domain {
-            jsonObject[Constant.domain] = domain
-        }
+
         let metaData = try JSONSerialization.data(withJSONObject: jsonObject, options: [])
 
         return NSData.multipartData(withItems: [

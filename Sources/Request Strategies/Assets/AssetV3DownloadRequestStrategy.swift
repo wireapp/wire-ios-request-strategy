@@ -19,7 +19,7 @@
 import WireImages
 import WireTransport
 
-private let zmLog = ZMSLog(tag: "Asset V3")
+private let zmLog = ZMSLog(tag: "Asset V3/V4")
 
 @objcMembers public final class AssetV3DownloadRequestStrategy: AbstractRequestStrategy, ZMDownstreamTranscoder, ZMContextChangeTrackerSource, FederationAware {
 
@@ -47,7 +47,7 @@ private let zmLog = ZMSLog(tag: "Asset V3")
 
         let downloadPredicate = NSPredicate { (object, _) -> Bool in
             guard let message = object as? ZMAssetClientMessage else { return false }
-            guard message.version == 3 else { return false }
+            guard message.version >= 3 else { return false }
 
             return !message.hasDownloadedFile && message.transferState == .uploaded && message.isDownloading && message.underlyingMessage?.assetData?.hasUploaded == true
         }
@@ -94,7 +94,7 @@ private let zmLog = ZMSLog(tag: "Asset V3")
         managedObjectContext.performGroupedBlock { [weak self] in
             guard let `self` = self  else { return }
             guard let message = self.managedObjectContext.registeredObject(for: objectID) as? ZMAssetClientMessage else { return }
-            guard message.version == 3 else { return }
+            guard message.version >= 3 else { return }
             guard let identifier = message.associatedTaskIdentifier else { return }
             self.applicationStatus?.requestCancellation.cancelTask(with: identifier)
             message.isDownloading = false
@@ -205,7 +205,7 @@ private let zmLog = ZMSLog(tag: "Asset V3")
 
             if let asset = assetClientMessage.underlyingMessage?.assetData {
                 let token = asset.uploaded.hasAssetToken ? asset.uploaded.assetToken : nil
-                let domain = assetClientMessage.conversation?.domain
+                let domain = asset.uploaded.assetDomain
                 if let request = requestFactory.requestToGetAsset(withKey: asset.uploaded.assetID, token: token, domain: domain) {
                     request.add(taskCreationHandler)
                     request.add(completionHandler)
