@@ -20,6 +20,7 @@ import Foundation
 import WireTransport
 import WireImages
 import WireDataModel
+import SwiftProtobuf
 
 private let zmLog = ZMSLog(tag: "Network")
 
@@ -29,16 +30,53 @@ public final class ClientMessageRequestFactory: NSObject {
     let octetStreamContentType = "application/octet-stream"
 
     public func upstreamRequestForFetchingClients(conversationId: UUID, selfClient: UserClient) -> ZMTransportRequest? {
-        let originalPath = "/" + ["conversations", conversationId.transportString(), "otr", "messages"].joined(separator: "/")
-        let newOtrMessage = Proteus_NewOtrMessage(withSender: selfClient, nativePush: false, recipients: [])
+        let path = "/" + ["conversations",
+                          conversationId.transportString(),
+                          "otr",
+                          "messages"].joined(separator: "/")
 
-        let path = originalPath.pathWithMissingClientStrategy(strategy: .doNotIgnoreAnyMissingClient)
-        guard let data = try? newOtrMessage.serializedData() else {
+        let newOtrMessage = Proteus_NewOtrMessage(
+            withSender: selfClient,
+            nativePush: false,
+            recipients: []
+        )
+
+        return upstreamRequestForFetchingClients(
+            path: path.pathWithMissingClientStrategy(strategy: .doNotIgnoreAnyMissingClient),
+            message: newOtrMessage
+        )
+    }
+
+    public func upstreamRequestForFetchingClients(conversationId: UUID, domain: String, selfClient: UserClient) -> ZMTransportRequest? {
+        let path = "/" + ["conversations",
+                          domain,
+                          conversationId.transportString(),
+                          "proteus",
+                          "messages"].joined(separator: "/")
+
+        let newOtrMessage = Proteus_QualifiedNewOtrMessage(
+            withSender: selfClient,
+            nativePush: false,
+            recipients: [],
+            missingClientsStrategy: .doNotIgnoreAnyMissingClient
+        )
+
+        return upstreamRequestForFetchingClients(path: path, message: newOtrMessage)
+    }
+
+    private func upstreamRequestForFetchingClients(path: String, message: SwiftProtobuf.Message) -> ZMTransportRequest? {
+        guard let data = try? message.serializedData() else {
             zmLog.debug("failed to serialize message")
             return nil
         }
-        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: data, type: protobufContentType, contentDisposition: nil)
-        return request
+
+        return ZMTransportRequest(
+            path: path,
+            method: .methodPOST,
+            binaryData: data,
+            type: protobufContentType,
+            contentDisposition: nil
+        )
     }
 
     public func upstreamRequestForMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, useFederationEndpoint: Bool) -> ZMTransportRequest? {

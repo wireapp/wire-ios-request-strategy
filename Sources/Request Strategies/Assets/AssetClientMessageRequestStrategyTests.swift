@@ -18,9 +18,7 @@
 
 import Foundation
 import WireRequestStrategy
-@testable import WireRequestStrategy
 import XCTest
-import WireRequestStrategy
 import WireDataModel
 
 fileprivate extension AssetClientMessageRequestStrategy {
@@ -283,7 +281,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             case .asset(let data)?:
                 XCTAssertTrue(data.expectsReadConfirmation)
             default:
-                XCTFail()
+                XCTFail("Unexpected message content")
             }
         }
     }
@@ -302,7 +300,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             case .asset(let data)?:
                 XCTAssertFalse(data.expectsReadConfirmation)
             default:
-                XCTFail()
+                XCTFail("Unexpected message content")
             }
         }
     }
@@ -318,7 +316,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Could not set generic message")
             }
 
             // WHEN
@@ -340,7 +338,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Could not set generic message")
             }
 
             // WHEN
@@ -371,7 +369,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Could not set generic message")
             }
 
             self.syncMOC.saveOrRollback()
@@ -379,7 +377,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             // WHEN
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
             if self.sut.nextRequest() == nil {
-                XCTFail()
+                XCTFail("Request is nil")
                 return
             }
 
@@ -402,7 +400,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("Could not set generic message")
             }
 
             self.syncMOC.saveOrRollback()
@@ -410,7 +408,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             // WHEN
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
             if self.sut.nextRequest() == nil {
-                XCTFail()
+                XCTFail("Request is nil")
                 return
             }
 
@@ -431,7 +429,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation) else {
-                return XCTFail()
+                return XCTFail("Failed to create request")
             }
             request.complete(withHttpStatus: 400)
         }
@@ -463,7 +461,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.assertCreatesValidLegacyRequestForAsset(in: self.groupConversation) else {
-                return XCTFail()
+                return XCTFail("Failed to create request")
             }
             let payload = ["label": "missing-legalhold-consent", "code": 403, "message": ""] as NSDictionary
             request.complete(with: ZMTransportResponse(payload: payload, httpStatus: 403, transportSessionError: nil))

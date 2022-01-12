@@ -27,11 +27,11 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
     public var requestsFactory = MissingClientsRequestFactory()
 
     public var useFederationEndpoint: Bool {
-        set {
-            isFederationEndpointAvailable = newValue
-        }
         get {
             isFederationEndpointAvailable
+        }
+        set {
+            isFederationEndpointAvailable = newValue
         }
     }
 
@@ -81,9 +81,12 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
         var keysToSync = keys
         if keys.contains(ZMUserClientMissingKey),
             let client = managedObject as? UserClient, (client.missingClients == nil || client.missingClients?.count == 0) {
+            let userClientMissingKeySet: Set<AnyHashable> = [ZMUserClientMissingKey]
+            let clientSet: Set<NSManagedObject> = [client]
             keysToSync.remove(ZMUserClientMissingKey)
-            client.resetLocallyModifiedKeys(Set(arrayLiteral: ZMUserClientMissingKey))
-            modifiedSync.objectsDidChange(Set(arrayLiteral: client))
+            client.resetLocallyModifiedKeys(userClientMissingKeySet)
+
+            modifiedSync.objectsDidChange(clientSet)
         }
         return (keysToSync.count > 0)
     }
