@@ -63,10 +63,11 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let conversation = self.createGroupConversation(with: self.otherUser)
+            let conversationSet: Set<NSManagedObject> =  [conversation]
 
             // WHEN
             conversation.setValue(true, forKey: #keyPath(ZMConversation.needsToVerifyLegalHold))
-            self.sut.objectsDidChange(Set(arrayLiteral: conversation))
+            self.sut.objectsDidChange(conversationSet)
 
             // THEN
             XCTAssertEqual(self.sut.nextRequest()?.path, "/conversations/\(conversation.remoteIdentifier!.transportString())/otr/messages")
@@ -81,7 +82,8 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
             // GIVEN
             conversation = self.createGroupConversation(with: self.otherUser)
             conversation.setValue(true, forKey: #keyPath(ZMConversation.needsToVerifyLegalHold))
-            self.sut.objectsDidChange(Set(arrayLiteral: conversation))
+            let conversationSet: Set<NSManagedObject> = [conversation]
+            self.sut.objectsDidChange(conversationSet)
             let request = self.sut.nextRequest()
 
             // WHEN
@@ -100,9 +102,11 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
         let clientID = "client123"
         syncMOC.performGroupedBlockAndWait {
             // GIVEN
+            let conversationSet: Set<NSManagedObject> = [conversation]
             conversation = self.createGroupConversation(with: self.otherUser)
             conversation.setValue(true, forKey: #keyPath(ZMConversation.needsToVerifyLegalHold))
-            self.sut.objectsDidChange(Set(arrayLiteral: conversation))
+
+            self.sut.objectsDidChange(conversationSet)
             let request = self.sut.nextRequest()
             let payload = self.missingClientsResponse(ClientUpdateResponse(label: nil, missing: [self.otherUser.remoteIdentifier.transportString(): [clientID]], deleted: nil, redundant: nil))
 
@@ -113,7 +117,7 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
 
         // THEN
         syncMOC.performGroupedBlockAndWait {
-            guard let client = UserClient.fetchUserClient(withRemoteId: clientID, forUser: self.otherUser, createIfNeeded: false) else { return XCTFail() }
+            guard let client = UserClient.fetchUserClient(withRemoteId: clientID, forUser: self.otherUser, createIfNeeded: false) else { return XCTFail("Failed to fetch client") }
 
             XCTAssertEqual(client.remoteIdentifier, clientID)
         }
@@ -128,9 +132,10 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
             XCTAssertNotNil(UserClient.fetchUserClient(withRemoteId: deletedClientID, forUser: self.otherUser, createIfNeeded: true))
             XCTAssertNotNil(UserClient.fetchUserClient(withRemoteId: existingClientID, forUser: self.otherUser, createIfNeeded: true))
 
+            let conversationSet: Set<NSManagedObject> = [conversation]
             conversation = self.createGroupConversation(with: self.otherUser)
             conversation.setValue(true, forKey: #keyPath(ZMConversation.needsToVerifyLegalHold))
-            self.sut.objectsDidChange(Set(arrayLiteral: conversation))
+            self.sut.objectsDidChange(conversationSet)
 
             let request = self.sut.nextRequest()
             let payload = self.missingClientsResponse(ClientUpdateResponse(label: nil, missing: [self.otherUser.remoteIdentifier.transportString(): [existingClientID]], deleted: nil, redundant: nil))
@@ -142,7 +147,7 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
 
         // THEN
         syncMOC.performGroupedBlockAndWait {
-            guard let existingClient = UserClient.fetchUserClient(withRemoteId: existingClientID, forUser: self.otherUser, createIfNeeded: false) else { return XCTFail() }
+            guard let existingClient = UserClient.fetchUserClient(withRemoteId: existingClientID, forUser: self.otherUser, createIfNeeded: false) else { return XCTFail("Failed to fetch existing client") }
 
             XCTAssertNil(UserClient.fetchUserClient(withRemoteId: deletedClientID, forUser: self.otherUser, createIfNeeded: false))
             XCTAssertEqual(existingClient.remoteIdentifier, existingClientID)
@@ -156,9 +161,10 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
             // GIVEN
             XCTAssertNotNil(UserClient.fetchUserClient(withRemoteId: deletedClientID, forUser: self.otherUser, createIfNeeded: true))
 
+            let conversationSet: Set<NSManagedObject> = [conversation]
             conversation = self.createGroupConversation(with: self.otherUser)
             conversation.setValue(true, forKey: #keyPath(ZMConversation.needsToVerifyLegalHold))
-            self.sut.objectsDidChange(Set(arrayLiteral: conversation))
+            self.sut.objectsDidChange(conversationSet)
 
             let request = self.sut.nextRequest()
             let payload = self.missingClientsResponse(ClientUpdateResponse(label: nil, missing: [:], deleted: nil, redundant: nil))
@@ -182,7 +188,8 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
             // GIVEN
             conversation = self.createGroupConversation(with: self.otherUser)
             conversation.setValue(true, forKey: #keyPath(ZMConversation.needsToVerifyLegalHold))
-            self.sut.objectsDidChange(Set(arrayLiteral: conversation))
+            let clientSet: Set<NSManagedObject> = [conversation]
+            self.sut.objectsDidChange(clientSet)
 
             let selfUser = ZMUser.selfUser(in: self.syncMOC)
             let request = self.sut.nextRequest()
