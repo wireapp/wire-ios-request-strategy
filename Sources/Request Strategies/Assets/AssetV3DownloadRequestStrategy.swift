@@ -205,7 +205,7 @@ private let zmLog = ZMSLog(tag: "Asset V3")
 
             if let asset = assetClientMessage.underlyingMessage?.assetData {
                 let token = asset.uploaded.hasAssetToken ? asset.uploaded.assetToken : nil
-                let domain = assetClientMessage.conversation?.domain
+                let domain = asset.uploaded.assetDomain
                 if let request = requestFactory.requestToGetAsset(withKey: asset.uploaded.assetID, token: token, domain: domain) {
                     request.add(taskCreationHandler)
                     request.add(completionHandler)
