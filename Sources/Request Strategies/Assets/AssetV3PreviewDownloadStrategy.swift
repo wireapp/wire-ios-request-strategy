@@ -124,12 +124,11 @@ extension AssetV3PreviewDownloadRequestStrategy: ZMDownstreamTranscoder {
     public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!) -> ZMTransportRequest! {
         if let assetClientMessage = object as? ZMAssetClientMessage,
             let asset = assetClientMessage.underlyingMessage?.assetData,
-            (assetClientMessage.version == 3 || assetClientMessage.version == 4) {
+            assetClientMessage.version >= 3 {
 
             let remote = asset.preview.remote
             let token = remote.hasAssetToken ? remote.assetToken : nil
-            let domain = assetClientMessage.conversation?.domain
-            if let request = requestFactory.requestToGetAsset(withKey: remote.assetID, token: token, domain: domain) {
+            if let request = requestFactory.requestToGetAsset(withKey: remote.assetID, token: token, domain: remote.domain) {
                 request.add(ZMCompletionHandler(on: self.managedObjectContext) { response in
                     self.handleResponse(response, forMessage: assetClientMessage)
                 })
