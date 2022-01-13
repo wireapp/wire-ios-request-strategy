@@ -131,7 +131,7 @@ extension LinkPreviewAssetDownloadRequestStrategy: ZMDownstreamTranscoder {
 
         // Protobuf initializes the token to an empty string when set to nil
         let token = remoteData.hasAssetToken && remoteData.assetToken != "" ? remoteData.assetToken : nil
-        let domain = message.conversation?.domain
+        let domain = remoteData.assetDomain
         let request = requestFactory.requestToGetAsset(withKey: remoteData.assetID, token: token, domain: domain)
         request?.add(ZMCompletionHandler(on: managedObjectContext) { response in
             self.handleResponse(response, forMessage: message)
