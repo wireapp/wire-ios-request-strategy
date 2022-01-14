@@ -132,9 +132,10 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    func testThatItGeneratesARequestForAV3FileMessageWithPreviewThatHasNotBeenDownloadedYet() {
+    func testThatItGeneratesAnExpectedV3RequestForAFileMessageWithPreviewThatHasNotBeenDownloadedYet_whenFederationIsNotEnabled() {
         // GIVEN
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
+        sut.useFederationEndpoint = false
         self.syncMOC.performGroupedBlockAndWait {
 
             let (message, _, _, _) = self.createMessage(in: self.conversation)!
@@ -163,10 +164,11 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    func testThatItDoesNotGenerateARequestForAV3FileMessageWithPreviewTwice() {
+    func testThatItDoesNotGenerateARequestForAV3FileMessageWithPreviewTwice_whenFederationIsNotEnabled() {
         // GIVEN
         var message: ZMAssetClientMessage!
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
+        sut.useFederationEndpoint = false
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(in: self.conversation)!.message
             let preview = self.createPreview(with: message.nonce!)
@@ -188,6 +190,82 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
 
             guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
             XCTAssertEqual(request.path, "/assets/v3/\(previewMeta.assetId)")
+            XCTAssertEqual(request.method, .methodGET)
+
+            // WHEN
+            message.fileMessageData?.requestImagePreviewDownload()
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // THEN
+        self.syncMOC.performGroupedBlockAndWait {
+
+            XCTAssertNil(self.sut.nextRequest())
+        }
+    }
+    
+    func testThatItGeneratesAnExpectedV4RequestForAFileMessageWithPreviewThatHasNotBeenDownloadedYet_whenFederationIsEnabled() {
+        // GIVEN
+        var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
+        let domain = UUID().uuidString
+        sut.useFederationEndpoint = true
+        self.syncMOC.performGroupedBlockAndWait {
+
+            let (message, _, _) = self.createMessage(in: self.conversation)!
+            let preview = self.createPreview(with: message.nonce!)
+            previewMeta = preview.meta
+            message.conversation?.domain = domain
+
+            do {
+                try message.setUnderlyingMessage(preview.genericMessage)
+            } catch {
+                XCTFail()
+            }
+
+            XCTAssertFalse(message.hasDownloadedPreview)
+
+            // WHEN
+            message.fileMessageData?.requestImagePreviewDownload()
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        self.syncMOC.performGroupedBlockAndWait {
+            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+
+            // THEN
+            XCTAssertEqual(request.path, "/assets/v4/\(domain)/\(previewMeta.assetId)")
+            XCTAssertEqual(request.method, .methodGET)
+        }
+    }
+
+    func testThatItDoesNotGenerateARequestForAV4FileMessageWithPreviewTwice_whenFederationIsEnabled() {
+        // GIVEN
+        var message: ZMAssetClientMessage!
+        var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
+        let domain = UUID().uuidString
+        sut.useFederationEndpoint = true
+        self.syncMOC.performGroupedBlockAndWait {
+            message = self.createMessage(in: self.conversation)!.message
+            let preview = self.createPreview(with: message.nonce!)
+            previewMeta = preview.meta
+            message.conversation?.domain = domain
+
+            do {
+                try message.setUnderlyingMessage(preview.genericMessage)
+            } catch {
+                XCTFail()
+            }
+
+            // WHEN
+            message.fileMessageData?.requestImagePreviewDownload()
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // THEN
+        self.syncMOC.performGroupedBlockAndWait {
+
+            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            XCTAssertEqual(request.path, "/assets/v4/\(domain)/\(previewMeta.assetId)")
             XCTAssertEqual(request.method, .methodGET)
 
             // WHEN

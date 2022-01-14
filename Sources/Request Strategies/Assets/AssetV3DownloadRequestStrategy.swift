@@ -21,7 +21,19 @@ import WireTransport
 
 private let zmLog = ZMSLog(tag: "Asset V3")
 
-@objcMembers public final class AssetV3DownloadRequestStrategy: AbstractRequestStrategy, ZMDownstreamTranscoder, ZMContextChangeTrackerSource {
+@objcMembers public final class AssetV3DownloadRequestStrategy: AbstractRequestStrategy, ZMDownstreamTranscoder, ZMContextChangeTrackerSource, FederationAware {
+
+    public var useFederationEndpoint: Bool {
+        get {
+            requestFactory.useFederationEndpoint
+        }
+
+        set {
+            requestFactory.useFederationEndpoint = newValue
+        }
+    }
+
+    private let requestFactory = AssetDownloadRequestFactory()
 
     fileprivate var assetDownstreamObjectSync: ZMDownstreamObjectSyncWithWhitelist!
     private var notificationTokens: [Any] = []
@@ -193,7 +205,8 @@ private let zmLog = ZMSLog(tag: "Asset V3")
 
             if let asset = assetClientMessage.underlyingMessage?.assetData {
                 let token = asset.uploaded.hasAssetToken ? asset.uploaded.assetToken : nil
-                if let request = AssetDownloadRequestFactory().requestToGetAsset(withKey: asset.uploaded.assetID, token: token) {
+                let domain = asset.uploaded.assetDomain
+                if let request = requestFactory.requestToGetAsset(withKey: asset.uploaded.assetID, token: token, domain: domain) {
                     request.add(taskCreationHandler)
                     request.add(completionHandler)
                     request.add(progressHandler)
