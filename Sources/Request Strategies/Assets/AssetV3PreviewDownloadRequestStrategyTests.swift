@@ -203,18 +203,16 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             XCTAssertNil(self.sut.nextRequest())
         }
     }
-    
+
     func testThatItGeneratesAnExpectedV4RequestForAFileMessageWithPreviewThatHasNotBeenDownloadedYet_whenFederationIsEnabled() {
         // GIVEN
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
-        let domain = UUID().uuidString
         sut.useFederationEndpoint = true
         self.syncMOC.performGroupedBlockAndWait {
 
-            let (message, _, _) = self.createMessage(in: self.conversation)!
+            let (message, _, _, _) = self.createMessage(in: self.conversation)!
             let preview = self.createPreview(with: message.nonce!)
             previewMeta = preview.meta
-            message.conversation?.domain = domain
 
             do {
                 try message.setUnderlyingMessage(preview.genericMessage)
@@ -233,7 +231,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
 
             // THEN
-            XCTAssertEqual(request.path, "/assets/v4/\(domain)/\(previewMeta.assetId)")
+            XCTAssertEqual(request.path, "/assets/v4/\(previewMeta.domain)/\(previewMeta.assetId)")
             XCTAssertEqual(request.method, .methodGET)
         }
     }
@@ -242,13 +240,11 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // GIVEN
         var message: ZMAssetClientMessage!
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
-        let domain = UUID().uuidString
         sut.useFederationEndpoint = true
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(in: self.conversation)!.message
             let preview = self.createPreview(with: message.nonce!)
             previewMeta = preview.meta
-            message.conversation?.domain = domain
 
             do {
                 try message.setUnderlyingMessage(preview.genericMessage)
@@ -265,7 +261,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedBlockAndWait {
 
             guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
-            XCTAssertEqual(request.path, "/assets/v4/\(domain)/\(previewMeta.assetId)")
+            XCTAssertEqual(request.path, "/assets/v4/\(previewMeta.domain)/\(previewMeta.assetId)")
             XCTAssertEqual(request.method, .methodGET)
 
             // WHEN

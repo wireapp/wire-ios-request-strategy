@@ -207,17 +207,20 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
     func testThatItGeneratesAnExpectedV4RequestToTheV3EndpointIfTheProtobufContainsAnAssetID_whenFederationIsEnabled() {
 
         var expectedAssetId: String = ""
+        var expectedDomain: String = ""
         syncMOC.performGroupedBlockAndWait {
 
             // Given
             self.sut.useFederationEndpoint = true
-            guard let (message, assetId, token, _) = self.createFileMessageWithAssetId(in: self.conversation) else { return XCTFail("No message") }
+            guard let (message, assetId, token, domain) = self.createFileMessageWithAssetId(in: self.conversation) else { return XCTFail("No message") }
             guard let assetData = message.underlyingMessage?.assetData else { return XCTFail("No assetData found") }
 
             expectedAssetId = assetId
+            expectedDomain = domain
             XCTAssert(assetData.hasUploaded)
             XCTAssertEqual(assetData.uploaded.assetID, assetId)
             XCTAssertEqual(assetData.uploaded.assetToken, token)
+            XCTAssertEqual(assetData.uploaded.assetDomain, domain)
             message.requestFileDownload()
         }
 
@@ -229,7 +232,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
             // Then
             XCTAssertEqual(request.method, .methodGET)
-            XCTAssertEqual(request.path, "/assets/v4/\(self.conversation.domain!)/\(expectedAssetId)")
+            XCTAssertEqual(request.path, "/assets/v4/\(expectedDomain)/\(expectedAssetId)")
             XCTAssert(request.needsAuthentication)
         }
     }
@@ -237,18 +240,21 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
     func testThatItGeneratesAnExpectedV4RequestToTheV3EndpointITheProtobufContainsAnAssetID_EphemeralConversation_whenFederationIsEnabled() {
 
         var expectedAssetId: String = ""
+        var expectedDomain: String = ""
         syncMOC.performGroupedBlockAndWait {
 
             // Given
             self.sut.useFederationEndpoint = true
             self.conversation.setMessageDestructionTimeoutValue(.custom(5), for: .selfUser)
-            guard let (message, assetId, token, _) = self.createFileMessageWithAssetId(in: self.conversation) else { return XCTFail("No message") }
+            guard let (message, assetId, token, domain) = self.createFileMessageWithAssetId(in: self.conversation) else { return XCTFail("No message") }
             guard let assetData = message.underlyingMessage?.assetData else { return XCTFail("No assetData found") }
 
             expectedAssetId = assetId
+            expectedDomain = domain
             XCTAssert(assetData.hasUploaded)
             XCTAssertEqual(assetData.uploaded.assetID, assetId)
             XCTAssertEqual(assetData.uploaded.assetToken, token)
+            XCTAssertEqual(assetData.uploaded.assetDomain, domain)
             guard case .ephemeral? = message.underlyingMessage!.content else {
                 return XCTFail()
             }
@@ -263,7 +269,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
             // Then
             XCTAssertEqual(request.method, .methodGET)
-            XCTAssertEqual(request.path, "/assets/v4/\(self.conversation.domain!)/\(expectedAssetId)")
+            XCTAssertEqual(request.path, "/assets/v4/\(expectedDomain)/\(expectedAssetId)")
             XCTAssert(request.needsAuthentication)
         }
     }

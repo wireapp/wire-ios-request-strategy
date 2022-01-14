@@ -62,7 +62,7 @@ public final class AssetV3UploadRequestStrategy: AbstractRequestStrategy, ZMCont
     }
 
     private static var updatePredicate: NSPredicate {
-        return NSPredicate(format: "version == 3 && delivered == NO && transferState == \(AssetTransferState.uploading.rawValue)")
+        return NSPredicate(format: "version >= 3 && delivered == NO && transferState == \(AssetTransferState.uploading.rawValue)")
     }
 
     private static var filterPredicate: NSPredicate {
@@ -78,7 +78,7 @@ extension AssetV3UploadRequestStrategy: ZMContextChangeTracker {
     public func objectsDidChange(_ object: Set<NSManagedObject>) {
         let assetClientMessages = object.compactMap { object -> ZMAssetClientMessage? in
             guard let message = object as? ZMAssetClientMessage,
-                message.version == 3,
+                message.version >= 3,
                 message.transferState == .uploadingCancelled
                 else { return nil }
             return message

@@ -43,7 +43,7 @@ private let zmLog = ZMSLog(tag: "AssetPreviewDownloading")
 
         let filter = NSPredicate { object, _ in
             guard let message = object as? ZMAssetClientMessage, nil != message.fileMessageData else { return false }
-            guard message.version == 3, message.visibleInConversation != nil else { return false }
+            guard message.version >= 3, message.visibleInConversation != nil else { return false }
             guard nil != message.underlyingMessage?.previewAssetId else { return false }
             return !message.hasDownloadedPreview
         }
@@ -128,7 +128,7 @@ extension AssetV3PreviewDownloadRequestStrategy: ZMDownstreamTranscoder {
 
             let remote = asset.preview.remote
             let token = remote.hasAssetToken ? remote.assetToken : nil
-            if let request = requestFactory.requestToGetAsset(withKey: remote.assetID, token: token, domain: remote.domain) {
+            if let request = requestFactory.requestToGetAsset(withKey: remote.assetID, token: token, domain: remote.assetDomain) {
                 request.add(ZMCompletionHandler(on: self.managedObjectContext) { response in
                     self.handleResponse(response, forMessage: assetClientMessage)
                 })

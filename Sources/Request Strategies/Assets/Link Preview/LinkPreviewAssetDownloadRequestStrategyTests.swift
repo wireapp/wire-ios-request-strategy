@@ -52,6 +52,7 @@ class LinkPreviewAssetDownloadRequestStrategyTests: MessagingTestBase {
     // MARK: - Helper
 
     fileprivate func createLinkPreview(_ assetID: String,
+                                       _ assetDomain: String? = nil,
                                        article: Bool = true,
                                        otrKey: Data? = nil,
                                        sha256: Data? = nil) -> LinkPreview {
@@ -61,6 +62,9 @@ class LinkPreviewAssetDownloadRequestStrategyTests: MessagingTestBase {
             let (otr, sha) = (otrKey ?? Data.randomEncryptionKey(), sha256 ?? Data.zmRandomSHA256Key())
             let remoteData = WireProtos.Asset.RemoteData.with {
                 $0.assetID = assetID
+                if let assetDomain = assetDomain {
+                    $0.assetDomain = assetDomain
+                }
                 $0.otrKey = otr
                 $0.sha256 = sha
             }
@@ -155,11 +159,12 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
             XCTAssertNil(self.sut.nextRequest())
         }
     }
-    
+
     func testThatItGeneratesAnExpectedV4RequestForAWhitelistedMessageWithNoImageInCache_whenFederationIsEnabled() {
         // GIVEN
         let assetID = UUID.create().transportString()
-        let linkPreview = self.createLinkPreview(assetID)
+        let assetDomain = UUID().create().transportString()
+        let linkPreview = self.createLinkPreview(assetID, assetDomain)
         let nonce = UUID.create()
         var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
         text.linkPreview.append(linkPreview)
@@ -177,7 +182,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
             guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
-            XCTAssertEqual(request.path, "/assets/v4/\(self.oneToOneConversation.domain!)/\(assetID)")
+            XCTAssertEqual(request.path, "/assets/v4/\(assetDomain)/\(assetID)")
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
             XCTAssertNil(self.sut.nextRequest())
         }
@@ -185,9 +190,10 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
 
     func testThatItGeneratesAnExpectedV4RequestForAWhitelistedEphemeralMessageWithNoImageInCache_whenFederationIsEnabled() {
         let assetID = UUID.create().transportString()
+        let assetDomain = UUID().create().transportString()
         self.syncMOC.performGroupedAndWait { syncMOC in
             // GIVEN
-            let linkPreview = self.createLinkPreview(assetID)
+            let linkPreview = self.createLinkPreview(assetID, assetDomain)
             let nonce = UUID.create()
             var text = Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil)
             text.linkPreview.append(linkPreview)
@@ -204,7 +210,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
             guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
-            XCTAssertEqual(request.path, "/assets/v4/\(self.oneToOneConversation.domain!)/\(assetID)")
+            XCTAssertEqual(request.path, "/assets/v4/\(assetDomain)/\(assetID)")
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
             XCTAssertNil(self.sut.nextRequest())
         }
