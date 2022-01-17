@@ -21,18 +21,8 @@ import Foundation
 /// AssetV3UploadRequestStrategy is responsible for uploading all the assets associated with a asset message
 /// after they've been preprocessed (downscaled & encrypted). After all the assets have been uploaded
 /// transfer state is changed to .uploaded which is the signal that the asset message is ready to be sent.
-public final class AssetV3UploadRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
-    
-    public var useFederationEndpoint: Bool {
-        get {
-            requestFactory.useFederationEndpoint
-        }
-        
-        set {
-            requestFactory.useFederationEndpoint = newValue
-        }
-    }
-    
+public final class AssetV3UploadRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
+
     internal let requestFactory = AssetRequestFactory()
     internal var upstreamSync: ZMUpstreamModifiedObjectSync!
     internal var preprocessor: AssetsPreprocessor
@@ -128,8 +118,7 @@ extension AssetV3UploadRequestStrategy: ZMUpstreamTranscoder {
         guard let data = asset.encrypted else { fatal("Encrypted data not available") }
         guard let retention = message.conversation.map(AssetRequestFactory.Retention.init) else { fatal("Trying to send message that doesn't have a conversation") }
 
-        let domain = ZMUser.selfUser(in: managedObjectContext).domain
-        guard let request = requestFactory.backgroundUpstreamRequestForAsset(message: message, withData: data, shareable: false, retention: retention, domain: domain) else { fatal("Could not create asset request") }
+        guard let request = requestFactory.backgroundUpstreamRequestForAsset(message: message, withData: data, shareable: false, retention: retention) else { fatal("Could not create asset request") }
 
         request.add(ZMTaskCreatedHandler(on: managedObjectContext) { identifier in
             message.associatedTaskIdentifier = identifier

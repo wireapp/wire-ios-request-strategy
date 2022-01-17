@@ -68,10 +68,11 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
         in conversation: ZMConversation,
         otrKey: Data = Data.randomEncryptionKey(),
         sha: Data  = Data.randomEncryptionKey()
-    ) -> (message: ZMAssetClientMessage, assetId: String, assetToken: String, domain: String)? {
+    ) -> (message: ZMAssetClientMessage, assetId: String, assetToken: String, domain: String?)? {
 
         let message = try! conversation.appendFile(with: ZMFileMetadata(fileURL: testDataURL)) as! ZMAssetClientMessage
-        let (assetId, token, domain) = (UUID.create().transportString(), UUID.create().transportString(), UUID.create().transportString())
+        let messageDomain = sut.useFederationEndpoint ? UUID.create().transportString() : nil
+        let (assetId, token, domain) = (UUID.create().transportString(), UUID.create().transportString(), messageDomain)
         let content = WireProtos.Asset(withUploadedOTRKey: otrKey, sha256: sha)
         var uploaded = GenericMessage(content: content, nonce: message.nonce!, expiresAfter: conversation.activeMessageDestructionTimeoutValue)
 
@@ -152,7 +153,8 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             XCTAssert(assetData.hasUploaded)
             XCTAssertEqual(assetData.uploaded.assetID, assetId)
             XCTAssertEqual(assetData.uploaded.assetToken, token)
-            XCTAssertEqual(assetData.uploaded.assetDomain, domain)
+            XCTAssertFalse(assetData.uploaded.hasAssetDomain)
+            XCTAssertNil(domain)
             message.requestFileDownload()
         }
 
@@ -184,7 +186,8 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             XCTAssert(assetData.hasUploaded)
             XCTAssertEqual(assetData.uploaded.assetID, assetId)
             XCTAssertEqual(assetData.uploaded.assetToken, token)
-            XCTAssertEqual(assetData.uploaded.assetDomain, domain)
+            XCTAssertFalse(assetData.uploaded.hasAssetDomain)
+            XCTAssertNil(domain)
             guard case .ephemeral? = message.underlyingMessage!.content else {
                 return XCTFail("Ephemeral's message content is invalid")
             }
@@ -207,7 +210,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
     func testThatItGeneratesAnExpectedV4RequestToTheV3EndpointIfTheProtobufContainsAnAssetID_whenFederationIsEnabled() {
 
         var expectedAssetId: String = ""
-        var expectedDomain: String = ""
+        var expectedDomain: String! = ""
         syncMOC.performGroupedBlockAndWait {
 
             // Given
@@ -220,7 +223,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             XCTAssert(assetData.hasUploaded)
             XCTAssertEqual(assetData.uploaded.assetID, assetId)
             XCTAssertEqual(assetData.uploaded.assetToken, token)
-            XCTAssertEqual(assetData.uploaded.assetDomain, domain)
+            XCTAssertEqual(assetData.uploaded.assetDomain, domain!)
             message.requestFileDownload()
         }
 
@@ -232,7 +235,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
             // Then
             XCTAssertEqual(request.method, .methodGET)
-            XCTAssertEqual(request.path, "/assets/v4/\(expectedDomain)/\(expectedAssetId)")
+            XCTAssertEqual(request.path, "/assets/v4/\(expectedDomain!)/\(expectedAssetId)")
             XCTAssert(request.needsAuthentication)
         }
     }
@@ -240,7 +243,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
     func testThatItGeneratesAnExpectedV4RequestToTheV3EndpointITheProtobufContainsAnAssetID_EphemeralConversation_whenFederationIsEnabled() {
 
         var expectedAssetId: String = ""
-        var expectedDomain: String = ""
+        var expectedDomain: String! = ""
         syncMOC.performGroupedBlockAndWait {
 
             // Given
@@ -254,7 +257,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             XCTAssert(assetData.hasUploaded)
             XCTAssertEqual(assetData.uploaded.assetID, assetId)
             XCTAssertEqual(assetData.uploaded.assetToken, token)
-            XCTAssertEqual(assetData.uploaded.assetDomain, domain)
+            XCTAssertEqual(assetData.uploaded.assetDomain, domain!)
             guard case .ephemeral? = message.underlyingMessage!.content else {
                 return XCTFail()
             }
@@ -269,7 +272,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
             // Then
             XCTAssertEqual(request.method, .methodGET)
-            XCTAssertEqual(request.path, "/assets/v4/\(expectedDomain)/\(expectedAssetId)")
+            XCTAssertEqual(request.path, "/assets/v4/\(expectedDomain!)/\(expectedAssetId)")
             XCTAssert(request.needsAuthentication)
         }
     }

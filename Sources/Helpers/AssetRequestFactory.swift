@@ -55,28 +55,25 @@ public final class AssetRequestFactory: NSObject, FederationAware {
         }
     }
 
-    public func backgroundUpstreamRequestForAsset(message: ZMAssetClientMessage, withData data: Data, shareable: Bool = true, retention: Retention, domain: String?) -> ZMTransportRequest? {
-        guard let uploadURL = uploadURL(for: message, in: message.managedObjectContext!, shareable: shareable, retention: retention, domain: domain, data: data) else { return nil }
+    public func backgroundUpstreamRequestForAsset(message: ZMAssetClientMessage, withData data: Data, shareable: Bool = true, retention: Retention) -> ZMTransportRequest? {
+        guard let uploadURL = uploadURL(for: message, in: message.managedObjectContext!, shareable: shareable, retention: retention, data: data) else { return nil }
         let request = ZMTransportRequest.uploadRequest(withFileURL: uploadURL, path: Constant.path, contentType: Constant.ContentType.multipart)
         request.addContentDebugInformation("Uploading full asset to /assets/v3")
         return request
     }
 
-    public func upstreamRequestForAsset(withData data: Data, shareable: Bool = true, retention: Retention, domain: String?) -> ZMTransportRequest? {
-        guard let multipartData = try? dataForMultipartAssetUploadRequest(data, shareable: shareable, retention: retention, domain: domain) else { return nil }
+    public func upstreamRequestForAsset(withData data: Data, shareable: Bool = true, retention: Retention) -> ZMTransportRequest? {
+        guard let multipartData = try? dataForMultipartAssetUploadRequest(data, shareable: shareable, retention: retention) else { return nil }
         return ZMTransportRequest(path: Constant.path, method: .methodPOST, binaryData: multipartData, type: Constant.ContentType.multipart, contentDisposition: nil)
     }
 
-    func dataForMultipartAssetUploadRequest(_ data: Data, shareable: Bool, retention: Retention, domain: String?) throws -> Data {
+    func dataForMultipartAssetUploadRequest(_ data: Data, shareable: Bool, retention: Retention) throws -> Data {
         let fileDataHeader = [Constant.md5: (data as NSData).zmMD5Digest().base64String()]
-        var jsonObject: [String: Any] = [
+        let jsonObject: [String: Any] = [
             Constant.accessLevel: shareable,
             Constant.retention: retention.rawValue
         ]
-        if useFederationEndpoint,
-           let domain = domain {
-            jsonObject[Constant.domain] = domain
-        }
+
         let metaData = try JSONSerialization.data(withJSONObject: jsonObject, options: [])
 
         return NSData.multipartData(withItems: [
@@ -85,8 +82,8 @@ public final class AssetRequestFactory: NSObject, FederationAware {
         ], boundary: Constant.boundary)
     }
 
-    private func uploadURL(for message: ZMAssetClientMessage, in moc: NSManagedObjectContext, shareable: Bool, retention: Retention, domain: String?, data: Data) -> URL? {
-        guard let multipartData = try? dataForMultipartAssetUploadRequest(data, shareable: shareable, retention: retention, domain: domain) else { return nil }
+    private func uploadURL(for message: ZMAssetClientMessage, in moc: NSManagedObjectContext, shareable: Bool, retention: Retention, data: Data) -> URL? {
+        guard let multipartData = try? dataForMultipartAssetUploadRequest(data, shareable: shareable, retention: retention) else { return nil }
         return moc.zm_fileAssetCache.storeRequestData(message, data: multipartData)
     }
 
