@@ -217,7 +217,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(preview.genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("failed to set underlying message")
             }
 
             XCTAssertFalse(message.hasDownloadedPreview)
@@ -249,7 +249,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             do {
                 try message.setUnderlyingMessage(preview.genericMessage)
             } catch {
-                XCTFail()
+                XCTFail("failed to set underlying message")
             }
 
             // WHEN

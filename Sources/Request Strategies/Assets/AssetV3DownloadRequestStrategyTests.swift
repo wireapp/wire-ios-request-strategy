@@ -259,7 +259,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(assetData.uploaded.assetToken, token)
             XCTAssertEqual(assetData.uploaded.assetDomain, domain!)
             guard case .ephemeral? = message.underlyingMessage!.content else {
-                return XCTFail()
+                return XCTFail("content missing")
             }
             message.requestFileDownload()
         }
