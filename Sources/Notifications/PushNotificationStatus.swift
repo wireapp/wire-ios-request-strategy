@@ -33,7 +33,7 @@ open class PushNotificationStatus: NSObject {
     }
 
     // The legacy mode means we don't want to use the Notification service extension
-    public var isPushNotificationInLegacyMode: Bool = false
+    public var isPushNotificationInLegacyMode: Bool = true
 
     public init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
