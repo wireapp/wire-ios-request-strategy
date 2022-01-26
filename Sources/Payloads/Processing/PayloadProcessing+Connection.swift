@@ -86,7 +86,7 @@ extension Payload.Connection {
                                                         domain: qualifiedConversationID?.domain,
                                                         in: context)
 
-        conversation.needsToBeUpdatedFromBackend = true
+        conversation.needsToBeUpdatedFromBackend = false
         conversation.lastModifiedDate = self.lastUpdate
         conversation.addParticipantAndUpdateConversationState(user: connection.to, role: nil)
 
