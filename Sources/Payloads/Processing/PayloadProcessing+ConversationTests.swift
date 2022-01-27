@@ -203,19 +203,19 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             // given
             let accessMode: ConversationAccessMode = .allowGuests
-            let accessRole: ConversationAccessRole = .team
+            let accessRole: Set<ConversationAccessRoleV2> = [.teamMember]
             let qualifiedID = self.groupConversation.qualifiedID!
 
             let conversationPayload = Payload.Conversation(qualifiedID: qualifiedID,
                                                            type: BackendConversationType.group.rawValue,
                                                            access: accessMode.stringValue,
-                                                           accessRole: accessRole.rawValue)
+                                                           accessRoleV2: accessRole.map {$0.rawValue})
             // when
             conversationPayload.updateOrCreate(in: self.syncMOC)
 
             // then
             XCTAssertEqual(self.groupConversation.accessMode, accessMode)
-            XCTAssertEqual(self.groupConversation.accessRole, accessRole)
+            XCTAssertEqual(self.groupConversation.accessRoles, accessRole)
         }
     }
 
