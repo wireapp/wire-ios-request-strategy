@@ -483,7 +483,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performAndWait {
 
             let newAccessMode = ConversationAccessMode(values: ["code", "invite"])
-            let newAccessRole: Set<ConversationAccessRoleV2> = [.teamMember]
+            let newAccessRole: Set<ConversationAccessRoleV2> = [.teamMember, .guest]
 
             XCTAssertNotEqual(self.groupConversation.accessMode, newAccessMode)
             XCTAssertNotEqual(self.groupConversation.accessRoles, newAccessRole)

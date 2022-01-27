@@ -451,7 +451,7 @@ extension Payload {
         }
 
         let access: [String]
-        let accessRole: String
+        let accessRole: String?
         let accessRoleV2: [String]
     }
 
