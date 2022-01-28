@@ -62,7 +62,7 @@ fileprivate extension ZMTransportRequest {
 
 }
 
-class AssetClientMessageRequestStrategyTests: MessagingTestBase {
+final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
     fileprivate var mockApplicationStatus: MockApplicationStatus!
     fileprivate var sut: AssetClientMessageRequestStrategy!
@@ -149,7 +149,7 @@ class AssetClientMessageRequestStrategyTests: MessagingTestBase {
                 expiresAfter: targetConversation.activeMessageDestructionTimeoutValue
             )
             if assetId {
-                uploaded.updateUploaded(assetId: UUID.create().transportString(), token: nil)
+                uploaded.updateUploaded(assetId: UUID.create().transportString(), token: nil, domain: nil)
             }
 
             XCTAssertNoThrow(try message.setUnderlyingMessage(uploaded))
