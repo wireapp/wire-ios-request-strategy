@@ -87,7 +87,7 @@ extension Payload.Connection {
                                                         in: context)
 
         Logging.network.debug("Marking conversation as needing to be updated from backend")
-        conversation.needsToBeUpdatedFromBackend = false
+        conversation.needsToBeUpdatedFromBackend = true
         conversation.lastModifiedDate = self.lastUpdate
         conversation.addParticipantAndUpdateConversationState(user: connection.to, role: nil)
 
