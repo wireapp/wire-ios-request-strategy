@@ -88,6 +88,7 @@ class ConnectToUserActionHandler: ActionHandler<ConnectToUserAction>, Federation
 
         let connection = Payload.Connection(response, decoder: decoder)
         connection?.updateOrCreate(in: context)
+        Logging.network.debug("Saving context after connection update")
         context.saveOrRollback()
         action.notifyResult(.success(Void()))
     }

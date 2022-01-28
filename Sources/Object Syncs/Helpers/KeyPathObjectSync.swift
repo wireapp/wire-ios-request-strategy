@@ -71,6 +71,7 @@ class KeyPathObjectSync<Transcoder: KeyPathObjectSyncTranscoder>: NSObject, ZMCo
             if object[keyPath: keyPath] {
                 if !pending.contains(object) {
                     pending.insert(object)
+                    Logging.network.debug("syncing object: \(object)")
                     transcoder?.synchronize(object) {
                         mutableObject[keyPath: self.keyPath] = false
                     }
