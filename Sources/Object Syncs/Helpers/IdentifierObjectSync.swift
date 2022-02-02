@@ -82,8 +82,10 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
 
         if newIdentifiers.isEmpty && downloading.isEmpty && pending.isEmpty {
             delegate?.didFinishSyncingAllObjects()
+            Logging.network.debug("IdentifierObjectSync called didFinishSyncingAllObjects on delegate")
         } else {
             pending.formUnion(Set(identifiers).subtracting(downloading))
+            Logging.network.debug("IdentifierObjectSync added identifiers to pending Set")
         }
     }
 
@@ -98,11 +100,13 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
     }
 
     public func nextRequest() -> ZMTransportRequest? {
+        Logging.network.debug("Entering nextRequest()")
         guard !pending.isEmpty, let fetchLimit = transcoder?.fetchLimit else { return nil }
 
         let scheduled = Set(pending.prefix(fetchLimit))
 
         guard let request = transcoder?.request(for: scheduled) else { return nil }
+        Logging.network.debug("Created request for scheduled: \(scheduled)")
 
         downloading.formUnion(scheduled)
         pending.subtract(scheduled)

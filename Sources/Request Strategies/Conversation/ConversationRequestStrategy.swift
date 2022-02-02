@@ -276,12 +276,15 @@ extension ConversationRequestStrategy: KeyPathObjectSyncTranscoder {
     typealias T = ZMConversation
 
     func synchronize(_ object: ZMConversation, completion: @escaping () -> Void) {
+        Logging.network.debug("Starting sync in ConversationRequestStrategy")
         if conversationByQualifiedIDSync.isAvailable, let identifiers = object.qualifiedID {
             let conversationByQualifiedIdIdentifiersSet: Set<ConversationByQualifiedIDTranscoder.T> = [identifiers]
             conversationByQualifiedIDSync.sync(identifiers: conversationByQualifiedIdIdentifiersSet)
         } else if let identifier = object.remoteIdentifier {
             let conversationByIdIdentfiersSet: Set<ConversationByIDTranscoder.T> = [identifier]
             conversationByIDSync.sync(identifiers: conversationByIdIdentfiersSet)
+        } else {
+            Logging.network.debug("ConversationRequestStrategy sync not triggered")
         }
     }
 
@@ -552,6 +555,7 @@ class ConversationByIDTranscoder: IdentifierObjectSyncTranscoder {
             }
 
             if response.httpStatus == 403 {
+                Logging.network.debug("Received status 403 after attempting to fetch conversation \(identifiers)")
                 removeSelfUser(identifiers)
                 return
             }

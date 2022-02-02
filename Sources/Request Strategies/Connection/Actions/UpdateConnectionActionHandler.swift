@@ -104,6 +104,7 @@ class UpdateConnectionActionHandler: ActionHandler<UpdateConnectionAction>, Fede
             return
         }
 
+        Logging.network.debug("Received connection update response")
         let connection = Payload.Connection(response, decoder: decoder)
         connection?.updateOrCreate(in: context)
         context.saveOrRollback()
