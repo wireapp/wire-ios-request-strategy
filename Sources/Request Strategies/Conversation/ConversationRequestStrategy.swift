@@ -595,7 +595,7 @@ class ConversationByIDTranscoder: IdentifierObjectSyncTranscoder {
                 conversation.needsToBeUpdatedFromBackend = false
                 continue
             }
-            
+
             let selfUser = ZMUser.selfUser(in: context)
             conversation.removeParticipantAndUpdateConversationState(user: selfUser, initiatingUser: selfUser)
             conversation.needsToBeUpdatedFromBackend = false
