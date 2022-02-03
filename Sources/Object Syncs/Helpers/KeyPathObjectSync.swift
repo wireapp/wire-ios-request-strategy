@@ -63,6 +63,7 @@ class KeyPathObjectSync<Transcoder: KeyPathObjectSyncTranscoder>: NSObject, ZMCo
     // MARK: - ZMContextChangeTracker
 
     func objectsDidChange(_ objects: Set<NSManagedObject>) {
+        Logging.network.debug("objectsDidChange: \(objects)")
         let objects = objects.compactMap({ $0 as? Transcoder.T })
 
         objects.forEach { object in
