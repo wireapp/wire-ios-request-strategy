@@ -60,7 +60,7 @@ extension Payload {
             name = conversation.userDefinedName
             access = conversation.accessMode?.stringValue
             accessRole = conversation.accessRole?.rawValue
-            accessRoleV2 = conversation.accessRoles.map({$0.rawValue})
+            accessRoleV2 = conversation.accessRoles.map(\.rawValue)
             conversationRole = ZMConversation.defaultMemberRoleName
             team = conversation.team?.remoteIdentifier.map({ ConversationTeamInfo(teamID: $0) })
             readReceiptMode = conversation.hasReadReceiptsEnabled ? 1 : 0

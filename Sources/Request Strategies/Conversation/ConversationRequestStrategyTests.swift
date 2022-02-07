@@ -495,7 +495,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
                                          timestamp: Date(),
                                          dataPayload: [
                                             "access": newAccessMode.stringValue,
-                                            "access_role_v2": newAccessRole.map { $0.rawValue }
+                                            "access_role_v2": newAccessRole.map(\.rawValue)
                                         ])
 
             // WHEN

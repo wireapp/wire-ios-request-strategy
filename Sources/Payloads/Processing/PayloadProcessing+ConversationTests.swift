@@ -209,7 +209,7 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             let conversationPayload = Payload.Conversation(qualifiedID: qualifiedID,
                                                            type: BackendConversationType.group.rawValue,
                                                            access: accessMode.stringValue,
-                                                           accessRoleV2: accessRole.map {$0.rawValue})
+                                                           accessRoleV2: accessRole.map(\.rawValue))
             // when
             conversationPayload.updateOrCreate(in: self.syncMOC)
 
