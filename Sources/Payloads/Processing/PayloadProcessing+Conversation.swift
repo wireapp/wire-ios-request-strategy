@@ -227,8 +227,8 @@ extension Payload.Conversation {
             conversation.updateReceiptMode(readReceiptMode)
         }
 
-        if let access = access, let accessRole = accessRole {
-            conversation.updateAccessStatus(accessModes: access, role: accessRole)
+        if let access = access, let accessRole = accessRoleV2 {
+            conversation.updateAccessStatus(accessModes: access, accessRoles: accessRole)
         }
 
         if let messageTimer = messageTimer {
@@ -403,7 +403,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationAccess 
             return
         }
 
-        conversation.updateAccessStatus(accessModes: data.access, role: data.accessRole)
+        conversation.updateAccessStatus(accessModes: data.access, accessRoles: data.accessRoleV2)
     }
 
 }
