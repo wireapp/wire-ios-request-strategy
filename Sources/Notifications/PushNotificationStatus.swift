@@ -21,12 +21,6 @@ import WireDataModel
 
 private let zmLog = ZMSLog(tag: "PushNotificationStatus")
 
-extension UUID {
-    func compare(withType1 uuid: UUID) -> ComparisonResult {
-        return (self as NSUUID).compare(withType1UUID: uuid as NSUUID)
-    }
-}
-
 @objcMembers
 open class PushNotificationStatus: NSObject {
 
@@ -37,6 +31,9 @@ open class PushNotificationStatus: NSObject {
     public var hasEventsToFetch: Bool {
         return eventIdRanking.count > 0
     }
+
+    // The legacy mode means we don't want to use the Notification service extension
+    public var isPushNotificationInLegacyMode: Bool = false
 
     public init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext

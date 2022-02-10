@@ -40,22 +40,24 @@ class ZMLocalNotificationTests_SystemMessage: ZMLocalNotificationTests {
     func testThatItDoesNotCreateANotificationForConversationRename() {
 
         // given
-        let payload = [
-            "from": sender.remoteIdentifier!.transportString(),
-            "conversation": groupConversation.remoteIdentifier!.transportString(),
-            "time": NSDate().transportString(),
-            "data": [
-                "name": "New Name"
-            ],
-            "type": "conversation.rename"
+        syncMOC.performGroupedBlockAndWait {
+            let payload = [
+                "from": self.sender.remoteIdentifier!.transportString(),
+                "conversation": self.groupConversation.remoteIdentifier!.transportString(),
+                "time": NSDate().transportString(),
+                "data": [
+                    "name": "New Name"
+                ],
+                "type": "conversation.rename"
             ] as [String: Any]
-        let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+            let event = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
 
-        // when
-        let note = ZMLocalNotification(event: event, conversation: groupConversation, managedObjectContext: syncMOC)
+            // when
+            let note = ZMLocalNotification(event: event, conversation: self.groupConversation, managedObjectContext: self.syncMOC)
 
-        // then
-        XCTAssertNil(note)
+            // then
+            XCTAssertNil(note)
+        }
     }
 
     func testThatItCreatesANotificationForParticipantAdd_Self() {
@@ -64,36 +66,42 @@ class ZMLocalNotificationTests_SystemMessage: ZMLocalNotificationTests {
         //    "push.notification.member.join.self.noconversationname" = "%1$@ added you to a conversation";
 
         // given, when
-        let note1 = noteForParticipantAdded(groupConversation, aSender: sender, otherUsers: Set(arrayLiteral: selfUser))
-        let note2 = noteForParticipantAdded(groupConversationWithoutName, aSender: sender, otherUsers: Set(arrayLiteral: selfUser))
-        let note3 = noteForParticipantAdded(groupConversation, aSender: sender, otherUsers: Set(arrayLiteral: selfUser, otherUser1))
+        syncMOC.performGroupedBlockAndWait {
+            let note1 = self.noteForParticipantAdded(self.groupConversation, aSender: self.sender, otherUsers: Set(arrayLiteral: self.selfUser))
+            let note2 = self.noteForParticipantAdded(self.groupConversationWithoutName, aSender: self.sender, otherUsers: Set(arrayLiteral: self.selfUser))
+            let note3 = self.noteForParticipantAdded(self.groupConversation, aSender: self.sender, otherUsers: Set(arrayLiteral: self.selfUser, self.otherUser1))
 
-        // then
-        XCTAssertNotNil(note1)
-        XCTAssertNotNil(note2)
-        XCTAssertNotNil(note3)
-        XCTAssertEqual(note1!.body, "Super User added you")
-        XCTAssertEqual(note2!.body, "Super User added you to a conversation")
-        XCTAssertEqual(note3!.body, "Super User added you")
+            // then
+            XCTAssertNotNil(note1)
+            XCTAssertNotNil(note2)
+            XCTAssertNotNil(note3)
+            XCTAssertEqual(note1!.body, "Super User added you")
+            XCTAssertEqual(note2!.body, "Super User added you to a conversation")
+            XCTAssertEqual(note3!.body, "Super User added you")
+        }
     }
 
     func testThatItDoesNotCreateANotificationForParticipantAdd_Other() {
-        XCTAssertNil(noteForParticipantAdded(groupConversation, aSender: sender, otherUsers: Set(arrayLiteral: otherUser1)))
-        XCTAssertNil(noteForParticipantAdded(groupConversation, aSender: sender, otherUsers: Set(arrayLiteral: otherUser1, otherUser2)))
-        XCTAssertNil(noteForParticipantAdded(groupConversationWithoutName, aSender: sender, otherUsers: Set(arrayLiteral: otherUser1)))
-        XCTAssertNil(noteForParticipantAdded(groupConversationWithoutName, aSender: sender, otherUsers: Set(arrayLiteral: otherUser1, otherUser2)))
+        syncMOC.performGroupedBlockAndWait {
+            XCTAssertNil(self.noteForParticipantAdded(self.groupConversation, aSender: self.sender, otherUsers: Set(arrayLiteral: self.otherUser1)))
+            XCTAssertNil(self.noteForParticipantAdded(self.groupConversation, aSender: self.sender, otherUsers: Set(arrayLiteral: self.otherUser1, self.otherUser2)))
+            XCTAssertNil(self.noteForParticipantAdded(self.groupConversationWithoutName, aSender: self.sender, otherUsers: Set(arrayLiteral: self.otherUser1)))
+            XCTAssertNil(self.noteForParticipantAdded(self.groupConversationWithoutName, aSender: self.sender, otherUsers: Set(arrayLiteral: self.otherUser1, self.otherUser2)))
+        }
     }
 
     func testThatItDoesNotCreateANotificationWhenTheUserLeaves() {
 
         // given
-        let event = createMemberLeaveUpdateEvent(UUID.create(), conversationID: self.groupConversation.remoteIdentifier!, users: [otherUser1], senderID: otherUser1.remoteIdentifier)
+        syncMOC.performGroupedBlockAndWait {
+            let event = self.createMemberLeaveUpdateEvent(UUID.create(), conversationID: self.groupConversation.remoteIdentifier!, users: [self.otherUser1], senderID: self.otherUser1.remoteIdentifier)
 
-        // when
-        let note = ZMLocalNotification(event: event, conversation: groupConversation, managedObjectContext: syncMOC)
+            // when
+            let note = ZMLocalNotification(event: event, conversation: self.groupConversation, managedObjectContext: self.syncMOC)
 
-        // then
-        XCTAssertNil(note)
+            // then
+            XCTAssertNil(note)
+        }
     }
 
     func testThatItCreatesANotificationForParticipantRemove_Self() {
@@ -102,20 +110,24 @@ class ZMLocalNotificationTests_SystemMessage: ZMLocalNotificationTests {
         //    "push.notification.member.leave.self.noconversationname" = "%1$@ removed you from a conversation";
 
         // given, when
-        let note1 = noteForParticipantsRemoved(groupConversation, aSender: sender, otherUsers: [selfUser])
-        let note2 = noteForParticipantsRemoved(groupConversationWithoutName, aSender: sender, otherUsers: [selfUser])
+        syncMOC.performGroupedBlockAndWait {
+            let note1 = self.noteForParticipantsRemoved(self.groupConversation, aSender: self.sender, otherUsers: [self.selfUser])
+            let note2 = self.noteForParticipantsRemoved(self.groupConversationWithoutName, aSender: self.sender, otherUsers: [self.selfUser])
 
-        // then
-        XCTAssertNotNil(note1)
-        XCTAssertNotNil(note2)
-        XCTAssertEqual(note1!.body, "Super User removed you")
-        XCTAssertEqual(note2!.body, "Super User removed you from a conversation")
+            // then
+            XCTAssertNotNil(note1)
+            XCTAssertNotNil(note2)
+            XCTAssertEqual(note1!.body, "Super User removed you")
+            XCTAssertEqual(note2!.body, "Super User removed you from a conversation")
+        }
     }
 
     func testThatItDoesNotCreateNotificationsForParticipantRemoved_Other() {
-        XCTAssertNil(noteForParticipantsRemoved(groupConversation, aSender: sender, otherUsers: [otherUser1]))
-        XCTAssertNil(noteForParticipantsRemoved(groupConversation, aSender: sender, otherUsers: [otherUser1, otherUser2]))
-        XCTAssertNil(noteForParticipantsRemoved(groupConversationWithoutName, aSender: sender, otherUsers: [otherUser1]))
-        XCTAssertNil(noteForParticipantsRemoved(groupConversationWithoutName, aSender: sender, otherUsers: [otherUser1, otherUser2]))
+        syncMOC.performGroupedBlockAndWait {
+            XCTAssertNil(self.noteForParticipantsRemoved(self.groupConversation, aSender: self.sender, otherUsers: [self.otherUser1]))
+            XCTAssertNil(self.noteForParticipantsRemoved(self.groupConversation, aSender: self.sender, otherUsers: [self.otherUser1, self.otherUser2]))
+            XCTAssertNil(self.noteForParticipantsRemoved(self.groupConversationWithoutName, aSender: self.sender, otherUsers: [self.otherUser1]))
+            XCTAssertNil(self.noteForParticipantsRemoved(self.groupConversationWithoutName, aSender: self.sender, otherUsers: [self.otherUser1, self.otherUser2]))
+        }
     }
 }
