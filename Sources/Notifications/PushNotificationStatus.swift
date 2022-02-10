@@ -32,9 +32,6 @@ open class PushNotificationStatus: NSObject {
         return eventIdRanking.count > 0
     }
 
-    // The legacy mode means we don't want to use the Notification service extension
-    public var isPushNotificationInLegacyMode: Bool = false
-
     public init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
     }
