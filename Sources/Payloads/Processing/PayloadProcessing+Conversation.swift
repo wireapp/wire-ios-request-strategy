@@ -227,10 +227,15 @@ extension Payload.Conversation {
             conversation.updateReceiptMode(readReceiptMode)
         }
 
-        if let access = access, let accessRole = accessRoleV2 {
-            conversation.updateAccessStatus(accessModes: access, accessRoles: accessRole)
-        }
+        if let accessModes = access {
+          if let accessRoles = accessRoleV2 {
+            conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles)
+          } else if let accessRole = accessRole {
 
+              let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(ConversationAccessRole(rawValue: accessRole) ?? .team)
+              conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles.map(\.rawValue))
+          }
+        }
         if let messageTimer = messageTimer {
             conversation.updateMessageDestructionTimeout(timeout: messageTimer)
         }
@@ -403,7 +408,12 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationAccess 
             return
         }
 
-        conversation.updateAccessStatus(accessModes: data.access, accessRoles: data.accessRoleV2)
+        if let accessRole = data.accessRole {
+            let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(ConversationAccessRole(rawValue: accessRole) ?? .team)
+            conversation.updateAccessStatus(accessModes: data.access, accessRoles: accessRoles.map(\.rawValue))
+        } else {
+            conversation.updateAccessStatus(accessModes: data.access, accessRoles: data.accessRoleV2)
+        }
     }
 
 }
