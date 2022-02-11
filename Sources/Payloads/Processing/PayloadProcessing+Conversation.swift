@@ -231,7 +231,6 @@ extension Payload.Conversation {
             if let accessRoles = accessRoleV2 {
                 conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles)
             } else if let accessRole = accessRole {
-
                 let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(ConversationAccessRole(rawValue: accessRole) ?? .team)
                 conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles.map(\.rawValue))
             }
