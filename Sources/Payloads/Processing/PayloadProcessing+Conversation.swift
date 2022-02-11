@@ -91,9 +91,9 @@ extension Payload.Conversation {
 
         guard let conversationID = id ?? qualifiedID?.uuid,
               let rawConversationType = type else {
-            Logging.eventProcessing.error("Missing conversation or type in 1:1 conversation payload, aborting...")
-            return
-        }
+                  Logging.eventProcessing.error("Missing conversation or type in 1:1 conversation payload, aborting...")
+                  return
+              }
 
         let conversationType = BackendConversationType.clientConversationType(rawValue: rawConversationType)
 
@@ -228,13 +228,13 @@ extension Payload.Conversation {
         }
 
         if let accessModes = access {
-          if let accessRoles = accessRoleV2 {
-            conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles)
-          } else if let accessRole = accessRole {
+            if let accessRoles = accessRoleV2 {
+                conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles)
+            } else if let accessRole = accessRole {
 
-              let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(ConversationAccessRole(rawValue: accessRole) ?? .team)
-              conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles.map(\.rawValue))
-          }
+                let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(ConversationAccessRole(rawValue: accessRole) ?? .team)
+                conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles.map(\.rawValue))
+            }
         }
         if let messageTimer = messageTimer {
             conversation.updateMessageDestructionTimeout(timeout: messageTimer)
@@ -408,11 +408,11 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationAccess 
             return
         }
 
-        if let accessRole = data.accessRole {
+        if let accessRoles = data.accessRoleV2 {
+            conversation.updateAccessStatus(accessModes: data.access, accessRoles: accessRoles)
+        } else if let accessRole = data.accessRole {
             let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(ConversationAccessRole(rawValue: accessRole) ?? .team)
             conversation.updateAccessStatus(accessModes: data.access, accessRoles: accessRoles.map(\.rawValue))
-        } else {
-            conversation.updateAccessStatus(accessModes: data.access, accessRoles: data.accessRoleV2)
         }
     }
 
