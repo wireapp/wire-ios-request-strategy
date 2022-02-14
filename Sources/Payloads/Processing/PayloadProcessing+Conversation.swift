@@ -230,8 +230,8 @@ extension Payload.Conversation {
         if let accessModes = access {
             if let accessRoles = accessRoleV2 {
                 conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles)
-            } else if let accessRole = accessRole {
-                let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(ConversationAccessRole(rawValue: accessRole) ?? .team)
+            } else if let accessRole = accessRole, let legacyAccessRole = ConversationAccessRole(rawValue: accessRole) {
+                let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(legacyAccessRole)
                 conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles.map(\.rawValue))
             }
         }
@@ -409,8 +409,8 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationAccess 
 
         if let accessRoles = data.accessRoleV2 {
             conversation.updateAccessStatus(accessModes: data.access, accessRoles: accessRoles)
-        } else if let accessRole = data.accessRole {
-            let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(ConversationAccessRole(rawValue: accessRole) ?? .team)
+        } else if let accessRole = data.accessRole, let legacyAccessRole = ConversationAccessRole(rawValue: accessRole) {
+            let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(legacyAccessRole)
             conversation.updateAccessStatus(accessModes: data.access, accessRoles: accessRoles.map(\.rawValue))
         }
     }
