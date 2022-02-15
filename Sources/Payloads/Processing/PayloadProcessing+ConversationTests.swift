@@ -219,6 +219,45 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         }
     }
 
+    func testUpdateOrCreateConversation_Group_UpdateAccessRoleV2() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let accessMode: ConversationAccessMode = .allowGuests
+            let accessRoleV2: Set<ConversationAccessRoleV2> = [.teamMember, .nonTeamMember, .guest]
+            let qualifiedID = self.groupConversation.qualifiedID!
+
+            let conversationPayload = Payload.Conversation(qualifiedID: qualifiedID,
+                                                           type: BackendConversationType.group.rawValue,
+                                                           access: accessMode.stringValue,
+                                                           accessRoleV2: accessRoleV2.map(\.rawValue))
+
+            // WHEN
+            conversationPayload.updateOrCreate(in: self.syncMOC)
+
+            // THEN
+            XCTAssertEqual(self.groupConversation.accessRoles, accessRoleV2)
+
+        }
+    }
+
+    func testThatItMapsFromLegacyAccessRoleToAccessRoleV2() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let accessRole: ConversationAccessRole = .team
+            let qualifiedID = self.groupConversation.qualifiedID!
+
+            let conversationPayload = Payload.Conversation(qualifiedID: qualifiedID,
+                                                           type: BackendConversationType.group.rawValue,
+                                                           accessRole: accessRole.rawValue)
+            // WHEN
+            conversationPayload.updateOrCreate(in: self.syncMOC)
+
+            // THEN
+            let accessRoleV2 = ConversationAccessRoleV2.fromLegacyAccessRole(accessRole)
+            XCTAssertEqual(self.groupConversation.accessRoles, accessRoleV2)
+        }
+    }
+
     func testUpdateOrCreateConversation_Group_UpdatesMessageTimer() throws {
         syncMOC.performGroupedBlockAndWait {
             // given
