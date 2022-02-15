@@ -507,6 +507,32 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         }
     }
 
+    // MARK: Access Role
+
+    func testThatItHandlesAccessRoleUpdateEventWhenMappingFromLegacyAccessRoleToAccessRoleV2() {
+        self.syncMOC.performAndWait {
+            let newAccessMode = ConversationAccessMode(values: ["code", "invite"])
+            let legacyAccessRole: ConversationAccessRole = .team
+
+            // GIVEN
+            let event = self.updateEvent(type: "conversation.access-update",
+                                         senderID: self.otherUser.remoteIdentifier!,
+                                         conversationID: self.groupConversation.remoteIdentifier!,
+                                         timestamp: Date(),
+                                         dataPayload: [
+                                            "access": newAccessMode.stringValue,
+                                            "access_role": legacyAccessRole.rawValue
+                                        ])
+
+            // WHEN
+            self.sut.processEvents([event], liveEvents: true, prefetchResult: nil)
+
+            // THEN
+            let newAccessRole = ConversationAccessRoleV2.fromLegacyAccessRole(legacyAccessRole)
+            XCTAssertEqual(self.groupConversation.accessRoles, newAccessRole)
+        }
+    }
+
     // MARK: Message Timer
 
     func testThatItHandlesMessageTimerUpdateEvent_Value() {
