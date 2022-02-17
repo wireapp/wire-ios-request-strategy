@@ -16,21 +16,20 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-
 import XCTest
 @testable import WireRequestStrategy
 
 final class NotificationsTrackerTests: MessagingTestBase {
-    
+
     var sut: NotificationsTracker!
     var mockAnalytics: MockAnalytics!
-    
+
     override func setUp() {
         super.setUp()
         mockAnalytics = MockAnalytics()
         sut = NotificationsTracker(analytics: mockAnalytics)
     }
-    
+
     override func tearDown() {
         sut = nil
         mockAnalytics = nil
@@ -42,8 +41,8 @@ final class NotificationsTrackerTests: MessagingTestBase {
         sut.dispatchEvent()
 
         // THEN
-        XCTAssertEqual(mockAnalytics.taggedEvents.count, 0);
-        XCTAssertEqual(mockAnalytics.taggedEventsWithAttributes.count, 0);
+        XCTAssertEqual(mockAnalytics.taggedEvents.count, 0)
+        XCTAssertEqual(mockAnalytics.taggedEventsWithAttributes.count, 0)
     }
 
     func testThatItDoesIncrementCounters_started() {
@@ -89,11 +88,11 @@ final class NotificationsTrackerTests: MessagingTestBase {
         XCTAssertNotNil(attributes)
         XCTAssertEqual(attributes?[identifier] as? Int, 1)
     }
-    
+
     func testThatItDoesIncrementCounters_aborted() {
         // WHEN
         sut.registerProcessingAborted()
-        
+
         // THEN
         let attributes = mockAnalytics.persistedAttributes(for: sut.eventName)
         let identifier = NotificationsTracker.Attributes.abortedProcessing.identifier
@@ -123,9 +122,9 @@ final class NotificationsTrackerTests: MessagingTestBase {
 
         // WHEN
         sut.dispatchEvent()
-        
+
         // THEN
-        let payload: [String : NSObject] = [
+        let payload: [String: NSObject] = [
             NotificationsTracker.Attributes.startedProcessing.identifier: 1 as NSObject,
             NotificationsTracker.Attributes.startedFetchingStream.identifier: 1 as NSObject,
             NotificationsTracker.Attributes.finishedFetchingStream.identifier: 1 as NSObject,
@@ -138,5 +137,3 @@ final class NotificationsTrackerTests: MessagingTestBase {
         XCTAssertEqual(payload, attributes)
     }
 }
-
-

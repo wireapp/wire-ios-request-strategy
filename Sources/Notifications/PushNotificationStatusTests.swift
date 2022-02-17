@@ -205,7 +205,7 @@ class PushNotificationStatusTests: MessagingTestBase {
                 expectation.fulfill()
             }
         }
-        
+
         // then
         XCTAssertFalse(sut.hasEventsToFetch)
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))

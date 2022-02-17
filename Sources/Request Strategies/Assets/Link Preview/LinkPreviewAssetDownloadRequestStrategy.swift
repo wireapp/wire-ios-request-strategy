@@ -19,7 +19,7 @@
 import Foundation
 
 @objcMembers public final class LinkPreviewAssetDownloadRequestStrategy: AbstractRequestStrategy, FederationAware {
-    
+
     public var useFederationEndpoint: Bool {
         get {
             requestFactory.useFederationEndpoint

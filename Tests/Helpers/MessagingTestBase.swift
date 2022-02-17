@@ -325,7 +325,7 @@ extension MessagingTestBase {
     override var allDispatchGroups: [ZMSDispatchGroup] {
         return super.allDispatchGroups + [self.syncMOC?.dispatchGroup, self.uiMOC?.dispatchGroup].compactMap { $0 }
     }
-    
+
     func performPretendingUiMocIsSyncMoc(block: () -> Void) {
         uiMOC.resetContextType()
         uiMOC.markAsSyncContext()
@@ -357,7 +357,7 @@ extension MessagingTestBase {
                                   data: NSDictionary) -> NSMutableDictionary? {
         return payloadForMessage(in: conversation!, type: type, data: data, time: nil)
     }
-    
+
     public func payloadForMessage(in conversation: ZMConversation,
                                   type: String,
                                   data: NSDictionary,
@@ -375,22 +375,22 @@ extension MessagingTestBase {
         //      }
         let user = ZMUser.insertNewObject(in: conversation.managedObjectContext!)
         user.remoteIdentifier = UUID.create()
-        
+
         return payloadForMessage(in: conversation, type: type, data: data, time: time, from: user)
     }
-    
+
     public func payloadForMessage(in conversation: ZMConversation,
                                   type: String,
                                   data: NSDictionary,
                                   time: Date?,
                                   from: ZMUser) -> NSMutableDictionary? {
-        
-        return ["conversation" : conversation.remoteIdentifier?.transportString() ?? "",
-                "data" : data,
-                "from" : from.remoteIdentifier.transportString(),
-                "time" : time?.transportString() ?? "",
-                "type" : type
+
+        return ["conversation": conversation.remoteIdentifier?.transportString() ?? "",
+                "data": data,
+                "from": from.remoteIdentifier.transportString(),
+                "time": time?.transportString() ?? "",
+                "type": type
         ]
     }
-    
+
 }
