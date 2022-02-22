@@ -75,6 +75,11 @@ open class PushNotificationStatus: NSObject {
 
         Logging.eventProcessing.info("Finished to fetching all available events")
 
+        if let lastEventId = lastEventId {
+            managedObjectContext.zm_lastNotificationID = lastEventId
+            managedObjectContext.saveOrRollback()
+        }
+
         // We take all events that are older than or equal to lastEventId and add highest ranking event ID
         for eventId in completionHandlers.keys.filter({  self.lastEventIdIsNewerThan(lastEventId: lastEventId, eventId: $0) || highestRankingEventId == $0 }) {
             let completionHandler = completionHandlers.removeValue(forKey: eventId)
