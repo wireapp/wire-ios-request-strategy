@@ -96,22 +96,20 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
 
     @objc(processUpdateEventsAndReturnLastNotificationIDFromPayload:)
     func processUpdateEventsAndReturnLastNotificationID(from payload: ZMTransportData?) -> UUID? {
-
         let tp = ZMSTimePoint.init(interval: 10, label: NSStringFromClass(type(of: self)))
-
         var latestEventId: UUID?
         let source = ZMUpdateEventSource.pushNotification
 
         guard let eventsDictionaries = eventDictionariesFrom(payload: payload) else {
             return nil
         }
-        for eventDictionary in eventsDictionaries {
-            guard let events = ZMUpdateEvent.eventsArray(from: eventDictionary as ZMTransportData, source: source) else {
-                return nil
-            }
-            notificationStreamSyncDelegate?.fetchedEvents(events, hasMoreToFetch: !self.listPaginator.hasMoreToFetch)
-            latestEventId = events.last(where: { !$0.isTransient })?.uuid
-        }
+
+        let events = eventsDictionaries
+            .compactMap { ZMUpdateEvent.eventsArray(from: $0 as ZMTransportData, source: source) }
+            .flatMap { $0 }
+
+        notificationStreamSyncDelegate?.fetchedEvents(events, hasMoreToFetch: self.listPaginator.hasMoreToFetch)
+        latestEventId = events.last(where: { !$0.isTransient })?.uuid
 
         //        ZMLogWithLevelAndTag(ZMLogLevelInfo, ZMTAG_EVENT_PROCESSING, @"Downloaded %lu event(s)", (unsigned long)parsedEvents.count);
 
