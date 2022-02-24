@@ -57,14 +57,14 @@ public final class AssetRequestFactory: NSObject, FederationAware {
 
     public func backgroundUpstreamRequestForAsset(message: ZMAssetClientMessage, withData data: Data, shareable: Bool = true, retention: Retention) -> ZMTransportRequest? {
         guard let uploadURL = uploadURL(for: message, in: message.managedObjectContext!, shareable: shareable, retention: retention, data: data) else { return nil }
-        let request = ZMTransportRequest.uploadRequest(withFileURL: uploadURL, path: Constant.path, contentType: Constant.ContentType.multipart)
+        let request = ZMTransportRequest.uploadRequest(withFileURL: uploadURL, path: Constant.path, contentType: Constant.ContentType.multipart, apiVersion: 0)
         request.addContentDebugInformation("Uploading full asset to /assets/v3")
         return request
     }
 
     public func upstreamRequestForAsset(withData data: Data, shareable: Bool = true, retention: Retention) -> ZMTransportRequest? {
         guard let multipartData = try? dataForMultipartAssetUploadRequest(data, shareable: shareable, retention: retention) else { return nil }
-        return ZMTransportRequest(path: Constant.path, method: .methodPOST, binaryData: multipartData, type: Constant.ContentType.multipart, contentDisposition: nil)
+        return ZMTransportRequest(path: Constant.path, method: .methodPOST, binaryData: multipartData, type: Constant.ContentType.multipart, contentDisposition: nil, apiVersion: 0)
     }
 
     func dataForMultipartAssetUploadRequest(_ data: Data, shareable: Bool, retention: Retention) throws -> Data {

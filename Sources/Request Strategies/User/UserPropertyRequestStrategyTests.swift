@@ -134,7 +134,7 @@ extension UserPropertyRequestStrategyTests {
             XCTAssertEqual(request!.method, .methodGET)
             XCTAssertEqual(request!.path, "properties/WIRE_RECEIPT_MODE")
 
-            let response = ZMTransportResponse(payload: "1" as ZMTransportData, httpStatus: 200, transportSessionError: nil)
+            let response = ZMTransportResponse(payload: "1" as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: 0)
 
             self.sut.didReceive(response, forSingleRequest: self.sut.downstreamSync)
 
@@ -157,7 +157,7 @@ extension UserPropertyRequestStrategyTests {
             XCTAssertEqual(request!.method, .methodGET)
             XCTAssertEqual(request!.path, "properties/WIRE_RECEIPT_MODE")
 
-            let response = ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil)
+            let response = ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: 0)
 
             self.sut.didReceive(response, forSingleRequest: self.sut.downstreamSync)
 

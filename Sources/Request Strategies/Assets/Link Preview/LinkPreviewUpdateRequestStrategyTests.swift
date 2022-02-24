@@ -117,7 +117,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             guard let request = self.verifyItCreatesARequest(in: self.groupConversation) else { return }
 
             // When
-            let response = ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError())
+            let response = ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError(), apiVersion: 0)
             request.complete(with: response)
         }
         self.syncMOC.performGroupedAndWait { _ in
@@ -149,7 +149,8 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 201,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: 0)
             request.complete(with: response)
         }
         self.syncMOC.performGroupedAndWait { _ in

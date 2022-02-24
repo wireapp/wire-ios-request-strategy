@@ -110,7 +110,7 @@ class PaginatedSync<PayloadType: Paginatable>: NSObject, ZMRequestGenerator {
             return nil
         }
 
-        return ZMTransportRequest(getFromPath: path)
+        return ZMTransportRequest(getFromPath: path, apiVersion: 0)
     }
 
     private func postRequest(startReference: String) -> ZMTransportRequest? {
@@ -123,7 +123,7 @@ class PaginatedSync<PayloadType: Paginatable>: NSObject, ZMRequestGenerator {
             return nil
         }
 
-        return ZMTransportRequest(path: basePath, method: .methodPOST, payload: payloadAsString as ZMTransportData)
+        return ZMTransportRequest(path: basePath, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: 0)
     }
 
 }

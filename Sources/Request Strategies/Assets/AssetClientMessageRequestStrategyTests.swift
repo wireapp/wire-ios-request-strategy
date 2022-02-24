@@ -56,7 +56,7 @@ fileprivate extension ZMTransportRequest {
 
     func complete(withHttpStatus status: Int) {
         let payload = ["time": Date().transportString()] as ZMTransportData
-        let response = ZMTransportResponse(payload: payload, httpStatus: status, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: payload, httpStatus: status, transportSessionError: nil, apiVersion: 0)
         complete(with: response)
     }
 
@@ -464,7 +464,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
                 return XCTFail("Failed to create request")
             }
             let payload = ["label": "missing-legalhold-consent", "code": 403, "message": ""] as NSDictionary
-            request.complete(with: ZMTransportResponse(payload: payload, httpStatus: 403, transportSessionError: nil))
+            request.complete(with: ZMTransportResponse(payload: payload, httpStatus: 403, transportSessionError: nil, apiVersion: 0))
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 

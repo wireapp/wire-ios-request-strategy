@@ -120,7 +120,7 @@ final class UpdateRoleActionHandlerTests: MessagingTestBase {
         syncMOC.performGroupedAndWait { syncMOC in
             // given
             let action = UpdateRoleAction(user: self.user, conversation: self.conversation, role: self.role)
-            let response = ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil)
+            let response = ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil, apiVersion: 0)
 
             // when
             self.sut.handleResponse(response, action: action)
@@ -134,7 +134,7 @@ final class UpdateRoleActionHandlerTests: MessagingTestBase {
         syncMOC.performGroupedAndWait { syncMOC in
             // given
             let action = UpdateRoleAction(user: self.user, conversation: self.conversation, role: self.role)
-            let response = ZMTransportResponse(payload: nil, httpStatus: 400, transportSessionError: nil)
+            let response = ZMTransportResponse(payload: nil, httpStatus: 400, transportSessionError: nil, apiVersion: 0)
 
             // when
             self.sut.handleResponse(response, action: action)

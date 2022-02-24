@@ -99,7 +99,7 @@
     entity.needsToBeUpdatedFromBackend = YES;
     [self.sut objectsDidChange:[NSSet setWithObject:entity]];
     
-    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"dummy"];
+    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"dummy" apiVersion: 0];
     
     // expect
     [[[(id)self.transcoder expect] andReturn:dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];

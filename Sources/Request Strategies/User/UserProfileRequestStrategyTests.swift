@@ -434,7 +434,8 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
         let payloadString = String(bytes: payloadData, encoding: .utf8)!
         let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
                                            httpStatus: 200,
-                                           transportSessionError: nil)
+                                           transportSessionError: nil,
+                                           apiVersion: 0)
 
         return response
     }

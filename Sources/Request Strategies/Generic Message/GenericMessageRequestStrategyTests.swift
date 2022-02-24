@@ -56,7 +56,7 @@ class GenericMessageRequestStrategyTests: MessagingTestBase {
 
             // GIVEN
             let expectation = self.expectation(description: "Should complete")
-            let response = ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil)
+            let response = ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil, apiVersion: 0)
             let genericMessage = GenericMessage(content: MessageEdit(replacingMessageID: UUID.create(), text: Text(content: "bar")))
             let message = GenericMessageEntity(conversation: self.conversation, message: genericMessage) {
                 XCTAssertEqual($0, response)
@@ -76,7 +76,7 @@ class GenericMessageRequestStrategyTests: MessagingTestBase {
 
             // GIVEN
             let expectation = self.expectation(description: "Should complete")
-            let response = ZMTransportResponse(payload: nil, httpStatus: 412, transportSessionError: nil)
+            let response = ZMTransportResponse(payload: nil, httpStatus: 412, transportSessionError: nil, apiVersion: 0)
             let genericMessage = GenericMessage(content: MessageEdit(replacingMessageID: UUID.create(), text: Text(content: "bar")))
             let message = GenericMessageEntity(conversation: self.conversation, message: genericMessage) {
                 XCTAssertEqual($0, response)

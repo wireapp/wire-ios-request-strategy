@@ -51,7 +51,7 @@ class UpdateConnectionActionHandler: ActionHandler<UpdateConnectionAction>, Fede
             return nil
         }
 
-        return ZMTransportRequest(path: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid.transportString())", method: .methodPUT, payload: payloadAsString as ZMTransportData)
+        return ZMTransportRequest(path: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid.transportString())", method: .methodPUT, payload: payloadAsString as ZMTransportData, apiVersion: 0)
     }
 
     func nonFederatedRequest(for action: ActionHandler<UpdateConnectionAction>.Action) -> ZMTransportRequest? {
@@ -74,7 +74,7 @@ class UpdateConnectionActionHandler: ActionHandler<UpdateConnectionAction>, Fede
             return nil
         }
 
-        return ZMTransportRequest(path: "/connections/\(userID)", method: .methodPUT, payload: payloadAsString as ZMTransportData)
+        return ZMTransportRequest(path: "/connections/\(userID)", method: .methodPUT, payload: payloadAsString as ZMTransportData, apiVersion: 0)
     }
 
     override func handleResponse(_ response: ZMTransportResponse, action: ActionHandler<UpdateConnectionAction>.Action) {

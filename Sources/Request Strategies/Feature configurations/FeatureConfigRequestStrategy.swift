@@ -99,7 +99,7 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
     }
 
     private func requestToFetchConfig(for feature: Feature) -> ZMTransportRequest? {
-        return ZMTransportRequest(getFromPath: "/feature-configs/\(feature.transportName)")
+        return ZMTransportRequest(getFromPath: "/feature-configs/\(feature.transportName)", apiVersion: 0)
     }
 
     public func update(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
@@ -164,7 +164,7 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
 
     private func requestToFetchAllFeatureConfigs() -> ZMTransportRequest? {
         guard let teamId = team?.remoteIdentifier?.transportString() else { return nil }
-        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features")
+        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features", apiVersion: 0)
     }
 
     public func didReceive(_ response: ZMTransportResponse, forSingleRequest sync: ZMSingleRequestSync) {

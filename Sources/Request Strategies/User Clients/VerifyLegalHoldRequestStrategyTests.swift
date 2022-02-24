@@ -87,7 +87,7 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest()
 
             // WHEN
-            request?.complete(with: ZMTransportResponse(payload: [:] as ZMTransportData, httpStatus: 200, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: [:] as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: 0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
@@ -111,7 +111,7 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
             let payload = self.missingClientsResponse(ClientUpdateResponse(label: nil, missing: [self.otherUser.remoteIdentifier.transportString(): [clientID]], deleted: nil, redundant: nil))
 
             // WHEN
-            request?.complete(with: ZMTransportResponse(payload: payload, httpStatus: 412, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: payload, httpStatus: 412, transportSessionError: nil, apiVersion: 0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
@@ -141,7 +141,7 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
             let payload = self.missingClientsResponse(ClientUpdateResponse(label: nil, missing: [self.otherUser.remoteIdentifier.transportString(): [existingClientID]], deleted: nil, redundant: nil))
 
             // WHEN
-            request?.complete(with: ZMTransportResponse(payload: payload, httpStatus: 412, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: payload, httpStatus: 412, transportSessionError: nil, apiVersion: 0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
@@ -170,7 +170,7 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
             let payload = self.missingClientsResponse(ClientUpdateResponse(label: nil, missing: [:], deleted: nil, redundant: nil))
 
             // WHEN
-            request?.complete(with: ZMTransportResponse(payload: payload, httpStatus: 412, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: payload, httpStatus: 412, transportSessionError: nil, apiVersion: 0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
@@ -196,7 +196,7 @@ class VerifyLegalHoldRequestStrategyTests: MessagingTestBase {
             let payload = self.missingClientsResponse(ClientUpdateResponse(label: nil, missing: [selfUser.remoteIdentifier.transportString(): [selfClientID]], deleted: nil, redundant: nil))
 
             // WHEN
-            request?.complete(with: ZMTransportResponse(payload: payload, httpStatus: 412, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: payload, httpStatus: 412, transportSessionError: nil, apiVersion: 0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 

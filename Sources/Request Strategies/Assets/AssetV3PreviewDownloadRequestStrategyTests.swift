@@ -331,7 +331,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
-            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: nil, headers: nil)
+            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: nil, headers: nil, apiVersion: 0)
 
             request.complete(with: response)
         }

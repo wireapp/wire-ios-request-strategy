@@ -52,8 +52,8 @@
 - (void)setUp
 {
     [super setUp];
-    self.requestA = [ZMTransportRequest requestGetFromPath:@"/foo/A"];
-    self.requestB = [ZMTransportRequest requestGetFromPath:@"/bar/B"];
+    self.requestA = [ZMTransportRequest requestGetFromPath:@"/foo/A" apiVersion: 0];
+    self.requestB = [ZMTransportRequest requestGetFromPath:@"/bar/B" apiVersion: 0];
     self.generatorA = [[FakeRequestGenerator alloc] init];
     self.generatorB = [[FakeRequestGenerator alloc] init];
 }

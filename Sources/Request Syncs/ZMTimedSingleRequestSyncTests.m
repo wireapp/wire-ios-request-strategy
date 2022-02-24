@@ -56,8 +56,8 @@
 
     self.coreDataStack = self.coreDataStack = [self createCoreDataStackWithUserIdentifier:[NSUUID UUID]
                                                                             inMemoryStore:YES];
-    self.dummyRequest = [ZMTransportRequest requestGetFromPath:self.name];
-    self.dummyResponse = [ZMTransportResponse responseWithPayload:nil HTTPStatus:200 transportSessionError:nil];
+    self.dummyRequest = [ZMTransportRequest requestGetFromPath:self.name apiVersion: 0];
+    self.dummyResponse = [ZMTransportResponse responseWithPayload:nil HTTPStatus:200 transportSessionError:nil apiVersion: 0];
     self.transcoderCallsToRequest = 0;
     self.trancoderResponses = [NSMutableArray array];
 }

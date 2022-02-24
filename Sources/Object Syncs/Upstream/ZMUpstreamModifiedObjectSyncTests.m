@@ -164,12 +164,12 @@ static NSString *foo = @"foo";
 
 -(ZMTransportRequest *)dummyTransportRequest
 {
-    return [ZMTransportRequest requestGetFromPath:[@"dummy-from-test-" stringByAppendingString:self.name]];
+    return [ZMTransportRequest requestGetFromPath:[@"dummy-from-test-" stringByAppendingString:self.name] apiVersion: 0];
 }
 
 -(ZMUpstreamRequest *)dummyRequestWithKeys:(NSSet *)keys
 {
-    ZMTransportRequest *transportRequest = [ZMTransportRequest requestGetFromPath:[@"dummy-from-test-" stringByAppendingString:self.name]];
+    ZMTransportRequest *transportRequest = [ZMTransportRequest requestGetFromPath:[@"dummy-from-test-" stringByAppendingString:self.name] apiVersion: 0];
     return [[ZMUpstreamRequest alloc] initWithKeys:keys transportRequest:transportRequest];
 }
 
@@ -463,7 +463,7 @@ static NSString *foo = @"foo";
     
     // when
     ZMTransportRequest *request = [self.sut nextRequest];
-    [request completeWithResponse:[ZMTransportResponse responseWithPayload:@{} HTTPStatus:200 transportSessionError:nil]];
+    [request completeWithResponse:[ZMTransportResponse responseWithPayload:@{} HTTPStatus:200 transportSessionError:nil apiVersion: 0]];
     WaitForAllGroupsToBeEmpty(0.5);
 }
 
@@ -479,7 +479,7 @@ static NSString *foo = @"foo";
     
     ZMObjectWithKeys *fakeObjectWithKeys = [self fakeObject:entity withKeys:keysToSync];
     ZMUpstreamRequest *fakeRequest = [self dummyRequestWithKeys:keysToSync];
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:404 transportSessionError:nil];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:404 transportSessionError:nil apiVersion: 0];
     
     // expect
     [[self.mockLocallyModifiedSet stub] addPossibleObjectToSynchronize:OCMOCK_ANY];
@@ -519,7 +519,7 @@ static NSString *foo = @"foo";
     
     // when
     ZMTransportRequest *request = [self.sut nextRequest];
-    [request completeWithResponse:[ZMTransportResponse responseWithPayload:@{} HTTPStatus:500 transportSessionError:nil]];
+    [request completeWithResponse:[ZMTransportResponse responseWithPayload:@{} HTTPStatus:500 transportSessionError:nil apiVersion: 0]];
     WaitForAllGroupsToBeEmpty(0.5);
 }
 
@@ -536,7 +536,7 @@ static NSString *foo = @"foo";
     ZMUpstreamRequest *fakeRequest = [self dummyRequestWithKeys:keysToSync];
     
     NSDictionary *responsePayload = @{@"bar": @"tralala"};
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:responsePayload HTTPStatus:200 transportSessionError:nil];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:responsePayload HTTPStatus:200 transportSessionError:nil apiVersion: 0];
     NSSet *keysThatDidNotChange = [NSSet setWithObject:@"field"];
     
     // expect
@@ -568,7 +568,7 @@ static NSString *foo = @"foo";
     ZMUpstreamRequest *fakeRequest = [self dummyRequestWithKeys:keysToSync];
     
     NSDictionary *responsePayload = @{@"bar": @"tralala"};
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:responsePayload HTTPStatus:200 transportSessionError:nil];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:responsePayload HTTPStatus:200 transportSessionError:nil apiVersion: 0];
     NSSet *keysThatDidNotChange = [NSSet setWithObject:@"field"];
     
     // expect
@@ -600,7 +600,7 @@ static NSString *foo = @"foo";
     ZMUpstreamRequest *fakeRequest = [self dummyRequestWithKeys:keysToSync];
     
     NSDictionary *responsePayload = @{@"bar": @"tralala"};
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:responsePayload HTTPStatus:200 transportSessionError:nil];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:responsePayload HTTPStatus:200 transportSessionError:nil apiVersion: 0];
     NSSet *keysThatDidNotChange = [NSSet setWithObject:@"field"];
     
     // expect
@@ -631,7 +631,7 @@ static NSString *foo = @"foo";
     ZMUpstreamRequest *fakeRequest = [self dummyRequestWithKeys:keysToSync];
     
     NSDictionary *responsePayload = @{@"bar": @"tralala"};
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:responsePayload HTTPStatus:200 transportSessionError:nil];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:responsePayload HTTPStatus:200 transportSessionError:nil apiVersion: 0];
     NSSet *keysThatDidNotChange = [NSSet set];
     
     // expect
@@ -728,7 +728,7 @@ static NSString *foo = @"foo";
     
     // when
     ZMTransportRequest *request = [self.sut nextRequest];
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:404 transportSessionError:nil];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:404 transportSessionError:nil apiVersion: 0];
     [request completeWithResponse:response];
     
     [[(id)self.mockLocallyModifiedSet expect] keysToParseAfterSyncingToken:OCMOCK_ANY];
@@ -766,7 +766,7 @@ static NSString *foo = @"foo";
     
     // when
     ZMTransportRequest *request = [self.sut nextRequest];
-    [request completeWithResponse:[ZMTransportResponse responseWithPayload:nil HTTPStatus:0 transportSessionError:[NSError requestExpiredError]]];
+    [request completeWithResponse:[ZMTransportResponse responseWithPayload:nil HTTPStatus:0 transportSessionError:[NSError requestExpiredError] apiVersion: 0]];
     WaitForAllGroupsToBeEmpty(0.5);
 }
 
