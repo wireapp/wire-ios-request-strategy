@@ -63,7 +63,7 @@ extension AvailabilityRequestStrategy: ZMUpstreamTranscoder {
                                          binaryData: dataAndMissingClientStrategy.data,
                                          type: protobufContentType,
                                          contentDisposition: nil,
-                                         apiVersion: 0)
+                                         apiVersion: .v0)
 
         return ZMUpstreamRequest(keys: keys, transportRequest: request)
     }

@@ -226,7 +226,7 @@ class UserProfileByIDTranscoder: IdentifierObjectSyncTranscoder {
     func request(for identifiers: Set<UUID>) -> ZMTransportRequest? {
         // GET /users?ids=?
         let userIDs = identifiers.map({ $0.transportString() }).joined(separator: ",")
-        return ZMTransportRequest(getFromPath: "/users?ids=\(userIDs)", apiVersion: 0)
+        return ZMTransportRequest(getFromPath: "/users?ids=\(userIDs)", apiVersion: .v0)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
@@ -287,7 +287,7 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
 
         // POST /list-users
         let path = NSString.path(withComponents: ["/list-users"])
-        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?, apiVersion: 0)
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?, apiVersion: .v0)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {

@@ -78,7 +78,7 @@
 
 -(ZMTransportRequest *)dummyRequest
 {
-    return [ZMTransportRequest requestGetFromPath:[@"dummy-from-test-" stringByAppendingString:self.name] apiVersion: 0];
+    return [ZMTransportRequest requestGetFromPath:[@"dummy-from-test-" stringByAppendingString:self.name] apiVersion:v0];
 }
 
 - (void)testThatItSetsTheCorrectDefaultPredicate;

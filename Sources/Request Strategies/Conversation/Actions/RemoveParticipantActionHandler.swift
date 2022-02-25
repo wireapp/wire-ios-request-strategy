@@ -57,7 +57,7 @@ class RemoveParticipantActionHandler: ActionHandler<RemoveParticipantAction>, Fe
         }
 
         let path = "/conversations/\(conversationID)/\(user.isServiceUser ? "bots" : "members")/\(userID)"
-        return ZMTransportRequest(path: path, method: .methodDELETE, payload: nil, apiVersion: 0)
+        return ZMTransportRequest(path: path, method: .methodDELETE, payload: nil, apiVersion: .v0)
     }
 
     func federatedRequest(for action: RemoveParticipantAction) -> ZMTransportRequest? {
@@ -75,7 +75,7 @@ class RemoveParticipantActionHandler: ActionHandler<RemoveParticipantAction>, Fe
         }
         let path = "/conversations/\(conversationID.domain)/\(conversationID.uuid)/members/\(qualifiedUserID.domain)/\(qualifiedUserID.uuid)"
 
-        return ZMTransportRequest(path: path, method: .methodDELETE, payload: nil, apiVersion: 0)
+        return ZMTransportRequest(path: path, method: .methodDELETE, payload: nil, apiVersion: .v0)
     }
 
     override func handleResponse(_ response: ZMTransportResponse, action: RemoveParticipantAction) {

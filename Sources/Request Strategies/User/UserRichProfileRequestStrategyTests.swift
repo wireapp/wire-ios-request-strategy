@@ -76,7 +76,7 @@ class UserRichProfileRequestStrategyTests: MessagingTestBase {
                     ["type": type, "value": value]
                 ]
             ]
-            let response = ZMTransportResponse(payload: payload as NSDictionary as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: 0)
+            let response = ZMTransportResponse(payload: payload as NSDictionary as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
             self.sut.update(user, with: response, downstreamSync: nil)
 
             // then
@@ -96,7 +96,7 @@ class UserRichProfileRequestStrategyTests: MessagingTestBase {
             XCTAssertNotNil(request)
 
             // when
-            let response = ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: 0)
+            let response = ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: .v0)
             self.sut.delete(user, with: response, downstreamSync: nil)
 
             // then

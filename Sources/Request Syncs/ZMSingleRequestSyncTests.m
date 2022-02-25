@@ -56,7 +56,7 @@
 
 - (void)sendRequestAndReplyWithResponse:(ZMTransportResponse *)response
 {
-    ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"/baa" apiVersion: 0];
+    ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"/baa" apiVersion:v0];
     XCTAssertEqual(self.sut.status, ZMSingleRequestIdle);
     [self.sut readyForNextRequest];
     [[[self.transcoder stub] andReturn:expectedRequest] requestForSingleRequestSync:self.sut];
@@ -68,7 +68,7 @@
 
 - (void)sendRequestAndReplyWithStatus:(NSInteger)status
 {
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:nil HTTPStatus:status transportSessionError:nil apiVersion: 0];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:nil HTTPStatus:status transportSessionError:nil apiVersion:v0];
     [self sendRequestAndReplyWithResponse:response];
 }
 
@@ -100,7 +100,7 @@
 {
     // given
     XCTAssertEqual(self.sut.status, ZMSingleRequestIdle);
-    [[[self.transcoder stub] andReturn:[ZMTransportRequest requestGetFromPath:@"/foo" apiVersion: 0]] requestForSingleRequestSync:self.sut];
+    [[[self.transcoder stub] andReturn:[ZMTransportRequest requestGetFromPath:@"/foo" apiVersion:v0]] requestForSingleRequestSync:self.sut];
 
     // when
     [self.sut readyForNextRequest];
@@ -142,7 +142,7 @@
 - (void)testThatItAsksRequestToTranscoderWhenStartingRequestAndTheStatusIsInProgress
 {
     // given
-    ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"/baa" apiVersion: 0];
+    ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"/baa" apiVersion:v0];
     [self.sut readyForNextRequest];
     
     // expect
@@ -159,7 +159,7 @@
 - (void)testThatItAsksRequestToTranscoderOnlyOnce
 {
     // given
-    ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"/baa" apiVersion: 0];
+    ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"/baa" apiVersion:v0];
     XCTAssertEqual(self.sut.status, ZMSingleRequestIdle);
     [self.sut readyForNextRequest];
     
@@ -192,7 +192,7 @@
 {
     
     // given
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:200 transportSessionError:nil apiVersion: 0];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:@{} HTTPStatus:200 transportSessionError:nil apiVersion:v0];
     
     // expect
     [[self.transcoder expect] didReceiveResponse:response forSingleRequest:self.sut];
@@ -245,7 +245,7 @@
 {
     // given
     NSError *error = [NSError errorWithDomain:ZMTransportSessionErrorDomain code:ZMTransportSessionErrorCodeTryAgainLater userInfo:nil];
-    ZMTransportResponse *response = [ZMTransportResponse responseWithTransportSessionError:error apiVersion: 0];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithTransportSessionError:error apiVersion:v0];
     [self sendRequestAndReplyWithResponse:response];
     
     // expect
@@ -310,8 +310,8 @@
 - (void)testThatItCreatesAnotherRequestWhenNeedDonwloadIsCalledWhileInProgress
 {
     // given
-    ZMTransportRequest *request1 = [ZMTransportRequest requestGetFromPath:@"one" apiVersion: 0];
-    ZMTransportRequest *request2 = [ZMTransportRequest requestGetFromPath:@"one" apiVersion: 0];
+    ZMTransportRequest *request1 = [ZMTransportRequest requestGetFromPath:@"one" apiVersion:v0];
+    ZMTransportRequest *request2 = [ZMTransportRequest requestGetFromPath:@"one" apiVersion:v0];
     [self.sut readyForNextRequest];
     
     // expect
@@ -332,11 +332,11 @@
 - (void)testThatIfReadyForNextRequestIsCalledWhileDownloadingANewRequestIsGeneratedAndTheFirstIsIgnored
 {
     // given
-    ZMTransportRequest *requestThatShouldNotComplete = [ZMTransportRequest requestGetFromPath:@"req-nope" apiVersion: 0];
-    ZMTransportRequest *requestThatShouldComplete = [ZMTransportRequest requestGetFromPath:@"req-yep" apiVersion: 0];
+    ZMTransportRequest *requestThatShouldNotComplete = [ZMTransportRequest requestGetFromPath:@"req-nope" apiVersion:v0];
+    ZMTransportRequest *requestThatShouldComplete = [ZMTransportRequest requestGetFromPath:@"req-yep" apiVersion:v0];
     
-    ZMTransportResponse *responseThatShouldNotProcess = [ZMTransportResponse responseWithPayload:@[@"resp-nope"] HTTPStatus:200 transportSessionError:nil apiVersion: 0];
-    ZMTransportResponse *responseThatShouldProcess = [ZMTransportResponse responseWithPayload:@[@"resp-yep"] HTTPStatus:200 transportSessionError:nil apiVersion: 0];
+    ZMTransportResponse *responseThatShouldNotProcess = [ZMTransportResponse responseWithPayload:@[@"resp-nope"] HTTPStatus:200 transportSessionError:nil apiVersion:v0];
+    ZMTransportResponse *responseThatShouldProcess = [ZMTransportResponse responseWithPayload:@[@"resp-yep"] HTTPStatus:200 transportSessionError:nil apiVersion:v0];
     
     [[[self.transcoder expect] andReturn:requestThatShouldNotComplete] requestForSingleRequestSync:self.sut];
     [[[self.transcoder expect] andReturn:requestThatShouldComplete] requestForSingleRequestSync:self.sut];

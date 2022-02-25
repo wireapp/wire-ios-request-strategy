@@ -450,12 +450,12 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/name",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
-                                             apiVersion: 0)
+                                             apiVersion: .v0)
             } else {
                 request = ZMTransportRequest(path: "/conversations/\(conversationID)",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
-                                             apiVersion: 0)
+                                             apiVersion: .v0)
             }
 
             let conversationUserDefinedNameKey: Set<String> = [ZMConversationUserDefinedNameKey]
@@ -482,12 +482,12 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/self",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
-                                             apiVersion: 0)
+                                             apiVersion: .v0)
             } else {
                 request = ZMTransportRequest(path: "/conversations/\(conversationID)/self",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
-                                             apiVersion: 0)
+                                             apiVersion: .v0)
             }
 
             let changedKeys = keys.intersection([ZMConversationArchivedChangedTimeStampKey,
@@ -520,7 +520,7 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
         let request = ZMTransportRequest(path: "/conversations",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?,
-                                         apiVersion: 0)
+                                         apiVersion: .v0)
 
         return ZMUpstreamRequest(transportRequest: request)
     }
@@ -545,7 +545,7 @@ class ConversationByIDTranscoder: IdentifierObjectSyncTranscoder {
         guard let converationID = identifiers.first.map({ $0.transportString() }) else { return nil }
 
         // GET /conversations/<UUID>
-        return ZMTransportRequest(getFromPath: "/conversations/\(converationID)", apiVersion: 0)
+        return ZMTransportRequest(getFromPath: "/conversations/\(converationID)", apiVersion: .v0)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
@@ -642,7 +642,7 @@ class ConversationByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
         }
 
         // GET /conversations/domain/<UUID>
-        return ZMTransportRequest(getFromPath: "/conversations/\(domain)/\(conversationID)", apiVersion: 0)
+        return ZMTransportRequest(getFromPath: "/conversations/\(domain)/\(conversationID)", apiVersion: .v0)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
@@ -730,7 +730,7 @@ class ConversationByIDListTranscoder: IdentifierObjectSyncTranscoder {
     func request(for identifiers: Set<UUID>) -> ZMTransportRequest? {
         // GET /conversations?ids=?
         let converationIDs = identifiers.map({ $0.transportString() }).joined(separator: ",")
-        return ZMTransportRequest(getFromPath: "/conversations?ids=\(converationIDs)", apiVersion: 0)
+        return ZMTransportRequest(getFromPath: "/conversations?ids=\(converationIDs)", apiVersion: .v0)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
@@ -784,7 +784,7 @@ class ConversationByQualifiedIDListTranscoder: IdentifierObjectSyncTranscoder {
             return nil
         }
 
-        return ZMTransportRequest(path: "/conversations/list/v2", method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: 0)
+        return ZMTransportRequest(path: "/conversations/list/v2", method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: .v0)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {

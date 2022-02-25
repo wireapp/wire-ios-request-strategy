@@ -36,7 +36,7 @@ class MockActionHandler: ActionHandler<MockAction> {
     var calledRequestForAction: Bool = false
     override func request(for action: ActionHandler<MockAction>.Action) -> ZMTransportRequest? {
         calledRequestForAction = true
-        return ZMTransportRequest(getFromPath: "/mock/request", apiVersion: 0)
+        return ZMTransportRequest(getFromPath: "/mock/request", apiVersion: .v0)
     }
 
     var calledHandleResponse: Bool = false
@@ -96,7 +96,7 @@ class ActionHandlerTests: MessagingTestBase {
         let request = self.sut.nextRequest()
 
         // when
-        request?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil, apiVersion: 0))
+        request?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil, apiVersion: .v0))
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         // then

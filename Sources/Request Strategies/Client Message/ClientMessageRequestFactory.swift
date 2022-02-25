@@ -76,7 +76,7 @@ public final class ClientMessageRequestFactory: NSObject {
             binaryData: data,
             type: protobufContentType,
             contentDisposition: nil,
-            apiVersion: 0
+            apiVersion: .v0
         )
     }
 
@@ -98,7 +98,7 @@ public final class ClientMessageRequestFactory: NSObject {
         let originalPath = "/" + ["conversations", conversationID, "otr", "messages"].joined(separator: "/")
         guard let encryptedPayload = message.encryptForTransport() else { return nil }
         let path = originalPath.pathWithMissingClientStrategy(strategy: encryptedPayload.strategy)
-        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: encryptedPayload.data, type: protobufContentType, contentDisposition: nil, apiVersion: 0)
+        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: encryptedPayload.data, type: protobufContentType, contentDisposition: nil, apiVersion: .v0)
         request.addContentDebugInformation(message.debugInfo)
         return request
     }
@@ -114,14 +114,14 @@ public final class ClientMessageRequestFactory: NSObject {
 
         let path = "/" + ["conversations", domain, conversationID, "proteus", "messages"].joined(separator: "/")
         guard let encryptedPayload = message.encryptForTransportQualified() else { return nil }
-        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: encryptedPayload.data, type: protobufContentType, contentDisposition: nil, apiVersion: 0)
+        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: encryptedPayload.data, type: protobufContentType, contentDisposition: nil, apiVersion: .v0)
         request.addContentDebugInformation(message.debugInfo)
         return request
     }
 
     public func requestToGetAsset(_ assetId: String, inConversation conversationId: UUID) -> ZMTransportRequest {
         let path = "/" + ["conversations", conversationId.transportString(), "otr", "assets", assetId].joined(separator: "/")
-        let request = ZMTransportRequest.imageGet(fromPath: path, apiVersion: 0)
+        let request = ZMTransportRequest.imageGet(fromPath: path, apiVersion: .v0)
         request.forceToBackgroundSession()
         return request
     }
@@ -134,7 +134,7 @@ extension ClientMessageRequestFactory {
         guard let conversation = message.conversation, let identifier = conversation.remoteIdentifier else { return nil }
         let path = "/conversations/\(identifier.transportString())/otr/assets/\(message.assetId!.transportString())"
 
-        let request = ZMTransportRequest(getFromPath: path, apiVersion: 0)
+        let request = ZMTransportRequest(getFromPath: path, apiVersion: .v0)
         request.addContentDebugInformation("Downloading file (Asset)\n\(String(describing: message.dataSetDebugInformation))")
         request.forceToBackgroundSession()
         return request

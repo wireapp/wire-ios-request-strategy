@@ -337,7 +337,7 @@ extension AssetV3DownloadRequestStrategyTests {
 
         self.syncMOC.performGroupedBlockAndWait {
             let request = self.sut.nextRequest()
-            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: 0)
+            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: .v0)
 
             // WHEN
             request?.complete(with: response)
@@ -361,7 +361,7 @@ extension AssetV3DownloadRequestStrategyTests {
 
         syncMOC.performGroupedBlockAndWait {
             let request = self.sut.nextRequest()
-            let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 404, transportSessionError: .none, apiVersion: 0)
+            let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 404, transportSessionError: .none, apiVersion: .v0)
 
             // WHEN
             request?.complete(with: response)
@@ -389,7 +389,7 @@ extension AssetV3DownloadRequestStrategyTests {
 
         syncMOC.performGroupedBlockAndWait {
             let request = self.sut.nextRequest()
-            let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 403, transportSessionError: nil, apiVersion: 0)
+            let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 403, transportSessionError: nil, apiVersion: .v0)
 
             // WHEN
             request?.complete(with: response)
@@ -413,7 +413,7 @@ extension AssetV3DownloadRequestStrategyTests {
 
         syncMOC.performGroupedBlockAndWait {
             let request = self.sut.nextRequest()
-            let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 500, transportSessionError: nil, apiVersion: 0)
+            let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 500, transportSessionError: nil, apiVersion: .v0)
 
             // WHEN
             request?.complete(with: response)
@@ -441,7 +441,7 @@ extension AssetV3DownloadRequestStrategyTests {
         performIgnoringZMLogError {
             self.syncMOC.performGroupedBlockAndWait {
                 let request = self.sut.nextRequest()
-                let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 200, transportSessionError: .none, apiVersion: 0)
+                let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 200, transportSessionError: .none, apiVersion: .v0)
                 request?.complete(with: response)
             }
             XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -509,7 +509,7 @@ extension AssetV3DownloadRequestStrategyTests {
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.nextRequest() else { return XCTFail("Did not create expected request") }
             request.markStartOfUploadTimestamp()
-            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: 0)
+            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: .v0)
 
             request.complete(with: response)
         }
@@ -573,7 +573,7 @@ extension AssetV3DownloadRequestStrategyTests {
 
             let request = self.sut.nextRequest()
             request?.markStartOfUploadTimestamp()
-            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: 0)
+            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: .v0)
 
             // WHEN
             request?.complete(with: response)
@@ -641,7 +641,7 @@ extension AssetV3DownloadRequestStrategyTests {
         self.syncMOC.performGroupedBlockAndWait {
             let request = self.sut.nextRequest()
             request?.markStartOfUploadTimestamp()
-            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: 0)
+            let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: .v0)
 
             // WHEN
             request?.complete(with: response)

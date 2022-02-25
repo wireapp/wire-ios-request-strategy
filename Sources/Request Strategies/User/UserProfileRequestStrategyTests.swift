@@ -435,7 +435,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
         let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
                                            httpStatus: 200,
                                            transportSessionError: nil,
-                                           apiVersion: 0)
+                                           apiVersion: .v0)
 
         return response
     }

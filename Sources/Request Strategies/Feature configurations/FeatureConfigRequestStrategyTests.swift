@@ -110,7 +110,7 @@ class FeatureConfigRequestStrategyTests: MessagingTestBase {
             let response = ZMTransportResponse(payload: payload as NSDictionary as ZMTransportData,
                                                httpStatus: 200,
                                                transportSessionError: nil,
-                                               apiVersion: 0)
+                                               apiVersion: .v0)
             request.complete(with: response)
         }
 

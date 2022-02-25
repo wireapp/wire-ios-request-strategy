@@ -76,7 +76,7 @@
 {
     // given
     NSSet *remoteIDs = [NSSet setWithArray:@[NSUUID.createUUID, NSUUID.createUUID]];
-    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion: 0];
+    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion:v0];
     
     // expect
     [[[self.transcoder stub] andReturnValue:OCMOCK_VALUE((NSUInteger) 10)] maximumRemoteIdentifiersPerRequestForObjectSync:OCMOCK_ANY];
@@ -107,7 +107,7 @@
 {
     // given
     NSArray *remoteIDs = @[NSUUID.createUUID, NSUUID.createUUID, NSUUID.createUUID];
-    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion: 0];
+    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion:v0];
 
     // expect
     [[[self.transcoder stub] andReturnValue:OCMOCK_VALUE((NSUInteger) 2)] maximumRemoteIdentifiersPerRequestForObjectSync:OCMOCK_ANY];
@@ -149,7 +149,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     NSSet *secondSet = [NSSet setWithObject:remoteIDs[2]];
     
     NSError *error = [NSError errorWithDomain:ZMTransportSessionErrorDomain code:ZMTransportSessionErrorCodeTryAgainLater userInfo:nil];
-    ZMTransportResponse *tryAgainResponse = [ZMTransportResponse responseWithTransportSessionError:error apiVersion: 0];
+    ZMTransportResponse *tryAgainResponse = [ZMTransportResponse responseWithTransportSessionError:error apiVersion:v0];
     NSUInteger const identifiersPerRequest = 2;
     
     // expect
@@ -166,7 +166,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
             [requestedIDs addObject:identifiers];
             XCTAssertTrue(identifiers.count <= 2);
             ++numRequests;
-            ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion: 0];
+            ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion:v0];
             return dummyRequest;
         };
         IMP imp = imp_implementationWithBlock(requestForObjectSync);
@@ -216,9 +216,9 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
 {
     // given
     NSArray *remoteIDs = @[NSUUID.createUUID];
-    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion: 0];
+    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion:v0];
     NSError *error = [NSError errorWithDomain:ZMTransportSessionErrorDomain code:ZMTransportSessionErrorCodeTryAgainLater userInfo:nil];
-    ZMTransportResponse *tryAgainResponse = [ZMTransportResponse responseWithTransportSessionError:error apiVersion: 0];
+    ZMTransportResponse *tryAgainResponse = [ZMTransportResponse responseWithTransportSessionError:error apiVersion:v0];
     
     // expect
     [[[self.transcoder stub] andReturnValue:OCMOCK_VALUE((NSUInteger) 2)] maximumRemoteIdentifiersPerRequestForObjectSync:OCMOCK_ANY];
@@ -241,7 +241,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
 {
     // given
     NSSet *remoteIDs = [NSSet setWithArray:@[NSUUID.createUUID, NSUUID.createUUID]];
-    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion: 0];
+    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion:v0];
     
     // expect
     [[[self.transcoder stub] andReturnValue:OCMOCK_VALUE((NSUInteger) 10)] maximumRemoteIdentifiersPerRequestForObjectSync:OCMOCK_ANY];
@@ -262,12 +262,12 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
 {
     // given
     NSSet *remoteIDs = [NSSet setWithArray:@[NSUUID.createUUID, NSUUID.createUUID]];
-    ZMTransportRequest *request = [ZMTransportRequest requestGetFromPath:@"asdf" apiVersion: 0];
+    ZMTransportRequest *request = [ZMTransportRequest requestGetFromPath:@"asdf" apiVersion:v0];
     
     [[[self.transcoder stub] andReturnValue:OCMOCK_VALUE((NSUInteger) 10)] maximumRemoteIdentifiersPerRequestForObjectSync:OCMOCK_ANY];
     [[[self.transcoder expect] andReturn:request] requestForObjectSync:self.sut remoteIdentifiers:remoteIDs];
     NSDictionary *payload = @{@"a": @"b"};
-    ZMTransportResponse *response = [[ZMTransportResponse alloc] initWithPayload:payload HTTPStatus:200 transportSessionError:nil headers:nil apiVersion: 0];
+    ZMTransportResponse *response = [[ZMTransportResponse alloc] initWithPayload:payload HTTPStatus:200 transportSessionError:nil headers:nil apiVersion:v0];
     [[self.transcoder stub] didReceiveResponse:OCMOCK_ANY remoteIdentifierObjectSync:OCMOCK_ANY forRemoteIdentifiers:OCMOCK_ANY];
     
     [self.sut setRemoteIdentifiersAsNeedingDownload:remoteIDs];
@@ -288,8 +288,8 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
 {
     // given
     NSArray *remoteIDs = @[NSUUID.createUUID, NSUUID.createUUID, NSUUID.createUUID];
-    ZMTransportRequest *request1 = [ZMTransportRequest requestGetFromPath:@"foo1" apiVersion: 0];
-    ZMTransportRequest *request2 = [ZMTransportRequest requestGetFromPath:@"foo2" apiVersion: 0];
+    ZMTransportRequest *request1 = [ZMTransportRequest requestGetFromPath:@"foo1" apiVersion:v0];
+    ZMTransportRequest *request2 = [ZMTransportRequest requestGetFromPath:@"foo2" apiVersion:v0];
     
     [[[self.transcoder stub] andReturnValue:OCMOCK_VALUE((NSUInteger) 2)] maximumRemoteIdentifiersPerRequestForObjectSync:OCMOCK_ANY];
 
@@ -313,13 +313,13 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
 
     
     NSDictionary *payload1 = @{@"a": @"b"};
-    ZMTransportResponse *response1 = [[ZMTransportResponse alloc] initWithPayload:payload1 HTTPStatus:200 transportSessionError:nil headers:nil apiVersion: 0];
+    ZMTransportResponse *response1 = [[ZMTransportResponse alloc] initWithPayload:payload1 HTTPStatus:200 transportSessionError:nil headers:nil apiVersion:v0];
     [[self.transcoder expect] didReceiveResponse:response1 remoteIdentifierObjectSync:self.sut forRemoteIdentifiers:[OCMArg checkWithBlock:^BOOL(NSSet *set) {
         return [set isEqualToSet:requestedIDsRequest1];
     }]];
     
     NSDictionary *payload2 = @{@"a": @"c"};
-    ZMTransportResponse *response2 = [[ZMTransportResponse alloc] initWithPayload:payload2 HTTPStatus:200 transportSessionError:nil headers:nil apiVersion: 0];
+    ZMTransportResponse *response2 = [[ZMTransportResponse alloc] initWithPayload:payload2 HTTPStatus:200 transportSessionError:nil headers:nil apiVersion:v0];
     [[self.transcoder expect] didReceiveResponse:response2 remoteIdentifierObjectSync:self.sut forRemoteIdentifiers:[OCMArg checkWithBlock:^BOOL(NSSet *set) {
         return [set isEqualToSet:requestedIDsRequest2];
     }]];
@@ -355,7 +355,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
 {
     // given
     NSUUID *userID = [NSUUID createUUID];
-    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion: 0];
+    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion:v0];
     
     // expect
     [[[self.transcoder stub] andReturnValue:OCMOCK_VALUE((NSUInteger) 10)] maximumRemoteIdentifiersPerRequestForObjectSync:OCMOCK_ANY];
@@ -373,7 +373,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
 {
     // given
     NSUUID *userID = [NSUUID createUUID];
-    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion: 0];
+    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion:v0];
     
     // expect
     [[[self.transcoder stub] andReturnValue:OCMOCK_VALUE((NSUInteger) 10)] maximumRemoteIdentifiersPerRequestForObjectSync:OCMOCK_ANY];
@@ -393,7 +393,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
 {
     // given
     NSUUID *userID = [NSUUID createUUID];
-    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion: 0];
+    ZMTransportRequest *dummyRequest = [ZMTransportRequest requestGetFromPath:@"foo" apiVersion:v0];
     
     // expect
     [[[self.transcoder stub] andReturnValue:OCMOCK_VALUE((NSUInteger) 10)] maximumRemoteIdentifiersPerRequestForObjectSync:OCMOCK_ANY];
@@ -406,7 +406,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
 
     // then
     ZMTransportRequest *request1 = [self.sut nextRequest];
-    [request1 completeWithResponse:[ZMTransportResponse responseWithPayload:@[] HTTPStatus:200 transportSessionError:nil apiVersion: 0]];
+    [request1 completeWithResponse:[ZMTransportResponse responseWithPayload:@[] HTTPStatus:200 transportSessionError:nil apiVersion:v0]];
     WaitForAllGroupsToBeEmpty(0.5);
     XCTAssertNil([self.sut nextRequest]);
     
