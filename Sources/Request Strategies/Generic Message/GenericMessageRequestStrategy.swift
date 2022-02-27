@@ -171,8 +171,8 @@ extension GenericMessageEntity: EncryptedPayloadGenerator {
         entity.completionHandler?(response)
     }
 
-    public func nextRequest() -> ZMTransportRequest? {
-        return sync?.nextRequest()
+    public func nextRequest(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+        return sync?.nextRequest(for: apiVersion)
     }
 
     public func objectsDidChange(_ object: Set<NSManagedObject>) {

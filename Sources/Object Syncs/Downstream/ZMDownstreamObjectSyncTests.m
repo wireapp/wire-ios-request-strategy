@@ -73,7 +73,7 @@
 - (void)makeSureFetchObjectsToDownloadHasBeenCalled;
 {
     [[[(id)self.operationSet expect] andReturn:nil] nextObjectToSynchronize];
-    XCTAssertNil([self.sut nextRequest], @"Make sure -fetchObjectsToDownload has been called.");
+    XCTAssertNil([self.sut nextRequestForAPIVersion:v0], @"Make sure -fetchObjectsToDownload has been called.");
 }
 
 -(ZMTransportRequest *)dummyRequest
@@ -199,7 +199,7 @@
     [(ZMSyncOperationSet *)[(id)self.operationSet expect] didStartSynchronizingKeys:nil forObject:entity];
     
     // when
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertEqualObjects(self.dummyRequest, request);
@@ -220,7 +220,7 @@
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] removeObject:OCMOCK_ANY];
     
     // when
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertNil(request);
@@ -246,7 +246,7 @@
     [[[(id)self.transcoder expect] andReturn:expectedRequest] requestForFetchingObject:entity2 downstreamSync:self.sut];
     
     // when
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertEqual(request,expectedRequest);
@@ -269,7 +269,7 @@
     [(ZMSyncOperationSet *)[(id)self.operationSet expect] removeObject:entity1];
     
     // when
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     NOT_USED(request);
 }
 
@@ -287,7 +287,7 @@
     [(ZMSyncOperationSet *)[(id)self.operationSet expect] removeObject:entity1];
     
     // when
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     NOT_USED(request);
 }
 
@@ -308,7 +308,7 @@
     [[[(id)self.operationSet expect] andReturn:keys]keysForWhichToApplyResultsAfterFinishedSynchronizingSyncWithToken:OCMOCK_ANY forObject:entity result:ZMTransportResponseStatusSuccess];
     [[(id)self.operationSet expect] removeUpdatedObject:entity syncToken:OCMOCK_ANY synchronizedKeys:keys];
     [[(id)self.transcoder expect] updateObject:entity withResponse:response downstreamSync:self.sut];
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // when
     [request completeWithResponse:response];
@@ -334,7 +334,7 @@
     [[(id)self.operationSet expect] keysForWhichToApplyResultsAfterFinishedSynchronizingSyncWithToken:OCMOCK_ANY forObject:entity result:ZMTransportResponseStatusPermanentError];
     [(id<ZMDownstreamTranscoder>)[(id)self.transcoder expect] deleteObject:entity withResponse:response downstreamSync:self.sut];
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] removeObject:entity];
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // when
@@ -360,7 +360,7 @@
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] didStartSynchronizingKeys:nil forObject:entity];
     [[(id)self.operationSet stub] keysForWhichToApplyResultsAfterFinishedSynchronizingSyncWithToken:OCMOCK_ANY forObject:entity result:ZMTransportResponseStatusPermanentError];
     [(id<ZMDownstreamTranscoder>)[(id)self.transcoder stub] deleteObject:entity withResponse:response downstreamSync:self.sut];
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // expect
@@ -382,7 +382,7 @@
     [[[(id)self.operationSet stub] andReturn:entity] nextObjectToSynchronize];
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] didStartSynchronizingKeys:nil forObject:entity];
     [[(id)self.operationSet stub] keysForWhichToApplyResultsAfterFinishedSynchronizingSyncWithToken:OCMOCK_ANY forObject:entity result:ZMTransportResponseStatusPermanentError];
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // reject
@@ -415,7 +415,7 @@
     [self createSystemUnderTest];
     [[[(id)self.operationSet expect] andReturn:nil] nextObjectToSynchronize];
     [ZMChangeTrackerBootstrap bootStrapChangeTrackers:@[self.sut] onContext:self.testMOC];
-    (void) [self.sut nextRequest];
+    (void) [self.sut nextRequestForAPIVersion:v0];
 }
 
 - (void)testThatItDoesNotUpdateZombieObjectsAfterAnUpdateRequest
@@ -437,7 +437,7 @@
     
     [[(id)self.transcoder reject] updateObject:OCMOCK_ANY withResponse:OCMOCK_ANY downstreamSync:self.sut];
     
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // when
     [self.testMOC deleteObject:entity];

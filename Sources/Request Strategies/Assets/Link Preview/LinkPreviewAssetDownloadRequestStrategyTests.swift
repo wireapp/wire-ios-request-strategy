@@ -126,10 +126,10 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
+            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
             XCTAssertEqual(request.path, "/assets/v3/\(assetID)")
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -153,10 +153,10 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
+            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
             XCTAssertEqual(request.path, "/assets/v3/\(assetID)")
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -181,10 +181,10 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
+            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
             XCTAssertEqual(request.path, "/assets/v4/\(assetDomain)/\(assetID)")
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -209,10 +209,10 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
+            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
             XCTAssertEqual(request.path, "/assets/v4/\(assetDomain)/\(assetID)")
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -237,7 +237,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         // THEN
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -259,7 +259,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -283,7 +283,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -314,7 +314,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
+            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
             let response = ZMTransportResponse(imageData: encrypted, httpStatus: 200, transportSessionError: nil, headers: nil, apiVersion: .v0)
 
             // WHEN
@@ -348,7 +348,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
 
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            guard let request = self.sut.nextRequest() else { XCTFail("No request generated"); return }
+            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
             let response = ZMTransportResponse(imageData: .secureRandomData(length: 256), httpStatus: 400, transportSessionError: nil, headers: nil, apiVersion: .v0)
             // WHEN
             request.complete(with: response)

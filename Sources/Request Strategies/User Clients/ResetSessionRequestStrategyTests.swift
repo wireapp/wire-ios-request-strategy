@@ -63,7 +63,7 @@ class ResetSessionRequestStrategyTests: MessagingTestBase {
             }
 
             // THEN
-            XCTAssertEqual(self.sut.nextRequest()?.path, "/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
+            XCTAssertEqual(self.sut.nextRequest(for: .v0)?.path, "/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
         }
     }
 
@@ -82,7 +82,7 @@ class ResetSessionRequestStrategyTests: MessagingTestBase {
                 let otherClientSet: Set<NSManagedObject> = [otherClient]
                 $0.objectsDidChange(otherClientSet)
             }
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // WHEN
             request?.complete(with: ZMTransportResponse(payload: [:] as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0))

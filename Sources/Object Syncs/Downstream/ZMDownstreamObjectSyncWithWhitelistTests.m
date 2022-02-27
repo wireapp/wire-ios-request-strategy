@@ -68,7 +68,7 @@
 
 - (void)makeSureFetchObjectsToDownloadHasBeenCalled;
 {
-    XCTAssertNil([self.sut nextRequest], @"Make sure -fetchObjectsToDownload has been called.");
+    XCTAssertNil([self.sut nextRequestForAPIVersion:v0], @"Make sure -fetchObjectsToDownload has been called.");
 }
 
 - (void)testThatOnNextRequestsItDoesNotCreateARequestWhenTheObjectIsNotWhiteListed;
@@ -84,7 +84,7 @@
     [[(id)self.transcoder reject] requestForFetchingObject:OCMOCK_ANY downstreamSync:OCMOCK_ANY];
     
     // when
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertNil(request);
@@ -106,7 +106,7 @@
     
     // when
     [self.sut whiteListObject:entity];
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertEqualObjects(dummyRequest, request);

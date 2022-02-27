@@ -102,8 +102,8 @@ private let zmLog = ZMSLog(tag: "Asset V3")
         }
     }
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return assetDownstreamObjectSync.nextRequest()
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+        return assetDownstreamObjectSync.nextRequest(for: apiVersion)
     }
 
     fileprivate func handleResponse(_ response: ZMTransportResponse, forMessage assetClientMessage: ZMAssetClientMessage) {

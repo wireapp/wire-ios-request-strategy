@@ -139,12 +139,12 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         self.conversationByQualifiedIDListSync.delegate = self
     }
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
         if syncProgress.currentSyncPhase == .fetchingConversations {
             fetchAllConversations()
         }
 
-        return requestGenerators.nextRequest()
+        return requestGenerators.nextRequest(for: apiVersion)
     }
 
     func fetch(_ converations: Set<ZMConversation>) {

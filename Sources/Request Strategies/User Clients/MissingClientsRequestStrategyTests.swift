@@ -138,7 +138,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
-            guard let request = self.sut.nextRequest() else {
+            guard let request = self.sut.nextRequest(for: .v0) else {
                 XCTFail("Request is nil"); return
             }
 
@@ -155,7 +155,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
-            guard let request = self.sut.nextRequest() else {
+            guard let request = self.sut.nextRequest(for: .v0) else {
                 XCTFail("Request is nil"); return
             }
 
@@ -171,7 +171,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertNil(request, "Should not fetch missing clients keys if missing key is not modified")
@@ -185,7 +185,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertNil(request, "Should not fetch missing clients keys if missing key is not modified")
@@ -201,7 +201,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertNil(request, "Should not fetch missing clients keys if missing key is not modified")
@@ -224,7 +224,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
-            guard let firstRequest = self.sut.nextRequest() else {
+            guard let firstRequest = self.sut.nextRequest(for: .v0) else {
                 XCTFail("Failed to create request")
                 return
             }
@@ -251,7 +251,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
         var secondEntry: (key: String, value: [String])!
         self.syncMOC.performGroupedAndWait { _ in
             // and when
-            guard let secondRequest = self.sut.nextRequest() else {
+            guard let secondRequest = self.sut.nextRequest(for: .v0) else {
                 XCTFail("Failed to create request")
                 return
             }
@@ -278,7 +278,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
 
         self.syncMOC.performGroupedAndWait { _ in
             // and when
-            let thirdRequest = self.sut.nextRequest()
+            let thirdRequest = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertNil(thirdRequest, "Should not request clients keys any more")
@@ -314,7 +314,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
-            guard let firstRequest = self.sut.nextRequest() else {
+            guard let firstRequest = self.sut.nextRequest(for: .v0) else {
                 XCTFail("Failed to create request")
                 return
             }
@@ -341,7 +341,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
         var secondEntry: (key: String, value: [String])!
         self.syncMOC.performGroupedAndWait { _ in
             // and when
-            guard let secondRequest = self.sut.nextRequest() else {
+            guard let secondRequest = self.sut.nextRequest(for: .v0) else {
                 XCTFail("Failed to create request")
                 return
             }
@@ -367,7 +367,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
 
         self.syncMOC.performGroupedAndWait { _ in
             // and when
-            let thirdRequest = self.sut.nextRequest()
+            let thirdRequest = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertNil(thirdRequest, "Should not request clients keys any more")
@@ -637,7 +637,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.notifyChangeTrackers(self.selfClient)
 
             // WHEN
-            guard let request = self.sut.nextRequest() else {
+            guard let request = self.sut.nextRequest(for: .v0) else {
                 XCTFail("Request is nil"); return
             }
 
@@ -694,7 +694,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.sut.isFederationEndpointAvailable = true
             self.selfClient.missesClient(self.otherClient)
             self.sut.notifyChangeTrackers(self.selfClient)
-            guard let request = self.sut.nextRequest() else { XCTFail("Request is nil"); return }
+            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("Request is nil"); return }
             XCTAssertEqual(request.path, "/users/list-prekeys")
 
             // WHEN
@@ -704,7 +704,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
 
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            guard let request = self.sut.nextRequest() else { XCTFail("Request is nil"); return }
+            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("Request is nil"); return }
             XCTAssertEqual(request.path, "/users/prekeys")
         }
     }

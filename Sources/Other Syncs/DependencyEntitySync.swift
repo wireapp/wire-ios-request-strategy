@@ -76,7 +76,7 @@ class DependencyEntitySync<Transcoder: EntityTranscoder>: NSObject, ZMContextCha
         }
     }
 
-    public func nextRequest() -> ZMTransportRequest? {
+    public func nextRequest(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
         guard let entity = entitiesWithoutDependencies.first else { return nil }
 
         entitiesWithoutDependencies.removeFirst()

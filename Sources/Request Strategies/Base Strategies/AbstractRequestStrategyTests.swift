@@ -31,7 +31,7 @@ class TestRequestStrategyObjc: ZMAbstractRequestStrategy, TestableAbstractReques
 
     internal var mutableConfiguration: ZMStrategyConfigurationOption = []
 
-    override func nextRequestIfAllowed() -> ZMTransportRequest? {
+    override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
         return ZMTransportRequest(getFromPath: "dummy/request", apiVersion: .v0)
     }
 
@@ -45,7 +45,7 @@ class TestRequestStrategy: AbstractRequestStrategy, TestableAbstractRequestStrat
 
     internal var mutableConfiguration: ZMStrategyConfigurationOption = []
 
-    override func nextRequestIfAllowed() -> ZMTransportRequest? {
+    override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
         return ZMTransportRequest(getFromPath: "dummy/request", apiVersion: .v0)
     }
 
@@ -208,7 +208,7 @@ class AbstractRequestStrategyTests: MessagingTestBase {
         mockApplicationStatus.mockSynchronizationState = synchronizationState
 
         // then
-        XCTAssertNotNil(sut.nextRequest(), "expected \(configuration) to pass", file: file, line: line)
+        XCTAssertNotNil(sut.nextRequest(for: .v0), "expected \(configuration) to pass", file: file, line: line)
     }
 
     func assertFail(withConfiguration configuration: ZMStrategyConfigurationOption,
@@ -224,7 +224,7 @@ class AbstractRequestStrategyTests: MessagingTestBase {
         mockApplicationStatus.mockSynchronizationState = synchronizationState
 
         // then
-        XCTAssertNil(sut.nextRequest(), "expected \(configuration) to fail", file: file, line: line)
+        XCTAssertNil(sut.nextRequest(for: .v0), "expected \(configuration) to fail", file: file, line: line)
     }
 
     func testAbstractRequestStrategy() {

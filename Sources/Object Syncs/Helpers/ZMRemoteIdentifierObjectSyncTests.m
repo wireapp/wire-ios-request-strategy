@@ -84,7 +84,7 @@
     
     // when
     [self.sut setRemoteIdentifiersAsNeedingDownload:remoteIDs];
-    (void) [self.sut nextRequest];
+    (void) [self.sut nextRequestForAPIVersion:v0];
     
     // finally
     [self.transcoder verify];
@@ -97,7 +97,7 @@
     [[self.transcoder reject] requestForObjectSync:self.sut remoteIdentifiers:OCMOCK_ANY];
     
     // when
-    (void) [self.sut nextRequest];
+    (void) [self.sut nextRequestForAPIVersion:v0];
     
     // finally
     [self.transcoder verify];
@@ -126,10 +126,10 @@
     
     // when
     [self.sut setRemoteIdentifiersAsNeedingDownload:[NSSet setWithArray:remoteIDs]];
-    (void) [self.sut nextRequest];
-    (void) [self.sut nextRequest];
-    (void) [self.sut nextRequest];
-    (void) [self.sut nextRequest];
+    (void) [self.sut nextRequestForAPIVersion:v0];
+    (void) [self.sut nextRequestForAPIVersion:v0];
+    (void) [self.sut nextRequestForAPIVersion:v0];
+    (void) [self.sut nextRequestForAPIVersion:v0];
 
     // then
     XCTAssertEqual(numRequests, 2u);
@@ -179,11 +179,11 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     // when
     [self.sut setRemoteIdentifiersAsNeedingDownload:[NSSet setWithArray:remoteIDs]];
     // Request all IDs:
-    ZMTransportRequest *firstRequest = [self.sut nextRequest];
+    ZMTransportRequest *firstRequest = [self.sut nextRequestForAPIVersion:v0];
     XCTAssertNotNil(firstRequest);
-    ZMTransportRequest *secondRequest = [self.sut nextRequest];
+    ZMTransportRequest *secondRequest = [self.sut nextRequestForAPIVersion:v0];
     XCTAssertNotNil(secondRequest);
-    XCTAssertNil([self.sut nextRequest]);
+    XCTAssertNil([self.sut nextRequestForAPIVersion:v0]);
     
     
     
@@ -192,7 +192,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     [requestedIDs removeAllObjects];
     [firstRequest completeWithResponse:tryAgainResponse];
     WaitForAllGroupsToBeEmpty(0.5);
-    XCTAssertNotNil([self.sut nextRequest]);
+    XCTAssertNotNil([self.sut nextRequestForAPIVersion:v0]);
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
@@ -202,7 +202,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     // and when (2)
     [secondRequest completeWithResponse:tryAgainResponse];
     WaitForAllGroupsToBeEmpty(0.5);
-    XCTAssertNotNil([self.sut nextRequest]);
+    XCTAssertNotNil([self.sut nextRequestForAPIVersion:v0]);
     
     // then
     XCTAssertEqual(requestedIDs.count, 2u);
@@ -229,7 +229,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     // when
     [self.sut setRemoteIdentifiersAsNeedingDownload:[NSSet setWithArray:remoteIDs]];
     // Request all IDs:
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     [request completeWithResponse:tryAgainResponse];
     WaitForAllGroupsToBeEmpty(0.5);
     
@@ -249,7 +249,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     
     // when
     [self.sut setRemoteIdentifiersAsNeedingDownload:remoteIDs];
-    (void) [self.sut nextRequest];
+    (void) [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertFalse(self.sut.isDone);
@@ -271,7 +271,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     [[self.transcoder stub] didReceiveResponse:OCMOCK_ANY remoteIdentifierObjectSync:OCMOCK_ANY forRemoteIdentifiers:OCMOCK_ANY];
     
     [self.sut setRemoteIdentifiersAsNeedingDownload:remoteIDs];
-    ZMTransportRequest *transportRequest = [self.sut nextRequest];
+    ZMTransportRequest *transportRequest = [self.sut nextRequestForAPIVersion:v0];
     
     // when
     [transportRequest completeWithResponse:response];
@@ -329,15 +329,15 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     [self.sut setRemoteIdentifiersAsNeedingDownload:[NSSet setWithArray:remoteIDs]];
     
     // when
-    ZMTransportRequest *transportRequest1 = [self.sut nextRequest];
+    ZMTransportRequest *transportRequest1 = [self.sut nextRequestForAPIVersion:v0];
     [transportRequest1 completeWithResponse:response1];
     WaitForAllGroupsToBeEmpty(0.5);
 
-    ZMTransportRequest *transportRequest2 = [self.sut nextRequest];
+    ZMTransportRequest *transportRequest2 = [self.sut nextRequestForAPIVersion:v0];
     [transportRequest2 completeWithResponse:response2];
     WaitForAllGroupsToBeEmpty(0.5);
     
-    ZMTransportRequest *transportRequest3 = [self.sut nextRequest];
+    ZMTransportRequest *transportRequest3 = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertNil(transportRequest3);
@@ -363,7 +363,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     
     // when
     [self.sut addRemoteIdentifiersThatNeedDownload:[NSSet setWithObject:userID]];
-    (void) [self.sut nextRequest];
+    (void) [self.sut nextRequestForAPIVersion:v0];
     
     // finally
     [self.transcoder verify];
@@ -382,8 +382,8 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     // when
     [self.sut addRemoteIdentifiersThatNeedDownload:[NSSet setWithObject:userID]];
     
-    XCTAssertNotNil([self.sut nextRequest]);
-    XCTAssertNil([self.sut nextRequest]);
+    XCTAssertNotNil([self.sut nextRequestForAPIVersion:v0]);
+    XCTAssertNil([self.sut nextRequestForAPIVersion:v0]);
     
     // finally
     [self.transcoder verify];
@@ -405,10 +405,10 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     [self.sut addRemoteIdentifiersThatNeedDownload:[NSSet setWithObject:userID]];
 
     // then
-    ZMTransportRequest *request1 = [self.sut nextRequest];
+    ZMTransportRequest *request1 = [self.sut nextRequestForAPIVersion:v0];
     [request1 completeWithResponse:[ZMTransportResponse responseWithPayload:@[] HTTPStatus:200 transportSessionError:nil apiVersion:v0]];
     WaitForAllGroupsToBeEmpty(0.5);
-    XCTAssertNil([self.sut nextRequest]);
+    XCTAssertNil([self.sut nextRequestForAPIVersion:v0]);
     
     // finally
     [self.transcoder verify];
@@ -464,7 +464,7 @@ typedef ZMTransportRequest * (^stubbedRequestForObjectSync_t)(id self, ZMRemoteI
     }]];
     
     // when
-    (void) [self.sut nextRequest];
+    (void) [self.sut nextRequestForAPIVersion:v0];
 }
 
 @end

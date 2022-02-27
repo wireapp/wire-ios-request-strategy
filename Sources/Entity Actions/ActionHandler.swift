@@ -49,7 +49,7 @@ class ActionHandler<T: EntityAction>: NSObject, EntityActionHandler, ZMRequestGe
         preconditionFailure("handleResponse(response:action:) must be overriden in subclasses")
     }
 
-    func nextRequest() -> ZMTransportRequest? {
+    func nextRequest(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
         guard !pendingActions.isEmpty else {
             return nil
         }

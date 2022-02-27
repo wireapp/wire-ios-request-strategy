@@ -67,7 +67,7 @@ class ActionHandlerTests: MessagingTestBase {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         // when
-        _ = self.sut.nextRequest()
+        _ = self.sut.nextRequest(for: .v0)
 
         // then
         XCTAssertTrue(sut.calledRequestForAction)
@@ -78,11 +78,11 @@ class ActionHandlerTests: MessagingTestBase {
         let action = MockAction()
         action.send(in: uiMOC.notificationContext)
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        _ = self.sut.nextRequest()
+        _ = self.sut.nextRequest(for: .v0)
         sut.calledRequestForAction = false
 
         // when
-        _ = self.sut.nextRequest()
+        _ = self.sut.nextRequest(for: .v0)
 
         // then
         XCTAssertFalse(sut.calledRequestForAction)
@@ -93,7 +93,7 @@ class ActionHandlerTests: MessagingTestBase {
         let action = MockAction()
         action.send(in: uiMOC.notificationContext)
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        let request = self.sut.nextRequest()
+        let request = self.sut.nextRequest(for: .v0)
 
         // when
         request?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil, apiVersion: .v0))

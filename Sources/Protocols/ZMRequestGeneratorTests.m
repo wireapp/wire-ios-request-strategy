@@ -32,6 +32,11 @@
 
 
 @implementation FakeRequestGenerator
+
+- (ZMTransportRequest * _Nullable)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion {
+    return _nextRequest;
+}
+
 @end
 
 
@@ -74,7 +79,7 @@
     NSArray *sut = @[self.generatorA];
     
     // when
-    ZMTransportRequest *request = [sut nextRequest];
+    ZMTransportRequest *request = [sut nextRequestForAPIVersion:self.requestA.apiVersion];
     
     // then
     XCTAssertNotNil(request);
@@ -90,7 +95,7 @@
     NSArray *sut = @[self.generatorA, self.generatorB];
     
     // when
-    ZMTransportRequest *request = [sut nextRequest];
+    ZMTransportRequest *request = [sut nextRequestForAPIVersion:self.requestB.apiVersion];
     
     // then
     XCTAssertNotNil(request);
