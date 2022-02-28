@@ -34,6 +34,9 @@ extension ZMAPIVersion {
 
     public static var current: Self? {
         get {
+            // Fetching an integer will default to 0 if no value exists for the key,
+            // so explicitly check there is a value.
+            guard UserDefaults.standard.hasValue(for: key) else { return nil }
             let storedValue = UserDefaults.standard.integer(forKey: key)
             return ZMAPIVersion(rawValue: storedValue)
         }
@@ -51,6 +54,16 @@ extension ZMAPIVersion: Comparable {
 
     public static func < (lhs: Self, rhs: Self) -> Bool {
         return lhs.rawValue < rhs.rawValue
+    }
+
+}
+
+// MARK: - Helper
+
+private extension UserDefaults {
+
+    func hasValue(for key: String) -> Bool {
+        return object(forKey: key) != nil
     }
 
 }
