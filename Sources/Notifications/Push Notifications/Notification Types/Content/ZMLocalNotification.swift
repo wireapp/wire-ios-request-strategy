@@ -22,9 +22,14 @@ import UserNotifications
 /// have associated subtypes.
 ///
 public enum LocalNotificationType {
+
+    public enum CallState {
+        case incomingCall(video: Bool)
+        case missedCall
+    }
+
     case event(LocalNotificationEventType)
-// TODO Katerina to fix calling state
-    case calling//calling(CallState)
+    case calling(CallState)
     case message(LocalNotificationContentType)
     case failedMessage
     case availabilityBehaviourChangeAlert(AvailabilityKind)
