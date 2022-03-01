@@ -116,7 +116,7 @@ class LinkPreviewAssetUploadRequestStrategyTests: MessagingTestBase {
     }
 
     func completeRequest(_ message: ZMClientMessage, request: ZMTransportRequest?, assetId: String, token: String, domain: String) {
-        let response = ZMTransportResponse(payload: ["key": assetId, "token": token, "domain": domain] as ZMTransportData, httpStatus: 201, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: ["key": assetId, "token": token, "domain": domain] as ZMTransportData, httpStatus: 201, transportSessionError: nil, apiVersion: .v0)
         _ = sut.updateUpdatedObject(message, requestUserInfo: nil, response: response, keysToParse: [ZMClientMessage.linkPreviewStateKey])
     }
 }

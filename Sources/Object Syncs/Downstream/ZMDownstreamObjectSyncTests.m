@@ -78,7 +78,7 @@
 
 -(ZMTransportRequest *)dummyRequest
 {
-    return [ZMTransportRequest requestGetFromPath:[@"dummy-from-test-" stringByAppendingString:self.name]];
+    return [ZMTransportRequest requestGetFromPath:[@"dummy-from-test-" stringByAppendingString:self.name] apiVersion:v0];
 }
 
 - (void)testThatItSetsTheCorrectDefaultPredicate;
@@ -234,7 +234,7 @@
     entity1.needsToBeUpdatedFromBackend = YES;
     MockEntity *entity2 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
     entity2.needsToBeUpdatedFromBackend = YES;
-    ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"lol"];
+    ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"lol" apiVersion: 0];
     
     // expect
     [[[(id)self.operationSet expect] andReturn:entity1] nextObjectToSynchronize];
@@ -299,7 +299,7 @@
     entity.needsToBeUpdatedFromBackend = YES;
     NSDictionary *payload = @{@"3":@4};
     id keys = @435;
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:200 transportSessionError:nil];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:200 transportSessionError:nil apiVersion: 0];
     
     // expect
     [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];
@@ -325,7 +325,7 @@
     MockEntity *entity = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
     entity.needsToBeUpdatedFromBackend = YES;
     NSDictionary *payload = @{@"3":@4};
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:404 transportSessionError:nil];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:404 transportSessionError:nil apiVersion: 0];
     
     // expect
     [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];
@@ -353,7 +353,7 @@
     entity.needsToBeUpdatedFromBackend = YES;
     NSDictionary *payload = @{@"3":@4};
 
-    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:404 transportSessionError:nil];
+    ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:404 transportSessionError:nil apiVersion: 0];
     
     [[[(id)self.transcoder stub] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];
     [[[(id)self.operationSet stub] andReturn:entity] nextObjectToSynchronize];
@@ -393,7 +393,7 @@
     
     // when
     NSError *transportError = [NSError errorWithDomain:ZMTransportSessionErrorDomain code:ZMTransportSessionErrorCodeTryAgainLater userInfo:nil];
-    [request completeWithResponse:[ZMTransportResponse responseWithTransportSessionError:transportError]];
+    [request completeWithResponse:[ZMTransportResponse responseWithTransportSessionError:transportError apiVersion: 0]];
     WaitForAllGroupsToBeEmpty(0.5);
 }
 
@@ -443,7 +443,7 @@
     [self.testMOC deleteObject:entity];
     [self.testMOC saveOrRollback];
     
-    [request completeWithResponse:[ZMTransportResponse responseWithPayload:payload HTTPStatus:200 transportSessionError:nil]];
+    [request completeWithResponse:[ZMTransportResponse responseWithPayload:payload HTTPStatus:200 transportSessionError:nil apiVersion: 0]];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then

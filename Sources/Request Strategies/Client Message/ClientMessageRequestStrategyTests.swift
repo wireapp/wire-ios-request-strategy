@@ -354,7 +354,7 @@ extension ClientMessageRequestStrategyTests {
 
             // WHEN
             guard let request = self.sut.nextRequest() else { return XCTFail("Request is nil") }
-            request.complete(with: ZMTransportResponse(payload: NSDictionary(), httpStatus: 200, transportSessionError: nil))
+            request.complete(with: ZMTransportResponse(payload: NSDictionary(), httpStatus: 200, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -385,7 +385,7 @@ extension ClientMessageRequestStrategyTests {
             // WHEN
             guard let request = self.sut.nextRequest() else { return XCTFail("Request is nil") }
             let payload = ["label": "missing-legalhold-consent", "code": 403, "message": ""] as NSDictionary
-            request.complete(with: ZMTransportResponse(payload: payload, httpStatus: 403, transportSessionError: nil))
+            request.complete(with: ZMTransportResponse(payload: payload, httpStatus: 403, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 

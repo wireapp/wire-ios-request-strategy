@@ -92,11 +92,11 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
     func testThatItParsesAllKnownAddParticipantErrorResponses() {
 
         let errorResponses: [(ConversationAddParticipantsError, ZMTransportResponse)] = [
-            (ConversationAddParticipantsError.invalidOperation, ZMTransportResponse(payload: ["label": "invalid-op"] as ZMTransportData, httpStatus: 403, transportSessionError: nil)),
-            (ConversationAddParticipantsError.accessDenied, ZMTransportResponse(payload: ["label": "access-denied"] as ZMTransportData, httpStatus: 403, transportSessionError: nil)),
-            (ConversationAddParticipantsError.notConnectedToUser, ZMTransportResponse(payload: ["label": "not-connected"] as ZMTransportData, httpStatus: 403, transportSessionError: nil)),
-            (ConversationAddParticipantsError.conversationNotFound, ZMTransportResponse(payload: ["label": "no-conversation"] as ZMTransportData, httpStatus: 404, transportSessionError: nil)),
-            (ConversationAddParticipantsError.missingLegalHoldConsent, ZMTransportResponse(payload: ["label": "missing-legalhold-consent"] as ZMTransportData, httpStatus: 412, transportSessionError: nil))
+            (ConversationAddParticipantsError.invalidOperation, ZMTransportResponse(payload: ["label": "invalid-op"] as ZMTransportData, httpStatus: 403, transportSessionError: nil, apiVersion: .v0)),
+            (ConversationAddParticipantsError.accessDenied, ZMTransportResponse(payload: ["label": "access-denied"] as ZMTransportData, httpStatus: 403, transportSessionError: nil, apiVersion: .v0)),
+            (ConversationAddParticipantsError.notConnectedToUser, ZMTransportResponse(payload: ["label": "not-connected"] as ZMTransportData, httpStatus: 403, transportSessionError: nil, apiVersion: .v0)),
+            (ConversationAddParticipantsError.conversationNotFound, ZMTransportResponse(payload: ["label": "no-conversation"] as ZMTransportData, httpStatus: 404, transportSessionError: nil, apiVersion: .v0)),
+            (ConversationAddParticipantsError.missingLegalHoldConsent, ZMTransportResponse(payload: ["label": "missing-legalhold-consent"] as ZMTransportData, httpStatus: 412, transportSessionError: nil, apiVersion: .v0))
         ]
 
         for (expectedError, response) in errorResponses {
@@ -128,7 +128,8 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
             let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 200,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)
@@ -158,7 +159,8 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
             let action = AddParticipantAction(users: [teamUser, nonTeamUser], conversation: conversation)
             let response = ZMTransportResponse(payload: nil,
                                                httpStatus: 403,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)
@@ -192,7 +194,8 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
             let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 200,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)
@@ -215,7 +218,8 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
             }
             let response = ZMTransportResponse(payload: nil,
                                                httpStatus: 204,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)
@@ -239,7 +243,8 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
 
             let response = ZMTransportResponse(payload: nil,
                                                httpStatus: 404,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)

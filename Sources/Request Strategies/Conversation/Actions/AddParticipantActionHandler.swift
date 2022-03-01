@@ -63,7 +63,7 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction>, Federati
         }
 
         let path = "/conversations/\(conversationID)/members"
-        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData)
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: .v0)
     }
 
     func federatedRequest(for action: AddParticipantAction) -> ZMTransportRequest? {
@@ -84,7 +84,7 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction>, Federati
         }
         let path = "/conversations/\(conversationID.uuid)/members/v2"
 
-        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData)
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: .v0)
     }
 
     override func handleResponse(_ response: ZMTransportResponse, action: AddParticipantAction) {

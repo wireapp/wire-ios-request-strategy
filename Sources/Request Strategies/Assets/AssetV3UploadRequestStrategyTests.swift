@@ -226,7 +226,7 @@ class AssetV3UploadRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest()
 
             // when
-            request?.complete(with: ZMTransportResponse(payload: ["key": "asset-id-123"] as ZMTransportData, httpStatus: 201, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: ["key": "asset-id-123"] as ZMTransportData, httpStatus: 201, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -245,7 +245,7 @@ class AssetV3UploadRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest()
 
             // when
-            request?.complete(with: ZMTransportResponse(payload: ["key": "asset-id-123"] as ZMTransportData, httpStatus: 201, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: ["key": "asset-id-123"] as ZMTransportData, httpStatus: 201, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -265,7 +265,7 @@ class AssetV3UploadRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest()
 
             // when
-            request?.complete(with: ZMTransportResponse(payload: ["key": expectedAssetId] as ZMTransportData, httpStatus: 201, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: ["key": expectedAssetId] as ZMTransportData, httpStatus: 201, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -284,7 +284,7 @@ class AssetV3UploadRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest()
 
             // when
-            request?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 

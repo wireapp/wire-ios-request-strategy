@@ -102,8 +102,8 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
     func testThatItParsesAllKnownRemoveParticipantErrorResponses() {
 
         let errorResponses: [(ConversationRemoveParticipantError, ZMTransportResponse)] = [
-            (ConversationRemoveParticipantError.invalidOperation, ZMTransportResponse(payload: ["label": "invalid-op"] as ZMTransportData, httpStatus: 403, transportSessionError: nil)),
-            (ConversationRemoveParticipantError.conversationNotFound, ZMTransportResponse(payload: ["label": "no-conversation"] as ZMTransportData, httpStatus: 404, transportSessionError: nil))
+            (ConversationRemoveParticipantError.invalidOperation, ZMTransportResponse(payload: ["label": "invalid-op"] as ZMTransportData, httpStatus: 403, transportSessionError: nil, apiVersion: .v0)),
+            (ConversationRemoveParticipantError.conversationNotFound, ZMTransportResponse(payload: ["label": "no-conversation"] as ZMTransportData, httpStatus: 404, transportSessionError: nil, apiVersion: .v0))
         ]
 
         for (expectedError, response) in errorResponses {
@@ -133,7 +133,8 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
             let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 200,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)
@@ -158,7 +159,8 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
             let payloadAsString = String(bytes: container.payloadData()!, encoding: .utf8)!
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 200,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)
@@ -191,7 +193,8 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
             let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 200,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
             // when
             self.sut.handleResponse(response, action: action)
 
@@ -220,7 +223,8 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
             let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 200,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)
@@ -243,7 +247,8 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
             }
             let response = ZMTransportResponse(payload: nil,
                                                httpStatus: 204,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)
@@ -267,7 +272,8 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
 
             let response = ZMTransportResponse(payload: nil,
                                                httpStatus: 404,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             // when
             self.sut.handleResponse(response, action: action)

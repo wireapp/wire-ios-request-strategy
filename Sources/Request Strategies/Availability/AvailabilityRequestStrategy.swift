@@ -62,7 +62,8 @@ extension AvailabilityRequestStrategy: ZMUpstreamTranscoder {
                                          method: .methodPOST,
                                          binaryData: dataAndMissingClientStrategy.data,
                                          type: protobufContentType,
-                                         contentDisposition: nil)
+                                         contentDisposition: nil,
+                                         apiVersion: .v0)
 
         return ZMUpstreamRequest(keys: keys, transportRequest: request)
     }

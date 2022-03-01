@@ -89,7 +89,7 @@ extension FetchClientRequestStrategyTests {
             client.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(clientSet)
             let request = self.sut.nextRequest()
-            request?.complete(with: ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
@@ -112,7 +112,7 @@ extension FetchClientRequestStrategyTests {
             client.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(clientSet)
             let request = self.sut.nextRequest()
-            request?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil))
+            request?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
@@ -168,7 +168,8 @@ extension FetchClientRequestStrategyTests {
             let request = self.sut.nextRequest()
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 200,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             request?.complete(with: response)
         }
@@ -200,7 +201,8 @@ extension FetchClientRequestStrategyTests {
             let request = self.sut.nextRequest()
             request?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                         httpStatus: 200,
-                                                        transportSessionError: nil))
+                                                        transportSessionError: nil,
+                                                        apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
@@ -234,7 +236,8 @@ extension FetchClientRequestStrategyTests {
             let request = self.sut.nextRequest()
             request?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                         httpStatus: 200,
-                                                        transportSessionError: nil))
+                                                        transportSessionError: nil,
+                                                        apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
@@ -264,7 +267,8 @@ extension FetchClientRequestStrategyTests {
             let request = self.sut.nextRequest()
             let response = ZMTransportResponse(payload: nil,
                                                httpStatus: 404,
-                                               transportSessionError: nil)
+                                               transportSessionError: nil,
+                                               apiVersion: .v0)
 
             request?.complete(with: response)
         }
@@ -301,7 +305,7 @@ extension FetchClientRequestStrategyTests {
             ]
         ]
 
-        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
 
         let identifier = UUID.create()
         var user: ZMUser!
@@ -345,7 +349,7 @@ extension FetchClientRequestStrategyTests {
             user.fetchUserClients()
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
-        let response = ZMTransportResponse(payload: payload, httpStatus: 200, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: payload, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
@@ -377,7 +381,7 @@ extension FetchClientRequestStrategyTests {
         self.syncMOC.performGroupedBlockAndWait {
             XCTAssertEqual(self.otherUser.clients.count, 1)
         }
-        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
@@ -459,7 +463,7 @@ extension FetchClientRequestStrategyTests {
             user?.fetchUserClients()
             payload = [["id": self.otherClient.remoteIdentifier!, "class": "phone"]] as NSArray
         }
-        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
         // WHEN
@@ -486,7 +490,7 @@ extension FetchClientRequestStrategyTests {
             payload = [["id": remoteIdentifier, "class": "phone"]] as NSArray
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.2))
-        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
@@ -515,7 +519,7 @@ extension FetchClientRequestStrategyTests {
             payload = [["id": client.remoteIdentifier!, "class": "phone"]] as NSArray
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.2))
-        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
@@ -547,7 +551,7 @@ extension FetchClientRequestStrategyTests {
             }
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.2))
-        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
@@ -575,7 +579,7 @@ extension FetchClientRequestStrategyTests {
             user?.fetchUserClients()
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
-        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil)
+        let response = ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {

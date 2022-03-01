@@ -77,7 +77,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
                                                        deleted: [:],
                                                        failedToSend: [:])
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 201, transportSessionError: nil))
+            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 201, transportSessionError: nil, apiVersion: .v0))
         }
 
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
@@ -97,7 +97,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
                                                        deleted: [:],
                                                        failedToSend: [:])
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 201, transportSessionError: nil))
+            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 201, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -120,7 +120,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
             }
 
             // when
-            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 403, transportSessionError: nil))
+            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 403, transportSessionError: nil, apiVersion: .v0))
         }
 
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
@@ -135,7 +135,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
             // when
             let payload = Payload.ResponseFailure(code: 404, label: .noEndpoint, message: "")
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: payload.code, transportSessionError: nil))
+            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: payload.code, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -152,7 +152,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
             sut.sync(message) { (_, _) in }
 
             // when
-            sut.nextRequest()?.complete(with: ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError()))
+            sut.nextRequest()?.complete(with: ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError(), apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -180,7 +180,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
                                                        deleted: [:],
                                                        failedToSend: [:])
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 412, transportSessionError: nil))
+            sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 412, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -199,7 +199,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
                 // when
                 let payload = Payload.ResponseFailure(code: 403, label: .unknownClient, message: "")
                 let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-                sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: payload.code, transportSessionError: nil))
+                sut.nextRequest()?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: payload.code, transportSessionError: nil, apiVersion: .v0))
             }
             XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
