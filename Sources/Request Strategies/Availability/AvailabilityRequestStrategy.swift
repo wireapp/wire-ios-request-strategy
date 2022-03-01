@@ -36,8 +36,8 @@ public class AvailabilityRequestStrategy: AbstractRequestStrategy {
                                                          managedObjectContext: managedObjectContext)
     }
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return modifiedSync.nextRequest()
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+        return modifiedSync.nextRequest(for: apiVersion)
     }
 
 }

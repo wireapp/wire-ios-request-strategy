@@ -57,7 +57,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([self.groupConversation])) }
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/conversations/\(domain)/\(conversationID.transportString())")
@@ -75,7 +75,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([self.groupConversation])) }
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/conversations/\(conversationID.transportString())")
@@ -95,7 +95,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([conversation])) })
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             let payload = Payload.NewConversation(request)
 
             // then
@@ -117,7 +117,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             let payload = Payload.UpdateConversationName(request)
 
             // then
@@ -138,7 +138,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             let payload = Payload.UpdateConversationStatus(request)
 
             // then
@@ -159,7 +159,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             let payload = Payload.UpdateConversationStatus(request)
 
             // then
@@ -177,7 +177,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.mockSyncProgress.currentSyncPhase = .fetchingConversations
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/conversations/list-ids")
@@ -188,10 +188,10 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             // given
             self.mockSyncProgress.currentSyncPhase = .fetchingConversations
-            _ = self.sut.nextRequest()!
+            _ = self.sut.nextRequest(for: .v0)!
 
             // when
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -202,7 +202,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // when
-            let fetchRequest = self.sut.nextRequest()!
+            let fetchRequest = self.sut.nextRequest(for: .v0)!
 
             // then
             guard let fetchPayload = Payload.QualifiedUserIDList(fetchRequest) else {
@@ -961,7 +961,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([conversation])) }
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             request.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -972,7 +972,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let qualifiedConversationID = QualifiedID(uuid: self.groupConversation.remoteIdentifier!,
                                                                   domain: self.groupConversation.domain!)
 
-            let listRequest = self.sut.nextRequest()!
+            let listRequest = self.sut.nextRequest(for: .v0)!
             guard let listPayload = Payload.PaginationStatus(listRequest) else {
                 return XCTFail("List payload is invalid")
             }
@@ -984,7 +984,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func fetchConversationListDuringSlowSyncWithEmptyResponse() {
         syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             guard let listPayload = Payload.PaginationStatus(request) else {
                 return XCTFail("List payload is invalid")
             }
@@ -996,7 +996,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func fetchConversationListDuringSlowSyncWithPermanentError() {
         syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             request.complete(with: self.responseFailure(code: 404, label: .noEndpoint))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -1007,7 +1007,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             guard let payload = Payload.QualifiedUserIDList(request) else {
                 return XCTFail("Payload is invalid")

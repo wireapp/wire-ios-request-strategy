@@ -60,7 +60,7 @@
     XCTAssertEqual(self.sut.status, ZMSingleRequestIdle);
     [self.sut readyForNextRequest];
     [[[self.transcoder stub] andReturn:expectedRequest] requestForSingleRequestSync:self.sut];
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     XCTAssertEqual(self.sut.status, ZMSingleRequestInProgress);
     [request completeWithResponse:response];
     WaitForAllGroupsToBeEmpty(0.5);
@@ -104,7 +104,7 @@
 
     // when
     [self.sut readyForNextRequest];
-    [self.sut nextRequest];
+    [self.sut nextRequestForAPIVersion:v0];
 
     // then
     XCTAssertEqual(self.sut.status, ZMSingleRequestInProgress);
@@ -132,7 +132,7 @@
     [[self.transcoder reject] requestForSingleRequestSync:OCMOCK_ANY];
     
     // when
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertNil(request);
@@ -149,7 +149,7 @@
     [[[self.transcoder expect] andReturn:expectedRequest] requestForSingleRequestSync:self.sut];
     
     // when
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertEqualObjects(expectedRequest, request);
@@ -168,8 +168,8 @@
     [[self.transcoder reject] requestForSingleRequestSync:OCMOCK_ANY];
     
     // when
-    [self.sut nextRequest];
-    [self.sut nextRequest];
+    [self.sut nextRequestForAPIVersion:v0];
+    [self.sut nextRequestForAPIVersion:v0];
 }
 
 - (void)testThatItSetsTheStatusToCompletedIfTheTranscoderReturnsANilRequest
@@ -181,7 +181,7 @@
     [[[self.transcoder expect] andReturn:nil] requestForSingleRequestSync:self.sut];
     
     // when
-    ZMTransportRequest *request = [self.sut nextRequest];
+    ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertNil(request);
@@ -211,7 +211,7 @@
     
     // then
     XCTAssertEqual(self.sut.status, ZMSingleRequestCompleted);
-    XCTAssertNil([self.sut nextRequest]);
+    XCTAssertNil([self.sut nextRequestForAPIVersion:v0]);
 }
 
 - (void)testThatItSetsTheStatusToCompletedAndReturnsNoRequestWhenTheRequestCompletesFailsOnPermantentError
@@ -224,7 +224,7 @@
     
     // then
     XCTAssertEqual(self.sut.status, ZMSingleRequestCompleted);
-    XCTAssertNil([self.sut nextRequest]);
+    XCTAssertNil([self.sut nextRequestForAPIVersion:v0]);
 }
 
 - (void)testThatItLeavesTheStatusToReadyAndFiresAnotherRequestWhenTheRequestFailsOnNetwork
@@ -237,7 +237,7 @@
     
     // then
     XCTAssertEqual(self.sut.status, ZMSingleRequestReady);
-    ZMTransportRequest *secondRequest = [self.sut nextRequest];
+    ZMTransportRequest *secondRequest = [self.sut nextRequestForAPIVersion:v0];
     XCTAssertNotNil(secondRequest);
 }
 
@@ -253,7 +253,7 @@
     
     // then
     XCTAssertEqual(self.sut.status, ZMSingleRequestReady);
-    ZMTransportRequest *secondRequest = [self.sut nextRequest];
+    ZMTransportRequest *secondRequest = [self.sut nextRequestForAPIVersion:v0];
     XCTAssertNotNil(secondRequest);
 }
 
@@ -319,9 +319,9 @@
     [[[self.transcoder expect] andReturn:request2] requestForSingleRequestSync:self.sut];
     
     // when
-    ZMTransportRequest *generatedRequest1 = [self.sut nextRequest];
+    ZMTransportRequest *generatedRequest1 = [self.sut nextRequestForAPIVersion:v0];
     [self.sut readyForNextRequest];
-    ZMTransportRequest *generatedRequest2 = [self.sut nextRequest];
+    ZMTransportRequest *generatedRequest2 = [self.sut nextRequestForAPIVersion:v0];
     
     // then
     XCTAssertEqualObjects(request1, generatedRequest1);
@@ -348,12 +348,12 @@
     
     // given - first download
     [self.sut readyForNextRequest];
-    ZMTransportRequest *request1 = [self.sut nextRequest];
+    ZMTransportRequest *request1 = [self.sut nextRequestForAPIVersion:v0];
     XCTAssertEqualObjects(request1, requestThatShouldNotComplete);
     
     // given - second download
     [self.sut readyForNextRequest];
-    ZMTransportRequest *request2 = [self.sut nextRequest];
+    ZMTransportRequest *request2 = [self.sut nextRequestForAPIVersion:v0];
     XCTAssertEqualObjects(request2, requestThatShouldComplete);
     
     // when

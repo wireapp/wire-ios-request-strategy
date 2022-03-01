@@ -162,7 +162,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // When
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
 
             // Then
             XCTAssertEqual(request.method, .methodGET)
@@ -198,7 +198,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // When
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
 
             // Then
             XCTAssertEqual(request.method, .methodGET)
@@ -231,7 +231,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // When
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
 
             // Then
             XCTAssertEqual(request.method, .methodGET)
@@ -268,7 +268,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // When
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
 
             // Then
             XCTAssertEqual(request.method, .methodGET)
@@ -293,7 +293,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // Then
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -311,7 +311,7 @@ class AssetV3DownloadRequestStrategyTests: MessagingTestBase {
 
         self.syncMOC.performGroupedBlockAndWait {
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -336,7 +336,7 @@ extension AssetV3DownloadRequestStrategyTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: .v0)
 
             // WHEN
@@ -360,7 +360,7 @@ extension AssetV3DownloadRequestStrategyTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 404, transportSessionError: .none, apiVersion: .v0)
 
             // WHEN
@@ -388,7 +388,7 @@ extension AssetV3DownloadRequestStrategyTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 403, transportSessionError: nil, apiVersion: .v0)
 
             // WHEN
@@ -412,7 +412,7 @@ extension AssetV3DownloadRequestStrategyTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 500, transportSessionError: nil, apiVersion: .v0)
 
             // WHEN
@@ -440,7 +440,7 @@ extension AssetV3DownloadRequestStrategyTests {
         // WHEN
         performIgnoringZMLogError {
             self.syncMOC.performGroupedBlockAndWait {
-                let request = self.sut.nextRequest()
+                let request = self.sut.nextRequest(for: .v0)
                 let response = ZMTransportResponse(payload: [] as ZMTransportData, httpStatus: 200, transportSessionError: .none, apiVersion: .v0)
                 request?.complete(with: response)
             }
@@ -467,7 +467,7 @@ extension AssetV3DownloadRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             XCTAssertEqual(message.fileMessageData?.progress, 0)
             request?.updateProgress(expectedProgress)
         }
@@ -507,7 +507,7 @@ extension AssetV3DownloadRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            guard let request = self.sut.nextRequest() else { return XCTFail("Did not create expected request") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("Did not create expected request") }
             request.markStartOfUploadTimestamp()
             let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: .v0)
 
@@ -571,7 +571,7 @@ extension AssetV3DownloadRequestStrategyTests {
                 tracker.objectsDidChange([message])
             }
 
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.markStartOfUploadTimestamp()
             let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: .v0)
 
@@ -639,7 +639,7 @@ extension AssetV3DownloadRequestStrategyTests {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.markStartOfUploadTimestamp()
             let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: .none, headers: [:], apiVersion: .v0)
 
@@ -674,7 +674,7 @@ extension AssetV3DownloadRequestStrategyTests {
 
         self.syncMOC.performGroupedBlockAndWait {
             //  task has been created
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request created") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request created") }
 
             request.callTaskCreationHandlers(withIdentifier: 42, sessionIdentifier: self.name)
             XCTAssertTrue(self.syncMOC.saveOrRollback())

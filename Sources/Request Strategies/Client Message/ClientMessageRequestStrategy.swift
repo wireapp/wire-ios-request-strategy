@@ -70,8 +70,8 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
         return [insertedObjectSync, messageExpirationTimer, self.linkAttachmentsPreprocessor] + messageSync.contextChangeTrackers
     }
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return messageSync.nextRequest()
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+        return messageSync.nextRequest(for: apiVersion)
     }
 
     deinit {

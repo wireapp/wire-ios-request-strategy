@@ -63,7 +63,7 @@
                             filter:(NSPredicate *)filter
               managedObjectContext:(NSManagedObjectContext *)moc NS_DESIGNATED_INITIALIZER;
 
-- (ZMTransportRequest *)nextRequest;
+- (ZMTransportRequest *)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion;
 
 @property (nonatomic, readonly) NSPredicate *predicateForObjectsToDownload;
 @property (nonatomic, readonly) NSEntityDescription *entity;

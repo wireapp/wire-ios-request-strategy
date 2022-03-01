@@ -100,7 +100,7 @@ class DependencyEntitySyncTests: ZMTBaseTest {
 
         // when
         sut.synchronize(entity: entity)
-        _ = sut.nextRequest()
+        _ = sut.nextRequest(for: .v0)
 
         // then
         XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 1)
@@ -114,7 +114,7 @@ class DependencyEntitySyncTests: ZMTBaseTest {
 
         // when
         sut.synchronize(entity: entity)
-        _ = sut.nextRequest()
+        _ = sut.nextRequest(for: .v0)
 
         // then
         XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 0)
@@ -144,7 +144,7 @@ class DependencyEntitySyncTests: ZMTBaseTest {
         // when
         entity.dependentObjectNeedingUpdateBeforeProcessing = anotherDependency
         sut.objectsDidChange(dependencySet)
-        _ = sut.nextRequest()
+        _ = sut.nextRequest(for: .v0)
 
         // then
         XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 0)
@@ -158,7 +158,7 @@ class DependencyEntitySyncTests: ZMTBaseTest {
         entity.expire()
 
         // when
-        _ = sut.nextRequest()
+        _ = sut.nextRequest(for: .v0)
 
         // then
         XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 0)
@@ -175,7 +175,7 @@ class DependencyEntitySyncTests: ZMTBaseTest {
         // when
         entity.dependentObjectNeedingUpdateBeforeProcessing = nil
         sut.objectsDidChange(dependencySet)
-        _ = sut.nextRequest()
+        _ = sut.nextRequest(for: .v0)
 
         // then
         XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 1)
@@ -196,8 +196,8 @@ class DependencyEntitySyncTests: ZMTBaseTest {
         // when
         entity.dependentObjectNeedingUpdateBeforeProcessing = nil
         sut.objectsDidChange(dependencyAndAnotherDependencySet)
-        _ = sut.nextRequest()
-        _ = sut.nextRequest()
+        _ = sut.nextRequest(for: .v0)
+        _ = sut.nextRequest(for: .v0)
 
         // then
         XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 1)
@@ -212,7 +212,7 @@ class DependencyEntitySyncTests: ZMTBaseTest {
 
         let entity = MockDependencyEntity()
         sut.synchronize(entity: entity)
-        let request = sut.nextRequest()
+        let request = sut.nextRequest(for: .v0)
 
         // when
         let response = ZMTransportResponse(payload: nil, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
@@ -229,7 +229,7 @@ class DependencyEntitySyncTests: ZMTBaseTest {
 
         let entity = MockDependencyEntity()
         sut.synchronize(entity: entity)
-        let request = sut.nextRequest()
+        let request = sut.nextRequest(for: .v0)
 
         // when
         let response = ZMTransportResponse(payload: nil, httpStatus: 403, transportSessionError: nil, apiVersion: .v0)
@@ -247,7 +247,7 @@ class DependencyEntitySyncTests: ZMTBaseTest {
 
         let entity = MockDependencyEntity()
         sut.synchronize(entity: entity)
-        let request = sut.nextRequest()
+        let request = sut.nextRequest(for: .v0)
 
         let response = ZMTransportResponse(payload: nil, httpStatus: 403, transportSessionError: nil, apiVersion: .v0)
         request?.complete(with: response)
@@ -256,7 +256,7 @@ class DependencyEntitySyncTests: ZMTBaseTest {
         mockTranscoder.didCallRequestForEntityCount = 0 // reset since we expect it be called again
 
         // when
-        _ = sut.nextRequest()
+        _ = sut.nextRequest(for: .v0)
 
         // then
         XCTAssertEqual(mockTranscoder.didCallRequestForEntityCount, 1)

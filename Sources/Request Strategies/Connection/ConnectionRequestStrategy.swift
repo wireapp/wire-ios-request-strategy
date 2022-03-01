@@ -82,12 +82,12 @@ public class ConnectionRequestStrategy: AbstractRequestStrategy, FederationAware
         updateSync.transcoder = self
     }
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
         if syncProgress.currentSyncPhase == .fetchingConnections {
             fetchAllConnections()
         }
 
-        return requestGenerators.nextRequest()
+        return requestGenerators.nextRequest(for: apiVersion)
     }
 
     func fetchAllConnections() {

@@ -24,7 +24,7 @@ import WireDataModel
 fileprivate extension AssetClientMessageRequestStrategy {
 
     @discardableResult func assertCreatesValidLegacyRequestForAsset(in conversation: ZMConversation, line: UInt = #line) -> ZMTransportRequest! {
-        guard let request = nextRequest() else {
+        guard let request = nextRequest(for: .v0) else {
             XCTFail("No request generated", line: line)
             return nil
         }
@@ -37,7 +37,7 @@ fileprivate extension AssetClientMessageRequestStrategy {
     }
 
     @discardableResult func assertCreatesValidRequestForAsset(in conversation: ZMConversation, line: UInt = #line) -> ZMTransportRequest! {
-        guard let request = nextRequest() else {
+        guard let request = nextRequest(for: .v0) else {
             XCTFail("No request generated", line: line)
             return nil
         }
@@ -185,7 +185,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
     // MARK: Request Generation
 
     func testThatItDoesNotCreateARequestIfThereIsNoMatchingMessage() {
-        XCTAssertNil(sut.nextRequest())
+        XCTAssertNil(sut.nextRequest(for: .v0))
     }
 
     func testThatItDoesNotCreateARequestForAnImageMessageUploadedByOtherUser() {
@@ -194,7 +194,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             self.createMessage(uploaded: true, sender: self.otherUser)
 
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -205,7 +205,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             message.expire()
 
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -215,7 +215,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             self.createMessage(uploaded: false)
 
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -226,7 +226,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             message.updateTransferState(.uploaded, synchronize: true)
 
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -258,7 +258,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             self.createMessage(uploaded: true, assetId: true)
 
             // WHEN
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
 
             // THEN
             let expected = "/conversations/\(self.groupConversation.remoteIdentifier!.transportString())/otr/messages"
@@ -274,7 +274,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.oneToOneConversation)
 
             // WHEN
-            XCTAssertNotNil(self.sut.nextRequest())
+            XCTAssertNotNil(self.sut.nextRequest(for: .v0))
 
             // THEN
             switch message.underlyingMessage?.content {
@@ -293,7 +293,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             let message = self.createMessage(isImage: true, uploaded: true, assetId: true, conversation: self.groupConversation)
 
             // WHEN
-            XCTAssertNotNil(self.sut.nextRequest())
+            XCTAssertNotNil(self.sut.nextRequest(for: .v0))
 
             // THEN
             switch message.underlyingMessage?.content {
@@ -320,7 +320,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             }
 
             // WHEN
-            XCTAssertNotNil(self.sut.nextRequest())
+            XCTAssertNotNil(self.sut.nextRequest(for: .v0))
 
             // THEN
             XCTAssertFalse(message.underlyingMessage!.asset.expectsReadConfirmation)
@@ -342,7 +342,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             }
 
             // WHEN
-            XCTAssertNotNil(self.sut.nextRequest())
+            XCTAssertNotNil(self.sut.nextRequest(for: .v0))
 
             // THEN
             XCTAssertTrue(message.underlyingMessage!.asset.expectsReadConfirmation)
@@ -376,7 +376,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
             // WHEN
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
-            if self.sut.nextRequest() == nil {
+            if self.sut.nextRequest(for: .v0) == nil {
                 XCTFail("Request is nil")
                 return
             }
@@ -407,7 +407,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
             // WHEN
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
-            if self.sut.nextRequest() == nil {
+            if self.sut.nextRequest(for: .v0) == nil {
                 XCTFail("Request is nil")
                 return
             }
@@ -439,7 +439,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedBlockAndWait {
             XCTAssert(message.isExpired)
             XCTAssertEqual(message.deliveryState, .failedToSend)
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -494,7 +494,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedBlockAndWait {
             XCTAssert(message.delivered)
             XCTAssertEqual(message.deliveryState, .sent)
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -508,7 +508,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            guard let request = self.sut.nextRequest()
+            guard let request = self.sut.nextRequest(for: .v0)
                 else { return XCTFail("No request generated") }
             request.complete(withHttpStatus: 200)
         }
@@ -519,7 +519,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
             XCTAssert(message.delivered)
             XCTAssertEqual(message.deliveryState, .sent)
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 

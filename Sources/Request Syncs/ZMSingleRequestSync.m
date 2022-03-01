@@ -70,7 +70,7 @@
     }
 }
 
-- (ZMTransportRequest *)nextRequest
+- (ZMTransportRequest *)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion
 {
     id<ZMSingleRequestTranscoder> transcoder = self.transcoder;
     if(self.currentRequest == nil && self.status == ZMSingleRequestReady) {

@@ -55,7 +55,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             self.sut.objectsDidChange(Set([self.otherUser]))
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/list-users")
@@ -81,7 +81,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             self.sut.objectsDidChange(Set([self.otherUser]))
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/users?ids=\(self.otherUser.remoteIdentifier.transportString())")
@@ -97,7 +97,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             self.otherUser.domain = "example.com"
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/list-users")
@@ -116,7 +116,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             // given
             self.mockSyncProgress.currentSyncPhase = .fetchingUsers
             self.otherUser.domain = "example.com"
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             request.complete(with: self.successfulResponse(for: Payload.QualifiedUserIDList(request)!))
 
         }
@@ -124,7 +124,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/list-users")
@@ -143,10 +143,10 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             // given
             self.mockSyncProgress.currentSyncPhase = .fetchingUsers
             self.otherUser.domain = "example.com"
-            _ = self.sut.nextRequest()!
+            _ = self.sut.nextRequest(for: .v0)!
 
             // when
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -155,7 +155,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             // given
             self.mockSyncProgress.currentSyncPhase = .fetchingUsers
             self.otherUser.domain = "example.com"
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // when
             request.complete(with: self.successfulResponse(for: Payload.QualifiedUserIDList(request)!))
@@ -176,7 +176,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             self.syncMOC.delete(self.otherUser.connection!)
 
             // when
-            _ = self.sut.nextRequest()
+            _ = self.sut.nextRequest(for: .v0)
 
             // then
             XCTAssertEqual(self.mockSyncProgress.didFinishCurrentSyncPhase, .fetchingUsers)
@@ -194,7 +194,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             self.sut.objectsDidChange(Set([self.otherUser]))
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/users?ids=\(self.otherUser.remoteIdentifier.transportString())")
@@ -207,7 +207,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             self.otherUser.domain = "example.com"
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             XCTAssertEqual(request.path, "/list-users")
 
             // when
@@ -217,7 +217,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // then
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             XCTAssertEqual(request.path, "/users?ids=\(self.otherUser.remoteIdentifier.transportString())")
         }
 
@@ -229,7 +229,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             self.otherUser.domain = "example.com"
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // when
             request.complete(with: self.successfulResponse(for: Payload.QualifiedUserIDList(request)!))
@@ -247,7 +247,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             // given
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // when
             let qualifiedID = QualifiedID(uuid: self.otherUser.remoteIdentifier, domain: "example.com")
@@ -268,7 +268,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             self.otherUser.domain = "example.com"
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // when
             let qualifiedIDs = Payload.QualifiedUserIDList(qualifiedIDs: [])
@@ -287,7 +287,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             // given
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // when
             let qualifiedIDs = Payload.QualifiedUserIDList(qualifiedIDs: [])
@@ -307,7 +307,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             self.otherUser.domain = "example.com"
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // when
             request.complete(with: self.responseFailure(code: 404, label: .notFound))
@@ -325,7 +325,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             // given
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // when
             request.complete(with: self.responseFailure(code: 404, label: .notFound))

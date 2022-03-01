@@ -69,7 +69,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedAndWait { _ in
 
             // Then
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -156,7 +156,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedAndWait { _ in
             // Then
             XCTAssertEqual(message.linkPreviewState, .done)
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -181,13 +181,13 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedAndWait { _ in
 
             // Then
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
     @discardableResult
     func verifyItCreatesARequest(in conversation: ZMConversation, file: StaticString = #file, line: UInt = #line) -> ZMTransportRequest? {
-        let request = sut.nextRequest()
+        let request = sut.nextRequest(for: .v0)
         let conversationID = conversation.remoteIdentifier!.transportString()
         let domain = conversation.domain!
         XCTAssertNotNil(request, "No request generated", file: file, line: line)
@@ -198,7 +198,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
 
     @discardableResult
     func verifyItCreatesALegacyRequest(in conversation: ZMConversation, file: StaticString = #file, line: UInt = #line) -> ZMTransportRequest? {
-        let request = sut.nextRequest()
+        let request = sut.nextRequest(for: .v0)
         let conversationID = conversation.remoteIdentifier!.transportString()
         XCTAssertNotNil(request, "No request generated", file: file, line: line)
         XCTAssertEqual(request?.method, .methodPOST, file: file, line: line)

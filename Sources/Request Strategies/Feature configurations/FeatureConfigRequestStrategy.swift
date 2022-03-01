@@ -83,8 +83,8 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
 
     // MARK: - Overrides
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return fetchAllConfigsSync.nextRequest() ?? fetchSingleConfigSync.nextRequest()
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+        return fetchAllConfigsSync.nextRequest(for: apiVersion) ?? fetchSingleConfigSync.nextRequest(for: apiVersion)
     }
 
 }

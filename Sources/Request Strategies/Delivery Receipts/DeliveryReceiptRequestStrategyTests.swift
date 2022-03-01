@@ -68,7 +68,7 @@ class DeliveryReceiptRequestStrategyTests: MessagingTestBase {
             self.sut.processEventsWhileInBackground([event])
 
             // then
-            let request = try XCTUnwrap(self.sut.nextRequest())
+            let request = try XCTUnwrap(self.sut.nextRequest(for: .v0))
             XCTAssertEqual(request.path, "/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
         }
     }
@@ -83,7 +83,7 @@ class DeliveryReceiptRequestStrategyTests: MessagingTestBase {
             self.sut.processEventsWhileInBackground([event])
 
             // then
-            let request = try XCTUnwrap(self.sut.nextRequest())
+            let request = try XCTUnwrap(self.sut.nextRequest(for: .v0))
             XCTAssertEqual(request.path, "/conversations/\(conversationID)/otr/messages")
         }
     }

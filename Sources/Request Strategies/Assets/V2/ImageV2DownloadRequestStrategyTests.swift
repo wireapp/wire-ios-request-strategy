@@ -92,7 +92,7 @@ class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
         // remove image data or it won't be downloaded
         syncMOC.zm_fileAssetCache.deleteAssetData(message, format: .original, encrypted: false)
         message.imageMessageData?.requestFileDownload()
-        return sut.nextRequest()!
+        return sut.nextRequest(for: .v0)!
     }
 
     // MARK: - Request Generation
@@ -111,7 +111,7 @@ class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertEqual(request?.path, "/conversations/\(message.conversation!.remoteIdentifier!.transportString())/otr/assets/\(message.assetId!.transportString())")
@@ -131,7 +131,7 @@ class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertNil(request)
@@ -150,7 +150,7 @@ class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertNil(request)
@@ -169,7 +169,7 @@ class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlockAndWait {
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertNil(request)
@@ -225,7 +225,7 @@ class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
 
         syncMOC.performGroupedBlock {
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: nil, headers: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))

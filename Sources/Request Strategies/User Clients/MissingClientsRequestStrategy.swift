@@ -60,8 +60,8 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
         return modifiedPredicate
     }
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return modifiedSync.nextRequest()
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+        return modifiedSync.nextRequest(for: apiVersion)
     }
 
     public var contextChangeTrackers: [ZMContextChangeTracker] {

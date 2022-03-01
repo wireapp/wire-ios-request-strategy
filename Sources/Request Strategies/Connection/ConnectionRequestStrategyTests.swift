@@ -57,7 +57,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([connection])) }
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/connections/\(self.otherUser.domain!)/\(self.otherUser.remoteIdentifier!.transportString())")
@@ -75,7 +75,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([connection])) }
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/connections/\(self.otherUser.remoteIdentifier!.transportString())")
@@ -92,7 +92,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
             self.mockSyncProgress.currentSyncPhase = .fetchingConnections
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/list-connections")
@@ -107,7 +107,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
             self.mockSyncProgress.currentSyncPhase = .fetchingConnections
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
 
             // then
             XCTAssertEqual(request.path, "/connections?size=200")
@@ -119,10 +119,10 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             // given
             self.mockSyncProgress.currentSyncPhase = .fetchingConnections
-            XCTAssertNotNil(self.sut.nextRequest())
+            XCTAssertNotNil(self.sut.nextRequest(for: .v0))
 
             // then
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -266,7 +266,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([connection])) }
 
             // when
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             request.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -274,7 +274,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
 
     func fetchConnectionsDuringSlowSync(connections: [Payload.Connection]) {
         syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             guard let payload = Payload.PaginationStatus(request) else {
                 return XCTFail("Invalid Payload")
             }
@@ -286,7 +286,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
 
     func fetchConnectionsDuringSlowSyncWithPermanentError() {
         syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()!
+            let request = self.sut.nextRequest(for: .v0)!
             request.complete(with: self.responseFailure(code: 404, label: .noEndpoint))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))

@@ -58,8 +58,8 @@ public class LinkPreviewUpdateRequestStrategy: AbstractRequestStrategy, ZMContex
         return [modifiedKeysSync] + messageSync.contextChangeTrackers
     }
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return messageSync.nextRequest()
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+        return messageSync.nextRequest(for: apiVersion)
     }
 
 }

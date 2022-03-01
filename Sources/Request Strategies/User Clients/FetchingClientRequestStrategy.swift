@@ -85,11 +85,11 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
         }
     }
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
         return
-            userClientsByUserClientID.nextRequest() ??
-            userClientsByUserID.nextRequest() ??
-            userClientsByQualifiedUserID.nextRequest()
+            userClientsByUserClientID.nextRequest(for: apiVersion) ??
+            userClientsByUserID.nextRequest(for: apiVersion) ??
+            userClientsByQualifiedUserID.nextRequest(for: apiVersion)
     }
 
 }

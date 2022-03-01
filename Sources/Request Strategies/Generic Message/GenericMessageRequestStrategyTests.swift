@@ -99,7 +99,7 @@ class GenericMessageRequestStrategyTests: MessagingTestBase {
             self.sut.schedule(message: genericMessage, inConversation: self.groupConversation) { ( _ ) in }
 
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertEqual(request!.method, .methodPOST)
@@ -117,7 +117,7 @@ class GenericMessageRequestStrategyTests: MessagingTestBase {
             self.sut.schedule(message: genericMessage, inConversation: self.groupConversation) { ( _ ) in }
 
             // WHEN
-            let request1 = self.sut.nextRequest()
+            let request1 = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertNil(request1)
@@ -125,7 +125,7 @@ class GenericMessageRequestStrategyTests: MessagingTestBase {
             // and when
             self.selfClient.removeMissingClient(self.otherClient)
             self.sut.objectsDidChange(Set([self.selfClient]))
-            let request2 = self.sut.nextRequest()
+            let request2 = self.sut.nextRequest(for: .v0)
 
             // THEN
             XCTAssertEqual(request2!.method, .methodPOST)

@@ -96,7 +96,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
 
     func testThatItGeneratesNoRequestsIfTheStatusIsEmpty() {
         self.syncMOC.performGroupedBlockAndWait {
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -108,7 +108,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             _ = self.createMessage(in: self.conversation)
 
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -128,7 +128,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
             XCTAssertFalse(message.hasDownloadedPreview)
 
             // THEN
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -156,7 +156,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         self.syncMOC.performGroupedBlockAndWait {
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
 
             // THEN
             XCTAssertEqual(request.path, "/assets/v3/\(previewMeta.assetId)")
@@ -188,7 +188,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // THEN
         self.syncMOC.performGroupedBlockAndWait {
 
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
             XCTAssertEqual(request.path, "/assets/v3/\(previewMeta.assetId)")
             XCTAssertEqual(request.method, .methodGET)
 
@@ -200,7 +200,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // THEN
         self.syncMOC.performGroupedBlockAndWait {
 
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -228,7 +228,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         self.syncMOC.performGroupedBlockAndWait {
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
 
             // THEN
             XCTAssertEqual(request.path, "/assets/v4/\(previewMeta.domain)/\(previewMeta.assetId)")
@@ -260,7 +260,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // THEN
         self.syncMOC.performGroupedBlockAndWait {
 
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
             XCTAssertEqual(request.path, "/assets/v4/\(previewMeta.domain)/\(previewMeta.assetId)")
             XCTAssertEqual(request.method, .methodGET)
 
@@ -272,7 +272,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // THEN
         self.syncMOC.performGroupedBlockAndWait {
 
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -302,7 +302,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // THEN
         self.syncMOC.performGroupedBlockAndWait {
             XCTAssertTrue(message.hasDownloadedFile)
-            XCTAssertNil(self.sut.nextRequest())
+            XCTAssertNil(self.sut.nextRequest(for: .v0))
         }
     }
 
@@ -330,7 +330,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         self.syncMOC.performGroupedBlockAndWait {
-            guard let request = self.sut.nextRequest() else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
             let response = ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: nil, headers: nil, apiVersion: .v0)
 
             request.complete(with: response)

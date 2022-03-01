@@ -79,8 +79,8 @@ import Foundation
         }
     }
 
-    public override func nextRequestIfAllowed() -> ZMTransportRequest? {
-        return assetDownstreamObjectSync.nextRequest()
+    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+        return assetDownstreamObjectSync.nextRequest(for: apiVersion)
     }
 
     func handleResponse(_ response: ZMTransportResponse!, forMessage message: ZMClientMessage) {

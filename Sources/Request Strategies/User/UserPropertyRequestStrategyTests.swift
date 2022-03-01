@@ -50,7 +50,7 @@ class UserPropertyRequestStrategyTests: MessagingTestBase {
             self.sut.contextChangeTrackers.forEach({ $0.addTrackedObjects(Set<NSManagedObject>(arrayLiteral: selfUser)) })
 
             // when
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // then
             XCTAssertNotNil(request)
@@ -128,7 +128,7 @@ extension UserPropertyRequestStrategyTests {
             let selfUser = ZMUser.selfUser(in: moc)
 
             // when
-            let request = self.sut.nextRequestIfAllowed()
+            let request = self.sut.nextRequestIfAllowed(for: .v0)
 
             XCTAssertNotNil(request)
             XCTAssertEqual(request!.method, .methodGET)
@@ -151,7 +151,7 @@ extension UserPropertyRequestStrategyTests {
             let selfUser = ZMUser.selfUser(in: moc)
 
             // when
-            let request = self.sut.nextRequestIfAllowed()
+            let request = self.sut.nextRequestIfAllowed(for: .v0)
 
             XCTAssertNotNil(request)
             XCTAssertEqual(request!.method, .methodGET)

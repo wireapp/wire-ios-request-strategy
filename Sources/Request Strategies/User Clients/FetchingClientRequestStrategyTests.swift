@@ -68,7 +68,7 @@ extension FetchClientRequestStrategyTests {
             self.sut.objectsDidChange(clientSet)
 
             // THEN
-            XCTAssertEqual(self.sut.nextRequest()?.path, "/users/\(self.otherUser.remoteIdentifier!.transportString())/clients/\(clientUUID.transportString())")
+            XCTAssertEqual(self.sut.nextRequest(for: .v0)?.path, "/users/\(self.otherUser.remoteIdentifier!.transportString())/clients/\(clientUUID.transportString())")
         }
     }
 
@@ -88,7 +88,7 @@ extension FetchClientRequestStrategyTests {
             // WHEN
             client.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(clientSet)
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: ZMTransportResponse(payload: payload as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -111,7 +111,7 @@ extension FetchClientRequestStrategyTests {
             // WHEN
             client.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(clientSet)
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -141,7 +141,7 @@ extension FetchClientRequestStrategyTests {
             self.sut.objectsDidChange(clientSet)
 
             // THEN
-            XCTAssertEqual(self.sut.nextRequest()?.path, "/users/list-clients")
+            XCTAssertEqual(self.sut.nextRequest(for: .v0)?.path, "/users/list-clients")
         }
     }
 
@@ -165,7 +165,7 @@ extension FetchClientRequestStrategyTests {
             // WHEN
             client.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(clientSet)
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 200,
                                                transportSessionError: nil,
@@ -198,7 +198,7 @@ extension FetchClientRequestStrategyTests {
             // WHEN
             client.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(clientSet)
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                         httpStatus: 200,
                                                         transportSessionError: nil,
@@ -233,7 +233,7 @@ extension FetchClientRequestStrategyTests {
             // WHEN
             existingClient.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(existingClientSet)
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                         httpStatus: 200,
                                                         transportSessionError: nil,
@@ -264,7 +264,7 @@ extension FetchClientRequestStrategyTests {
             // WHEN
             client.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(clientSet)
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             let response = ZMTransportResponse(payload: nil,
                                                httpStatus: 404,
                                                transportSessionError: nil,
@@ -276,7 +276,7 @@ extension FetchClientRequestStrategyTests {
 
         syncMOC.performGroupedBlockAndWait {
             // THEN
-            XCTAssertEqual(self.sut.nextRequest()?.path, "/users/\(self.otherUser.remoteIdentifier!.transportString())/clients")
+            XCTAssertEqual(self.sut.nextRequest(for: .v0)?.path, "/users/\(self.otherUser.remoteIdentifier!.transportString())/clients")
         }
     }
 
@@ -318,7 +318,7 @@ extension FetchClientRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -353,7 +353,7 @@ extension FetchClientRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -385,7 +385,7 @@ extension FetchClientRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -411,7 +411,7 @@ extension FetchClientRequestStrategyTests {
 
         self.syncMOC.performGroupedBlockAndWait {
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             if let request = request {
@@ -437,7 +437,7 @@ extension FetchClientRequestStrategyTests {
 
         self.syncMOC.performGroupedBlockAndWait {
             // WHEN
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
 
             // THEN
             if let request = request {
@@ -468,7 +468,7 @@ extension FetchClientRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -494,7 +494,7 @@ extension FetchClientRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: response)
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -523,7 +523,7 @@ extension FetchClientRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: response)
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -555,7 +555,7 @@ extension FetchClientRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: response)
         }
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -583,7 +583,7 @@ extension FetchClientRequestStrategyTests {
 
         // WHEN
         self.syncMOC.performGroupedBlockAndWait {
-            let request = self.sut.nextRequest()
+            let request = self.sut.nextRequest(for: .v0)
             request?.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
