@@ -66,7 +66,7 @@ private extension PushNotificationCategory {
     }
 
     init(callState: LocalNotificationType.CallState) {
-        switch (callState) {
+        switch callState {
         case .incomingCall:
             self = .incomingCall
         case .missedCall:
