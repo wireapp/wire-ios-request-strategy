@@ -111,20 +111,17 @@ extension LocalNotificationType {
             case .messageTimerUpdate:
                 return ZMPushStringMessageTimerUpdate
             }
-        // TODO Katerina fix it
-//        case .calling(let callState):
-//            switch callState {
-//            case .incoming(video: true, shouldRing: _, degraded: _):
-//                return ZMPushStringVideoCallStarts
-//            case .incoming(video: false, shouldRing: _, degraded: _):
-//                return ZMPushStringCallStarts
-//            case .terminating, .none:
-//                return ZMPushStringCallMissed
-//            default:
-//                return ZMPushStringDefault
-//            }
-        case .calling:
-            return ZMPushStringDefault
+
+        case .calling(let callState):
+            switch callState {
+            case .incomingCall(video: true):
+                return ZMPushStringVideoCallStarts
+            case .incomingCall(video: false):
+                return ZMPushStringCallStarts
+            case .missedCall:
+                return ZMPushStringCallMissed
+            }
+
         case .event(let eventType):
             switch eventType {
             case .conversationCreated:
