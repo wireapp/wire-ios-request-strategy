@@ -17,6 +17,7 @@
 
 import Foundation
 
+
 // MARK: - Conversation
 
 extension Payload.ConversationMember {
@@ -230,9 +231,11 @@ extension Payload.Conversation {
         if let accessModes = access {
             if let accessRoles = accessRoleV2 {
                 conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles)
+                print(accessRoles)
             } else if let accessRole = accessRole, let legacyAccessRole = ConversationAccessRole(rawValue: accessRole) {
                 let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(legacyAccessRole)
                 conversation.updateAccessStatus(accessModes: accessModes, accessRoles: accessRoles.map(\.rawValue))
+                print(accessRoles)
             }
         }
         if let messageTimer = messageTimer {
@@ -409,9 +412,11 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationAccess 
 
         if let accessRoles = data.accessRoleV2 {
             conversation.updateAccessStatus(accessModes: data.access, accessRoles: accessRoles)
+            print(accessRoles)
         } else if let accessRole = data.accessRole, let legacyAccessRole = ConversationAccessRole(rawValue: accessRole) {
             let accessRoles = ConversationAccessRoleV2.fromLegacyAccessRole(legacyAccessRole)
             conversation.updateAccessStatus(accessModes: data.access, accessRoles: accessRoles.map(\.rawValue))
+            print(accessRoles)
         }
     }
 
