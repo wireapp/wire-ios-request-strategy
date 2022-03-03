@@ -65,7 +65,7 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
         self.userProfileByQualifiedIDTranscoder.contextChangedTracker = self
     }
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         fetchAllConnectedUsers()
 
         return userProfileByQualifiedID.nextRequest(for: apiVersion) ?? userProfileByID.nextRequest(for: apiVersion)
@@ -226,7 +226,7 @@ class UserProfileByIDTranscoder: IdentifierObjectSyncTranscoder {
     func request(for identifiers: Set<UUID>) -> ZMTransportRequest? {
         // GET /users?ids=?
         let userIDs = identifiers.map({ $0.transportString() }).joined(separator: ",")
-        return ZMTransportRequest(getFromPath: "/users?ids=\(userIDs)", apiVersion: .v0)
+        return ZMTransportRequest(getFromPath: "/users?ids=\(userIDs)", apiVersion: APIVersion.v0.rawValue)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
@@ -287,7 +287,7 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
 
         // POST /list-users
         let path = NSString.path(withComponents: ["/list-users"])
-        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?, apiVersion: .v0)
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?, apiVersion: APIVersion.v0.rawValue)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {

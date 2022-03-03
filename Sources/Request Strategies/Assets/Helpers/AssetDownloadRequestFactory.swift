@@ -34,7 +34,7 @@ public final class AssetDownloadRequestFactory: NSObject, FederationAware {
             path = "/assets/v3/\(key)"
         }
 
-        let request = ZMTransportRequest.assetGet(fromPath: path, assetToken: token, apiVersion: .v0)
+        let request = ZMTransportRequest.assetGet(fromPath: path, assetToken: token, apiVersion: APIVersion.v0.rawValue)
         request?.forceToBackgroundSession()
         return request
 

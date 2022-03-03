@@ -61,7 +61,7 @@ class PaginatedSync<PayloadType: Paginatable>: NSObject, ZMRequestGenerator {
         status = .fetching("")
     }
 
-    func nextRequest(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    func nextRequest(for apiVersion: APIVersion) -> ZMTransportRequest? {
         guard request == nil, case .fetching(let start) = status else {
             return nil
         }
@@ -110,7 +110,7 @@ class PaginatedSync<PayloadType: Paginatable>: NSObject, ZMRequestGenerator {
             return nil
         }
 
-        return ZMTransportRequest(getFromPath: path, apiVersion: .v0)
+        return ZMTransportRequest(getFromPath: path, apiVersion: APIVersion.v0.rawValue)
     }
 
     private func postRequest(startReference: String) -> ZMTransportRequest? {
@@ -123,7 +123,7 @@ class PaginatedSync<PayloadType: Paginatable>: NSObject, ZMRequestGenerator {
             return nil
         }
 
-        return ZMTransportRequest(path: basePath, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: .v0)
+        return ZMTransportRequest(path: basePath, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: APIVersion.v0.rawValue)
     }
 
 }

@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import WireTransport
 
 private enum UserProperty: CaseIterable {
     case readReceiptsEnabled
@@ -57,12 +58,12 @@ extension UserProperty {
 
     func upstreamRequest(newValue: ZMTransportData) -> ZMTransportRequest {
         let path = [UserProperty.propertiesPath, self.serverName].joined(separator: "/")
-        return ZMTransportRequest(path: path, method: .methodPUT, payload: newValue, apiVersion: .v0)
+        return ZMTransportRequest(path: path, method: .methodPUT, payload: newValue, apiVersion: APIVersion.v0.rawValue)
     }
 
     func downstreamRequest() -> ZMTransportRequest {
         let path = [UserProperty.propertiesPath, self.serverName].joined(separator: "/")
-        return ZMTransportRequest(getFromPath: path, apiVersion: .v0)
+        return ZMTransportRequest(getFromPath: path, apiVersion: APIVersion.v0.rawValue)
     }
 
     typealias  UpdateType = (source: UpdateSource, method: UpdateMethod)
@@ -150,7 +151,7 @@ public class UserPropertyRequestStrategy: AbstractRequestStrategy {
                                                   groupQueue: managedObjectContext)
     }
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         if ZMUser.selfUser(in: managedObjectContext).needsPropertiesUpdate {
             downstreamSync.readyForNextRequestIfNotBusy()
             return downstreamSync.nextRequest(for: apiVersion)

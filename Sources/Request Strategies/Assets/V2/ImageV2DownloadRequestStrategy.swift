@@ -64,7 +64,7 @@ public final class ImageV2DownloadRequestStrategy: AbstractRequestStrategy {
         }
     }
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         return downstreamSync.nextRequest(for: apiVersion)
     }
 

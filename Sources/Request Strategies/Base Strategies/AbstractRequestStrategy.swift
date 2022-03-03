@@ -37,11 +37,11 @@ private let zmLog = ZMSLog(tag: "Request Configuration")
     }
 
     /// Subclasses should override this method. 
-    open func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    open func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         fatal("you must override this method")
     }
 
-    open func nextRequest(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    open func nextRequest(for apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let applicationStatus = self.applicationStatus else {
             zmLog.error("applicationStatus is missing")
             return nil

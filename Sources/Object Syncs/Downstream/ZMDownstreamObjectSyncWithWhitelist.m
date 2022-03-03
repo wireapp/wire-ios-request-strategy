@@ -75,7 +75,7 @@
     return self.innerDownstreamSync.hasOutstandingItems;
 }
 
-- (ZMTransportRequest *)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion
+- (ZMTransportRequest *)nextRequestForAPIVersion:(APIVersion)apiVersion
 {
     return [self.innerDownstreamSync nextRequestForAPIVersion:apiVersion];
 }

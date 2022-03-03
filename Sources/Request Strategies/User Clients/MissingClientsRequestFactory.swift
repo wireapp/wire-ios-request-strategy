@@ -73,7 +73,7 @@ public final class MissingClientsRequestFactory {
         let request = ZMTransportRequest(path: "/users/prekeys",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?,
-                                         apiVersion: .v0)
+                                         apiVersion: APIVersion.v0.rawValue)
         let userClientMissingKeySet: Set<String> = [ZMUserClientMissingKey]
         return ZMUpstreamRequest(keys: userClientMissingKeySet,
                                  transportRequest: request,
@@ -91,7 +91,7 @@ public final class MissingClientsRequestFactory {
         let request = ZMTransportRequest(path: "/users/list-prekeys",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?,
-                                         apiVersion: .v0)
+                                         apiVersion: APIVersion.v0.rawValue)
         let userClientMissingKeySet: Set<String> = [ZMUserClientMissingKey]
         return ZMUpstreamRequest(keys: userClientMissingKeySet,
                                  transportRequest: request,

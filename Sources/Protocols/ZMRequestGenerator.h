@@ -24,7 +24,7 @@
 
 @protocol ZMRequestGenerator <NSObject>
 
-- (ZMTransportRequest * __nullable)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion;
+- (ZMTransportRequest * __nullable)nextRequestForAPIVersion:(APIVersion)apiVersion;
 
 @end
 
@@ -40,6 +40,6 @@
 
 @interface NSArray (ZMRequestGeneratorSource)
 
-- (ZMTransportRequest * __nullable)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion;
+- (ZMTransportRequest * __nullable)nextRequestForAPIVersion:(APIVersion)apiVersion;
 
 @end

@@ -37,6 +37,6 @@
 - (void)whiteListObject:(ZMManagedObject *)object;
 
 /// Returns a request to download the next object
-- (ZMTransportRequest *)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion;
+- (ZMTransportRequest *)nextRequestForAPIVersion:(APIVersion)apiVersion;
 
 @end

@@ -82,7 +82,7 @@ public class ConnectionRequestStrategy: AbstractRequestStrategy, FederationAware
         updateSync.transcoder = self
     }
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         if syncProgress.currentSyncPhase == .fetchingConnections {
             fetchAllConnections()
         }
@@ -214,7 +214,7 @@ class ConnectionByIDTranscoder: IdentifierObjectSyncTranscoder {
         guard let userID = identifiers.first.map({ $0.transportString() }) else { return nil }
 
         // GET /connections/<UUID>
-        return ZMTransportRequest(getFromPath: "/connections/\(userID)", apiVersion: .v0)
+        return ZMTransportRequest(getFromPath: "/connections/\(userID)", apiVersion: APIVersion.v0.rawValue)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
@@ -262,7 +262,7 @@ class ConnectionByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
         guard let qualifiedID = identifiers.first.map({ $0 }) else { return nil }
 
         // GET /connections/domain/<UUID>
-        return ZMTransportRequest(getFromPath: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid.transportString())", apiVersion: .v0)
+        return ZMTransportRequest(getFromPath: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid.transportString())", apiVersion: APIVersion.v0.rawValue)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {

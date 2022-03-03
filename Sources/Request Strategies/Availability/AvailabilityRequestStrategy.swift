@@ -36,7 +36,7 @@ public class AvailabilityRequestStrategy: AbstractRequestStrategy {
                                                          managedObjectContext: managedObjectContext)
     }
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         return modifiedSync.nextRequest(for: apiVersion)
     }
 
@@ -63,7 +63,7 @@ extension AvailabilityRequestStrategy: ZMUpstreamTranscoder {
                                          binaryData: dataAndMissingClientStrategy.data,
                                          type: protobufContentType,
                                          contentDisposition: nil,
-                                         apiVersion: .v0)
+                                         apiVersion: APIVersion.v0.rawValue)
 
         return ZMUpstreamRequest(keys: keys, transportRequest: request)
     }

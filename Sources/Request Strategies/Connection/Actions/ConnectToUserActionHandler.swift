@@ -42,7 +42,7 @@ class ConnectToUserActionHandler: ActionHandler<ConnectToUserAction>, Federation
         return ZMTransportRequest(path: "/connections/\(domain)/\(action.userID.transportString())",
                                   method: .methodPOST,
                                   payload: nil,
-                                  apiVersion: .v0)
+                                  apiVersion: APIVersion.v0.rawValue)
     }
 
     func nonFederatedRequest(for action: ActionHandler<ConnectToUserAction>.Action) -> ZMTransportRequest? {
@@ -59,7 +59,7 @@ class ConnectToUserActionHandler: ActionHandler<ConnectToUserAction>, Federation
         return ZMTransportRequest(path: "/connections",
                                   method: .methodPOST,
                                   payload: payloadAsString as ZMTransportData,
-                                  apiVersion: .v0)
+                                  apiVersion: APIVersion.v0.rawValue)
 
     }
 

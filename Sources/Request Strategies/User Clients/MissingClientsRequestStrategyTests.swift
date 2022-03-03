@@ -420,7 +420,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             // WHEN
             _ = self.sut.updateUpdatedObject(self.selfClient,
                                                  requestUserInfo: request.userInfo,
-                                                 response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: .v0),
+                                                 response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue),
                                                  keysToParse: request.keys)
 
             // THEN
@@ -442,7 +442,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             // WHEN
             _ = self.sut.updateUpdatedObject(self.selfClient,
                                                  requestUserInfo: request.userInfo,
-                                                 response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: .v0),
+                                                 response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue),
                                                  keysToParse: request.keys)
 
             // THEN
@@ -462,7 +462,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.performIgnoringZMLogError {
                 _ = self.sut.updateUpdatedObject(self.selfClient,
                                                  requestUserInfo: request.userInfo,
-                                                 response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: .v0),
+                                                 response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue),
                                                  keysToParse: request.keys)
             }
 
@@ -539,7 +539,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.performIgnoringZMLogError {
                 _ = self.sut.updateUpdatedObject(self.selfClient,
                                                      requestUserInfo: request.userInfo,
-                                                     response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: .v0),
+                                                     response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue),
                                                      keysToParse: request.keys)
             }
             // THEN
@@ -560,7 +560,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.performIgnoringZMLogError {
                 _ = self.sut.updateUpdatedObject(self.selfClient,
                                                      requestUserInfo: request.userInfo,
-                                                     response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: .v0),
+                                                     response: ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue),
                                                      keysToParse: request.keys)
             }
 
@@ -579,7 +579,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
                 ]
             ]
             let responseString = String(bytes: payload.payloadData()!, encoding: .utf8)
-            let response = ZMTransportResponse(payload: responseString! as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
+            let response = ZMTransportResponse(payload: responseString! as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue)
 
             // WHEN
             let userClientMissingKey: Set<String> = [ZMUserClientMissingKey]
@@ -603,7 +603,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
                 ]
             ]
             let responseString = String(bytes: payload.payloadData()!, encoding: .utf8)
-            let response = ZMTransportResponse(payload: responseString! as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
+            let response = ZMTransportResponse(payload: responseString! as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue)
 
             // WHEN
             let userClientMissingKey: Set<String> = [ZMUserClientMissingKey]
@@ -698,7 +698,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(request.path, "/users/list-prekeys")
 
             // WHEN
-            request.complete(with: ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: .v0))
+            request.complete(with: ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -779,7 +779,7 @@ extension MissingClientsRequestStrategyTests {
         let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
                                            httpStatus: 200,
                                            transportSessionError: nil,
-                                           apiVersion: .v0)
+                                           apiVersion: APIVersion.v0.rawValue)
 
         return response
     }
@@ -800,7 +800,7 @@ extension MissingClientsRequestStrategyTests {
         let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
                                            httpStatus: 200,
                                            transportSessionError: nil,
-                                           apiVersion: .v0)
+                                           apiVersion: APIVersion.v0.rawValue)
 
         return response
     }
@@ -817,7 +817,7 @@ extension MissingClientsRequestStrategyTests {
             ]
             payload[key] = prevValue
         }
-        return ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: .v0)
+        return ZMTransportResponse(payload: payload as NSDictionary, httpStatus: 200, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue)
     }
 
     /// Returns missing client request

@@ -49,7 +49,7 @@ public final class AssetClientMessageRequestStrategy: AbstractRequestStrategy, Z
                          .allowsRequestsWhileInBackground]
     }
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         return messageSync.nextRequest(for: apiVersion)
     }
 

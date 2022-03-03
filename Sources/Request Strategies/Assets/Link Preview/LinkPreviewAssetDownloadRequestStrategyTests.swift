@@ -315,7 +315,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
             guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
-            let response = ZMTransportResponse(imageData: encrypted, httpStatus: 200, transportSessionError: nil, headers: nil, apiVersion: .v0)
+            let response = ZMTransportResponse(imageData: encrypted, httpStatus: 200, transportSessionError: nil, headers: nil, apiVersion: APIVersion.v0.rawValue)
 
             // WHEN
             request.complete(with: response)
@@ -349,7 +349,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
             guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
-            let response = ZMTransportResponse(imageData: .secureRandomData(length: 256), httpStatus: 400, transportSessionError: nil, headers: nil, apiVersion: .v0)
+            let response = ZMTransportResponse(imageData: .secureRandomData(length: 256), httpStatus: 400, transportSessionError: nil, headers: nil, apiVersion: APIVersion.v0.rawValue)
             // WHEN
             request.complete(with: response)
         }

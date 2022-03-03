@@ -77,7 +77,7 @@ private let zmLog = ZMSLog(tag: "AssetPreviewDownloading")
         }
     }
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         return downstreamSync.nextRequest(for: apiVersion)
     }
 

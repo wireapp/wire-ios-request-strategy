@@ -85,7 +85,7 @@ class ResetSessionRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest(for: .v0)
 
             // WHEN
-            request?.complete(with: ZMTransportResponse(payload: [:] as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: .v0))
+            request?.complete(with: ZMTransportResponse(payload: [:] as ZMTransportData, httpStatus: 200, transportSessionError: nil, apiVersion: 0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 

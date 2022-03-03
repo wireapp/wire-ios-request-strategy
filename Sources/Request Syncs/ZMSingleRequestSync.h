@@ -59,7 +59,7 @@ typedef NS_ENUM(int, ZMSingleRequestProgress) {
 /// mark the completion as "noted" by the client, and goes back to the idle state
 - (void)resetCompletionState;
 
-- (ZMTransportRequest *__nullable)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion;
+- (ZMTransportRequest *__nullable)nextRequestForAPIVersion:(APIVersion)apiVersion;
 
 @end
 

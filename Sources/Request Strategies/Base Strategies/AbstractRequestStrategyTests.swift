@@ -31,8 +31,8 @@ class TestRequestStrategyObjc: ZMAbstractRequestStrategy, TestableAbstractReques
 
     internal var mutableConfiguration: ZMStrategyConfigurationOption = []
 
-    override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
-        return ZMTransportRequest(getFromPath: "dummy/request", apiVersion: .v0)
+    override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
+        return ZMTransportRequest(getFromPath: "dummy/request", apiVersion: APIVersion.v0.rawValue)
     }
 
     override var configuration: ZMStrategyConfigurationOption {
@@ -45,8 +45,8 @@ class TestRequestStrategy: AbstractRequestStrategy, TestableAbstractRequestStrat
 
     internal var mutableConfiguration: ZMStrategyConfigurationOption = []
 
-    override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
-        return ZMTransportRequest(getFromPath: "dummy/request", apiVersion: .v0)
+    override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
+        return ZMTransportRequest(getFromPath: "dummy/request", apiVersion: APIVersion.v0.rawValue)
     }
 
     override var configuration: ZMStrategyConfigurationOption {

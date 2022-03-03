@@ -37,13 +37,13 @@ static NSString* ZMLogTag ZM_UNUSED = @"Request Configuration";
 }
 
 /// Subclasses should override this method
-- (ZMTransportRequest *)nextRequestIfAllowedForAPIVersion:(ZMAPIVersion)apiVersion
+- (ZMTransportRequest *)nextRequestIfAllowedForAPIVersion:(APIVersion)apiVersion
 {
     [NSException raise:NSInvalidArgumentException format:@"You must subclass nextRequestIfAllowed"];
     return nil;
 }
 
-- (ZMTransportRequest *)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion
+- (ZMTransportRequest *)nextRequestForAPIVersion:(APIVersion)apiVersion
 {
     if ([self configuration:self.configuration isSubsetOfPrerequisites:[AbstractRequestStrategy prerequisitesForApplicationStatus:self.applicationStatus]]) {
         return [self nextRequestIfAllowedForAPIVersion:apiVersion];

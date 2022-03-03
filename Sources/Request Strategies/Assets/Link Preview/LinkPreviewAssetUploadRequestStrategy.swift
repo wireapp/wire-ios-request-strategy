@@ -106,7 +106,7 @@ public final class LinkPreviewAssetUploadRequestStrategy: AbstractRequestStrateg
         return [self.linkPreviewPreprocessor, self.previewImagePreprocessor, self.assetUpstreamSync]
     }
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         return self.assetUpstreamSync.nextRequest(for: apiVersion)
     }
 }
