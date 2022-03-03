@@ -53,9 +53,9 @@ extension APIVersion {
 extension APIVersion {
 
     public static func highestCommonVersion(with versions: [Int32]) -> Self? {
-        versions.sorted(by: >)
+        versions
             .compactMap { APIVersion(rawValue: Int32($0)) }
-            .first
+            .max()
     }
 
 }
