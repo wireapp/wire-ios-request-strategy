@@ -38,15 +38,15 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction>, Federati
 
     var useFederationEndpoint: Bool = false
 
-    override func request(for action: AddParticipantAction) -> ZMTransportRequest? {
+    override func request(for action: AddParticipantAction, apiVersion: APIVersion) -> ZMTransportRequest? {
         if useFederationEndpoint {
-            return federatedRequest(for: action)
+            return federatedRequest(for: action, apiVersion: apiVersion)
         } else {
-            return nonFederatedRequest(for: action)
+            return nonFederatedRequest(for: action, apiVersion: apiVersion)
         }
     }
 
-    func nonFederatedRequest(for action: AddParticipantAction) -> ZMTransportRequest? {
+    func nonFederatedRequest(for action: AddParticipantAction, apiVersion: APIVersion) -> ZMTransportRequest? {
         var action = action
 
         guard
@@ -63,10 +63,10 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction>, Federati
         }
 
         let path = "/conversations/\(conversationID)/members"
-        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: apiVersion.rawValue)
     }
 
-    func federatedRequest(for action: AddParticipantAction) -> ZMTransportRequest? {
+    func federatedRequest(for action: AddParticipantAction, apiVersion: APIVersion) -> ZMTransportRequest? {
         var action = action
 
         guard
@@ -84,7 +84,7 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction>, Federati
         }
         let path = "/conversations/\(conversationID.uuid)/members/v2"
 
-        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: apiVersion.rawValue)
     }
 
     override func handleResponse(_ response: ZMTransportResponse, action: AddParticipantAction) {

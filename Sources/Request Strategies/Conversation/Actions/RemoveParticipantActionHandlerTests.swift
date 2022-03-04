@@ -71,7 +71,7 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
             let action = RemoveParticipantAction(user: self.user, conversation: self.conversation)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
 
             // then
             XCTAssertEqual(request.path, "/conversations/\(conversationID)/members/\(userID)")
@@ -89,7 +89,7 @@ class RemoveParticipantActionHandlerTests: MessagingTestBase {
             let action = RemoveParticipantAction(user: self.user, conversation: self.conversation)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
 
             // then
             XCTAssertEqual(request.path, "/conversations/\(domain)/\(conversationID)/members/\(domain)/\(userID)")

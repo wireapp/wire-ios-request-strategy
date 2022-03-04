@@ -139,7 +139,7 @@
             continue;
         }
     
-        ZMTransportRequest *request = [transcoder requestForFetchingObject:nextObject downstreamSync:self];
+        ZMTransportRequest *request = [transcoder requestForFetchingObject:nextObject downstreamSync:self apiVersion:apiVersion];
         if(request == nil) {
             [self.objectsToDownload removeObject:nextObject];
             continue;

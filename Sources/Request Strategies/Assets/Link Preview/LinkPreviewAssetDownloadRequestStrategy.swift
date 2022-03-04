@@ -19,7 +19,7 @@
 import Foundation
 
 @objcMembers public final class LinkPreviewAssetDownloadRequestStrategy: AbstractRequestStrategy, FederationAware {
-    
+
     public var useFederationEndpoint: Bool {
         get {
             requestFactory.useFederationEndpoint
@@ -122,7 +122,7 @@ extension LinkPreviewAssetDownloadRequestStrategy: ZMContextChangeTrackerSource 
 
 extension LinkPreviewAssetDownloadRequestStrategy: ZMDownstreamTranscoder {
 
-    public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!) -> ZMTransportRequest! {
+    public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!, apiVersion: APIVersion) -> ZMTransportRequest! {
         guard let message = object as? ZMClientMessage else { fatal("Unable to generate request for \(object.safeForLoggingDescription)") }
         guard let linkPreview = message.underlyingMessage?.linkPreviews.first else {
             return nil
@@ -132,7 +132,7 @@ extension LinkPreviewAssetDownloadRequestStrategy: ZMDownstreamTranscoder {
         // Protobuf initializes the token to an empty string when set to nil
         let token = remoteData.hasAssetToken && remoteData.assetToken != "" ? remoteData.assetToken : nil
         let domain = remoteData.assetDomain
-        let request = requestFactory.requestToGetAsset(withKey: remoteData.assetID, token: token, domain: domain)
+        let request = requestFactory.requestToGetAsset(withKey: remoteData.assetID, token: token, domain: domain, apiVersion: apiVersion)
         request?.add(ZMCompletionHandler(on: managedObjectContext) { response in
             self.handleResponse(response, forMessage: message)
         })

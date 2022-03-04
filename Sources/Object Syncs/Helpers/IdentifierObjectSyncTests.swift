@@ -29,7 +29,7 @@ class MockTranscoder: IdentifierObjectSyncTranscoder {
     var isAvailable: Bool = true
 
     var lastRequestedIdentifiers: Set<UUID> = Set()
-    func request(for identifiers: Set<UUID>) -> ZMTransportRequest? {
+    func request(for identifiers: Set<UUID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         lastRequestedIdentifiers = identifiers
         return ZMTransportRequest(getFromPath: "/dummy/path", apiVersion: APIVersion.v0.rawValue)
     }

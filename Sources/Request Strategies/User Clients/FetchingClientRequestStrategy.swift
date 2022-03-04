@@ -162,11 +162,11 @@ final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
         return 1
     }
 
-    public func request(for identifiers: Set<UserClientID>) -> ZMTransportRequest? {
+    public func request(for identifiers: Set<UserClientID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let identifier = identifiers.first else { return nil }
 
         // GET /users/<user-id>/clients/<client-id>
-        return ZMTransportRequest(path: "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)", method: .methodGET, payload: nil, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)", method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UserClientID>) {
@@ -214,7 +214,7 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
         return 100
     }
 
-    public func request(for identifiers: Set<QualifiedID>) -> ZMTransportRequest? {
+    public func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
 
         guard
             let payloadData = identifiers.payloadData(encoder: encoder),
@@ -225,7 +225,7 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
 
         // POST /users/list-clients
         let path = NSString.path(withComponents: ["/users/list-clients"])
-        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?, apiVersion: apiVersion.rawValue)
     }
 
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
@@ -289,12 +289,12 @@ final class UserClientByUserIDTranscoder: IdentifierObjectSyncTranscoder {
         return 1
     }
 
-    public func request(for identifiers: Set<UUID>) -> ZMTransportRequest? {
+    public func request(for identifiers: Set<UUID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let userId = identifiers.first?.transportString() else { return nil }
 
         // GET /users/<user-id>/clients
         let path = NSString.path(withComponents: ["/users", "\(userId)", "clients"])
-        return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {

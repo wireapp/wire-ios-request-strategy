@@ -194,7 +194,7 @@
     entity.needsToBeUpdatedFromBackend = YES;
     
     // expect
-    [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];
+    [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut apiVersion:APIVersionV0];
     [[[(id)self.operationSet expect] andReturn:entity] nextObjectToSynchronize];
     [(ZMSyncOperationSet *)[(id)self.operationSet expect] didStartSynchronizingKeys:nil forObject:entity];
     
@@ -213,7 +213,7 @@
     entity.needsToBeUpdatedFromBackend = YES;
     
     // expect
-    [[[(id)self.transcoder expect] andReturn:nil] requestForFetchingObject:entity downstreamSync:self.sut];
+    [[[(id)self.transcoder expect] andReturn:nil] requestForFetchingObject:entity downstreamSync:self.sut apiVersion:APIVersionV0];
     [[[(id)self.operationSet expect] andReturn:entity] nextObjectToSynchronize];
     [[[(id)self.operationSet expect] andReturn:nil] nextObjectToSynchronize];
     [(ZMSyncOperationSet *)[(id)self.operationSet reject] didStartSynchronizingKeys:OCMOCK_ANY forObject:OCMOCK_ANY];
@@ -242,8 +242,8 @@
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] didStartSynchronizingKeys:OCMOCK_ANY forObject:OCMOCK_ANY];
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] removeObject:OCMOCK_ANY];
     
-    [[[(id)self.transcoder expect] andReturn:nil] requestForFetchingObject:entity1 downstreamSync:self.sut];
-    [[[(id)self.transcoder expect] andReturn:expectedRequest] requestForFetchingObject:entity2 downstreamSync:self.sut];
+    [[[(id)self.transcoder expect] andReturn:nil] requestForFetchingObject:entity1 downstreamSync:self.sut apiVersion:APIVersionV0];
+    [[[(id)self.transcoder expect] andReturn:expectedRequest] requestForFetchingObject:entity2 downstreamSync:self.sut apiVersion:APIVersionV0];
     
     // when
     ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:APIVersionV0];
@@ -264,7 +264,7 @@
     [[[(id)self.operationSet expect] andReturn:entity1] nextObjectToSynchronize];
     [[[(id)self.operationSet expect] andReturn:nil] nextObjectToSynchronize];
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] didStartSynchronizingKeys:OCMOCK_ANY forObject:OCMOCK_ANY];
-    [[[(id)self.transcoder expect] andReturn:nil] requestForFetchingObject:entity1 downstreamSync:self.sut];
+    [[[(id)self.transcoder expect] andReturn:nil] requestForFetchingObject:entity1 downstreamSync:self.sut apiVersion:APIVersionV0];
     
     [(ZMSyncOperationSet *)[(id)self.operationSet expect] removeObject:entity1];
     
@@ -283,7 +283,7 @@
     // expect
     [[[(id)self.operationSet expect] andReturn:entity1] nextObjectToSynchronize];
     [[[(id)self.operationSet expect] andReturn:nil] nextObjectToSynchronize];
-    [[(id)self.transcoder reject]requestForFetchingObject:entity1 downstreamSync:self.sut];
+    [[(id)self.transcoder reject]requestForFetchingObject:entity1 downstreamSync:self.sut apiVersion:APIVersionV0];
     [(ZMSyncOperationSet *)[(id)self.operationSet expect] removeObject:entity1];
     
     // when
@@ -302,7 +302,7 @@
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:200 transportSessionError:nil apiVersion: 0];
     
     // expect
-    [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];
+    [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut apiVersion:APIVersionV0];
     [[[(id)self.operationSet expect] andReturn:entity] nextObjectToSynchronize];
     [(ZMSyncOperationSet *)[(id)self.operationSet expect] didStartSynchronizingKeys:nil forObject:entity];
     [[[(id)self.operationSet expect] andReturn:keys]keysForWhichToApplyResultsAfterFinishedSynchronizingSyncWithToken:OCMOCK_ANY forObject:entity result:ZMTransportResponseStatusSuccess];
@@ -328,7 +328,7 @@
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:404 transportSessionError:nil apiVersion: 0];
     
     // expect
-    [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];
+    [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut apiVersion:APIVersionV0];
     [[[(id)self.operationSet expect] andReturn:entity] nextObjectToSynchronize];
     [(ZMSyncOperationSet *)[(id)self.operationSet expect] didStartSynchronizingKeys:nil forObject:entity];
     [[(id)self.operationSet expect] keysForWhichToApplyResultsAfterFinishedSynchronizingSyncWithToken:OCMOCK_ANY forObject:entity result:ZMTransportResponseStatusPermanentError];
@@ -355,7 +355,7 @@
 
     ZMTransportResponse *response = [ZMTransportResponse responseWithPayload:payload HTTPStatus:404 transportSessionError:nil apiVersion: 0];
     
-    [[[(id)self.transcoder stub] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];
+    [[[(id)self.transcoder stub] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut apiVersion:APIVersionV0];
     [[[(id)self.operationSet stub] andReturn:entity] nextObjectToSynchronize];
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] didStartSynchronizingKeys:nil forObject:entity];
     [[(id)self.operationSet stub] keysForWhichToApplyResultsAfterFinishedSynchronizingSyncWithToken:OCMOCK_ANY forObject:entity result:ZMTransportResponseStatusPermanentError];
@@ -378,7 +378,7 @@
     MockEntity *entity = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
     entity.needsToBeUpdatedFromBackend = YES;
     
-    [[[(id)self.transcoder stub] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];
+    [[[(id)self.transcoder stub] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut apiVersion:APIVersionV0];
     [[[(id)self.operationSet stub] andReturn:entity] nextObjectToSynchronize];
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] didStartSynchronizingKeys:nil forObject:entity];
     [[(id)self.operationSet stub] keysForWhichToApplyResultsAfterFinishedSynchronizingSyncWithToken:OCMOCK_ANY forObject:entity result:ZMTransportResponseStatusPermanentError];
@@ -428,7 +428,7 @@
     id keys = @435;
     
     // expect
-    [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut];
+    [[[(id)self.transcoder expect] andReturn:self.dummyRequest] requestForFetchingObject:entity downstreamSync:self.sut apiVersion:APIVersionV0];
     [[[(id)self.operationSet expect] andReturn:entity] nextObjectToSynchronize];
     
     [(ZMSyncOperationSet *)[(id)self.operationSet stub] didStartSynchronizingKeys:nil forObject:entity];

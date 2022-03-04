@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol ZMSingleRequestTranscoder <NSObject>
 
-- (ZMTransportRequest * __nullable)requestForSingleRequestSync:(ZMSingleRequestSync *)sync;
+- (ZMTransportRequest * __nullable)requestForSingleRequestSync:(ZMSingleRequestSync *)sync apiVersion:(APIVersion)apiVersion;
 - (void)didReceiveResponse:(ZMTransportResponse *)response forSingleRequest:(ZMSingleRequestSync *)sync;
 
 @end

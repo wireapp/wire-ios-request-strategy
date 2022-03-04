@@ -59,7 +59,7 @@
     ZMTransportRequest *expectedRequest = [ZMTransportRequest requestGetFromPath:@"/baa" apiVersion:0];
     XCTAssertEqual(self.sut.status, ZMSingleRequestIdle);
     [self.sut readyForNextRequest];
-    [[[self.transcoder stub] andReturn:expectedRequest] requestForSingleRequestSync:self.sut];
+    [[[self.transcoder stub] andReturn:expectedRequest] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
     ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:APIVersionV0];
     XCTAssertEqual(self.sut.status, ZMSingleRequestInProgress);
     [request completeWithResponse:response];
@@ -87,7 +87,7 @@
 {
     // given
     XCTAssertEqual(self.sut.status, ZMSingleRequestIdle);
-    [[[self.transcoder stub] andReturn:nil] requestForSingleRequestSync:self.sut];
+    [[[self.transcoder stub] andReturn:nil] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
     
     // when
     [self.sut readyForNextRequest];
@@ -100,7 +100,7 @@
 {
     // given
     XCTAssertEqual(self.sut.status, ZMSingleRequestIdle);
-    [[[self.transcoder stub] andReturn:[ZMTransportRequest requestGetFromPath:@"/foo" apiVersion:0]] requestForSingleRequestSync:self.sut];
+    [[[self.transcoder stub] andReturn:[ZMTransportRequest requestGetFromPath:@"/foo" apiVersion:0]] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
 
     // when
     [self.sut readyForNextRequest];
@@ -114,7 +114,7 @@
 {
     // given
     XCTAssertEqual(self.sut.status, ZMSingleRequestIdle);
-    [[[self.transcoder stub] andReturn:nil] requestForSingleRequestSync:self.sut];
+    [[[self.transcoder stub] andReturn:nil] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
     
     // when
     [self.sut readyForNextRequestIfNotBusy];
@@ -129,7 +129,7 @@
     XCTAssertEqual(self.sut.status, ZMSingleRequestIdle);
     
     // expect
-    [[self.transcoder reject] requestForSingleRequestSync:OCMOCK_ANY];
+    [[self.transcoder reject] requestForSingleRequestSync:OCMOCK_ANY apiVersion:APIVersionV0];
     
     // when
     ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:APIVersionV0];
@@ -146,7 +146,7 @@
     [self.sut readyForNextRequest];
     
     // expect
-    [[[self.transcoder expect] andReturn:expectedRequest] requestForSingleRequestSync:self.sut];
+    [[[self.transcoder expect] andReturn:expectedRequest] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
     
     // when
     ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:APIVersionV0];
@@ -164,8 +164,8 @@
     [self.sut readyForNextRequest];
     
     // expect
-    [[[self.transcoder expect] andReturn:expectedRequest] requestForSingleRequestSync:self.sut];
-    [[self.transcoder reject] requestForSingleRequestSync:OCMOCK_ANY];
+    [[[self.transcoder expect] andReturn:expectedRequest] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
+    [[self.transcoder reject] requestForSingleRequestSync:OCMOCK_ANY apiVersion:APIVersionV0];
     
     // when
     [self.sut nextRequestForAPIVersion:APIVersionV0];
@@ -178,7 +178,7 @@
     [self.sut readyForNextRequest];
     
     // expect
-    [[[self.transcoder expect] andReturn:nil] requestForSingleRequestSync:self.sut];
+    [[[self.transcoder expect] andReturn:nil] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
     
     // when
     ZMTransportRequest *request = [self.sut nextRequestForAPIVersion:APIVersionV0];
@@ -315,8 +315,8 @@
     [self.sut readyForNextRequest];
     
     // expect
-    [[[self.transcoder expect] andReturn:request1] requestForSingleRequestSync:self.sut];
-    [[[self.transcoder expect] andReturn:request2] requestForSingleRequestSync:self.sut];
+    [[[self.transcoder expect] andReturn:request1] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
+    [[[self.transcoder expect] andReturn:request2] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
     
     // when
     ZMTransportRequest *generatedRequest1 = [self.sut nextRequestForAPIVersion:APIVersionV0];
@@ -338,8 +338,8 @@
     ZMTransportResponse *responseThatShouldNotProcess = [ZMTransportResponse responseWithPayload:@[@"resp-nope"] HTTPStatus:200 transportSessionError:nil apiVersion:0];
     ZMTransportResponse *responseThatShouldProcess = [ZMTransportResponse responseWithPayload:@[@"resp-yep"] HTTPStatus:200 transportSessionError:nil apiVersion:0];
     
-    [[[self.transcoder expect] andReturn:requestThatShouldNotComplete] requestForSingleRequestSync:self.sut];
-    [[[self.transcoder expect] andReturn:requestThatShouldComplete] requestForSingleRequestSync:self.sut];
+    [[[self.transcoder expect] andReturn:requestThatShouldNotComplete] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
+    [[[self.transcoder expect] andReturn:requestThatShouldComplete] requestForSingleRequestSync:self.sut apiVersion:APIVersionV0];
     
     
     // expect

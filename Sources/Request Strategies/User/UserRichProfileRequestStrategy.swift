@@ -42,11 +42,11 @@ public class UserRichProfileRequestStrategy: AbstractRequestStrategy {
 }
 
 extension UserRichProfileRequestStrategy: ZMDownstreamTranscoder {
-    public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!) -> ZMTransportRequest! {
+    public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!, apiVersion: APIVersion) -> ZMTransportRequest! {
         guard let user = object as? ZMUser else { fatal("Object \(object.classForCoder) is not ZMUser") }
         guard let remoteIdentifier = user.remoteIdentifier else { fatal("User does not have remote identifier") }
         let path = "/users/\(remoteIdentifier)/rich-info"
-        return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
     public func delete(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {

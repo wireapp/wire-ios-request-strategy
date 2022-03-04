@@ -83,7 +83,7 @@ class DependencyEntitySync<Transcoder: EntityTranscoder>: NSObject, ZMContextCha
 
         let completionHandler = completionHandlers.removeValue(forKey: entity)
 
-        if !entity.isExpired, let request = transcoder?.request(forEntity: entity) {
+        if !entity.isExpired, let request = transcoder?.request(forEntity: entity, apiVersion: apiVersion) {
 
             request.add(ZMCompletionHandler(on: context, block: { [weak self] (response) in
                 guard

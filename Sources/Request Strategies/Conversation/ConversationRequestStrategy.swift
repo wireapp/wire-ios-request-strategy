@@ -425,7 +425,8 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
     }
 
     public func request(forUpdating managedObject: ZMManagedObject,
-                        forKeys keys: Set<String>) -> ZMUpstreamRequest? {
+                        forKeys keys: Set<String>,
+                        apiVersion: APIVersion) -> ZMUpstreamRequest? {
         guard
             let conversation = managedObject as? ZMConversation,
             let conversationID = conversation.remoteIdentifier?.transportString()
@@ -450,12 +451,12 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/name",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
-                                             apiVersion: APIVersion.v0.rawValue)
+                                             apiVersion: apiVersion.rawValue)
             } else {
                 request = ZMTransportRequest(path: "/conversations/\(conversationID)",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
-                                             apiVersion: APIVersion.v0.rawValue)
+                                             apiVersion: apiVersion.rawValue)
             }
 
             let conversationUserDefinedNameKey: Set<String> = [ZMConversationUserDefinedNameKey]
@@ -482,12 +483,12 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/self",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
-                                             apiVersion: APIVersion.v0.rawValue)
+                                             apiVersion: apiVersion.rawValue)
             } else {
                 request = ZMTransportRequest(path: "/conversations/\(conversationID)/self",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
-                                             apiVersion: APIVersion.v0.rawValue)
+                                             apiVersion: apiVersion.rawValue)
             }
 
             let changedKeys = keys.intersection([ZMConversationArchivedChangedTimeStampKey,
@@ -502,7 +503,8 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
     }
 
     public func request(forInserting managedObject: ZMManagedObject,
-                        forKeys keys: Set<String>?) -> ZMUpstreamRequest? {
+                        forKeys keys: Set<String>?,
+                        apiVersion: APIVersion) -> ZMUpstreamRequest? {
 
         guard let conversation = managedObject as? ZMConversation else {
             return nil
@@ -520,7 +522,7 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
         let request = ZMTransportRequest(path: "/conversations",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?,
-                                         apiVersion: APIVersion.v0.rawValue)
+                                         apiVersion: apiVersion.rawValue)
 
         return ZMUpstreamRequest(transportRequest: request)
     }
@@ -541,11 +543,11 @@ class ConversationByIDTranscoder: IdentifierObjectSyncTranscoder {
         self.context = context
     }
 
-    func request(for identifiers: Set<UUID>) -> ZMTransportRequest? {
+    func request(for identifiers: Set<UUID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let converationID = identifiers.first.map({ $0.transportString() }) else { return nil }
 
         // GET /conversations/<UUID>
-        return ZMTransportRequest(getFromPath: "/conversations/\(converationID)", apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(getFromPath: "/conversations/\(converationID)", apiVersion: apiVersion.rawValue)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
@@ -633,7 +635,7 @@ class ConversationByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
         self.context = context
     }
 
-    func request(for identifiers: Set<QualifiedID>) -> ZMTransportRequest? {
+    func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
             let conversationID = identifiers.first.map({ $0.uuid.transportString() }),
             let domain = identifiers.first?.domain
@@ -642,7 +644,7 @@ class ConversationByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
         }
 
         // GET /conversations/domain/<UUID>
-        return ZMTransportRequest(getFromPath: "/conversations/\(domain)/\(conversationID)", apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(getFromPath: "/conversations/\(domain)/\(conversationID)", apiVersion: apiVersion.rawValue)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
@@ -727,10 +729,10 @@ class ConversationByIDListTranscoder: IdentifierObjectSyncTranscoder {
         self.context = context
     }
 
-    func request(for identifiers: Set<UUID>) -> ZMTransportRequest? {
+    func request(for identifiers: Set<UUID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         // GET /conversations?ids=?
         let converationIDs = identifiers.map({ $0.transportString() }).joined(separator: ",")
-        return ZMTransportRequest(getFromPath: "/conversations?ids=\(converationIDs)", apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(getFromPath: "/conversations?ids=\(converationIDs)", apiVersion: apiVersion.rawValue)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {
@@ -774,7 +776,7 @@ class ConversationByQualifiedIDListTranscoder: IdentifierObjectSyncTranscoder {
         self.context = context
     }
 
-    func request(for identifiers: Set<QualifiedID>) -> ZMTransportRequest? {
+    func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         // GET /conversations?ids=?
 
         guard
@@ -784,7 +786,7 @@ class ConversationByQualifiedIDListTranscoder: IdentifierObjectSyncTranscoder {
             return nil
         }
 
-        return ZMTransportRequest(path: "/conversations/list/v2", method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: "/conversations/list/v2", method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: apiVersion.rawValue)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {

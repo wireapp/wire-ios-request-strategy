@@ -44,7 +44,7 @@ class ConnectToUserActionHandlerTests: MessagingTestBase {
             let action = ConnectToUserAction(userID: userID, domain: domain)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
 
             // then
             XCTAssertEqual(request.path, "/connections")
@@ -63,7 +63,7 @@ class ConnectToUserActionHandlerTests: MessagingTestBase {
             let action = ConnectToUserAction(userID: userID, domain: domain)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
 
             // then
             XCTAssertEqual(request.path, "/connections/\(domain)/\(userID.transportString())")
@@ -76,9 +76,9 @@ class ConnectToUserActionHandlerTests: MessagingTestBase {
     func testThatItParsesAllKnownConnectionToUserErrorResponses() {
 
         let errorResponses: [(ConnectToUserError, ZMTransportResponse)] = [
-            (.connectionLimitReached, responseFailure(code: 403, label: .connectionLimit)),
-            (.noIdentity, responseFailure(code: 403, label: .noIdentity)),
-            (.missingLegalholdConsent, responseFailure(code: 403, label: .missingLegalholdConsent))
+            (.connectionLimitReached, responseFailure(code: 403, label: .connectionLimit, apiVersion: .v0)),
+            (.noIdentity, responseFailure(code: 403, label: .noIdentity, apiVersion: .v0)),
+            (.missingLegalholdConsent, responseFailure(code: 403, label: .missingLegalholdConsent, apiVersion: .v0))
         ]
 
         for (expectedError, response) in errorResponses {

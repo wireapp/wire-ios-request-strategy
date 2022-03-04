@@ -62,7 +62,7 @@ public final class MissingClientsRequestFactory {
         self.pageSize = pageSize
     }
 
-    public func fetchPrekeys(for missingClients: Set<UserClient>) -> ZMUpstreamRequest? {
+    public func fetchPrekeys(for missingClients: Set<UserClient>, apiVersion: APIVersion) -> ZMUpstreamRequest? {
         guard
             let payloadData = missingClients.prefix(pageSize).clientListByUserID.payloadData(encoder: defaultEncoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
@@ -73,14 +73,14 @@ public final class MissingClientsRequestFactory {
         let request = ZMTransportRequest(path: "/users/prekeys",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?,
-                                         apiVersion: APIVersion.v0.rawValue)
+                                         apiVersion: apiVersion.rawValue)
         let userClientMissingKeySet: Set<String> = [ZMUserClientMissingKey]
         return ZMUpstreamRequest(keys: userClientMissingKeySet,
                                  transportRequest: request,
                                  userInfo: nil)
     }
 
-    public func fetchPrekeysFederated(for missingClients: Set<UserClient>) -> ZMUpstreamRequest? {
+    public func fetchPrekeysFederated(for missingClients: Set<UserClient>, apiVersion: APIVersion) -> ZMUpstreamRequest? {
         guard
             let payloadData = missingClients.prefix(pageSize).clientListByDomain.payloadData(encoder: defaultEncoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
@@ -91,7 +91,7 @@ public final class MissingClientsRequestFactory {
         let request = ZMTransportRequest(path: "/users/list-prekeys",
                                          method: .methodPOST,
                                          payload: payloadAsString as ZMTransportData?,
-                                         apiVersion: APIVersion.v0.rawValue)
+                                         apiVersion: apiVersion.rawValue)
         let userClientMissingKeySet: Set<String> = [ZMUserClientMissingKey]
         return ZMUpstreamRequest(keys: userClientMissingKeySet,
                                  transportRequest: request,

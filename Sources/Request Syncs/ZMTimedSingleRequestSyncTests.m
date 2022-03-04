@@ -38,7 +38,7 @@
 
 @implementation ZMTimedSingleRequestSyncTests
 
-- (ZMTransportRequest *)requestForSingleRequestSync:(ZMSingleRequestSync *)sync
+- (ZMTransportRequest *)requestForSingleRequestSync:(ZMSingleRequestSync *)sync apiVersion:(APIVersion)apiVersion
 {
     NOT_USED(sync);
     ++self.transcoderCallsToRequest;

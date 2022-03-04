@@ -34,15 +34,15 @@ class RemoveParticipantActionHandler: ActionHandler<RemoveParticipantAction>, Fe
 
     var useFederationEndpoint: Bool = false
 
-    override func request(for action: RemoveParticipantAction) -> ZMTransportRequest? {
+    override func request(for action: RemoveParticipantAction, apiVersion: APIVersion) -> ZMTransportRequest? {
         if useFederationEndpoint {
-            return federatedRequest(for: action)
+            return federatedRequest(for: action, apiVersion: apiVersion)
         } else {
-            return nonFederatedRequest(for: action)
+            return nonFederatedRequest(for: action, apiVersion: apiVersion)
         }
     }
 
-    func nonFederatedRequest(for action: RemoveParticipantAction) -> ZMTransportRequest? {
+    func nonFederatedRequest(for action: RemoveParticipantAction, apiVersion: APIVersion) -> ZMTransportRequest? {
         var action = action
 
         guard
@@ -57,10 +57,10 @@ class RemoveParticipantActionHandler: ActionHandler<RemoveParticipantAction>, Fe
         }
 
         let path = "/conversations/\(conversationID)/\(user.isServiceUser ? "bots" : "members")/\(userID)"
-        return ZMTransportRequest(path: path, method: .methodDELETE, payload: nil, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: path, method: .methodDELETE, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
-    func federatedRequest(for action: RemoveParticipantAction) -> ZMTransportRequest? {
+    func federatedRequest(for action: RemoveParticipantAction, apiVersion: APIVersion) -> ZMTransportRequest? {
         var action = action
 
         guard
@@ -75,7 +75,7 @@ class RemoveParticipantActionHandler: ActionHandler<RemoveParticipantAction>, Fe
         }
         let path = "/conversations/\(conversationID.domain)/\(conversationID.uuid)/members/\(qualifiedUserID.domain)/\(qualifiedUserID.uuid)"
 
-        return ZMTransportRequest(path: path, method: .methodDELETE, payload: nil, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: path, method: .methodDELETE, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
     override func handleResponse(_ response: ZMTransportResponse, action: RemoveParticipantAction) {

@@ -292,7 +292,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func testThatConversationResetsNeedsToBeUpdatedFromBackend_OnPermanentErrors() {
         // given
-        let response = responseFailure(code: 403, label: .unknown)
+        let response = responseFailure(code: 403, label: .unknown, apiVersion: .v0)
 
         // when
         fetchConversation(groupConversation, with: response)
@@ -307,7 +307,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func testThatConversationIsDeleted_WhenResponseIs_404() {
         // given
-        let response = responseFailure(code: 404, label: .notFound)
+        let response = responseFailure(code: 404, label: .notFound, apiVersion: .v0)
 
         // when
         fetchConversation(groupConversation, with: response)
@@ -320,7 +320,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func testThatSelfUserIsRemovedFromParticipantsList_WhenResponseIs_403() {
         // given
-        let response = responseFailure(code: 403, label: .unknown)
+        let response = responseFailure(code: 403, label: .unknown, apiVersion: .v0)
 
         // when
         fetchConversation(groupConversation, with: response)
@@ -997,7 +997,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     func fetchConversationListDuringSlowSyncWithPermanentError() {
         syncMOC.performGroupedBlockAndWait {
             let request = self.sut.nextRequest(for: .v0)!
-            request.complete(with: self.responseFailure(code: 404, label: .noEndpoint))
+            request.complete(with: self.responseFailure(code: 404, label: .noEndpoint, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }

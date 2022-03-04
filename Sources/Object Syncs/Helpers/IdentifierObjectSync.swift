@@ -27,7 +27,7 @@ public protocol IdentifierObjectSyncTranscoder: AnyObject {
 
     var isAvailable: Bool { get }
 
-    func request(for identifiers: Set<T>) -> ZMTransportRequest?
+    func request(for identifiers: Set<T>, apiVersion: APIVersion) -> ZMTransportRequest?
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<T>)
 
@@ -102,7 +102,7 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
 
         let scheduled = Set(pending.prefix(fetchLimit))
 
-        guard let request = transcoder?.request(for: scheduled) else { return nil }
+        guard let request = transcoder?.request(for: scheduled, apiVersion: apiVersion) else { return nil }
 
         downloading.formUnion(scheduled)
         pending.subtract(scheduled)

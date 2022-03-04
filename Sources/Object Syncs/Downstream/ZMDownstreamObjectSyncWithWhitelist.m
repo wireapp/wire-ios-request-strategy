@@ -80,9 +80,9 @@
     return [self.innerDownstreamSync nextRequestForAPIVersion:apiVersion];
 }
 
-- (ZMTransportRequest *)requestForFetchingObject:(ZMManagedObject *)object downstreamSync:(id<ZMObjectSync> __unused)downstreamSync
+- (ZMTransportRequest *)requestForFetchingObject:(ZMManagedObject *)object downstreamSync:(id<ZMObjectSync> __unused)downstreamSync apiVersion:(APIVersion)apiVersion
 {
-    return [self.transcoder requestForFetchingObject:object downstreamSync:self];
+    return [self.transcoder requestForFetchingObject:object downstreamSync:self apiVersion:apiVersion];
 }
 
 - (void)deleteObject:(ZMManagedObject *)object withResponse:(ZMTransportResponse *)response downstreamSync:(id<ZMObjectSync> __unused)downstreamSync

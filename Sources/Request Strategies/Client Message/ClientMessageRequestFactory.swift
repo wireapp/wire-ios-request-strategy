@@ -80,15 +80,15 @@ public final class ClientMessageRequestFactory: NSObject {
         )
     }
 
-    public func upstreamRequestForMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, useFederationEndpoint: Bool) -> ZMTransportRequest? {
+    public func upstreamRequestForMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, useFederationEndpoint: Bool, apiVersion: APIVersion) -> ZMTransportRequest? {
         if useFederationEndpoint {
-            return upstreamRequestForQualifiedEncryptedMessage(message, in: conversation)
+            return upstreamRequestForQualifiedEncryptedMessage(message, in: conversation, apiVersion: apiVersion)
         } else {
-            return upstreamRequestForEncryptedMessage(message, in: conversation)
+            return upstreamRequestForEncryptedMessage(message, in: conversation, apiVersion: apiVersion)
         }
     }
 
-    fileprivate func upstreamRequestForEncryptedMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation) -> ZMTransportRequest? {
+    fileprivate func upstreamRequestForEncryptedMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
             let conversationID = conversation.remoteIdentifier?.transportString()
         else {
@@ -98,12 +98,12 @@ public final class ClientMessageRequestFactory: NSObject {
         let originalPath = "/" + ["conversations", conversationID, "otr", "messages"].joined(separator: "/")
         guard let encryptedPayload = message.encryptForTransport() else { return nil }
         let path = originalPath.pathWithMissingClientStrategy(strategy: encryptedPayload.strategy)
-        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: encryptedPayload.data, type: protobufContentType, contentDisposition: nil, apiVersion: APIVersion.v0.rawValue)
+        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: encryptedPayload.data, type: protobufContentType, contentDisposition: nil, apiVersion: apiVersion.rawValue)
         request.addContentDebugInformation(message.debugInfo)
         return request
     }
 
-    fileprivate func upstreamRequestForQualifiedEncryptedMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation) -> ZMTransportRequest? {
+    fileprivate func upstreamRequestForQualifiedEncryptedMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
             let context = conversation.managedObjectContext,
             let conversationID = conversation.remoteIdentifier?.transportString(),
@@ -114,14 +114,14 @@ public final class ClientMessageRequestFactory: NSObject {
 
         let path = "/" + ["conversations", domain, conversationID, "proteus", "messages"].joined(separator: "/")
         guard let encryptedPayload = message.encryptForTransportQualified() else { return nil }
-        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: encryptedPayload.data, type: protobufContentType, contentDisposition: nil, apiVersion: APIVersion.v0.rawValue)
+        let request = ZMTransportRequest(path: path, method: .methodPOST, binaryData: encryptedPayload.data, type: protobufContentType, contentDisposition: nil, apiVersion: apiVersion.rawValue)
         request.addContentDebugInformation(message.debugInfo)
         return request
     }
 
-    public func requestToGetAsset(_ assetId: String, inConversation conversationId: UUID) -> ZMTransportRequest {
+    public func requestToGetAsset(_ assetId: String, inConversation conversationId: UUID, apiVersion: APIVersion) -> ZMTransportRequest {
         let path = "/" + ["conversations", conversationId.transportString(), "otr", "assets", assetId].joined(separator: "/")
-        let request = ZMTransportRequest.imageGet(fromPath: path, apiVersion: APIVersion.v0.rawValue)
+        let request = ZMTransportRequest.imageGet(fromPath: path, apiVersion: apiVersion.rawValue)
         request.forceToBackgroundSession()
         return request
     }
@@ -130,11 +130,11 @@ public final class ClientMessageRequestFactory: NSObject {
 
 // MARK: - Downloading
 extension ClientMessageRequestFactory {
-    func downstreamRequestForEcryptedOriginalFileMessage(_ message: ZMAssetClientMessage) -> ZMTransportRequest? {
+    func downstreamRequestForEcryptedOriginalFileMessage(_ message: ZMAssetClientMessage, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let conversation = message.conversation, let identifier = conversation.remoteIdentifier else { return nil }
         let path = "/conversations/\(identifier.transportString())/otr/assets/\(message.assetId!.transportString())"
 
-        let request = ZMTransportRequest(getFromPath: path, apiVersion: APIVersion.v0.rawValue)
+        let request = ZMTransportRequest(getFromPath: path, apiVersion: apiVersion.rawValue)
         request.addContentDebugInformation("Downloading file (Asset)\n\(String(describing: message.dataSetDebugInformation))")
         request.forceToBackgroundSession()
         return request
