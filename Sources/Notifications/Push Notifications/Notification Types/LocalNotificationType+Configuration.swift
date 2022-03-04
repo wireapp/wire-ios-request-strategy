@@ -69,8 +69,10 @@ private extension PushNotificationCategory {
         switch callState {
         case .incomingCall:
             self = .incomingCall
-        case .missedCall:
+        case .missedCall(cancelled: false):
             self = .missedCall
+        case .missedCall(cancelled: true):
+            self = .conversation
         }
     }
 

@@ -25,7 +25,7 @@ public enum LocalNotificationType {
 
     public enum CallState {
         case incomingCall(video: Bool)
-        case missedCall
+        case missedCall(cancelled: Bool)
     }
 
     case event(LocalNotificationEventType)
