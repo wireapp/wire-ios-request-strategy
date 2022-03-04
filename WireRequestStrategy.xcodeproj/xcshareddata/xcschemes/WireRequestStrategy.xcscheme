@@ -55,9 +55,6 @@
                   Identifier = "FetchClientRequestStrategyTests">
                </Test>
                <Test
-                  Identifier = "StoreUpdateEventTests">
-               </Test>
-               <Test
                   Identifier = "ZMLocalNotificationTests_Message">
                </Test>
             </SkippedTests>
