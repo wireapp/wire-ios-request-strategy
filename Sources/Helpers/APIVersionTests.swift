@@ -45,11 +45,7 @@ final class APIVersionTests: XCTestCase {
 
     func testThatTheCommonVersionIsNil_whenBackendSupportsLowerVersionsOnly() {
         // given
-        var backendVersions = [Int32]()
-
-        for version in highestVersion.rawValue - 5 ..< highestVersion.rawValue - 1 {
-            backendVersions.append(version)
-        }
+        var backendVersions = ((-5)...(-1)).map { highestVersion.rawValue + $0 }
 
         // when
         let commonVersion = APIVersion.highestCommonVersion(with: backendVersions)
