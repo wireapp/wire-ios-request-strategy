@@ -73,7 +73,9 @@ class PushNotificationStatusTests: MessagingTestBase {
         }
 
         // when
-        sut.didFetch(eventIds: [eventId1], lastEventId: eventId1, finished: true)
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.didFetch(eventIds: [eventId1], lastEventId: eventId1, finished: true)
+        }
 
         // then
         XCTAssertTrue(sut.hasEventsToFetch)
@@ -87,7 +89,9 @@ class PushNotificationStatusTests: MessagingTestBase {
         }
 
         // when
-        sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: true)
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: true)
+        }
 
         // then
         XCTAssertFalse(sut.hasEventsToFetch)
@@ -101,7 +105,9 @@ class PushNotificationStatusTests: MessagingTestBase {
         }
 
         // when
-        sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: false)
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: false)
+        }
 
         // then
         XCTAssertFalse(sut.hasEventsToFetch)
@@ -115,7 +121,9 @@ class PushNotificationStatusTests: MessagingTestBase {
         }
 
         // when
-        sut.didFetch(eventIds: [], lastEventId: eventId, finished: true)
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.didFetch(eventIds: [], lastEventId: eventId, finished: true)
+        }
 
         // then
         XCTAssertFalse(sut.hasEventsToFetch)
@@ -147,7 +155,9 @@ class PushNotificationStatusTests: MessagingTestBase {
         }
 
         // when
-        sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: false)
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: false)
+        }
 
         // then
         XCTAssertFalse(sut.hasEventsToFetch)
@@ -166,7 +176,9 @@ class PushNotificationStatusTests: MessagingTestBase {
         }
 
         // when
-        sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: true)
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.didFetch(eventIds: [eventId], lastEventId: eventId, finished: true)
+        }
 
         // then
         XCTAssertFalse(sut.hasEventsToFetch)
@@ -186,7 +198,9 @@ class PushNotificationStatusTests: MessagingTestBase {
         }
 
         // when
-        sut.didFetch(eventIds: [], lastEventId: eventId, finished: true)
+        syncMOC.performGroupedBlockAndWait {
+            self.sut.didFetch(eventIds: [], lastEventId: eventId, finished: true)
+        }
 
         // then
         XCTAssertFalse(sut.hasEventsToFetch)
