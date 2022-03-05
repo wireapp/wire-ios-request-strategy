@@ -205,6 +205,9 @@
 "push.notification.alert.availability.away.message" = "Status affects notifications now. You’re set to “Away” and won’t receive any notifications.";
 "push.notification.alert.availability.busy.message" = "Status affects notifications now. You’re set to “Busy” and will only receive notifications when someone mentions you or replies to one of your messages.";
 
+// BUNDLED MESSAGES
+"push.notification.bundled-messages" = "%d new messages";
+
 // REACTIONS
 "push.notification.reaction.group" = "%1$@ %2$@ your message";
 "push.notification.reaction.group.nousername.noconversationname" = "Someone %@ your message in a conversation";

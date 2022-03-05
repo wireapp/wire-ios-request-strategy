@@ -45,6 +45,8 @@ private let ZMPushStringFailedToSend        = "failed.message"       // "Unable 
 
 private let ZMPushStringAlertAvailability   = "alert.availability"   // "Availability now affects notifications"
 
+private let ZMPushStringBundledMessages     = "bundled-messages"
+
 private let ZMPushStringMemberJoin          = "member.join"          // "[senderName] added you"
 private let ZMPushStringMemberLeave         = "member.leave"         // "[senderName] removed you"
 private let ZMPushStringMessageTimerUpdate  = "message-timer.update" // "[senderName] set the message timer to [duration]
@@ -137,8 +139,12 @@ extension LocalNotificationType {
             }
         case .failedMessage:
             return ZMPushStringFailedToSend
+
         case .availabilityBehaviourChangeAlert:
             return ZMPushStringAlertAvailability
+
+        case .bundledMessages:
+            return ZMPushStringBundledMessages
         }
     }
 
@@ -217,6 +223,11 @@ extension LocalNotificationType {
         let availabilityKey = availability == .away ? "away" : "busy"
         let localizationKey = [baseKey, availabilityKey, "message"].compactMap({ $0 }).joined(separator: ".")
         return .localizedStringWithFormat(localizationKey.pushFormatString)
+    }
+
+    func bundledMessagesBodyText(messageCount: Int) -> String {
+        guard case .bundledMessages = self else { return "" }
+        return .localizedStringWithFormat(baseKey.pushFormatString, arguments: [messageCount])
     }
 
     func messageBodyText(senderName: String?) -> String {
