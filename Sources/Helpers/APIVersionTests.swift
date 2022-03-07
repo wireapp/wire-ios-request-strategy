@@ -54,7 +54,7 @@ final class APIVersionTests: XCTestCase {
         XCTAssertNil(commonVersion)
     }
 
-    func testThatTheCommonVersionIsTheHighstVersion_whenBackendSupportsTheHighestVersion() {
+    func testThatTheCommonVersionIsTheHighestVersion_whenBackendSupportsTheHighestVersion() {
         // given
         let backendVersions = APIVersion.allCases.map(\.rawValue)
 
