@@ -65,7 +65,7 @@ final class UpdateRoleActionHandlerTests: MessagingTestBase {
             let action = UpdateRoleAction(user: self.user, conversation: self.conversation, role: self.role)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
 
             // then
             XCTAssertEqual(request.path, "/conversations/\(conversationID.transportString())/members/\(userID.transportString())")
@@ -81,7 +81,7 @@ final class UpdateRoleActionHandlerTests: MessagingTestBase {
             let action = UpdateRoleAction(user: self.user, conversation: self.conversation, role: self.role)
 
             // when
-            let request = self.sut.request(for: action)
+            let request = self.sut.request(for: action, apiVersion: .v0)
 
             // then
             XCTAssertNil(request)
@@ -95,7 +95,7 @@ final class UpdateRoleActionHandlerTests: MessagingTestBase {
             let action = UpdateRoleAction(user: self.user, conversation: self.conversation, role: self.role)
 
             // when
-            let request = self.sut.request(for: action)
+            let request = self.sut.request(for: action, apiVersion: .v0)
 
             // then
             XCTAssertNil(request)
@@ -109,7 +109,7 @@ final class UpdateRoleActionHandlerTests: MessagingTestBase {
             let action = UpdateRoleAction(user: self.user, conversation: self.conversation, role: self.role)
 
             // when
-            let request = self.sut.request(for: action)
+            let request = self.sut.request(for: action, apiVersion: .v0)
 
             // then
             XCTAssertNil(request)

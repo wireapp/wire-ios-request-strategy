@@ -71,7 +71,7 @@ public class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTransc
         dependencySync.expireEntities(withDependency: dependency)
     }
 
-    public func request(forEntity entity: Message) -> ZMTransportRequest? {
+    public func request(forEntity entity: Message, apiVersion: APIVersion) -> ZMTransportRequest? {
 
         if isFederationEndpointAvailable, ZMUser.selfUser(in: context).domain == nil {
             isFederationEndpointAvailable = false
@@ -81,7 +81,8 @@ public class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTransc
             let conversation = entity.conversation,
             let request = requestFactory.upstreamRequestForMessage(entity,
                                                                    in: conversation,
-                                                                   useFederationEndpoint: isFederationEndpointAvailable)
+                                                                   useFederationEndpoint: isFederationEndpointAvailable,
+                                                                   apiVersion: apiVersion)
         else {
             return nil
         }

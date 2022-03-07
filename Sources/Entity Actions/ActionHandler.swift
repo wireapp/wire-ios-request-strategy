@@ -41,7 +41,7 @@ class ActionHandler<T: EntityAction>: NSObject, EntityActionHandler, ZMRequestGe
         }
     }
 
-    func request(for action: Action) -> ZMTransportRequest? {
+    func request(for action: Action, apiVersion: APIVersion) -> ZMTransportRequest? {
         preconditionFailure("request(for:) must be overriden in subclasses")
     }
 
@@ -55,7 +55,7 @@ class ActionHandler<T: EntityAction>: NSObject, EntityActionHandler, ZMRequestGe
         }
 
         let action = pendingActions.removeFirst()
-        let request = self.request(for: action)
+        let request = self.request(for: action, apiVersion: apiVersion)
 
         request?.add(ZMCompletionHandler(on: context, block: { [weak self] (response) in
             self?.handleResponse(response, action: action)

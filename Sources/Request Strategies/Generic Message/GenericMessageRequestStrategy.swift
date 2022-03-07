@@ -156,8 +156,8 @@ extension GenericMessageEntity: EncryptedPayloadGenerator {
         sync?.expireEntities(withDependency: dependency)
     }
 
-    public override func request(forEntity entity: GenericMessageEntity) -> ZMTransportRequest? {
-        return requestFactory.upstreamRequestForMessage(entity, in: entity.conversation!, useFederationEndpoint: false)
+    public override func request(forEntity entity: GenericMessageEntity, apiVersion: APIVersion) -> ZMTransportRequest? {
+        return requestFactory.upstreamRequestForMessage(entity, in: entity.conversation!, useFederationEndpoint: false, apiVersion: apiVersion)
     }
 
     public override func shouldTryToResend(entity: GenericMessageEntity, afterFailureWithResponse response: ZMTransportResponse) -> Bool {

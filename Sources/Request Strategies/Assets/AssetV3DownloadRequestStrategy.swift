@@ -187,7 +187,7 @@ private let zmLog = ZMSLog(tag: "Asset V3")
 
     // MARK: - ZMDownstreamTranscoder
 
-    public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!) -> ZMTransportRequest! {
+    public func request(forFetching object: ZMManagedObject!, downstreamSync: ZMObjectSync!, apiVersion: APIVersion) -> ZMTransportRequest! {
         if let assetClientMessage = object as? ZMAssetClientMessage {
 
             let taskCreationHandler = ZMTaskCreatedHandler(on: managedObjectContext) { taskIdentifier in
@@ -206,7 +206,7 @@ private let zmLog = ZMSLog(tag: "Asset V3")
             if let asset = assetClientMessage.underlyingMessage?.assetData {
                 let token = asset.uploaded.hasAssetToken ? asset.uploaded.assetToken : nil
                 let domain = asset.uploaded.assetDomain
-                if let request = requestFactory.requestToGetAsset(withKey: asset.uploaded.assetID, token: token, domain: domain) {
+                if let request = requestFactory.requestToGetAsset(withKey: asset.uploaded.assetID, token: token, domain: domain, apiVersion: apiVersion) {
                     request.add(taskCreationHandler)
                     request.add(completionHandler)
                     request.add(progressHandler)

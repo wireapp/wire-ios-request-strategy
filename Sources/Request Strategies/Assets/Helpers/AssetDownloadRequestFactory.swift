@@ -23,7 +23,7 @@ public final class AssetDownloadRequestFactory: NSObject, FederationAware {
 
     public var useFederationEndpoint: Bool = false
 
-    public func requestToGetAsset(withKey key: String, token: String?, domain: String?) -> ZMTransportRequest? {
+    public func requestToGetAsset(withKey key: String, token: String?, domain: String?, apiVersion: APIVersion) -> ZMTransportRequest? {
 
         let path: String
         if useFederationEndpoint {
@@ -34,7 +34,7 @@ public final class AssetDownloadRequestFactory: NSObject, FederationAware {
             path = "/assets/v3/\(key)"
         }
 
-        let request = ZMTransportRequest.assetGet(fromPath: path, assetToken: token, apiVersion: APIVersion.v0.rawValue)
+        let request = ZMTransportRequest.assetGet(fromPath: path, assetToken: token, apiVersion: apiVersion.rawValue)
         request?.forceToBackgroundSession()
         return request
 

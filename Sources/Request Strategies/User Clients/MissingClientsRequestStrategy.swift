@@ -104,7 +104,7 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
         return false
     }
 
-    public func request(forUpdating managedObject: ZMManagedObject, forKeys keys: Set<String>) -> ZMUpstreamRequest? {
+    public func request(forUpdating managedObject: ZMManagedObject, forKeys keys: Set<String>, apiVersion: APIVersion) -> ZMUpstreamRequest? {
         guard let client = managedObject as? UserClient
         else { fatal("Called requestForUpdatingObject() on \(managedObject) to sync keys: \(keys)") }
 
@@ -116,9 +116,9 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
 
         let request: ZMUpstreamRequest?
         if isFederationEndpointAvailable {
-            request = requestsFactory.fetchPrekeysFederated(for: missing)
+            request = requestsFactory.fetchPrekeysFederated(for: missing, apiVersion: apiVersion)
         } else {
-            request = requestsFactory.fetchPrekeys(for: missing)
+            request = requestsFactory.fetchPrekeys(for: missing, apiVersion: apiVersion)
         }
 
         request?.transportRequest.forceToVoipSession()
@@ -158,7 +158,7 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
 
     // MARK: - Unused functions
 
-    public func request(forInserting managedObject: ZMManagedObject, forKeys keys: Set<String>?) -> ZMUpstreamRequest? {
+    public func request(forInserting managedObject: ZMManagedObject, forKeys keys: Set<String>?, apiVersion: APIVersion) -> ZMUpstreamRequest? {
         return nil
     }
 

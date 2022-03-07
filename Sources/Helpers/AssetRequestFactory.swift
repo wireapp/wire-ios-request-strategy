@@ -55,16 +55,16 @@ public final class AssetRequestFactory: NSObject, FederationAware {
         }
     }
 
-    public func backgroundUpstreamRequestForAsset(message: ZMAssetClientMessage, withData data: Data, shareable: Bool = true, retention: Retention) -> ZMTransportRequest? {
+    public func backgroundUpstreamRequestForAsset(message: ZMAssetClientMessage, withData data: Data, shareable: Bool = true, retention: Retention, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let uploadURL = uploadURL(for: message, in: message.managedObjectContext!, shareable: shareable, retention: retention, data: data) else { return nil }
-        let request = ZMTransportRequest.uploadRequest(withFileURL: uploadURL, path: Constant.path, contentType: Constant.ContentType.multipart, apiVersion: APIVersion.v0.rawValue)
+        let request = ZMTransportRequest.uploadRequest(withFileURL: uploadURL, path: Constant.path, contentType: Constant.ContentType.multipart, apiVersion: apiVersion.rawValue)
         request.addContentDebugInformation("Uploading full asset to /assets/v3")
         return request
     }
 
-    public func upstreamRequestForAsset(withData data: Data, shareable: Bool = true, retention: Retention) -> ZMTransportRequest? {
+    public func upstreamRequestForAsset(withData data: Data, shareable: Bool = true, retention: Retention, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let multipartData = try? dataForMultipartAssetUploadRequest(data, shareable: shareable, retention: retention) else { return nil }
-        return ZMTransportRequest(path: Constant.path, method: .methodPOST, binaryData: multipartData, type: Constant.ContentType.multipart, contentDisposition: nil, apiVersion: APIVersion.v0.rawValue)
+        return ZMTransportRequest(path: Constant.path, method: .methodPOST, binaryData: multipartData, type: Constant.ContentType.multipart, contentDisposition: nil, apiVersion: apiVersion.rawValue)
     }
 
     func dataForMultipartAssetUploadRequest(_ data: Data, shareable: Bool, retention: Retention) throws -> Data {

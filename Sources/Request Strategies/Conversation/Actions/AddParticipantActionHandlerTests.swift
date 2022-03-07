@@ -61,7 +61,7 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
             let action = AddParticipantAction(users: [self.user], conversation: self.conversation)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
 
             // then
             XCTAssertEqual(request.path, "/conversations/\(conversationID.transportString())/members")
@@ -78,7 +78,7 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
             let action = AddParticipantAction(users: [self.user], conversation: self.conversation)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
 
             // then
             XCTAssertEqual(request.path, "/conversations/\(conversationID)/members/v2")

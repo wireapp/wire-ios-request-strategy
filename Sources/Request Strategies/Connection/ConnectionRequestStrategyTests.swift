@@ -170,7 +170,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
         }
 
         // when
-        fetchConnection(connection, response: responseFailure(code: 403, label: .unknown))
+        fetchConnection(connection, response: responseFailure(code: 403, label: .unknown, apiVersion: .v0))
 
         // then
         self.syncMOC.performGroupedBlockAndWait {
@@ -187,7 +187,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
         }
 
         // when
-        fetchConnection(connection, response: responseFailure(code: 403, label: .unknown))
+        fetchConnection(connection, response: responseFailure(code: 403, label: .unknown, apiVersion: .v0))
 
         // then
         self.syncMOC.performGroupedBlockAndWait {
@@ -287,7 +287,7 @@ class ConnectionRequestStrategyTests: MessagingTestBase {
     func fetchConnectionsDuringSlowSyncWithPermanentError() {
         syncMOC.performGroupedBlockAndWait {
             let request = self.sut.nextRequest(for: .v0)!
-            request.complete(with: self.responseFailure(code: 404, label: .noEndpoint))
+            request.complete(with: self.responseFailure(code: 404, label: .noEndpoint, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }

@@ -23,15 +23,15 @@ class ConnectToUserActionHandler: ActionHandler<ConnectToUserAction>, Federation
     let decoder: JSONDecoder = .defaultDecoder
     let encoder: JSONEncoder = .defaultEncoder
 
-    override func request(for action: ActionHandler<ConnectToUserAction>.Action) -> ZMTransportRequest? {
+    override func request(for action: ActionHandler<ConnectToUserAction>.Action, apiVersion: APIVersion) -> ZMTransportRequest? {
         if useFederationEndpoint {
-            return federatedRequest(for: action)
+            return federatedRequest(for: action, apiVersion: apiVersion)
         } else {
-            return nonFederatedRequest(for: action)
+            return nonFederatedRequest(for: action, apiVersion: apiVersion)
         }
     }
 
-    func federatedRequest(for action: ActionHandler<ConnectToUserAction>.Action) -> ZMTransportRequest? {
+    func federatedRequest(for action: ActionHandler<ConnectToUserAction>.Action, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
             let domain  = action.domain
         else {
@@ -42,10 +42,10 @@ class ConnectToUserActionHandler: ActionHandler<ConnectToUserAction>, Federation
         return ZMTransportRequest(path: "/connections/\(domain)/\(action.userID.transportString())",
                                   method: .methodPOST,
                                   payload: nil,
-                                  apiVersion: APIVersion.v0.rawValue)
+                                  apiVersion: apiVersion.rawValue)
     }
 
-    func nonFederatedRequest(for action: ActionHandler<ConnectToUserAction>.Action) -> ZMTransportRequest? {
+    func nonFederatedRequest(for action: ActionHandler<ConnectToUserAction>.Action, apiVersion: APIVersion) -> ZMTransportRequest? {
         let payload = Payload.ConnectionRequest(userID: action.userID, name: "default")
 
         guard
@@ -59,7 +59,7 @@ class ConnectToUserActionHandler: ActionHandler<ConnectToUserAction>, Federation
         return ZMTransportRequest(path: "/connections",
                                   method: .methodPOST,
                                   payload: payloadAsString as ZMTransportData,
-                                  apiVersion: APIVersion.v0.rawValue)
+                                  apiVersion: apiVersion.rawValue)
 
     }
 

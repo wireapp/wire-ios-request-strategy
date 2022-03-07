@@ -211,7 +211,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             XCTAssertEqual(request.path, "/list-users")
 
             // when
-            request.complete(with: self.responseFailure(code: 404, label: .noEndpoint))
+            request.complete(with: self.responseFailure(code: 404, label: .noEndpoint, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -310,7 +310,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest(for: .v0)!
 
             // when
-            request.complete(with: self.responseFailure(code: 404, label: .notFound))
+            request.complete(with: self.responseFailure(code: 404, label: .notFound, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -328,7 +328,7 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
             let request = self.sut.nextRequest(for: .v0)!
 
             // when
-            request.complete(with: self.responseFailure(code: 404, label: .notFound))
+            request.complete(with: self.responseFailure(code: 404, label: .notFound, apiVersion: .v0))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 

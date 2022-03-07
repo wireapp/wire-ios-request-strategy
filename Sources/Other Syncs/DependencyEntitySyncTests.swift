@@ -54,7 +54,7 @@ class MockEntityTranscoder: EntityTranscoder {
     var requestForEntityDidCompleteWithResponseExpectation: XCTestExpectation?
     var shouldTryToResendAfterFailureExpectation: XCTestExpectation?
 
-    func request(forEntity entity: MockDependencyEntity) -> ZMTransportRequest? {
+    func request(forEntity entity: MockDependencyEntity, apiVersion: APIVersion) -> ZMTransportRequest? {
         requestForEntityExpectation?.fulfill()
         didCallRequestForEntityCount += 1
         return generatedRequest

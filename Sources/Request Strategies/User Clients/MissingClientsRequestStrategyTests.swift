@@ -62,7 +62,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.selfClient.missesClient(firstMissingClient)
             self.selfClient.missesClient(secondMissingClient)
 
-            let request = self.sut.requestsFactory.fetchPrekeys(for: self.selfClient.missingClients!)!
+            let request = self.sut.requestsFactory.fetchPrekeys(for: self.selfClient.missingClients!, apiVersion: .v0)!
 
             // THEN
             XCTAssertEqual(request.transportRequest.method, ZMTransportRequestMethod.methodPOST)
@@ -99,7 +99,7 @@ class MissingClientsRequestStrategyTests: MessagingTestBase {
             self.selfClient.missesClient(firstMissingClient)
             self.selfClient.missesClient(secondMissingClient)
 
-            let request = self.sut.requestsFactory.fetchPrekeysFederated(for: self.selfClient.missingClients!)!
+            let request = self.sut.requestsFactory.fetchPrekeysFederated(for: self.selfClient.missingClients!, apiVersion: .v0)!
 
             // THEN
             XCTAssertEqual(request.transportRequest.method, ZMTransportRequestMethod.methodPOST)
@@ -826,7 +826,7 @@ extension MissingClientsRequestStrategyTests {
         for missingClient in missingClients {
             self.selfClient.missesClient(missingClient)
         }
-        return sut.requestsFactory.fetchPrekeys(for: selfClient.missingClients!)!
+        return sut.requestsFactory.fetchPrekeys(for: selfClient.missingClients!, apiVersion: .v0)!
     }
 
     /// Creates a message missing a client
