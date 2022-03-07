@@ -52,7 +52,7 @@ extension APIVersion {
 
 extension APIVersion {
 
-    public static func highestCommonVersion(with versions: [Int32]) -> Self? {
+    public static func highestSupportedVersion(in versions: [Int32]) -> Self? {
         versions
             .compactMap { APIVersion(rawValue: Int32($0)) }
             .max()
