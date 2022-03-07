@@ -33,7 +33,7 @@
 
 @implementation FakeRequestGenerator
 
-- (ZMTransportRequest * _Nullable)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion {
+- (ZMTransportRequest * _Nullable)nextRequestForAPIVersion:(APIVersion)apiVersion {
     return _nextRequest;
 }
 
@@ -57,8 +57,8 @@
 - (void)setUp
 {
     [super setUp];
-    self.requestA = [ZMTransportRequest requestGetFromPath:@"/foo/A" apiVersion:v0];
-    self.requestB = [ZMTransportRequest requestGetFromPath:@"/bar/B" apiVersion:v0];
+    self.requestA = [ZMTransportRequest requestGetFromPath:@"/foo/A" apiVersion:0];
+    self.requestB = [ZMTransportRequest requestGetFromPath:@"/bar/B" apiVersion:0];
     self.generatorA = [[FakeRequestGenerator alloc] init];
     self.generatorB = [[FakeRequestGenerator alloc] init];
 }

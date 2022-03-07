@@ -83,7 +83,7 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy, ZMCont
 
     // MARK: - Overrides
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         return fetchAllConfigsSync.nextRequest(for: apiVersion) ?? fetchSingleConfigSync.nextRequest(for: apiVersion)
     }
 
@@ -99,7 +99,7 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
     }
 
     private func requestToFetchConfig(for feature: Feature) -> ZMTransportRequest? {
-        return ZMTransportRequest(getFromPath: "/feature-configs/\(feature.transportName)", apiVersion: .v0)
+        return ZMTransportRequest(getFromPath: "/feature-configs/\(feature.transportName)", apiVersion: APIVersion.v0.rawValue)
     }
 
     public func update(_ object: ZMManagedObject!, with response: ZMTransportResponse!, downstreamSync: ZMObjectSync!) {
@@ -164,7 +164,7 @@ extension FeatureConfigRequestStrategy: ZMSingleRequestTranscoder {
 
     private func requestToFetchAllFeatureConfigs() -> ZMTransportRequest? {
         guard let teamId = team?.remoteIdentifier?.transportString() else { return nil }
-        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features", apiVersion: .v0)
+        return ZMTransportRequest(getFromPath: "/teams/\(teamId)/features", apiVersion: APIVersion.v0.rawValue)
     }
 
     public func didReceive(_ response: ZMTransportResponse, forSingleRequest sync: ZMSingleRequestSync) {

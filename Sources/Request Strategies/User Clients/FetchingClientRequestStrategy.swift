@@ -85,7 +85,7 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
         }
     }
 
-    public override func nextRequestIfAllowed(for apiVersion: ZMAPIVersion) -> ZMTransportRequest? {
+    public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         return
             userClientsByUserClientID.nextRequest(for: apiVersion) ??
             userClientsByUserID.nextRequest(for: apiVersion) ??
@@ -166,7 +166,7 @@ final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
         guard let identifier = identifiers.first else { return nil }
 
         // GET /users/<user-id>/clients/<client-id>
-        return ZMTransportRequest(path: "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)", method: .methodGET, payload: nil, apiVersion: .v0)
+        return ZMTransportRequest(path: "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)", method: .methodGET, payload: nil, apiVersion: APIVersion.v0.rawValue)
     }
 
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UserClientID>) {
@@ -225,7 +225,7 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
 
         // POST /users/list-clients
         let path = NSString.path(withComponents: ["/users/list-clients"])
-        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?, apiVersion: .v0)
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?, apiVersion: APIVersion.v0.rawValue)
     }
 
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
@@ -294,7 +294,7 @@ final class UserClientByUserIDTranscoder: IdentifierObjectSyncTranscoder {
 
         // GET /users/<user-id>/clients
         let path = NSString.path(withComponents: ["/users", "\(userId)", "clients"])
-        return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: .v0)
+        return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: APIVersion.v0.rawValue)
     }
 
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UUID>) {

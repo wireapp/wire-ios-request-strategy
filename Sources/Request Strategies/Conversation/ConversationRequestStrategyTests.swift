@@ -1029,7 +1029,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
                                            httpStatus: 200,
                                            transportSessionError: nil,
-                                           apiVersion: .v0)
+                                           apiVersion: APIVersion.v0.rawValue)
 
         return response
     }
@@ -1045,7 +1045,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
                                            httpStatus: 200,
                                            transportSessionError: nil,
-                                           apiVersion: .v0)
+                                           apiVersion: APIVersion.v0.rawValue)
 
         return response
     }

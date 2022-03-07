@@ -25,7 +25,7 @@
 
 @implementation NSArray (ZMRequestGeneratorSource)
 
-- (ZMTransportRequest *)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion;
+- (ZMTransportRequest *)nextRequestForAPIVersion:(APIVersion)apiVersion;
 {
     for (uint i = 0; i < self.count; i++) {
         ZMTransportRequest *request = [[self objectAtIndex:i] nextRequestForAPIVersion:apiVersion];

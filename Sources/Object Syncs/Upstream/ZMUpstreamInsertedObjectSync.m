@@ -157,7 +157,7 @@ static NSString* ZMLogTag = @"Network";
     }];
 }
 
-- (ZMTransportRequest *)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion;
+- (ZMTransportRequest *)nextRequestForAPIVersion:(APIVersion)apiVersion;
 {
     return [self processNextInsert];
 }

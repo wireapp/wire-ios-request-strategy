@@ -196,7 +196,7 @@ ZM_EMPTY_ASSERTING_INIT();
     [self.updatedObjects addPossibleObjectToSynchronize:mo];
 }
 
-- (ZMTransportRequest *)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion;
+- (ZMTransportRequest *)nextRequestForAPIVersion:(APIVersion)apiVersion;
 {
     return [self processNextUpdate];
 }

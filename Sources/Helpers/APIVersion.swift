@@ -19,7 +19,7 @@ import Foundation
 
 // MARK: - Current
 
-extension ZMAPIVersion {
+extension APIVersion {
 
     private static let key = "currentAPIVersion"
 
@@ -38,7 +38,7 @@ extension ZMAPIVersion {
             // so explicitly check there is a value.
             guard UserDefaults.standard.hasValue(for: key) else { return nil }
             let storedValue = UserDefaults.standard.integer(forKey: key)
-            return ZMAPIVersion(rawValue: storedValue)
+            return APIVersion(rawValue: Int32(storedValue))
         }
 
         set {
@@ -48,12 +48,14 @@ extension ZMAPIVersion {
 
 }
 
-// MARK: - Comparable
+// MARK: - Find the highest common version
 
-extension ZMAPIVersion: Comparable {
+extension APIVersion {
 
-    public static func < (lhs: Self, rhs: Self) -> Bool {
-        return lhs.rawValue < rhs.rawValue
+    public static func highestSupportedVersion(in versions: [Int32]) -> Self? {
+        versions
+            .compactMap { APIVersion(rawValue: Int32($0)) }
+            .max()
     }
 
 }

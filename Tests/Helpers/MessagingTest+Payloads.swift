@@ -63,7 +63,7 @@ extension MessagingTestBase {
         let response = ZMTransportResponse(payload: payloadString as ZMTransportData,
                                            httpStatus: code,
                                            transportSessionError: nil,
-                                           apiVersion: .v0)
+                                           apiVersion: APIVersion.v0.rawValue)
 
         return response
 

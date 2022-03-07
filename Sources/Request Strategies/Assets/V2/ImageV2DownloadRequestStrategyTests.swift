@@ -187,7 +187,7 @@ class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
             let nonceAndConversation = (message.nonce!, message.conversation!)
 
             // WHEN
-            let response = ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: .v0)
+            let response = ZMTransportResponse(payload: nil, httpStatus: 404, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue)
             self.sut.delete(message, with: response, downstreamSync: nil)
 
             // THEN
@@ -226,7 +226,7 @@ class ImageV2DownloadRequestStrategyTests: MessagingTestBase {
         syncMOC.performGroupedBlock {
             // WHEN
             let request = self.sut.nextRequest(for: .v0)
-            request?.complete(with: ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: nil, headers: nil, apiVersion: .v0))
+            request?.complete(with: ZMTransportResponse(imageData: encryptedData, httpStatus: 200, transportSessionError: nil, headers: nil, apiVersion: APIVersion.v0.rawValue))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 

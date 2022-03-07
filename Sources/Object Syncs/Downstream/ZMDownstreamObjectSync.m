@@ -127,7 +127,7 @@
     }
 }
 
-- (ZMTransportRequest *)nextRequestForAPIVersion:(ZMAPIVersion)apiVersion;
+- (ZMTransportRequest *)nextRequestForAPIVersion:(APIVersion)apiVersion;
 {
     id<ZMDownstreamTranscoder> transcoder = self.transcoder;
 
