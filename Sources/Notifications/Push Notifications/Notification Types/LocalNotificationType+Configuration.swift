@@ -43,6 +43,8 @@ extension LocalNotificationType {
             }
         case .failedMessage, .availabilityBehaviourChangeAlert:
             return .newMessage
+        case .bundledMessages:
+            return .newMessage
         }
     }
 
@@ -62,6 +64,8 @@ private extension PushNotificationCategory {
             self = .conversation
         case .availabilityBehaviourChangeAlert:
             self = .alert
+        case .bundledMessages:
+            self = .conversation
         }
     }
 

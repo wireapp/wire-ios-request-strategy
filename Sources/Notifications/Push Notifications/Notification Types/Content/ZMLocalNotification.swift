@@ -33,6 +33,7 @@ public enum LocalNotificationType {
     case message(LocalNotificationContentType)
     case failedMessage
     case availabilityBehaviourChangeAlert(AvailabilityKind)
+    case bundledMessages
 }
 
 /// A notification builder provides the main components used to configure
@@ -219,6 +220,15 @@ extension LocalNotificationType {
         default:
             return false
         }
+    }
+
+}
+
+extension ZMLocalNotification {
+
+    public static func bundledMessages(count: Int, in context: NSManagedObjectContext) -> ZMLocalNotification? {
+        let builder = BundledMessagesNotificationBuilder(messageCount: count)
+        return ZMLocalNotification(builder: builder, moc: context)
     }
 
 }
