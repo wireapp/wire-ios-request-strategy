@@ -17,7 +17,6 @@
 
 import Foundation
 
-
 // MARK: - Conversation
 
 extension Payload.ConversationMember {
