@@ -22,7 +22,6 @@ public class ConnectionRequestStrategy: AbstractRequestStrategy, FederationAware
     public var useFederationEndpoint: Bool = false {
         didSet {
             connectToUserActionHandler.useFederationEndpoint = useFederationEndpoint
-            updateConnectionActionHandler.useFederationEndpoint = useFederationEndpoint
         }
     }
 

@@ -57,16 +57,15 @@ class UpdateConnectionActionHandlerTests: MessagingTestBase {
     func testThatItCreatesARequestForUpdatingConnection_Federated() throws {
         try syncMOC.performGroupedAndWait { _ in
             // given
-            self.sut.useFederationEndpoint = true
             let userID = self.oneToOneConversation.connection!.to.qualifiedID!
             let action = UpdateConnectionAction(connection: self.oneToOneConversation.connection!,
                                                 newStatus: .cancelled)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v1))
 
             // then
-            XCTAssertEqual(request.path, "/connections/\(userID.domain)/\(userID.uuid.transportString())")
+            XCTAssertEqual(request.path, "/v1/connections/\(userID.domain)/\(userID.uuid.transportString())")
             XCTAssertEqual(request.method, .methodPUT)
             let payload = Payload.ConnectionUpdate(request)
             XCTAssertEqual(payload?.status, .cancelled)
