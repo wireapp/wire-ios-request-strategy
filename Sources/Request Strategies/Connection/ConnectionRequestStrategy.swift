@@ -19,11 +19,7 @@ import Foundation
 
 public class ConnectionRequestStrategy: AbstractRequestStrategy, FederationAware, ZMRequestGeneratorSource, ZMContextChangeTrackerSource {
 
-    public var useFederationEndpoint: Bool = false {
-        didSet {
-            connectToUserActionHandler.useFederationEndpoint = useFederationEndpoint
-        }
-    }
+    public var useFederationEndpoint: Bool = false
 
     let eventsToProcess: [ZMUpdateEventType] = [
         .userConnection

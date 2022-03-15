@@ -57,16 +57,15 @@ class ConnectToUserActionHandlerTests: MessagingTestBase {
     func testThatItCreatesARequestForConnectingToUser_Federated() throws {
         try syncMOC.performGroupedAndWait { _ in
             // given
-            self.sut.useFederationEndpoint = true
             let userID = UUID()
             let domain = self.owningDomain
             let action = ConnectToUserAction(userID: userID, domain: domain)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v1))
 
             // then
-            XCTAssertEqual(request.path, "/connections/\(domain)/\(userID.transportString())")
+            XCTAssertEqual(request.path, "/v1/connections/\(domain)/\(userID.transportString())")
             XCTAssertEqual(request.method, .methodPOST)
         }
     }
