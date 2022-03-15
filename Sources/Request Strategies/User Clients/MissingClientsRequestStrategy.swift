@@ -20,20 +20,10 @@ import Foundation
 
 /// Register new client, update it with new keys, deletes clients.
 @objc
-public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, ZMContextChangeTrackerSource, FederationAware {
+public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, ZMContextChangeTrackerSource {
 
-    var isFederationEndpointAvailable: Bool = false
     fileprivate(set) var modifiedSync: ZMUpstreamModifiedObjectSync! = nil
     public var requestsFactory = MissingClientsRequestFactory()
-
-    public var useFederationEndpoint: Bool {
-        get {
-            isFederationEndpointAvailable
-        }
-        set {
-            isFederationEndpointAvailable = newValue
-        }
-    }
 
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
@@ -96,11 +86,6 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
                                              response: ZMTransportResponse,
                                              keysToParse keys: Set<String>) -> Bool {
 
-        if response.httpStatus == 404 {
-            isFederationEndpointAvailable = false
-            return true
-        }
-
         return false
     }
 
@@ -115,10 +100,12 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
         else { fatal("no missing clients found") }
 
         let request: ZMUpstreamRequest?
-        if isFederationEndpointAvailable {
-            request = requestsFactory.fetchPrekeysFederated(for: missing, apiVersion: apiVersion)
-        } else {
+
+        switch apiVersion {
+        case .v0:
             request = requestsFactory.fetchPrekeys(for: missing, apiVersion: apiVersion)
+        case .v1:
+            request = requestsFactory.fetchPrekeysFederated(for: missing, apiVersion: apiVersion)
         }
 
         request?.transportRequest.forceToVoipSession()
@@ -131,19 +118,25 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
                                     response: ZMTransportResponse,
                                     keysToParse: Set<String>) -> Bool {
 
+        guard let apiVersion = APIVersion(rawValue: response.apiVersion) else {
+            return false
+        }
+
         if keysToParse.contains(ZMUserClientMissingKey) {
-            if isFederationEndpointAvailable {
+            switch apiVersion {
+            case .v0:
                 guard let rawData = response.rawData,
-                      let prekeys = Payload.PrekeyByQualifiedUserID(rawData),
+                      let prekeys = Payload.PrekeyByUserID(rawData),
                       let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
                 else {
                     return false
                 }
 
                 return prekeys.establishSessions(with: selfClient, context: managedObjectContext)
-            } else {
+
+            case .v1:
                 guard let rawData = response.rawData,
-                      let prekeys = Payload.PrekeyByUserID(rawData),
+                      let prekeys = Payload.PrekeyByQualifiedUserID(rawData),
                       let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
                 else {
                     return false
