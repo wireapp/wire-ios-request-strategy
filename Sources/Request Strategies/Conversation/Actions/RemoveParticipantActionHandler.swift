@@ -30,15 +30,14 @@ extension ConversationRemoveParticipantError {
 
 }
 
-class RemoveParticipantActionHandler: ActionHandler<RemoveParticipantAction>, FederationAware {
-
-    var useFederationEndpoint: Bool = false
+class RemoveParticipantActionHandler: ActionHandler<RemoveParticipantAction> {
 
     override func request(for action: RemoveParticipantAction, apiVersion: APIVersion) -> ZMTransportRequest? {
-        if useFederationEndpoint {
-            return federatedRequest(for: action, apiVersion: apiVersion)
-        } else {
+        switch apiVersion {
+        case .v0:
             return nonFederatedRequest(for: action, apiVersion: apiVersion)
+        case .v1:
+            return federatedRequest(for: action, apiVersion: apiVersion)
         }
     }
 
@@ -46,6 +45,7 @@ class RemoveParticipantActionHandler: ActionHandler<RemoveParticipantAction>, Fe
         var action = action
 
         guard
+            apiVersion == .v0,
             let conversation = ZMConversation.existingObject(for: action.conversationID, in: context),
             let conversationID = conversation.remoteIdentifier?.transportString(),
             let user = ZMUser.existingObject(for: action.userID, in: context),
@@ -64,6 +64,7 @@ class RemoveParticipantActionHandler: ActionHandler<RemoveParticipantAction>, Fe
         var action = action
 
         guard
+            apiVersion > .v0,
             let conversation = ZMConversation.existingObject(for: action.conversationID, in: context),
             let conversationID = conversation.qualifiedID,
             let user: ZMUser = ZMUser.existingObject(for: action.userID, in: context),
