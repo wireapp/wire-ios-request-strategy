@@ -86,16 +86,18 @@ public final class ClientMessageRequestFactory: NSObject {
         )
     }
 
-    public func upstreamRequestForMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, useFederationEndpoint: Bool, apiVersion: APIVersion) -> ZMTransportRequest? {
-        if useFederationEndpoint {
-            return upstreamRequestForQualifiedEncryptedMessage(message, in: conversation, apiVersion: apiVersion)
-        } else {
+    public func upstreamRequestForMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, apiVersion: APIVersion) -> ZMTransportRequest? {
+        switch apiVersion {
+        case .v0:
             return upstreamRequestForEncryptedMessage(message, in: conversation, apiVersion: apiVersion)
+        case .v1:
+            return upstreamRequestForQualifiedEncryptedMessage(message, in: conversation, apiVersion: apiVersion)
         }
     }
 
     fileprivate func upstreamRequestForEncryptedMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
+            apiVersion == .v0,
             let conversationID = conversation.remoteIdentifier?.transportString()
         else {
             return nil
@@ -111,6 +113,7 @@ public final class ClientMessageRequestFactory: NSObject {
 
     fileprivate func upstreamRequestForQualifiedEncryptedMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
+            apiVersion > .v0,
             let context = conversation.managedObjectContext,
             let conversationID = conversation.remoteIdentifier?.transportString(),
             let domain = conversation.domain ?? ZMUser.selfUser(in: context).domain

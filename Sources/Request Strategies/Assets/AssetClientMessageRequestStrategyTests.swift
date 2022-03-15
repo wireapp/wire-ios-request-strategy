@@ -37,7 +37,7 @@ fileprivate extension AssetClientMessageRequestStrategy {
     }
 
     @discardableResult func assertCreatesValidRequestForAsset(in conversation: ZMConversation, line: UInt = #line) -> ZMTransportRequest! {
-        guard let request = nextRequest(for: .v0) else {
+        guard let request = nextRequest(for: .v1) else {
             XCTFail("No request generated", line: line)
             return nil
         }
@@ -45,7 +45,7 @@ fileprivate extension AssetClientMessageRequestStrategy {
         let domain = conversation.domain!
         let conversationID = conversation.remoteIdentifier!.transportString()
 
-        XCTAssertEqual(request.path, "/conversations/\(domain)/\(conversationID)/proteus/messages", line: line)
+        XCTAssertEqual(request.path, "/v1/conversations/\(domain)/\(conversationID)/proteus/messages", line: line)
         XCTAssertEqual(request.method, .methodPOST, line: line)
         return request
     }
@@ -76,7 +76,6 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
 
         self.syncMOC.performGroupedBlockAndWait {
             self.sut = AssetClientMessageRequestStrategy(withManagedObjectContext: self.syncMOC, applicationStatus: self.mockApplicationStatus)
-            self.sut.useFederationEndpoint = false
         }
     }
 
@@ -243,7 +242,6 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
     func testThatItCreatesARequestForAnUploadedImageMessage_WithFederationEndpointEnabled() {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
-            self.sut.useFederationEndpoint = true
             self.createMessage(uploaded: true, assetId: true)
 
             // THEN

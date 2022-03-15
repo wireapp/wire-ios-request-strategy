@@ -32,11 +32,10 @@ class ProteusMessageSyncTests: MessagingTestBase {
 
         mockApplicationStatus = MockApplicationStatus()
         sut = ProteusMessageSync<MockOTREntity>(context: syncMOC, applicationStatus: mockApplicationStatus)
-        sut.isFederationEndpointAvailable = true
 
         syncMOC.performGroupedBlockAndWait { [self] in
             otherUser.domain = domain
-            qualifiedEndpoint = "/conversations/\(domain)/\(groupConversation.remoteIdentifier!.transportString())/proteus/messages"
+            qualifiedEndpoint = "/v1/conversations/\(domain)/\(groupConversation.remoteIdentifier!.transportString())/proteus/messages"
             legacyEndpoint = "/conversations/\(groupConversation.remoteIdentifier!.transportString())/otr/messages"
         }
     }
@@ -126,25 +125,6 @@ class ProteusMessageSyncTests: MessagingTestBase {
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
     }
 
-    func testThatItRetriesTheRequest_WhenQualifiedEndpointIsNotAvailble() throws {
-        syncMOC.performGroupedBlockAndWait { [self] in
-            // given
-            let message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
-            sut.sync(message) { (_, _) in }
-
-            // when
-            let payload = Payload.ResponseFailure(code: 404, label: .noEndpoint, message: "")
-            let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest(for: .v0)?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: payload.code, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue))
-        }
-        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-
-        syncMOC.performGroupedBlockAndWait { [self] in
-            // then
-            XCTAssertEqual(sut.nextRequest(for: .v0)?.path, legacyEndpoint)
-        }
-    }
-
     func testThatItRetriesTheRequest_WhenResponseSaysItsATemporaryError() throws {
         syncMOC.performGroupedBlockAndWait { [self] in
             // given
@@ -152,13 +132,13 @@ class ProteusMessageSyncTests: MessagingTestBase {
             sut.sync(message) { (_, _) in }
 
             // when
-            sut.nextRequest(for: .v0)?.complete(with: ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError(), apiVersion: APIVersion.v0.rawValue))
+            sut.nextRequest(for: .v1)?.complete(with: ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError(), apiVersion: APIVersion.v1.rawValue))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         syncMOC.performGroupedBlockAndWait { [self] in
             // then
-            XCTAssertEqual(sut.nextRequest(for: .v0)?.path, qualifiedEndpoint)
+            XCTAssertEqual(sut.nextRequest(for: .v1)?.path, qualifiedEndpoint)
         }
     }
 
@@ -180,13 +160,13 @@ class ProteusMessageSyncTests: MessagingTestBase {
                                                        deleted: [:],
                                                        failedToSend: [:])
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest(for: .v0)?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 412, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue))
+            sut.nextRequest(for: .v1)?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 412, transportSessionError: nil, apiVersion: APIVersion.v1.rawValue))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         syncMOC.performGroupedBlockAndWait { [self] in
             // then
-            XCTAssertEqual(sut.nextRequest(for: .v0)?.path, qualifiedEndpoint)
+            XCTAssertEqual(sut.nextRequest(for: .v1)?.path, qualifiedEndpoint)
         }
     }
 

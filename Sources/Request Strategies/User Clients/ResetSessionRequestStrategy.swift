@@ -18,19 +18,10 @@
 
 import Foundation
 
-public class ResetSessionRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
+public class ResetSessionRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
 
     fileprivate let keyPathSync: KeyPathObjectSync<ResetSessionRequestStrategy>
     fileprivate let messageSync: ProteusMessageSync<GenericMessageEntity>
-
-    public var useFederationEndpoint: Bool {
-        get {
-            messageSync.isFederationEndpointAvailable
-        }
-        set {
-            messageSync.isFederationEndpointAvailable = newValue
-        }
-    }
 
     public init(managedObjectContext: NSManagedObjectContext,
                 applicationStatus: ApplicationStatus,

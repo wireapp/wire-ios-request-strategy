@@ -31,7 +31,6 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             self.applicationStatus = MockApplicationStatus()
             self.applicationStatus.mockSynchronizationState = .online
             self.sut = LinkPreviewUpdateRequestStrategy(withManagedObjectContext: syncMOC, applicationStatus: self.applicationStatus)
-            self.sut.useFederationEndpoint = true
         }
     }
 
@@ -90,7 +89,6 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
     func testThatItDoesCreateARequestInState_Uploaded_WhenFederationEndpointIsDisabled() {
         self.syncMOC.performGroupedAndWait { _ in
             // Given
-            self.sut.useFederationEndpoint = false
             let message = self.insertMessage(with: .uploaded)
 
             // When
@@ -117,7 +115,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             guard let request = self.verifyItCreatesARequest(in: self.groupConversation) else { return }
 
             // When
-            let response = ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError(), apiVersion: APIVersion.v0.rawValue)
+            let response = ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError(), apiVersion: APIVersion.v1.rawValue)
             request.complete(with: response)
         }
         self.syncMOC.performGroupedAndWait { _ in
@@ -150,13 +148,13 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
             let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
                                                httpStatus: 201,
                                                transportSessionError: nil,
-                                               apiVersion: APIVersion.v0.rawValue)
+                                               apiVersion: APIVersion.v1.rawValue)
             request.complete(with: response)
         }
         self.syncMOC.performGroupedAndWait { _ in
             // Then
             XCTAssertEqual(message.linkPreviewState, .done)
-            XCTAssertNil(self.sut.nextRequest(for: .v0))
+            XCTAssertNil(self.sut.nextRequest(for: .v1))
         }
     }
 
@@ -187,12 +185,12 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
 
     @discardableResult
     func verifyItCreatesARequest(in conversation: ZMConversation, file: StaticString = #file, line: UInt = #line) -> ZMTransportRequest? {
-        let request = sut.nextRequest(for: .v0)
+        let request = sut.nextRequest(for: .v1)
         let conversationID = conversation.remoteIdentifier!.transportString()
         let domain = conversation.domain!
         XCTAssertNotNil(request, "No request generated", file: file, line: line)
         XCTAssertEqual(request?.method, .methodPOST, file: file, line: line)
-        XCTAssertEqual(request?.path, "/conversations/\(domain)/\(conversationID)/proteus/messages", file: file, line: line)
+        XCTAssertEqual(request?.path, "/v1/conversations/\(domain)/\(conversationID)/proteus/messages", file: file, line: line)
         return request
     }
 

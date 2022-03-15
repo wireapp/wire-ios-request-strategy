@@ -237,7 +237,6 @@ extension ClientMessageRequestStrategyTests {
             let text = "Lorem ipsum"
             let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
             self.syncMOC.saveOrRollback()
-            self.sut.useFederationEndpoint = false
 
             // WHEN
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
@@ -268,17 +267,16 @@ extension ClientMessageRequestStrategyTests {
             let conversationID = self.groupConversation.remoteIdentifier!.transportString()
             let conversationDomain = self.groupConversation.domain!
             self.syncMOC.saveOrRollback()
-            self.sut.useFederationEndpoint = true
 
             // WHEN
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }
-            guard let request = self.sut.nextRequest(for: .v0) else {
+            guard let request = self.sut.nextRequest(for: .v1) else {
                 XCTFail("Request is nil")
                 return
             }
 
             // THEN
-            XCTAssertEqual(request.path, "/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
+            XCTAssertEqual(request.path, "/v1/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
             XCTAssertEqual(request.method, .methodPOST)
             XCTAssertNotNil(request.binaryData)
             XCTAssertEqual(request.binaryDataType, "application/x-protobuf")
@@ -292,7 +290,6 @@ extension ClientMessageRequestStrategyTests {
             let text = String(repeating: "Hi", count: 100000)
             let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
             self.syncMOC.saveOrRollback()
-            self.sut.useFederationEndpoint = false
 
             // WHEN
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([message])) }

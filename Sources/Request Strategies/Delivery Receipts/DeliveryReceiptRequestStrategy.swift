@@ -44,18 +44,9 @@ extension ZMUpdateEvent {
 }
 
 @objcMembers
-public final class DeliveryReceiptRequestStrategy: AbstractRequestStrategy, FederationAware {
+public final class DeliveryReceiptRequestStrategy: AbstractRequestStrategy {
 
     private let messageSync: ProteusMessageSync<GenericMessageEntity>
-
-    public var useFederationEndpoint: Bool {
-        get {
-            messageSync.isFederationEndpointAvailable
-        }
-        set {
-            messageSync.isFederationEndpointAvailable = newValue
-        }
-    }
 
     // MARK: - Init
 
