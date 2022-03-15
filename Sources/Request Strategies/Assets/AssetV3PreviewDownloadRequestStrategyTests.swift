@@ -135,7 +135,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
     func testThatItGeneratesAnExpectedV3RequestForAFileMessageWithPreviewThatHasNotBeenDownloadedYet_whenFederationIsNotEnabled() {
         // GIVEN
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
-        sut.useFederationEndpoint = false
+
         self.syncMOC.performGroupedBlockAndWait {
 
             let (message, _, _, _) = self.createMessage(in: self.conversation)!
@@ -168,7 +168,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // GIVEN
         var message: ZMAssetClientMessage!
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
-        sut.useFederationEndpoint = false
+
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(in: self.conversation)!.message
             let preview = self.createPreview(with: message.nonce!)
@@ -207,7 +207,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
     func testThatItGeneratesAnExpectedV4RequestForAFileMessageWithPreviewThatHasNotBeenDownloadedYet_whenFederationIsEnabled() {
         // GIVEN
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
-        sut.useFederationEndpoint = true
+
         self.syncMOC.performGroupedBlockAndWait {
 
             let (message, _, _, _) = self.createMessage(in: self.conversation)!
@@ -228,10 +228,10 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         self.syncMOC.performGroupedBlockAndWait {
-            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
+            guard let request = self.sut.nextRequest(for: .v1) else { return XCTFail("No request generated") }
 
             // THEN
-            XCTAssertEqual(request.path, "/assets/v4/\(previewMeta.domain)/\(previewMeta.assetId)")
+            XCTAssertEqual(request.path, "/v1/assets/v4/\(previewMeta.domain)/\(previewMeta.assetId)")
             XCTAssertEqual(request.method, .methodGET)
         }
     }
@@ -240,7 +240,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // GIVEN
         var message: ZMAssetClientMessage!
         var previewMeta: AssetV3PreviewDownloadRequestStrategyTests.PreviewMeta!
-        sut.useFederationEndpoint = true
+
         self.syncMOC.performGroupedBlockAndWait {
             message = self.createMessage(in: self.conversation)!.message
             let preview = self.createPreview(with: message.nonce!)
@@ -260,8 +260,8 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // THEN
         self.syncMOC.performGroupedBlockAndWait {
 
-            guard let request = self.sut.nextRequest(for: .v0) else { return XCTFail("No request generated") }
-            XCTAssertEqual(request.path, "/assets/v4/\(previewMeta.domain)/\(previewMeta.assetId)")
+            guard let request = self.sut.nextRequest(for: .v1) else { return XCTFail("No request generated") }
+            XCTAssertEqual(request.path, "/v1/assets/v4/\(previewMeta.domain)/\(previewMeta.assetId)")
             XCTAssertEqual(request.method, .methodGET)
 
             // WHEN
@@ -272,7 +272,7 @@ class AssetV3PreviewDownloadRequestStrategyTests: MessagingTestBase {
         // THEN
         self.syncMOC.performGroupedBlockAndWait {
 
-            XCTAssertNil(self.sut.nextRequest(for: .v0))
+            XCTAssertNil(self.sut.nextRequest(for: .v1))
         }
     }
 

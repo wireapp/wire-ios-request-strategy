@@ -115,8 +115,6 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         text.linkPreview.append(linkPreview)
         let genericMessage = GenericMessage(content: text, nonce: nonce)
 
-        sut.useFederationEndpoint = false
-
         self.syncMOC.performGroupedAndWait { syncMOC in
             let message = try! self.oneToOneconversationOnSync.appendClientMessage(with: genericMessage)
             _ = try? syncMOC.obtainPermanentIDs(for: [message])
@@ -146,8 +144,6 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
             let message = try! self.oneToOneconversationOnSync.appendClientMessage(with: genericMessage)
             _ = try? syncMOC.obtainPermanentIDs(for: [message])
 
-            self.sut.useFederationEndpoint = false
-
             // WHEN
             message.textMessageData?.requestLinkPreviewImageDownload()
         }
@@ -170,8 +166,6 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         text.linkPreview.append(linkPreview)
         let genericMessage = GenericMessage(content: text, nonce: nonce)
 
-        sut.useFederationEndpoint = true
-
         self.syncMOC.performGroupedAndWait { syncMOC in
             let message = try! self.oneToOneconversationOnSync.appendClientMessage(with: genericMessage)
             _ = try? syncMOC.obtainPermanentIDs(for: [message])
@@ -181,10 +175,10 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
-            XCTAssertEqual(request.path, "/assets/v4/\(assetDomain)/\(assetID)")
+            guard let request = self.sut.nextRequest(for: .v1) else { XCTFail("No request generated"); return }
+            XCTAssertEqual(request.path, "/v1/assets/v4/\(assetDomain)/\(assetID)")
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
-            XCTAssertNil(self.sut.nextRequest(for: .v0))
+            XCTAssertNil(self.sut.nextRequest(for: .v1))
         }
     }
 
@@ -202,17 +196,15 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
             let message = try! self.oneToOneconversationOnSync.appendClientMessage(with: genericMessage)
             _ = try? syncMOC.obtainPermanentIDs(for: [message])
 
-            self.sut.useFederationEndpoint = true
-
             // WHEN
             message.textMessageData?.requestLinkPreviewImageDownload()
         }
         self.syncMOC.performGroupedAndWait { _ in
             // THEN
-            guard let request = self.sut.nextRequest(for: .v0) else { XCTFail("No request generated"); return }
-            XCTAssertEqual(request.path, "/assets/v4/\(assetDomain)/\(assetID)")
+            guard let request = self.sut.nextRequest(for: .v1) else { XCTFail("No request generated"); return }
+            XCTAssertEqual(request.path, "/v1/assets/v4/\(assetDomain)/\(assetID)")
             XCTAssertEqual(request.method, ZMTransportRequestMethod.methodGET)
-            XCTAssertNil(self.sut.nextRequest(for: .v0))
+            XCTAssertNil(self.sut.nextRequest(for: .v1))
         }
     }
 
