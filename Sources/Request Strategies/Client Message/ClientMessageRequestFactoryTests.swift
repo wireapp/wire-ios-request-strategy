@@ -158,11 +158,13 @@ extension ClientMessageRequestFactoryTests {
             // WHEN
             let request = ClientMessageRequestFactory().upstreamRequestForFetchingClients(
                 conversationId: conversationID,
-                selfClient: self.selfClient
+                domain: nil,
+                selfClient: self.selfClient,
+                apiVersion: .v0
             )
 
             guard let data = request?.binaryData else {
-                return XCTFail()
+                return XCTFail("request has no data")
             }
 
             let message = try? Proteus_NewOtrMessage(serializedData: data)
@@ -191,11 +193,12 @@ extension ClientMessageRequestFactoryTests {
             let request = ClientMessageRequestFactory().upstreamRequestForFetchingClients(
                 conversationId: conversationID,
                 domain: domain,
-                selfClient: self.selfClient
+                selfClient: self.selfClient,
+                apiVersion: .v1
             )
 
             guard let data = request?.binaryData else {
-                return XCTFail()
+                return XCTFail("request has no data")
             }
 
             let message = try? Proteus_QualifiedNewOtrMessage(serializedData: data)
@@ -203,7 +206,7 @@ extension ClientMessageRequestFactoryTests {
             // THEN
             XCTAssertNotNil(request)
             XCTAssertNotNil(message)
-            XCTAssertEqual(request?.path, "/conversations/\(domain)/\(conversationID.transportString())/proteus/messages")
+            XCTAssertEqual(request?.path, "/v1/conversations/\(domain)/\(conversationID.transportString())/proteus/messages")
             XCTAssertEqual(message, expectedMessage)
         }
     }
