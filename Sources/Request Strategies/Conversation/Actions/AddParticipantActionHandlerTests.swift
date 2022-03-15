@@ -73,15 +73,14 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
     func testThatItCreatesARequestForAddingAParticipant_Federated() throws {
         try syncMOC.performGroupedAndWait { _ in
             // given
-            self.sut.useFederationEndpoint = true
             let conversationID = self.conversation.remoteIdentifier!
             let action = AddParticipantAction(users: [self.user], conversation: self.conversation)
 
             // when
-            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v0))
+            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v1))
 
             // then
-            XCTAssertEqual(request.path, "/conversations/\(conversationID)/members/v2")
+            XCTAssertEqual(request.path, "/v1/conversations/\(conversationID)/members/v2")
             let payload = Payload.ConversationAddMember(request)
             XCTAssertEqual(payload?.qualifiedUserIDs, [self.user.qualifiedID!])
         }

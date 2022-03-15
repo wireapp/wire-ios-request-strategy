@@ -79,7 +79,6 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
     public var useFederationEndpoint: Bool = true {
         didSet {
             conversationByQualifiedIDTranscoder.isAvailable = useFederationEndpoint
-            addParticipantActionHandler.useFederationEndpoint = useFederationEndpoint
             removeParticipantActionHandler.useFederationEndpoint = useFederationEndpoint
         }
     }
