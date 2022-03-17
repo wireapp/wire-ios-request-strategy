@@ -23,7 +23,7 @@ import Foundation
 /// - During the `.fetchingUsers` slow sync phase.
 /// - When a user is marked as `needsToBeUpdatedFromBackend`.
 ///
-public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncDelegate, FederationAware {
+public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObjectSyncDelegate {
 
     var isFetchingAllConnectedUsers: Bool = false
     let syncProgress: SyncProgress
@@ -33,15 +33,6 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
 
     let userProfileByIDTranscoder: UserProfileByIDTranscoder
     let userProfileByQualifiedIDTranscoder: UserProfileByQualifiedIDTranscoder
-
-    public var useFederationEndpoint: Bool {
-        get {
-            userProfileByQualifiedIDTranscoder.isAvailable
-        }
-        set {
-            userProfileByQualifiedIDTranscoder.isAvailable = newValue
-        }
-    }
 
     public init(managedObjectContext: NSManagedObjectContext,
                 applicationStatus: ApplicationStatus,
@@ -66,26 +57,14 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
     }
 
     public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
-        fetchAllConnectedUsers()
-
+        fetchAllConnectedUsers(for: apiVersion)
         return userProfileByQualifiedID.nextRequest(for: apiVersion) ?? userProfileByID.nextRequest(for: apiVersion)
     }
 
-    func fetch(_ users: Set<ZMUser>) {
-        let users = users.filter({ !$0.isSelfUser })
-        guard !users.isEmpty else { return }
-
-        if userProfileByQualifiedID.isAvailable, let qualifiedUserIDs = users.qualifiedUserIDs {
-            userProfileByQualifiedID.sync(identifiers: qualifiedUserIDs)
-        } else {
-            userProfileByID.sync(identifiers: users.compactMap(\.remoteIdentifier))
-        }
-
-    }
-
-    func fetchAllConnectedUsers() {
-        guard syncProgress.currentSyncPhase == .fetchingUsers,
-              !isFetchingAllConnectedUsers
+    func fetchAllConnectedUsers(for apiVersion: APIVersion) {
+        guard
+            syncProgress.currentSyncPhase == .fetchingUsers,
+            !isFetchingAllConnectedUsers
         else {
             return
         }
@@ -95,7 +74,7 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
         if allConnectedUsers.isEmpty {
             syncProgress.finishCurrentSyncPhase(phase: .fetchingUsers)
         } else {
-            fetch(allConnectedUsers)
+            fetch(users: allConnectedUsers, for: apiVersion)
         }
 
         isFetchingAllConnectedUsers = true
@@ -104,8 +83,22 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
     func allConnectedUsers() -> Set<ZMUser> {
         let fetchRequest = NSFetchRequest<ZMConnection>(entityName: ZMConnection.entityName())
         let connections = managedObjectContext.fetchOrAssert(request: fetchRequest)
-
         return Set(connections.compactMap(\.to))
+    }
+
+    func fetch(users: Set<ZMUser>, for apiVersion: APIVersion) {
+        let users = users.filter { !$0.isSelfUser }
+        guard !users.isEmpty else { return }
+
+        switch apiVersion {
+        case .v0:
+            userProfileByID.sync(identifiers: users.compactMap(\.remoteIdentifier))
+
+        case .v1:
+            if let qualifiedUserIDs = users.qualifiedUserIDs {
+                userProfileByQualifiedID.sync(identifiers: qualifiedUserIDs)
+            }
+        }
     }
 
     public func didFailToSyncAllObjects() {
@@ -133,9 +126,13 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
 extension UserProfileRequestStrategy: ZMContextChangeTracker {
 
     public func objectsDidChange(_ objects: Set<NSManagedObject>) {
-        let usersNeedingToBeUpdated = objects.compactMap({ $0 as? ZMUser}).filter(\.needsToBeUpdatedFromBackend)
+        guard let apiVersion = APIVersion.current else { return }
 
-        fetch(Set(usersNeedingToBeUpdated))
+        let usersNeedingToBeUpdated = objects
+            .compactMap { $0 as? ZMUser}
+            .filter(\.needsToBeUpdatedFromBackend)
+
+        fetch(users: Set(usersNeedingToBeUpdated), for: apiVersion)
     }
 
     public func fetchRequestForTrackedObjects() -> NSFetchRequest<NSFetchRequestResult>? {
@@ -143,11 +140,14 @@ extension UserProfileRequestStrategy: ZMContextChangeTracker {
     }
 
     public func addTrackedObjects(_ objects: Set<NSManagedObject>) {
-        guard let users = objects as? Set<ZMUser> else {
+        guard
+            let users = objects as? Set<ZMUser>,
+            let apiVersion = APIVersion.current
+        else {
             return
         }
 
-        fetch(users)
+        fetch(users: users, for: apiVersion)
     }
 
 }
@@ -294,16 +294,6 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
 
         if response.httpStatus == 404, let responseFailure = Payload.ResponseFailure(response, decoder: decoder) {
             switch responseFailure.label {
-            case .noEndpoint:
-                // NOTE should be removed or replaced once the BE exposes a version number.
-                Logging.network.warn("Endpoint not available, deactivating.")
-                isAvailable = false
-
-                // Re-schedule to fetch clients with the clients with the fallback
-                if let users = ZMUser.fetchObjects(withRemoteIdentifiers: Set(identifiers.map(\.uuid)),
-                                                   in: context) as? Set<ZMUser> {
-                    contextChangedTracker?.objectsDidChange(Set(users))
-                }
             case .notFound:
                 markUserProfilesAsFetched(identifiers)
             default:
