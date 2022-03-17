@@ -17,7 +17,7 @@
 
 import Foundation
 
-public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGeneratorSource, ZMContextChangeTrackerSource, FederationAware {
+public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGeneratorSource, ZMContextChangeTrackerSource {
 
     let syncProgress: SyncProgress
     let conversationIDsSync: PaginatedSync<Payload.PaginatedConversationIDList>
@@ -76,12 +76,6 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         .conversationConnectRequest
     ]
 
-    public var useFederationEndpoint: Bool = true {
-        didSet {
-            conversationByQualifiedIDTranscoder.isAvailable = useFederationEndpoint
-        }
-    }
-
     public init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
                 applicationStatus: ApplicationStatus,
                 syncProgress: SyncProgress) {
@@ -139,7 +133,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
     public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
         if syncProgress.currentSyncPhase == .fetchingConversations {
-            fetchAllConversations()
+            fetchAllConversations(for: apiVersion)
         }
 
         return requestGenerators.nextRequest(for: apiVersion)
@@ -153,7 +147,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         }
     }
 
-    func fetchAllConversations() {
+    func fetchAllConversations(for apiVersion: APIVersion) {
         guard !isFetchingAllConversations else { return }
 
         isFetchingAllConversations = true
@@ -165,20 +159,22 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
             $0.needsToBeUpdatedFromBackend = true
         }
 
-        if useFederationEndpoint {
-            conversationQualifiedIDsSync.fetch { [weak self] (result) in
-                switch result {
-                case .success(let qualifiedConversationIDList):
-                    self?.conversationByQualifiedIDListSync.sync(identifiers: qualifiedConversationIDList.conversations)
-                case .failure:
-                    self?.syncProgress.failCurrentSyncPhase(phase: .fetchingConversations)
-                }
-            }
-        } else {
+        switch apiVersion {
+        case .v0:
             conversationIDsSync.fetch { [weak self] (result) in
                 switch result {
                 case .success(let conversationIDList):
                     self?.conversationByIDListSync.sync(identifiers: conversationIDList.conversations)
+                case .failure:
+                    self?.syncProgress.failCurrentSyncPhase(phase: .fetchingConversations)
+                }
+            }
+
+        case .v1:
+            conversationQualifiedIDsSync.fetch { [weak self] (result) in
+                switch result {
+                case .success(let qualifiedConversationIDList):
+                    self?.conversationByQualifiedIDListSync.sync(identifiers: qualifiedConversationIDList.conversations)
                 case .failure:
                     self?.syncProgress.failCurrentSyncPhase(phase: .fetchingConversations)
                 }
@@ -442,16 +438,17 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
             }
 
             let request: ZMTransportRequest
-            if useFederationEndpoint {
-                guard let domain = conversation.domain else {
-                    return nil
-                }
-                request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/name",
+
+            switch apiVersion {
+            case .v0:
+                request = ZMTransportRequest(path: "/conversations/\(conversationID)",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
                                              apiVersion: apiVersion.rawValue)
-            } else {
-                request = ZMTransportRequest(path: "/conversations/\(conversationID)",
+
+            case .v1:
+                guard let domain = conversation.domain else { return nil }
+                request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/name",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
                                              apiVersion: apiVersion.rawValue)
@@ -474,16 +471,17 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
             }
 
             let request: ZMTransportRequest
-            if useFederationEndpoint {
-                guard let domain = conversation.domain else {
-                    return nil
-                }
-                request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/self",
+
+            switch apiVersion {
+            case .v0:
+                request = ZMTransportRequest(path: "/conversations/\(conversationID)/self",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
                                              apiVersion: apiVersion.rawValue)
-            } else {
-                request = ZMTransportRequest(path: "/conversations/\(conversationID)/self",
+
+            case .v1:
+                guard let domain = conversation.domain else { return nil }
+                request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/self",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
                                              apiVersion: apiVersion.rawValue)
