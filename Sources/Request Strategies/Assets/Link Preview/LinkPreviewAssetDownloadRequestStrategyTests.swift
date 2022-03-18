@@ -115,7 +115,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
 
     // MARK: - Request Generation
 
-    func testThatItGeneratesAnExpectedV3RequestForAWhitelistedMessageWithNoImageInCache_whenFederationIsNotEnabled() {
+    func testThatItGeneratesAnExpectedV3RequestForAWhitelistedMessageWithNoImageInCache() {
         // GIVEN
         let assetID = UUID.create().transportString()
         let linkPreview = self.createLinkPreview(assetID)
@@ -140,7 +140,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
     }
 
-    func testThatItGeneratesAnExpectedV3RequestForAWhitelistedEphemeralMessageWithNoImageInCache_whenFederationIsNotEnabled() {
+    func testThatItGeneratesAnExpectedV3RequestForAWhitelistedEphemeralMessageWithNoImageInCache() {
         let assetID = UUID.create().transportString()
 
         self.syncMOC.performGroupedAndWait { syncMOC in
@@ -165,7 +165,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
     }
 
-    func testThatItGeneratesAnExpectedV4RequestForAWhitelistedMessageWithNoImageInCache_whenFederationIsEnabled() {
+    func testThatItGeneratesAnExpectedV4RequestForAWhitelistedMessageWithNoImageInCache() {
         // GIVEN
         apiVersion = .v1
         let assetID = UUID.create().transportString()
@@ -192,7 +192,7 @@ extension LinkPreviewAssetDownloadRequestStrategyTests {
         }
     }
 
-    func testThatItGeneratesAnExpectedV4RequestForAWhitelistedEphemeralMessageWithNoImageInCache_whenFederationIsEnabled() {
+    func testThatItGeneratesAnExpectedV4RequestForAWhitelistedEphemeralMessageWithNoImageInCache() {
         apiVersion = .v1
         let assetID = UUID.create().transportString()
         let assetDomain = UUID().create().transportString()
