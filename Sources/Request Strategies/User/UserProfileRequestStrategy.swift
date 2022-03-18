@@ -213,7 +213,6 @@ class UserProfileByIDTranscoder: IdentifierObjectSyncTranscoder {
     public typealias T = UUID
 
     var fetchLimit: Int =  1600 / 25 // UUID as string is 24 + 1 for the comma
-    var isAvailable: Bool = true
 
     let context: NSManagedObjectContext
     let decoder: JSONDecoder = .defaultDecoder
@@ -266,7 +265,6 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
     public typealias T = QualifiedID
 
     var fetchLimit: Int = 500
-    var isAvailable: Bool = true
 
     weak var contextChangedTracker: ZMContextChangeTracker?
     let context: NSManagedObjectContext
@@ -279,6 +277,7 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
 
     func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
+            apiVersion > .v0,
             let payloadData = Payload.QualifiedUserIDList(qualifiedIDs: Array(identifiers)).payloadData(encoder: encoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
         else {
@@ -291,15 +290,9 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
-
         if response.httpStatus == 404, let responseFailure = Payload.ResponseFailure(response, decoder: decoder) {
-            switch responseFailure.label {
-            case .notFound:
-                markUserProfilesAsFetched(identifiers)
-            default:
-                break
-            }
-
+            guard case .notFound = responseFailure.label else { return }
+            markUserProfilesAsFetched(identifiers)
             return
         }
 

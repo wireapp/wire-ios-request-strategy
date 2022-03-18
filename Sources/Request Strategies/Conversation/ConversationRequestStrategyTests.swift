@@ -305,11 +305,13 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func testThatConversationResetsNeedsToBeUpdatedFromBackend_OnPermanentErrors() {
         // given
-        let response = responseFailure(code: 403, label: .unknown, apiVersion: .v0)
+        let apiVersion = APIVersion.v0
+        APIVersion.current = apiVersion
+        let response = responseFailure(code: 403, label: .unknown, apiVersion: apiVersion)
 
         // when
-        fetchConversation(groupConversation, with: response)
-        fetchConversation(oneToOneConversation, with: response)
+        fetchConversation(groupConversation, with: response, apiVersion: apiVersion)
+        fetchConversation(oneToOneConversation, with: response, apiVersion: apiVersion)
 
         // then
         self.syncMOC.performGroupedBlockAndWait {
@@ -320,10 +322,12 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func testThatConversationIsDeleted_WhenResponseIs_404() {
         // given
-        let response = responseFailure(code: 404, label: .notFound, apiVersion: .v0)
+        let apiVersion = APIVersion.v0
+        APIVersion.current = apiVersion
+        let response = responseFailure(code: 404, label: .notFound, apiVersion: apiVersion)
 
         // when
-        fetchConversation(groupConversation, with: response)
+        fetchConversation(groupConversation, with: response, apiVersion: apiVersion)
 
         // then
         self.syncMOC.performGroupedBlockAndWait {
@@ -333,10 +337,12 @@ class ConversationRequestStrategyTests: MessagingTestBase {
 
     func testThatSelfUserIsRemovedFromParticipantsList_WhenResponseIs_403() {
         // given
-        let response = responseFailure(code: 403, label: .unknown, apiVersion: .v0)
+        let apiVersion = APIVersion.v0
+        APIVersion.current = apiVersion
+        let response = responseFailure(code: 403, label: .unknown, apiVersion: apiVersion)
 
         // when
-        fetchConversation(groupConversation, with: response)
+        fetchConversation(groupConversation, with: response, apiVersion: apiVersion)
 
         // then
         self.syncMOC.performGroupedBlockAndWait {
@@ -967,14 +973,14 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    func fetchConversation(_ conversation: ZMConversation, with response: ZMTransportResponse) {
+    func fetchConversation(_ conversation: ZMConversation, with response: ZMTransportResponse, apiVersion: APIVersion) {
         syncMOC.performGroupedBlockAndWait {
             // given
             conversation.needsToBeUpdatedFromBackend = true
             self.sut.contextChangeTrackers.forEach { $0.objectsDidChange(Set([conversation])) }
 
             // when
-            let request = self.sut.nextRequest(for: .v0)!
+            let request = self.sut.nextRequest(for: apiVersion)!
             request.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))

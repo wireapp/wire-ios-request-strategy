@@ -139,11 +139,18 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         return requestGenerators.nextRequest(for: apiVersion)
     }
 
-    func fetch(_ converations: Set<ZMConversation>) {
-        if conversationByQualifiedIDSync.isAvailable, let identifiers = converations.qualifiedIDs {
-            conversationByQualifiedIDSync.sync(identifiers: identifiers)
-        } else {
+    func fetch(_ converations: Set<ZMConversation>, for apiVersion: APIVersion) {
+        switch apiVersion {
+        case .v0:
             conversationByIDSync.sync(identifiers: converations.compactMap(\.remoteIdentifier))
+
+        case .v1:
+            if let qualifiedIDs = converations.qualifiedIDs {
+                conversationByQualifiedIDSync.sync(identifiers: qualifiedIDs)
+            } else {
+                // Fallback to unqualified ids.
+                conversationByIDSync.sync(identifiers: converations.compactMap(\.remoteIdentifier))
+            }
         }
     }
 
@@ -270,13 +277,31 @@ extension ConversationRequestStrategy: KeyPathObjectSyncTranscoder {
     typealias T = ZMConversation
 
     func synchronize(_ object: ZMConversation, completion: @escaping () -> Void) {
-        if conversationByQualifiedIDSync.isAvailable, let identifiers = object.qualifiedID {
-            let conversationByQualifiedIdIdentifiersSet: Set<ConversationByQualifiedIDTranscoder.T> = [identifiers]
-            conversationByQualifiedIDSync.sync(identifiers: conversationByQualifiedIdIdentifiersSet)
-        } else if let identifier = object.remoteIdentifier {
-            let conversationByIdIdentfiersSet: Set<ConversationByIDTranscoder.T> = [identifier]
-            conversationByIDSync.sync(identifiers: conversationByIdIdentfiersSet)
+        defer { completion() }
+        guard let apiVersion = APIVersion.current else { return }
+
+        switch apiVersion {
+        case .v0:
+            guard let identifier = object.remoteIdentifier else { return }
+            synchronize(unqualifiedID: identifier)
+
+        case .v1:
+            if let qualifiedID = object.qualifiedID {
+                synchronize(qualifiedID: qualifiedID)
+            } else if let identifier = object.remoteIdentifier {
+                synchronize(unqualifiedID: identifier)
+            }
         }
+    }
+
+    private func synchronize(qualifiedID: QualifiedID) {
+        let conversationByQualifiedIdIdentifiersSet: Set<ConversationByQualifiedIDTranscoder.T> = [qualifiedID]
+        conversationByQualifiedIDSync.sync(identifiers: conversationByQualifiedIdIdentifiersSet)
+    }
+
+    private func synchronize(unqualifiedID: UUID) {
+        let conversationByIdIdentfiersSet: Set<ConversationByIDTranscoder.T> = [unqualifiedID]
+        conversationByIDSync.sync(identifiers: conversationByIdIdentfiersSet)
     }
 
     func cancel(_ object: ZMConversation) {
@@ -529,7 +554,6 @@ class ConversationByIDTranscoder: IdentifierObjectSyncTranscoder {
     public typealias T = UUID
 
     var fetchLimit: Int = 1
-    var isAvailable: Bool = true
 
     let context: NSManagedObjectContext
     let decoder: JSONDecoder = .defaultDecoder
@@ -621,7 +645,6 @@ class ConversationByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
     public typealias T = QualifiedID
 
     var fetchLimit: Int = 1
-    var isAvailable: Bool = true
 
     let context: NSManagedObjectContext
     let decoder: JSONDecoder = .defaultDecoder
@@ -715,7 +738,6 @@ class ConversationByIDListTranscoder: IdentifierObjectSyncTranscoder {
     public typealias T = UUID
 
     var fetchLimit: Int = 32
-    var isAvailable: Bool = true
 
     let context: NSManagedObjectContext
     let decoder: JSONDecoder = .defaultDecoder
@@ -762,7 +784,6 @@ class ConversationByQualifiedIDListTranscoder: IdentifierObjectSyncTranscoder {
     public typealias T = QualifiedID
 
     var fetchLimit: Int = 100
-    var isAvailable: Bool = true
 
     let context: NSManagedObjectContext
     let decoder: JSONDecoder = .defaultDecoder

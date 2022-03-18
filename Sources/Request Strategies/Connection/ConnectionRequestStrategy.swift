@@ -200,7 +200,6 @@ class ConnectionByIDTranscoder: IdentifierObjectSyncTranscoder {
     public typealias T = UUID
 
     var fetchLimit: Int = 1
-    var isAvailable: Bool = true
 
     let context: NSManagedObjectContext
     let decoder: JSONDecoder = .defaultDecoder
@@ -248,7 +247,6 @@ class ConnectionByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
     public typealias T = QualifiedID
 
     var fetchLimit: Int = 1
-    var isAvailable: Bool = true
 
     let context: NSManagedObjectContext
     let decoder: JSONDecoder = .defaultDecoder
@@ -259,7 +257,12 @@ class ConnectionByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
     }
 
     func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
-        guard let qualifiedID = identifiers.first.map({ $0 }) else { return nil }
+        guard
+            apiVersion > .v0,
+            let qualifiedID = identifiers.first
+        else {
+            return nil
+        }
 
         // GET /connections/domain/<UUID>
         return ZMTransportRequest(getFromPath: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid.transportString())", apiVersion: apiVersion.rawValue)
