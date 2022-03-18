@@ -23,9 +23,15 @@ class ProteusMessageSyncTests: MessagingTestBase {
 
     var sut: ProteusMessageSync<MockOTREntity>!
     var mockApplicationStatus: MockApplicationStatus!
-    let domain =  "example.com"
+    let domain = "example.com"
     var qualifiedEndpoint: String!
     var legacyEndpoint: String!
+
+    var apiVersion: APIVersion! {
+        didSet {
+            APIVersion.current = apiVersion
+        }
+    }
 
     override func setUp() {
         super.setUp()
@@ -38,6 +44,13 @@ class ProteusMessageSyncTests: MessagingTestBase {
             qualifiedEndpoint = "/v1/conversations/\(domain)/\(groupConversation.remoteIdentifier!.transportString())/proteus/messages"
             legacyEndpoint = "/conversations/\(groupConversation.remoteIdentifier!.transportString())/otr/messages"
         }
+
+        apiVersion = .v0
+    }
+
+    override func tearDown() {
+        apiVersion = nil
+        super.tearDown()
     }
 
     func testThatItNotifiesThatNewRequestsAreAvailable_WhenSynchronizingMessage() {
@@ -76,7 +89,12 @@ class ProteusMessageSyncTests: MessagingTestBase {
                                                        deleted: [:],
                                                        failedToSend: [:])
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest(for: .v0)?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 201, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue))
+            let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
+                                               httpStatus: 201,
+                                               transportSessionError: nil,
+                                               apiVersion: apiVersion.rawValue)
+
+            sut.nextRequest(for: apiVersion)?.complete(with: response)
         }
 
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
@@ -96,7 +114,12 @@ class ProteusMessageSyncTests: MessagingTestBase {
                                                        deleted: [:],
                                                        failedToSend: [:])
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest(for: .v0)?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 201, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue))
+            let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
+                                               httpStatus: 201,
+                                               transportSessionError: nil,
+                                               apiVersion: apiVersion.rawValue)
+
+            sut.nextRequest(for: apiVersion)?.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -119,30 +142,39 @@ class ProteusMessageSyncTests: MessagingTestBase {
             }
 
             // when
-            sut.nextRequest(for: .v0)?.complete(with: ZMTransportResponse(payload: nil, httpStatus: 403, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue))
+            let response = ZMTransportResponse(payload: nil,
+                                               httpStatus: 403,
+                                               transportSessionError: nil,
+                                               apiVersion: apiVersion.rawValue)
+
+            sut.nextRequest(for: apiVersion)?.complete(with: response)
         }
 
         XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
     }
 
     func testThatItRetriesTheRequest_WhenResponseSaysItsATemporaryError() throws {
+        apiVersion = .v1
+
         syncMOC.performGroupedBlockAndWait { [self] in
             // given
             let message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
             sut.sync(message) { (_, _) in }
 
             // when
-            sut.nextRequest(for: .v1)?.complete(with: ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError(), apiVersion: APIVersion.v1.rawValue))
+            let response = ZMTransportResponse(transportSessionError: NSError.tryAgainLaterError(), apiVersion: apiVersion.rawValue)
+            sut.nextRequest(for: apiVersion)?.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         syncMOC.performGroupedBlockAndWait { [self] in
             // then
-            XCTAssertEqual(sut.nextRequest(for: .v1)?.path, qualifiedEndpoint)
+            XCTAssertEqual(sut.nextRequest(for: apiVersion)?.path, qualifiedEndpoint)
         }
     }
 
     func testThatItRetriesTheRequest_WhenResponseSaysClientAreMissing() throws {
+        apiVersion = .v1
         syncMOC.performGroupedBlockAndWait { [self] in
             // given
             let message = MockOTREntity(conversation: self.groupConversation, context: self.syncMOC)
@@ -160,13 +192,18 @@ class ProteusMessageSyncTests: MessagingTestBase {
                                                        deleted: [:],
                                                        failedToSend: [:])
             let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-            sut.nextRequest(for: .v1)?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: 412, transportSessionError: nil, apiVersion: APIVersion.v1.rawValue))
+            let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
+                                               httpStatus: 412,
+                                               transportSessionError: nil,
+                                               apiVersion: apiVersion.rawValue)
+
+            sut.nextRequest(for: apiVersion)?.complete(with: response)
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         syncMOC.performGroupedBlockAndWait { [self] in
             // then
-            XCTAssertEqual(sut.nextRequest(for: .v1)?.path, qualifiedEndpoint)
+            XCTAssertEqual(sut.nextRequest(for: apiVersion)?.path, qualifiedEndpoint)
         }
     }
 
@@ -179,7 +216,12 @@ class ProteusMessageSyncTests: MessagingTestBase {
                 // when
                 let payload = Payload.ResponseFailure(code: 403, label: .unknownClient, message: "")
                 let payloadAsString = String(bytes: payload.payloadData()!, encoding: .utf8)!
-                sut.nextRequest(for: .v0)?.complete(with: ZMTransportResponse(payload: payloadAsString as ZMTransportData, httpStatus: payload.code, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue))
+                let response = ZMTransportResponse(payload: payloadAsString as ZMTransportData,
+                                                   httpStatus: payload.code,
+                                                   transportSessionError: nil,
+                                                   apiVersion: apiVersion.rawValue)
+
+                sut.nextRequest(for: apiVersion)?.complete(with: response)
             }
             XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -198,7 +240,7 @@ class ProteusMessageSyncTests: MessagingTestBase {
             sut.sync(message) { (_, _) in }
 
             // when
-            let request = sut.nextRequest(for: .v0)
+            let request = sut.nextRequest(for: apiVersion)
 
             // then
             XCTAssertEqual(request?.expirationDate, expirationDate)
