@@ -23,6 +23,23 @@ import WireUtilities
 @testable import WireRequestStrategy
 
 class ClientMessageRequestFactoryTests: MessagingTestBase {
+
+    private var apiVersion: APIVersion! {
+        didSet {
+            APIVersion.current = apiVersion
+        }
+    }
+
+    override func setUp() {
+        super.setUp()
+        apiVersion = .v0
+    }
+
+    override func tearDown() {
+        apiVersion = nil
+        super.tearDown()
+    }
+
 }
 
 // MARK: - Text messages
@@ -37,7 +54,7 @@ extension ClientMessageRequestFactoryTests {
             let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
 
             // WHEN
-            guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(message, in: self.groupConversation, apiVersion: .v0) else {
+            guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(message, in: self.groupConversation, apiVersion: self.apiVersion) else {
                 return XCTFail("No request")
             }
 
@@ -67,7 +84,7 @@ extension ClientMessageRequestFactoryTests {
             let confirmationMessage = try! self.oneToOneConversation.appendClientMessage(with: GenericMessage(content: confirmation), expires: false, hidden: true)
 
             // WHEN
-            guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(confirmationMessage, in: self.oneToOneConversation, apiVersion: .v0) else {
+            guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(confirmationMessage, in: self.oneToOneConversation, apiVersion: self.apiVersion) else {
                 return XCTFail("No request")
             }
 
@@ -93,7 +110,7 @@ extension ClientMessageRequestFactoryTests {
             let message = try! self.groupConversation.appendText(content: text) as! ZMClientMessage
 
             // WHEN
-            guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(message, in: self.groupConversation, apiVersion: .v0) else {
+            guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(message, in: self.groupConversation, apiVersion: self.apiVersion) else {
                 return XCTFail("Invalid request")
             }
 
@@ -125,7 +142,7 @@ extension ClientMessageRequestFactoryTests {
                                               completionHandler: nil)
 
             // WHEN
-            guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(entity, in: self.groupConversation, apiVersion: .v0) else {
+            guard let request = ClientMessageRequestFactory().upstreamRequestForMessage(entity, in: self.groupConversation, apiVersion: self.apiVersion) else {
                 return XCTFail("No request")
             }
 
@@ -160,7 +177,7 @@ extension ClientMessageRequestFactoryTests {
                 conversationId: conversationID,
                 domain: nil,
                 selfClient: self.selfClient,
-                apiVersion: .v0
+                apiVersion: self.apiVersion
             )
 
             guard let data = request?.binaryData else {
@@ -178,6 +195,7 @@ extension ClientMessageRequestFactoryTests {
     }
 
     func testThatPathAndMessageAreCorrect_WhenCreatingRequest_WithDomain() {
+        apiVersion = .v1
         syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let conversationID = UUID()
@@ -194,7 +212,7 @@ extension ClientMessageRequestFactoryTests {
                 conversationId: conversationID,
                 domain: domain,
                 selfClient: self.selfClient,
-                apiVersion: .v1
+                apiVersion: self.apiVersion
             )
 
             guard let data = request?.binaryData else {
