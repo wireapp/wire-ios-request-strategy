@@ -23,9 +23,9 @@ import WireDataModel
 
 fileprivate extension ZMTransportRequest {
 
-    func complete(withHttpStatus status: Int) {
+    func complete(withHttpStatus status: Int, apiVersion: APIVersion) {
         let payload = ["time": Date().transportString()] as ZMTransportData
-        let response = ZMTransportResponse(payload: payload, httpStatus: status, transportSessionError: nil, apiVersion: APIVersion.v0.rawValue)
+        let response = ZMTransportResponse(payload: payload, httpStatus: status, transportSessionError: nil, apiVersion: apiVersion.rawValue)
         complete(with: response)
     }
 
@@ -164,7 +164,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
     private func assertCreatesValidRequestForAsset(in conversation: ZMConversation, line: UInt = #line) -> ZMTransportRequest! {
         switch apiVersion! {
         case .v0:
-            guard let request = sut.nextRequest(for: .v0) else {
+            guard let request = sut.nextRequest(for: self.apiVersion) else {
                 XCTFail("No request generated", line: line)
                 return nil
             }
@@ -176,7 +176,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             return request
 
         case .v1:
-            guard let request = sut.nextRequest(for: .v1) else {
+            guard let request = sut.nextRequest(for: self.apiVersion) else {
                 XCTFail("No request generated", line: line)
                 return nil
             }
@@ -439,7 +439,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
             guard let request = self.assertCreatesValidRequestForAsset(in: self.groupConversation) else {
                 return XCTFail("Failed to create request")
             }
-            request.complete(withHttpStatus: 400)
+            request.complete(withHttpStatus: 400, apiVersion: self.apiVersion)
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -493,7 +493,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.assertCreatesValidRequestForAsset(in: self.groupConversation)
                 else { return XCTFail("No request generated") }
-            request.complete(withHttpStatus: 200)
+            request.complete(withHttpStatus: 200, apiVersion: self.apiVersion)
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -517,7 +517,7 @@ final class AssetClientMessageRequestStrategyTests: MessagingTestBase {
         self.syncMOC.performGroupedBlockAndWait {
             guard let request = self.sut.nextRequest(for: self.apiVersion)
                 else { return XCTFail("No request generated") }
-            request.complete(withHttpStatus: 200)
+            request.complete(withHttpStatus: 200, apiVersion: self.apiVersion)
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
