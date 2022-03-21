@@ -139,17 +139,17 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         return requestGenerators.nextRequest(for: apiVersion)
     }
 
-    func fetch(_ converations: Set<ZMConversation>, for apiVersion: APIVersion) {
+    func fetch(_ conversations: Set<ZMConversation>, for apiVersion: APIVersion) {
         switch apiVersion {
         case .v0:
-            conversationByIDSync.sync(identifiers: converations.compactMap(\.remoteIdentifier))
+            conversationByIDSync.sync(identifiers: conversations.compactMap(\.remoteIdentifier))
 
         case .v1:
             if let qualifiedIDs = converations.qualifiedIDs {
                 conversationByQualifiedIDSync.sync(identifiers: qualifiedIDs)
             } else {
                 // Fallback to unqualified ids.
-                conversationByIDSync.sync(identifiers: converations.compactMap(\.remoteIdentifier))
+                conversationByIDSync.sync(identifiers: conversations.compactMap(\.remoteIdentifier))
             }
         }
     }
