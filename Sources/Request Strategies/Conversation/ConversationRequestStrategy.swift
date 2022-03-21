@@ -145,7 +145,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
             conversationByIDSync.sync(identifiers: conversations.compactMap(\.remoteIdentifier))
 
         case .v1:
-            if let qualifiedIDs = converations.qualifiedIDs {
+            if let qualifiedIDs = conversations.qualifiedIDs {
                 conversationByQualifiedIDSync.sync(identifiers: qualifiedIDs)
             } else {
                 // Fallback to unqualified ids.
