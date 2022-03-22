@@ -97,6 +97,9 @@ public class UserProfileRequestStrategy: AbstractRequestStrategy, IdentifierObje
         case .v1:
             if let qualifiedUserIDs = users.qualifiedUserIDs {
                 userProfileByQualifiedID.sync(identifiers: qualifiedUserIDs)
+            } else if let domain = APIVersion.domain {
+                let qualifiedUserIDs = users.fallbackQualifiedIDs(localDomain: domain)
+                userProfileByQualifiedID.sync(identifiers: qualifiedUserIDs)
             }
         }
     }
@@ -314,6 +317,22 @@ class UserProfileByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
         for qualifiedID in missingUsers {
             let user = ZMUser.fetch(with: qualifiedID.uuid, domain: qualifiedID.domain, in: context)
             user?.needsToBeUpdatedFromBackend = false
+        }
+    }
+
+}
+
+private extension Collection where Element == ZMUser {
+
+    func fallbackQualifiedIDs(localDomain: String) -> [QualifiedID] {
+        return compactMap { user in
+            if let qualifiedID = user.qualifiedID {
+                return qualifiedID
+            } else if let identifier = user.remoteIdentifier {
+                return QualifiedID(uuid: identifier, domain: localDomain)
+            } else {
+                return nil
+            }
         }
     }
 
