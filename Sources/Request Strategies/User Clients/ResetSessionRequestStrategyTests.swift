@@ -35,7 +35,6 @@ class ResetSessionRequestStrategyTests: MessagingTestBase {
         sut = ResetSessionRequestStrategy(managedObjectContext: self.syncMOC,
                                     applicationStatus: mockApplicationStatus,
                                     clientRegistrationDelegate: mockApplicationStatus.clientRegistrationDelegate)
-        sut.useFederationEndpoint = true
     }
 
     override func tearDown() {
@@ -63,7 +62,7 @@ class ResetSessionRequestStrategyTests: MessagingTestBase {
             }
 
             // THEN
-            XCTAssertEqual(self.sut.nextRequest(for: .v0)?.path, "/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
+            XCTAssertEqual(self.sut.nextRequest(for: .v1)?.path, "/v1/conversations/\(conversationDomain)/\(conversationID)/proteus/messages")
         }
     }
 

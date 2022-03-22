@@ -23,19 +23,10 @@ import Foundation
 /// upload the asset, receive the asset ID in the response, manually add it to the genericMessage and
 /// send it using the `/messages` endpoint like any other message. This is an additional step required
 /// as the fan-out was previously done by the backend when uploading a v2 asset.
-public final class AssetClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
+public final class AssetClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
 
     let insertedObjectSync: InsertedObjectSync<AssetClientMessageRequestStrategy>
     let messageSync: ProteusMessageSync<ZMAssetClientMessage>
-
-    public var useFederationEndpoint: Bool {
-        get {
-            messageSync.isFederationEndpointAvailable
-        }
-        set {
-            messageSync.isFederationEndpointAvailable = newValue
-        }
-    }
 
     public override init(withManagedObjectContext managedObjectContext: NSManagedObjectContext, applicationStatus: ApplicationStatus) {
 

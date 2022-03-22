@@ -34,15 +34,14 @@ extension ConversationAddParticipantsError {
 
 }
 
-class AddParticipantActionHandler: ActionHandler<AddParticipantAction>, FederationAware {
-
-    var useFederationEndpoint: Bool = false
+class AddParticipantActionHandler: ActionHandler<AddParticipantAction> {
 
     override func request(for action: AddParticipantAction, apiVersion: APIVersion) -> ZMTransportRequest? {
-        if useFederationEndpoint {
-            return federatedRequest(for: action, apiVersion: apiVersion)
-        } else {
+        switch apiVersion {
+        case .v0:
             return nonFederatedRequest(for: action, apiVersion: apiVersion)
+        case .v1:
+            return federatedRequest(for: action, apiVersion: apiVersion)
         }
     }
 
@@ -50,6 +49,7 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction>, Federati
         var action = action
 
         guard
+            apiVersion == .v0,
             let conversation = ZMConversation.existingObject(for: action.conversationID, in: context),
             let conversationID = conversation.remoteIdentifier?.transportString(),
             let users: [ZMUser] = action.userIDs.existingObjects(in: context),
@@ -70,6 +70,7 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction>, Federati
         var action = action
 
         guard
+            apiVersion > .v0,
             let conversation = ZMConversation.existingObject(for: action.conversationID, in: context),
             let conversationID = conversation.qualifiedID,
             let users: [ZMUser] = action.userIDs.existingObjects(in: context),

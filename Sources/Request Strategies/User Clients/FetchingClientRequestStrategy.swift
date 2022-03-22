@@ -69,15 +69,27 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
                                                                           object: nil) { [weak self] note in
             guard let `self` = self, let objectID = note.object as? NSManagedObjectID else { return }
             self.managedObjectContext.performGroupedBlock {
-                guard let user = (try? self.managedObjectContext.existingObject(with: objectID)) as? ZMUser,
-                      let userID = user.remoteIdentifier else { return }
+                guard
+                    let apiVersion = APIVersion.current,
+                    let user = (try? self.managedObjectContext.existingObject(with: objectID)) as? ZMUser,
+                    let userID = user.remoteIdentifier
+                else {
+                    return
+                }
 
-                if let domain = user.domain, self.userClientsByQualifiedUserID.isAvailable {
-                    let qualifiedID = QualifiedID(uuid: userID, domain: domain)
-                    self.userClientsByQualifiedUserID.sync(identifiers: [qualifiedID])
-                } else {
+                switch apiVersion {
+                case .v0:
                     let userIdSet: Set<UserClientByUserIDTranscoder.T> = [userID]
                     self.userClientsByUserID.sync(identifiers: userIdSet)
+
+                case .v1:
+                    if let domain = user.domain {
+                        let qualifiedID = QualifiedID(uuid: userID, domain: domain)
+                        self.userClientsByQualifiedUserID.sync(identifiers: [qualifiedID])
+                    } else {
+                        let userIdSet: Set<UserClientByUserIDTranscoder.T> = [userID]
+                        self.userClientsByUserID.sync(identifiers: userIdSet)
+                    }
                 }
 
                 RequestAvailableNotification.notifyNewRequestsAvailable(self)
@@ -117,23 +129,49 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
     }
 
     private func fetch(userClients: [UserClient]) {
+        guard let apiVersion = APIVersion.current else { return }
         let initialResult: ([QualifiedID], [UserClientByUserClientIDTranscoder.UserClientID]) = ([], [])
         let result = userClients.reduce(into: initialResult) { (result, userClient) in
+            switch apiVersion {
+            case .v0:
+                guard let userClientID = userClientID(from: userClient) else { return }
+                result.1.append(userClientID)
 
-            // We prefer to by qualifiedUserID since can be done in batches and is more efficent, but if the server
-            // does not support it we need to fallback to fetching by userClientID
-            if userClientsByQualifiedUserID.isAvailable,
-               let userID = userClient.user?.remoteIdentifier,
-               let domain = userClient.user?.domain {
-                result.0.append(QualifiedID(uuid: userID, domain: domain))
-            } else if let userID = userClient.user?.remoteIdentifier,
-                      let clientID = userClient.remoteIdentifier {
-                result.1.append(UserClientByUserClientIDTranscoder.UserClientID(userId: userID, clientId: clientID))
+            case .v1:
+                // We prefer to by qualifiedUserID since can be done in batches and is more efficent.
+                if let qualifiedID = qualifiedID(from: userClient) {
+                    result.0.append(qualifiedID)
+                } else if let userClientID = userClientID(from: userClient) {
+                    // Fallback.
+                    result.1.append(userClientID)
+                }
             }
         }
 
         userClientsByQualifiedUserID.sync(identifiers: Set(result.0))
         userClientsByUserClientID.sync(identifiers: Set(result.1))
+    }
+
+    private func userClientID(from userClient: UserClient) -> UserClientByUserClientIDTranscoder.UserClientID? {
+        guard
+            let userID = userClient.user?.remoteIdentifier,
+            let clientID = userClient.remoteIdentifier
+        else {
+            return nil
+        }
+
+        return .init(userId: userID, clientId: clientID)
+    }
+
+    private func qualifiedID(from userClient: UserClient) -> QualifiedID? {
+        guard
+            let userID = userClient.user?.remoteIdentifier,
+            let domain = userClient.user?.domain
+        else {
+            return nil
+        }
+
+        return .init(uuid: userID, domain: domain)
     }
 
 }
@@ -152,10 +190,6 @@ final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
 
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
-    }
-
-    var isAvailable: Bool {
-        return true
     }
 
     var fetchLimit: Int {
@@ -208,8 +242,6 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
         self.managedObjectContext = managedObjectContext
     }
 
-    var isAvailable: Bool = true
-
     var fetchLimit: Int {
         return 100
     }
@@ -217,6 +249,7 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
     public func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
 
         guard
+            apiVersion > .v0,
             let payloadData = identifiers.payloadData(encoder: encoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
         else {
@@ -229,20 +262,6 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
     }
 
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
-
-        // NOTE should be removed or replaced once the BE exposes a version number.
-        guard response.httpStatus != 404 else {
-            Logging.network.warn("Endpoint not available, deactivating.")
-            isAvailable = false
-
-            // Re-schedule to fetch clients with the clients with the fallback
-            if let users = ZMUser.fetchObjects(withRemoteIdentifiers: Set(identifiers.map(\.uuid)),
-                                                     in: managedObjectContext) as? Set<ZMUser> {
-                users.forEach({ $0.fetchUserClients() })
-            }
-            return
-        }
-
         guard
             let rawData = response.rawData,
             let payload = Payload.UserClientByDomain(rawData, decoder: decoder),
@@ -279,10 +298,6 @@ final class UserClientByUserIDTranscoder: IdentifierObjectSyncTranscoder {
 
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
-    }
-
-    var isAvailable: Bool {
-        return true
     }
 
     var fetchLimit: Int {

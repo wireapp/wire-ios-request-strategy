@@ -29,42 +29,48 @@ public final class ClientMessageRequestFactory: NSObject {
     let protobufContentType = "application/x-protobuf"
     let octetStreamContentType = "application/octet-stream"
 
-    public func upstreamRequestForFetchingClients(conversationId: UUID, selfClient: UserClient) -> ZMTransportRequest? {
-        let path = "/" + ["conversations",
+    public func upstreamRequestForFetchingClients(conversationId: UUID,
+                                                  domain: String?,
+                                                  selfClient: UserClient,
+                                                  apiVersion: APIVersion) -> ZMTransportRequest? {
+        var path: String
+        var message: SwiftProtobuf.Message
+
+        switch apiVersion {
+        case .v0:
+            path = "/" + ["conversations",
                           conversationId.transportString(),
                           "otr",
                           "messages"].joined(separator: "/")
 
-        let newOtrMessage = Proteus_NewOtrMessage(
-            withSender: selfClient,
-            nativePush: false,
-            recipients: []
-        )
+            // In wire protos this is annotated as deprecated, and recommended to use QualifiedNewOtrMessage
+            // So, not sure if we should use it with v0 on non-federated endpoints
+            // But, if so, we can create the message once for all versions
+            message = Proteus_NewOtrMessage(
+                withSender: selfClient,
+                nativePush: false,
+                recipients: []
+            )
+        case .v1:
+            guard let domain = domain ?? APIVersion.domain else {
+                zmLog.error("could not create request: missing domain")
+                return nil
+            }
 
-        return upstreamRequestForFetchingClients(
-            path: path.pathWithMissingClientStrategy(strategy: .doNotIgnoreAnyMissingClient),
-            message: newOtrMessage
-        )
-    }
-
-    public func upstreamRequestForFetchingClients(conversationId: UUID, domain: String, selfClient: UserClient) -> ZMTransportRequest? {
-        let path = "/" + ["conversations",
+            path = "/" + ["conversations",
                           domain,
                           conversationId.transportString(),
                           "proteus",
                           "messages"].joined(separator: "/")
 
-        let newOtrMessage = Proteus_QualifiedNewOtrMessage(
-            withSender: selfClient,
-            nativePush: false,
-            recipients: [],
-            missingClientsStrategy: .doNotIgnoreAnyMissingClient
-        )
+            message = Proteus_QualifiedNewOtrMessage(
+                withSender: selfClient,
+                nativePush: false,
+                recipients: [],
+                missingClientsStrategy: .doNotIgnoreAnyMissingClient
+            )
+        }
 
-        return upstreamRequestForFetchingClients(path: path, message: newOtrMessage)
-    }
-
-    private func upstreamRequestForFetchingClients(path: String, message: SwiftProtobuf.Message) -> ZMTransportRequest? {
         guard let data = try? message.serializedData() else {
             zmLog.debug("failed to serialize message")
             return nil
@@ -76,20 +82,22 @@ public final class ClientMessageRequestFactory: NSObject {
             binaryData: data,
             type: protobufContentType,
             contentDisposition: nil,
-            apiVersion: APIVersion.v0.rawValue
+            apiVersion: apiVersion.rawValue
         )
     }
 
-    public func upstreamRequestForMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, useFederationEndpoint: Bool, apiVersion: APIVersion) -> ZMTransportRequest? {
-        if useFederationEndpoint {
-            return upstreamRequestForQualifiedEncryptedMessage(message, in: conversation, apiVersion: apiVersion)
-        } else {
+    public func upstreamRequestForMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, apiVersion: APIVersion) -> ZMTransportRequest? {
+        switch apiVersion {
+        case .v0:
             return upstreamRequestForEncryptedMessage(message, in: conversation, apiVersion: apiVersion)
+        case .v1:
+            return upstreamRequestForQualifiedEncryptedMessage(message, in: conversation, apiVersion: apiVersion)
         }
     }
 
     fileprivate func upstreamRequestForEncryptedMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
+            apiVersion == .v0,
             let conversationID = conversation.remoteIdentifier?.transportString()
         else {
             return nil
@@ -105,6 +113,7 @@ public final class ClientMessageRequestFactory: NSObject {
 
     fileprivate func upstreamRequestForQualifiedEncryptedMessage(_ message: EncryptedPayloadGenerator, in conversation: ZMConversation, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
+            apiVersion > .v0,
             let context = conversation.managedObjectContext,
             let conversationID = conversation.remoteIdentifier?.transportString(),
             let domain = conversation.domain ?? ZMUser.selfUser(in: context).domain

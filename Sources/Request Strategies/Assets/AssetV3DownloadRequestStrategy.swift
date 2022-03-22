@@ -21,17 +21,7 @@ import WireTransport
 
 private let zmLog = ZMSLog(tag: "Asset V3")
 
-@objcMembers public final class AssetV3DownloadRequestStrategy: AbstractRequestStrategy, ZMDownstreamTranscoder, ZMContextChangeTrackerSource, FederationAware {
-
-    public var useFederationEndpoint: Bool {
-        get {
-            requestFactory.useFederationEndpoint
-        }
-
-        set {
-            requestFactory.useFederationEndpoint = newValue
-        }
-    }
+@objcMembers public final class AssetV3DownloadRequestStrategy: AbstractRequestStrategy, ZMDownstreamTranscoder, ZMContextChangeTrackerSource {
 
     private let requestFactory = AssetDownloadRequestFactory()
 

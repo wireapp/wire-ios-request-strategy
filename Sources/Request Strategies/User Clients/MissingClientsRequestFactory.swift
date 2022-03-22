@@ -42,7 +42,7 @@ extension Collection where Element == UserClient {
         return self.reduce(into: initial) { (result, client) in
             guard let userID = client.user?.remoteIdentifier.transportString(),
                   let clientID = client.remoteIdentifier,
-                  let domain = client.user?.domain
+                  let domain = client.user?.domain ?? APIVersion.domain
             else {
                 return
             }
@@ -64,6 +64,7 @@ public final class MissingClientsRequestFactory {
 
     public func fetchPrekeys(for missingClients: Set<UserClient>, apiVersion: APIVersion) -> ZMUpstreamRequest? {
         guard
+            apiVersion == .v0,
             let payloadData = missingClients.prefix(pageSize).clientListByUserID.payloadData(encoder: defaultEncoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
         else {
@@ -82,6 +83,7 @@ public final class MissingClientsRequestFactory {
 
     public func fetchPrekeysFederated(for missingClients: Set<UserClient>, apiVersion: APIVersion) -> ZMUpstreamRequest? {
         guard
+            apiVersion > .v0,
             let payloadData = missingClients.prefix(pageSize).clientListByDomain.payloadData(encoder: defaultEncoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
         else {

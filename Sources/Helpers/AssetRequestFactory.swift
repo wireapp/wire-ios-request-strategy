@@ -18,9 +18,7 @@
 
 import Foundation
 
-public final class AssetRequestFactory: NSObject, FederationAware {
-
-    public var useFederationEndpoint: Bool = false
+public final class AssetRequestFactory: NSObject {
 
     public enum Retention: String {
         /// The asset will be automatically removed from the backend

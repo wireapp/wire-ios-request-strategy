@@ -25,8 +25,6 @@ public protocol IdentifierObjectSyncTranscoder: AnyObject {
 
     var fetchLimit: Int { get }
 
-    var isAvailable: Bool { get }
-
     func request(for identifiers: Set<T>, apiVersion: APIVersion) -> ZMTransportRequest?
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<T>)
@@ -53,11 +51,6 @@ public class IdentifierObjectSync<Transcoder: IdentifierObjectSyncTranscoder>: N
 
     var isSyncing: Bool {
         return !pending.isEmpty || !downloading.isEmpty
-    }
-
-    var isAvailable: Bool {
-        transcoder?.isAvailable ?? false
-
     }
 
     /// - parameter managedObjectContext: Managed object context on which the sync will operate

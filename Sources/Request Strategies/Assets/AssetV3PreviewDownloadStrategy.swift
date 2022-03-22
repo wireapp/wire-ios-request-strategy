@@ -21,17 +21,7 @@ import WireTransport
 
 private let zmLog = ZMSLog(tag: "AssetPreviewDownloading")
 
-@objcMembers public final class AssetV3PreviewDownloadRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource, FederationAware {
-
-    public var useFederationEndpoint: Bool {
-        get {
-            requestFactory.useFederationEndpoint
-        }
-
-        set {
-            requestFactory.useFederationEndpoint = newValue
-        }
-    }
+@objcMembers public final class AssetV3PreviewDownloadRequestStrategy: AbstractRequestStrategy, ZMContextChangeTrackerSource {
 
     private let requestFactory = AssetDownloadRequestFactory()
 
