@@ -845,10 +845,10 @@ class ConversationByQualifiedIDListTranscoder: IdentifierObjectSyncTranscoder {
 private extension Collection where Element == ZMConversation {
 
     func fallbackQualifiedIDs(localDomain: String) -> [QualifiedID] {
-        return compactMap { converation in
-            if let qualifiedID = converation.qualifiedID {
+        return compactMap { conversation in
+            if let qualifiedID = conversation.qualifiedID {
                 return qualifiedID
-            } else if let identifier = converation.remoteIdentifier {
+            } else if let identifier = conversation.remoteIdentifier {
                 return QualifiedID(uuid: identifier, domain: localDomain)
             } else {
                 return nil
