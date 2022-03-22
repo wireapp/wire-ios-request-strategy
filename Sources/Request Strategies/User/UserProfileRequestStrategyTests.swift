@@ -25,6 +25,12 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     var mockApplicationStatus: MockApplicationStatus!
     var mockSyncProgress: MockSyncProgress!
 
+    var apiVersion: APIVersion! {
+        didSet {
+            APIVersion.current = apiVersion
+        }
+    }
+
     override func setUp() {
         super.setUp()
 
@@ -35,13 +41,15 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
         sut = UserProfileRequestStrategy(managedObjectContext: syncMOC,
                                          applicationStatus: mockApplicationStatus,
                                          syncProgress: mockSyncProgress)
+
+        apiVersion = .v0
     }
 
     override func tearDown() {
         sut = nil
         mockSyncProgress = nil
         mockApplicationStatus = nil
-        APIVersion.current = nil
+        apiVersion = nil
 
         super.tearDown()
     }
@@ -51,14 +59,13 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatRequestToFetchUserIsGenerated_WhenNeedsToBeUpdatedFromBackendIsTrue() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v1
-            APIVersion.current = apiVersion
+            self.apiVersion = .v1
             self.otherUser.domain = "example.com"
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
 
             // when
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // then
             XCTAssertEqual(request.path, "/v1/list-users")
@@ -80,13 +87,12 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatRequestToFetchConnectedUsersIsGenerated_DuringFetchingUsersSyncPhase() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v1
-            APIVersion.current = apiVersion
+            self.apiVersion = .v1
             self.mockSyncProgress.currentSyncPhase = .fetchingUsers
             self.otherUser.domain = "example.com"
 
             // when
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // then
             XCTAssertEqual(request.path, "/v1/list-users")
@@ -102,21 +108,20 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
 
     func testThatRequestToFetchConnectedUsersIsGenerated_WhenSlowSyncIsRestarted() {
         // given
-        let apiVersion = APIVersion.v1
-        APIVersion.current = apiVersion
+        apiVersion = .v1
 
         syncMOC.performGroupedBlockAndWait {
             self.mockSyncProgress.currentSyncPhase = .fetchingUsers
             self.otherUser.domain = "example.com"
-            let request = self.sut.nextRequest(for: apiVersion)!
-            request.complete(with: self.successfulResponse(for: Payload.QualifiedUserIDList(request)!, apiVersion: apiVersion))
+            let request = self.sut.nextRequest(for: self.apiVersion)!
+            request.complete(with: self.successfulResponse(for: Payload.QualifiedUserIDList(request)!, apiVersion: self.apiVersion))
 
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         syncMOC.performGroupedBlockAndWait {
             // when
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // then
             XCTAssertEqual(request.path, "/v1/list-users")
@@ -133,28 +138,26 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatRequestToFetchConnectedUsersIsNotGenerated_WhenFetchIsAlreadyInProgress() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v1
-            APIVersion.current = apiVersion
+            self.apiVersion = .v1
             self.mockSyncProgress.currentSyncPhase = .fetchingUsers
             self.otherUser.domain = "example.com"
-            _ = self.sut.nextRequest(for: apiVersion)!
+            _ = self.sut.nextRequest(for: self.apiVersion)!
 
             // when
-            XCTAssertNil(self.sut.nextRequest(for: apiVersion))
+            XCTAssertNil(self.sut.nextRequest(for: self.apiVersion))
         }
     }
 
     func testThatFetchingUsersSyncPhaseIsFinished_WhenFetchIsCompleted() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v1
-            APIVersion.current = apiVersion
+            self.apiVersion = .v1
             self.mockSyncProgress.currentSyncPhase = .fetchingUsers
             self.otherUser.domain = "example.com"
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // when
-            request.complete(with: self.successfulResponse(for: Payload.QualifiedUserIDList(request)!, apiVersion: apiVersion))
+            request.complete(with: self.successfulResponse(for: Payload.QualifiedUserIDList(request)!, apiVersion: self.apiVersion))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -167,14 +170,13 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatFetchingUsersSyncPhaseIsFinished_WhenThereIsNoUsersToFetch() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v1
-            APIVersion.current = apiVersion
+            self.apiVersion = .v1
             self.mockSyncProgress.currentSyncPhase = .fetchingUsers
             self.otherUser.domain = "example.com"
             self.syncMOC.delete(self.otherUser.connection!)
 
             // when
-            _ = self.sut.nextRequest(for: apiVersion)
+            _ = self.sut.nextRequest(for: self.apiVersion)
 
             // then
             XCTAssertEqual(self.mockSyncProgress.didFinishCurrentSyncPhase, .fetchingUsers)
@@ -186,14 +188,12 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatUsesLegacyEndpoint_WhenFederatedEndpointIsDisabled() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v0
-            APIVersion.current = apiVersion
             self.otherUser.domain = "example.com"
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
 
             // when
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // then
             XCTAssertEqual(request.path, "/users?ids=\(self.otherUser.remoteIdentifier.transportString())")
@@ -203,15 +203,14 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatNeedsToUpdatedFromBackendIsReset_WhenSuccessfullyProcessingResponse() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v1
-            APIVersion.current = apiVersion
+            self.apiVersion = .v1
             self.otherUser.domain = "example.com"
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // when
-            request.complete(with: self.successfulResponse(for: Payload.QualifiedUserIDList(request)!, apiVersion: apiVersion))
+            request.complete(with: self.successfulResponse(for: Payload.QualifiedUserIDList(request)!, apiVersion: self.apiVersion))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -224,16 +223,14 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatNeedsToUpdatedFromBackendIsReset_WhenSuccessfullyProcessingResponseFromLegacyEndpoint() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v0
-            APIVersion.current = apiVersion
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // when
             let qualifiedID = QualifiedID(uuid: self.otherUser.remoteIdentifier, domain: "example.com")
             let qualifiedIDs = Payload.QualifiedUserIDList(qualifiedIDs: [qualifiedID])
-            request.complete(with: self.successfulResponse(for: qualifiedIDs, apiVersion: apiVersion))
+            request.complete(with: self.successfulResponse(for: qualifiedIDs, apiVersion: self.apiVersion))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -246,16 +243,15 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatNeedsToUpdatedFromBackendIsReset_WhenUserProfileIsNotIncludedInResponse() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v1
-            APIVersion.current = apiVersion
+            self.apiVersion = .v1
             self.otherUser.domain = "example.com"
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // when
             let qualifiedIDs = Payload.QualifiedUserIDList(qualifiedIDs: [])
-            request.complete(with: self.successfulResponse(for: qualifiedIDs, apiVersion: apiVersion))
+            request.complete(with: self.successfulResponse(for: qualifiedIDs, apiVersion: self.apiVersion))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -268,15 +264,13 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatNeedsToUpdatedFromBackendIsReset_WhenUserProfileIsNotIncludedInResponseFromLegacyEndpoint() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v0
-            APIVersion.current = apiVersion
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // when
             let qualifiedIDs = Payload.QualifiedUserIDList(qualifiedIDs: [])
-            request.complete(with: self.successfulResponse(for: qualifiedIDs, apiVersion: apiVersion))
+            request.complete(with: self.successfulResponse(for: qualifiedIDs, apiVersion: self.apiVersion))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -289,15 +283,14 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatNeedsToUpdatedFromBackendIsReset_WhenResponseIndicateAPermanentError() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v1
-            APIVersion.current = apiVersion
+            self.apiVersion = .v1
             self.otherUser.domain = "example.com"
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // when
-            request.complete(with: self.responseFailure(code: 404, label: .notFound, apiVersion: apiVersion))
+            request.complete(with: self.responseFailure(code: 404, label: .notFound, apiVersion: self.apiVersion))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
@@ -310,14 +303,12 @@ class UserProfileRequestStrategyTests: MessagingTestBase {
     func testThatNeedsToUpdatedFromBackendIsReset_WhenResponseIndicateAPermanentErrorFromLegacyEndpoint() {
         syncMOC.performGroupedBlockAndWait {
             // given
-            let apiVersion = APIVersion.v0
-            APIVersion.current = apiVersion
             self.otherUser.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(Set([self.otherUser]))
-            let request = self.sut.nextRequest(for: apiVersion)!
+            let request = self.sut.nextRequest(for: self.apiVersion)!
 
             // when
-            request.complete(with: self.responseFailure(code: 404, label: .notFound, apiVersion: apiVersion))
+            request.complete(with: self.responseFailure(code: 404, label: .notFound, apiVersion: self.apiVersion))
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
