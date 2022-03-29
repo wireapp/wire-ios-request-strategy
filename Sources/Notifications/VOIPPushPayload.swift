@@ -18,22 +18,58 @@
 
 import Foundation
 
+/// The payload of a push for call events.
+
 public struct VOIPPushPayload: Codable {
 
     // MARK: - Properties
 
-    let accountID: UUID
-    let conversationID: UUID
-    let conversationDomain: String?
-    let senderID: UUID
-    let senderDomain: String?
-    let senderClientID: String
-    let timestamp: Date
-    let data: Data
+    /// The id of the account that triggered this push.
+
+    public let accountID: UUID
+
+    /// The id of the conversation in which the call event originated.
+
+    public let conversationID: UUID
+
+    /// The domain of the conversation in whcih the call event originated.
+
+    public let conversationDomain: String?
+
+    /// The user id of the sender who triggerd the call event.
+
+    public let senderID: UUID
+
+    /// The user domain of the sender who triggered the call event.
+
+    public let senderDomain: String?
+
+    /// The client id of the sender who triggered the call event.
+
+    public let senderClientID: String
+
+    /// The event timestamp.
+
+    public let timestamp: Date
+
+    /// The age of the event since it left the server.
+
+    public let serverTimeDelta: TimeInterval
+
+    /// The call event data.
+
+    public let data: Data
 
     // MARK: - Life cycle
 
-    public init?(from event: ZMUpdateEvent, accountID: UUID) {
+    /// Create a new instance from an update event.
+    ///
+    /// - Parameters:
+    ///     - event: An update event, expected to be for a calling message.
+    ///     - accountID: The account ID that triggered the event.
+    ///     - serverTimeDelta: The time since the event was fetched from the server.
+
+    public init?(from event: ZMUpdateEvent, accountID: UUID, serverTimeDelta: TimeInterval) {
         guard
             let message = GenericMessage(from: event),
             let data = message.calling.content.data(using: .utf8, allowLossyConversion: false),
@@ -52,8 +88,14 @@ public struct VOIPPushPayload: Codable {
         self.senderDomain = event.senderDomain
         self.senderClientID = senderClientID
         self.timestamp = timestamp
+        self.serverTimeDelta = serverTimeDelta
         self.data = data
     }
+
+    /// Create a new instance from a dictionary
+    ///
+    /// - Parameters:
+    ///     - dict: A dictionary representation of the push payload.
 
     public init?(from dict: [String: Any]) {
         guard
@@ -67,6 +109,8 @@ public struct VOIPPushPayload: Codable {
     }
 
     // MARK: - Methods
+
+    /// The dictionary representation of this push payload.
 
     public var asDictionary: [String: Any]? {
         guard
