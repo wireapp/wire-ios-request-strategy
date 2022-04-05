@@ -16,16 +16,18 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
+import WireDataModel
+
 // MARK: - Calling
 
 public extension ZMLocalNotification {
 
     convenience init?(callState: LocalNotificationType.CallState, conversation: ZMConversation, caller: ZMUser, moc: NSManagedObjectContext) {
-        guard let builder = CallNotificationBuilder(callState: callState, caller: caller, conversation: conversation) else { return nil }
+        guard let builder = CallNotificationBuilder1(callState: callState, caller: caller, conversation: conversation) else { return nil }
         self.init(builder: builder, moc: moc)
     }
 
-    private class CallNotificationBuilder: NotificationBuilder {
+    private class CallNotificationBuilder1: NotificationBuilder {
 
         let callState: LocalNotificationType.CallState
         let caller: ZMUser
