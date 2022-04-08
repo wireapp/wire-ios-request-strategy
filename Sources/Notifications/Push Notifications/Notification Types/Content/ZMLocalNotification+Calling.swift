@@ -47,8 +47,8 @@ public extension ZMLocalNotification {
             }
 
             switch callState {
-            case .incomingCall:
-                self.callState = .incomingCall(video: false)
+            case .incomingCall(let video):
+                self.callState = .incomingCall(video: video)
             case .missedCall:
                 self.callState = .missedCall(cancelled: true)
             }
