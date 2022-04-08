@@ -32,12 +32,13 @@ public final class ClientMessageRequestFactory: NSObject {
     public func upstreamRequestForFetchingClients(conversationId: UUID,
                                                   domain: String?,
                                                   selfClient: UserClient,
-                                                  apiVersion: APIVersion) -> ZMTransportRequest? {
+                                                  apiVersion: APIVersion,
+                                                  forceLegacyEndpoint: Bool = false) -> ZMTransportRequest? {
         var path: String
         var message: SwiftProtobuf.Message
 
-        switch apiVersion {
-        case .v0:
+        switch (apiVersion, forceLegacyEndpoint) {
+        case (.v0, _), (_, true):
             path = "/" + ["conversations",
                           conversationId.transportString(),
                           "otr",
@@ -51,7 +52,7 @@ public final class ClientMessageRequestFactory: NSObject {
                 nativePush: false,
                 recipients: []
             )
-        case .v1:
+        case (.v1, false):
             guard let domain = domain ?? APIVersion.domain else {
                 zmLog.error("could not create request: missing domain")
                 return nil
