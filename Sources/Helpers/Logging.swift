@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2020 Wire Swiss GmbH
+// Copyright (C) 2021 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,21 +17,31 @@
 //
 
 import Foundation
+import WireSystem
+import WireUtilities
 
-enum Logging {
+public enum Logging {
 
     /// For logs related to processing message data, which may included
     /// work related to `GenericMessage` profotobuf data or the `ZMClientMessage`
     /// and `ZMAssetClientMessage` container types.
 
-    static let messageProcessing = ZMSLog(tag: "Message Processing")
+    public static let messageProcessing = ZMSLog(tag: "Message Processing")
 
     /// For logs related to processing update events.
 
-    static let eventProcessing = ZMSLog(tag: "event-processing")
+    public static let eventProcessing = ZMSLog(tag: "event-processing")
 
     /// For logs related to network requests.
 
-    static let network = ZMSLog(tag: "Network")
+    public static let network = ZMSLog(tag: "Network")
+
+    /// For logs related to push notifications.
+
+    public static let push = ZMSLog(tag: "Push")
+
+    /// For logs related to encryption at rest.
+
+    public static let EAR = ZMSLog(tag: "EAR")
 
 }

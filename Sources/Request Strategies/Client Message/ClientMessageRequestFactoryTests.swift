@@ -181,7 +181,7 @@ extension ClientMessageRequestFactoryTests {
             )
 
             guard let data = request?.binaryData else {
-                return XCTFail("request has no data")
+                return XCTFail("request has no binary data")
             }
 
             let message = try? Proteus_NewOtrMessage(serializedData: data)
@@ -216,7 +216,7 @@ extension ClientMessageRequestFactoryTests {
             )
 
             guard let data = request?.binaryData else {
-                return XCTFail("request has no data")
+                return XCTFail("request has no binary data")
             }
 
             let message = try? Proteus_QualifiedNewOtrMessage(serializedData: data)
