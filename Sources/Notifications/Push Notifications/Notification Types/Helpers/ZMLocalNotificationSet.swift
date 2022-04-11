@@ -52,7 +52,7 @@ import UserNotifications
 
         guard
             let archive = keyValueStore.storedValue(key: archivingKey) as? Data,
-            let unarchivedNotes = NSKeyedUnarchiver.unarchiveObject(with: archive) as? [NotificationUserInfo]
+            let unarchivedNotes = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(archive) as? [NotificationUserInfo]
         else {
             return
 
@@ -63,7 +63,7 @@ import UserNotifications
 
     /// Archives all scheduled notifications - this could be optimized
     func updateArchive() {
-        let data = NSKeyedArchiver.archivedData(withRootObject: allNotifications)
+        guard let data = try? NSKeyedArchiver.archivedData(withRootObject: allNotifications, requiringSecureCoding: false) else { return }
         keyValueStore.store(value: data as NSData, key: archivingKey)
         keyValueStore.enqueueDelayedSave() // we need to save otherwise changes might not be stored
     }
