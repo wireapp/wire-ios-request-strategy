@@ -31,17 +31,17 @@ public extension ZMLocalNotification {
 
         let callState: LocalNotificationType.CallState
         let caller: ZMUser
-        let conversation: ZMConversation
+        let conversation: ZMConversation?
         let managedObjectContext: NSManagedObjectContext
 
         var notificationType: LocalNotificationType {
             return .calling(callState)
         }
 
-        init?(callState: LocalNotificationType.CallState, caller: ZMUser, conversation: ZMConversation) {
+        init?(callState: LocalNotificationType.CallState, caller: ZMUser, conversation: ZMConversation?) {
             guard
-                let managedObjectContext = conversation.managedObjectContext,
-                conversation.remoteIdentifier != nil
+                let managedObjectContext = conversation?.managedObjectContext,
+                conversation?.remoteIdentifier != nil
             else {
                 return nil
             }
@@ -59,7 +59,7 @@ public extension ZMLocalNotification {
         }
 
         func shouldCreateNotification() -> Bool {
-            guard conversation.mutedMessageTypesIncludingAvailability != .all else { return false }
+            guard conversation?.mutedMessageTypesIncludingAvailability != .all else { return false }
             return true
         }
 
@@ -76,14 +76,14 @@ public extension ZMLocalNotification {
 
             guard let selfUserID = selfUser.remoteIdentifier,
                   let senderID = caller.remoteIdentifier,
-                  let conversationID = conversation.remoteIdentifier
+                  let conversationID = conversation?.remoteIdentifier
                   else { return nil }
 
             let userInfo = NotificationUserInfo()
             userInfo.selfUserID = selfUserID
             userInfo.senderID = senderID
             userInfo.conversationID = conversationID
-            userInfo.conversationName = conversation.meaningfulDisplayName
+            userInfo.conversationName = conversation?.meaningfulDisplayName
             userInfo.teamName = selfUser.team?.name
 
             return userInfo
