@@ -99,7 +99,7 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
 
             // then
             XCTAssertNotNil(note)
-            XCTAssertEqual(note!.body, "Super User created a group")
+            XCTAssertEqual(note!.body, "Super User created a conversation")
         }
     }
 
@@ -112,7 +112,7 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
 
             // then
             XCTAssertNotNil(note)
-            XCTAssertEqual(note!.body, "Someone created a group")
+            XCTAssertEqual(note!.body, "Someone created a conversation")
         }
     }
 
