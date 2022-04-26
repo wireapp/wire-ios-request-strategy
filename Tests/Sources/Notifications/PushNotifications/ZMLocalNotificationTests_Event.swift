@@ -24,6 +24,7 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
     let EventConversationDelete = "conversation.delete"
     let EventConversationCreate = "conversation.create"
     let EventNewConnection = "user.contact-join"
+    let EventaAddOTRMessage = "conversation.otr-message-add"
 
     // MARK: Helpers
 
@@ -98,7 +99,7 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
 
             // then
             XCTAssertNotNil(note)
-            XCTAssertEqual(note!.body, "Super User created a group")
+            XCTAssertEqual(note!.body, "Super User created a conversation")
         }
     }
 
@@ -111,7 +112,7 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
 
             // then
             XCTAssertNotNil(note)
-            XCTAssertEqual(note!.body, "Someone created a group")
+            XCTAssertEqual(note!.body, "Someone created a conversation")
         }
     }
 
@@ -314,14 +315,18 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
 
     func testThatItCreatesTheCorrectAlertBody_ConvWithoutName() {
         syncMOC.performGroupedBlockAndWait {
-            guard let alertBody = self.alertBody(self.groupConversationWithoutName, aSender: self.otherUser1) else { return XCTFail()}
+            guard let alertBody = self.alertBody(self.groupConversationWithoutName, aSender: self.otherUser1) else {
+                return XCTFail("Alert body is missing")
+            }
             XCTAssertEqual(alertBody, "Other User1 ❤️ your message in a conversation")
         }
     }
 
     func testThatItCreatesTheCorrectAlertBody() {
         syncMOC.performGroupedBlockAndWait {
-            guard let alertBody = self.alertBody(self.groupConversation, aSender: self.otherUser1) else { return XCTFail()}
+            guard let alertBody = self.alertBody(self.groupConversation, aSender: self.otherUser1) else {
+                return XCTFail("Alert body is missing")
+            }
             XCTAssertEqual(alertBody, "Other User1 ❤️ your message")
         }
     }
@@ -329,7 +334,9 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
     func testThatItCreatesTheCorrectAlertBody_UnknownUser() {
         syncMOC.performGroupedBlockAndWait {
             self.otherUser1.name = ""
-            guard let alertBody = self.alertBody(self.groupConversation, aSender: self.otherUser1) else { return XCTFail()}
+            guard let alertBody = self.alertBody(self.groupConversation, aSender: self.otherUser1) else {
+                return XCTFail("Alert body is missing")
+            }
             XCTAssertEqual(alertBody, "Someone ❤️ your message")
         }
     }
@@ -337,7 +344,9 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
         func testThatItCreatesTheCorrectAlertBody_UnknownUser_UnknownConversationName() {
             syncMOC.performGroupedBlockAndWait {
                 self.otherUser1.name = ""
-                guard let alertBody = self.alertBody(self.groupConversationWithoutName, aSender: self.otherUser1) else { return XCTFail()}
+                guard let alertBody = self.alertBody(self.groupConversationWithoutName, aSender: self.otherUser1) else {
+                    return XCTFail("Alert body is missing")
+                }
                 XCTAssertEqual(alertBody, "Someone ❤️ your message in a conversation")
             }
         }
@@ -345,7 +354,9 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
         func testThatItCreatesTheCorrectAlertBody_UnknownUser_OneOnOneConv() {
             syncMOC.performGroupedBlockAndWait {
                 self.otherUser1.name = ""
-                guard let alertBody = self.alertBody(self.oneOnOneConversation, aSender: self.otherUser1) else { return XCTFail()}
+                guard let alertBody = self.alertBody(self.oneOnOneConversation, aSender: self.otherUser1) else {
+                    return XCTFail("Alert body is missing")
+                }
                 XCTAssertEqual(alertBody, "Someone ❤️ your message")
             }
         }
@@ -579,6 +590,20 @@ final class ZMLocalNotificationTests_Event: ZMLocalNotificationTests {
 
             // then
             XCTAssertNil(note)
+        }
+    }
+
+    func testThatItCreatesATextNotification_NoConversation() {
+        // given
+        syncMOC.performGroupedBlockAndWait {
+            let genericMessage = GenericMessage(content: Text(content: "123"))
+
+            // when
+            let note = self.noteWithPayload(["text": try? genericMessage.serializedData().base64EncodedString()], from: self.sender, in: nil, type: self.EventaAddOTRMessage)
+
+            // then
+            XCTAssertNotNil(note)
+            XCTAssertEqual(note!.body, "Super User in a conversation: 123")
         }
     }
 
