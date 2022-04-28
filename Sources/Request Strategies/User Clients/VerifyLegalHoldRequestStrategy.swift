@@ -88,7 +88,7 @@ extension VerifyLegalHoldRequestStrategy: IdentifierObjectSyncTranscoder {
 
         let verifyClientsParser = VerifyClientsParser(context: managedObjectContext, conversation: conversation)
 
-        let changeSet = verifyClientsParser.parseEmptyUploadResponse(response, in: conversation, clientRegistrationDelegate: applicationStatus!.clientRegistrationDelegate)
+        let changeSet = verifyClientsParser.processEmptyUploadResponse(response, in: conversation, clientRegistrationDelegate: applicationStatus!.clientRegistrationDelegate)
         conversation.updateSecurityLevelIfNeededAfterFetchingClients(changes: changeSet)
     }
 

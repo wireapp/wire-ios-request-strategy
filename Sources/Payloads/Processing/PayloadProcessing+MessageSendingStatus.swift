@@ -19,6 +19,10 @@ import Foundation
 
 // MARK: - Message sending
 
+extension Payload {
+    typealias ClientListByUser = [ZMUser: ClientList]
+}
+
 extension Payload.MessageSendingStatus {
 
     /// Updates the reported client changes after an attempt to send the message
@@ -58,6 +62,28 @@ extension Payload.MessageSendingStatus {
         }
 
         return !missingClients.isEmpty
+    }
+
+    func missingClientListByUser(context: NSManagedObjectContext) -> Payload.ClientListByUser {
+
+        let clientListByUserTuples = missing.flatMap { (domain, userClientsByUserID) in
+            userClientsByUserID.mappingUserIDsToUsers(in: context, domain: domain)
+        }
+
+        return Payload.ClientListByUser(clientListByUserTuples, uniquingKeysWith: +)
+    }
+
+}
+
+extension Payload.ClientListByUserID {
+
+    func mappingUserIDsToUsers(in context: NSManagedObjectContext, domain: String?) -> [ZMUser: [String]] {
+
+        return reduce(into: Payload.ClientListByUser()) { (result, tuple: (userID: String, clientIDs: [String])) in
+            guard let userID = UUID(uuidString: tuple.userID) else { return }
+            let user = ZMUser.fetchOrCreate(with: userID, domain: domain, in: context)
+            result[user] = tuple.clientIDs
+        }
     }
 
 }
