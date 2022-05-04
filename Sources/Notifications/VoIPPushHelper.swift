@@ -32,8 +32,13 @@ public enum VoIPPushHelper {
     public static var storage: UserDefaults = .standard
 
     public static var isCallKitAvailable: Bool {
-        get { storage.bool(forKey: Key.isCallKitAvailable.rawValue) }
-        set { storage.set(newValue, forKey: Key.isCallKitAvailable.rawValue) }
+        get {
+            storage.bool(forKey: Key.isCallKitAvailable.rawValue)
+        }
+
+        set {
+            storage.set(newValue, forKey: Key.isCallKitAvailable.rawValue)
+        }
     }
 
     public static func setLoadedUserSessions(accountIDs: [UUID]) {
@@ -47,13 +52,23 @@ public enum VoIPPushHelper {
     }
 
     private static var loadedUserSessions: [String] {
-        get { storage.object(forKey: Key.loadedUserSessions.rawValue) as? [String] ?? [] }
-        set { storage.set(newValue, forKey: Key.loadedUserSessions.rawValue) }
+        get {
+            storage.object(forKey: Key.loadedUserSessions.rawValue) as? [String] ?? []
+        }
+
+        set {
+            storage.set(newValue, forKey: Key.loadedUserSessions.rawValue)
+        }
     }
 
     public static var isAVSReady: Bool {
-        get { storage.bool(forKey: Key.isAVSReady.rawValue) }
-        set { storage.set(newValue, forKey: Key.isAVSReady.rawValue) }
+        get {
+            storage.bool(forKey: Key.isAVSReady.rawValue)
+        }
+
+        set {
+            storage.set(newValue, forKey: Key.isAVSReady.rawValue)
+        }
     }
 
     public static func setOngoingCalls(conversationIDs: [UUID]) {
@@ -67,8 +82,13 @@ public enum VoIPPushHelper {
     }
 
     private static var callKitCalls: [String] {
-        get { storage.object(forKey: Key.knownCalls.rawValue) as? [String] ?? [] }
-        set { storage.set(newValue, forKey: Key.knownCalls.rawValue) }
+        get {
+            storage.object(forKey: Key.knownCalls.rawValue) as? [String] ?? []
+        }
+
+        set {
+            storage.set(newValue, forKey: Key.knownCalls.rawValue)
+        }
     }
 
 }
