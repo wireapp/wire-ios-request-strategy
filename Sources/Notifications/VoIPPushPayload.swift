@@ -20,7 +20,7 @@ import Foundation
 
 /// The payload of a push for call events.
 
-public struct VOIPPushPayload: Codable {
+public struct VoIPPushPayload: Codable {
 
     // MARK: - Properties
 
