@@ -20,44 +20,55 @@ import Foundation
 
 public enum VoIPPushHelper {
 
+    enum Key: String {
+
+        case isCallKitAvailable
+        case loadedUserSessions
+        case isAVSReady
+        case knownCalls
+
+    }
+
     public static var storage: UserDefaults = .standard
 
     public static var isCallKitAvailable: Bool {
-        get { storage.bool(forKey: Keys.isCallKitAvailable.stringValue) }
-        set { storage.set(newValue, forKey: Keys.isCallKitAvailable.stringValue) }
+        get { storage.bool(forKey: Key.isCallKitAvailable.rawValue) }
+        set { storage.set(newValue, forKey: Key.isCallKitAvailable.rawValue) }
     }
 
-    public static func setIsUserSessionLoaded(accountID: UUID, isLoaded: Bool) {
-        storage.set(isLoaded, forKey: Keys.isLoadedUserSession(accountID: accountID).stringValue)
+    public static func setLoadedUserSessions(accountIDs: [UUID]) {
+        loadedUserSessions = accountIDs.map(\.uuidString)
     }
 
     public static func isUserSessionLoaded(accountID: UUID) -> Bool {
-        return storage.bool(forKey: Keys.isLoadedUserSession(accountID: accountID).stringValue)
+        return loadedUserSessions
+            .compactMap(UUID.init(uuidString:))
+            .contains(accountID)
+    }
+
+    private static var loadedUserSessions: [String] {
+        get { storage.object(forKey: Key.loadedUserSessions.rawValue) as? [String] ?? [] }
+        set { storage.set(newValue, forKey: Key.loadedUserSessions.rawValue) }
     }
 
     public static var isAVSReady: Bool {
-        get { storage.bool(forKey: Keys.isAVSReady.stringValue) }
-        set { storage.set(newValue, forKey: Keys.isAVSReady.stringValue) }
+        get { storage.bool(forKey: Key.isAVSReady.rawValue) }
+        set { storage.set(newValue, forKey: Key.isAVSReady.rawValue) }
     }
 
-    enum Keys {
+    public static func setOngoingCalls(conversationIDs: [UUID]) {
+        callKitCalls = conversationIDs.map(\.uuidString)
+    }
 
-        case isCallKitAvailable
-        case isLoadedUserSession(accountID: UUID)
-        case isAVSReady
+    public static func existsOngoingCallInConversation(withID id: UUID) -> Bool {
+        return callKitCalls
+            .compactMap(UUID.init(uuidString:))
+            .contains(id)
+    }
 
-        var stringValue: String {
-            switch self {
-            case .isCallKitAvailable:
-                return "isCallKitAvailable"
-
-            case let .isLoadedUserSession(accountID):
-                return "isLoadedUserSession-\(accountID)"
-
-            case .isAVSReady:
-                return "isAVSReady"
-            }
-        }
+    private static var callKitCalls: [String] {
+        get { storage.object(forKey: Key.knownCalls.rawValue) as? [String] ?? [] }
+        set { storage.set(newValue, forKey: Key.knownCalls.rawValue) }
     }
 
 }
