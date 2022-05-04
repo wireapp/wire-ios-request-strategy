@@ -195,6 +195,7 @@
 		D5D65A072074C23D00D7F3C3 /* AssetRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F963E8D91D955D4600098AD3 /* AssetRequestFactory.swift */; };
 		EE202DAB27F1F4CC00083AB3 /* VOIPPushPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE202DAA27F1F4CC00083AB3 /* VOIPPushPayload.swift */; };
 		EE3245FC2821D41000F2A84A /* VoIPPushHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3245FB2821D41000F2A84A /* VoIPPushHelper.swift */; };
+		EE3246042823196100F2A84A /* VoIPPushHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3246032823196100F2A84A /* VoIPPushHelperTests.swift */; };
 		EE4C5FBE27D2C5CD000C0D45 /* BundledMessageNotificationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4C5FBD27D2C5CD000C0D45 /* BundledMessageNotificationBuilder.swift */; };
 		EE82318927D22D79008CD77B /* String+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE82318827D22D79008CD77B /* String+Random.swift */; };
 		EEAC16D4281AE5F700B7A34D /* CallEventContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAC16D3281AE5F700B7A34D /* CallEventContent.swift */; };
@@ -547,6 +548,7 @@
 		D5D65A052073C8F800D7F3C3 /* AssetRequestFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRequestFactoryTests.swift; sourceTree = "<group>"; };
 		EE202DAA27F1F4CC00083AB3 /* VOIPPushPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VOIPPushPayload.swift; sourceTree = "<group>"; };
 		EE3245FB2821D41000F2A84A /* VoIPPushHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoIPPushHelper.swift; sourceTree = "<group>"; };
+		EE3246032823196100F2A84A /* VoIPPushHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoIPPushHelperTests.swift; sourceTree = "<group>"; };
 		EE4C5FBD27D2C5CD000C0D45 /* BundledMessageNotificationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundledMessageNotificationBuilder.swift; sourceTree = "<group>"; };
 		EE82318827D22D79008CD77B /* String+Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Random.swift"; sourceTree = "<group>"; };
 		EEAC16D3281AE5F700B7A34D /* CallEventContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallEventContent.swift; sourceTree = "<group>"; };
@@ -682,6 +684,7 @@
 				EEAC16D3281AE5F700B7A34D /* CallEventContent.swift */,
 				EEAC16D5281AEB0200B7A34D /* CallEventContentTests.swift */,
 				EE3245FB2821D41000F2A84A /* VoIPPushHelper.swift */,
+				EE3246032823196100F2A84A /* VoIPPushHelperTests.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -1789,6 +1792,7 @@
 				F1956204202A1506005347C0 /* ZMRequestGeneratorTests.m in Sources */,
 				1621D2661D75C755007108C2 /* ZMLocallyModifiedObjectSyncStatusTests.m in Sources */,
 				0693115624F7B17300D14DF5 /* ZMLocalNotificationTests_SystemMessage.swift in Sources */,
+				EE3246042823196100F2A84A /* VoIPPushHelperTests.swift in Sources */,
 				F18401FE2073C2EA00E9F4CC /* MessagingTest+Encryption.swift in Sources */,
 				16A86B4622A5485E00A674F8 /* IdentifierObjectSyncTests.swift in Sources */,
 				A90C56E62685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift in Sources */,
