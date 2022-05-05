@@ -16,49 +16,41 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import WireRequestStrategy
 import Foundation
 
 public struct CallEventContent: Decodable {
 
-    struct Properties: Decodable {
-        private let videosend: String
+    // MARK: - Properties
 
-        var isVideo: Bool {
-            return videosend == "true"
-        }
-    }
+    /// Call event type.
 
-    /// Call event type
     let type: String
 
-    /// Properties containing infor whether the incoming call has video or not
+    /// Properties containing info whether the incoming call has video or not.
+
     let props: Properties?
 
-    /// Caller Id
-    let callerIDString: String
+    /// Caller Id.
+
+    let src_userid: String
 
     let resp: Bool
 
-    private enum CodingKeys: String, CodingKey {
-        case type
-        case resp
-        case callerIDString = "src_userid"
-        case props
-    }
-
-    // MARK: - Initialization
+    // MARK: - Life cycle
 
     public init?(from data: Data, with decoder: JSONDecoder = .init()) {
         do {
             self = try decoder.decode(Self.self, from: data)
-        } catch {
+        } catch let error {
+            print(error.localizedDescription)
             return nil
         }
     }
 
+    // MARK: - Methods
+
     public var callerID: UUID? {
-        return UUID(uuidString: callerIDString)
+        return UUID(uuidString: src_userid)
     }
 
     public var callState: LocalNotificationType.CallState? {
@@ -81,6 +73,19 @@ public struct CallEventContent: Decodable {
 
     public var isRemoteMute: Bool {
         return type == "REMOTEMUTE"
+    }
+
+}
+
+extension CallEventContent {
+
+    struct Properties: Decodable {
+
+        private let videosend: String
+
+        var isVideo: Bool {
+            return videosend == "true"
+        }
     }
 
 }
