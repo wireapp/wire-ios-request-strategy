@@ -20,6 +20,18 @@ import Foundation
 
 public struct CallEventContent: Decodable {
 
+    private enum CodingKeys: String, CodingKey {
+
+        case type
+
+        case props
+
+        case callerIdString = "src_userid"
+
+        case resp
+
+    }
+
     // MARK: - Properties
 
     /// Call event type.
@@ -32,7 +44,7 @@ public struct CallEventContent: Decodable {
 
     /// Caller Id.
 
-    let src_userid: String
+    let callerIdString: String
 
     let resp: Bool
 
@@ -50,7 +62,7 @@ public struct CallEventContent: Decodable {
     // MARK: - Methods
 
     public var callerID: UUID? {
-        return UUID(uuidString: src_userid)
+        return UUID(uuidString: callerIdString)
     }
 
     public var callState: LocalNotificationType.CallState? {
