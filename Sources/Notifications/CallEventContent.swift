@@ -80,7 +80,7 @@ public struct CallEventContent: Decodable {
     }
 
     public var isEndCall: Bool {
-        return type == "CANCEL"
+        return type.isOne(of: ["CANCEL", "GROUPEND", "CONFEND"])
     }
 
     public var isRemoteMute: Bool {

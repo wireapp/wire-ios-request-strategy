@@ -94,6 +94,14 @@ class CallEventContentTests: XCTestCase {
             XCTAssertTrue(sut.isEndCall)
         }
 
+        try given(type: "GROUPEND") { sut in
+            XCTAssertTrue(sut.isEndCall)
+        }
+
+        try given(type: "CONFEND") { sut in
+            XCTAssertTrue(sut.isEndCall)
+        }
+
         try given(type: "FOO") { sut in
             XCTAssertFalse(sut.isEndCall)
         }
