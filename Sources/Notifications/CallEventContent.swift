@@ -24,7 +24,7 @@ public struct CallEventContent: Decodable {
 
         case type
 
-        case props
+        case properties = "props"
 
         case callerIdString = "src_userid"
 
@@ -40,7 +40,7 @@ public struct CallEventContent: Decodable {
 
     /// Properties containing info whether the incoming call has video or not.
 
-    let props: Properties?
+    let properties: Properties?
 
     /// Caller Id.
 
@@ -67,7 +67,7 @@ public struct CallEventContent: Decodable {
 
     public var callState: LocalNotificationType.CallState? {
         if isStartCall && !resp {
-            return .incomingCall(video: props?.isVideo ?? false)
+            return .incomingCall(video: properties?.isVideo ?? false)
         } else if isEndCall {
             return .missedCall(cancelled: true)
         } else {
