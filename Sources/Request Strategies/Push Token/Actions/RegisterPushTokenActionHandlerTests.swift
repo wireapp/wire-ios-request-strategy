@@ -78,7 +78,6 @@ class RegisterPushTokenActionHandlerTests: MessagingTestBase {
         action.onResult { result in
             guard case .success = result else { return }
             didSucceed.fulfill()
-
         }
 
         // When
