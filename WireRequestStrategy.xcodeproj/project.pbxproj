@@ -1040,10 +1040,18 @@
 		EE90C29C282E782900474379 /* Push Token */ = {
 			isa = PBXGroup;
 			children = (
+				EE90C2A1282E7E1F00474379 /* Actions */,
 				EE90C29D282E785800474379 /* PushTokenStrategy.swift */,
 				EE90C29F282E7A3800474379 /* PushTokenStrategyTests.swift */,
 			);
 			path = "Push Token";
+			sourceTree = "<group>";
+		};
+		EE90C2A1282E7E1F00474379 /* Actions */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Actions;
 			sourceTree = "<group>";
 		};
 		F12CD7932035FC4400EAAEBC /* Resources */ = {
