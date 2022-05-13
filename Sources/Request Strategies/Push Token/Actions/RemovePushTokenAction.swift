@@ -53,8 +53,9 @@ public class RemovePushTokenAction: EntityAction {
 
     // MARK: - Life cycle
 
-    public init(deviceToken: String) {
+    public init(deviceToken: String, resultHandler: ResultHandler? = nil) {
         self.deviceToken = deviceToken
+        self.resultHandler = resultHandler
     }
 
 }
