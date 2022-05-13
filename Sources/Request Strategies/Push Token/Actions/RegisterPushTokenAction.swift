@@ -43,11 +43,16 @@ public class RegisterPushTokenAction: EntityAction {
 
     // MARK: - Life cycle
 
-    public init(token: PushToken, clientID: String) {
+    public init(
+        token: PushToken,
+        clientID: String,
+        resultHandler: ResultHandler? = nil
+    ) {
         self.appID = token.appIdentifier
         self.token = token.deviceTokenString
         self.tokenType = token.transportType
         self.clientID = clientID
+        self.resultHandler = resultHandler
     }
 
 }
