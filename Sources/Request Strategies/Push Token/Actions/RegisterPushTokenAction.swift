@@ -25,10 +25,24 @@ public class RegisterPushTokenAction: EntityAction {
 
     public typealias Result = Void
 
-    public enum Failure: Error {
+    public enum Failure: LocalizedError, SafeForLoggingStringConvertible {
 
         case appDoesNotExist
         case unknown(status: Int)
+
+        public var errorDescription: String? {
+            switch self {
+            case .appDoesNotExist:
+                return "Application identifier does not exist."
+
+            case .unknown(let status):
+                return "Unknown error (response status: \(status))"
+            }
+        }
+
+        public var safeForLoggingDescription: String {
+            return errorDescription ?? ""
+        }
 
     }
 
@@ -43,11 +57,16 @@ public class RegisterPushTokenAction: EntityAction {
 
     // MARK: - Life cycle
 
-    public init(token: PushToken, clientID: String) {
+    public init(
+        token: PushToken,
+        clientID: String,
+        resultHandler: ResultHandler? = nil
+    ) {
         self.appID = token.appIdentifier
         self.token = token.deviceTokenString
         self.tokenType = token.transportType
         self.clientID = clientID
+        self.resultHandler = resultHandler
     }
 
 }
