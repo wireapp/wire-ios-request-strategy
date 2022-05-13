@@ -25,11 +25,24 @@ public class RemovePushTokenAction: EntityAction {
 
     public typealias Result = Void
 
-    public enum Failure: Error {
+    public enum Failure: LocalizedError, SafeForLoggingStringConvertible {
 
         case tokenDoesNotExist
         case unknown(status: Int)
+        
+        public var errorDescription: String? {
+            switch self {
+            case .tokenDoesNotExist:
+                return "Push token does not exist."
 
+            case .unknown(let status):
+                return "Unknown error (response status: \(status))"
+            }
+        }
+
+        public var safeForLoggingDescription: String {
+            return errorDescription ?? ""
+        }
     }
 
     // MARK: - Properties

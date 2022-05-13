@@ -21,5 +21,121 @@ import Foundation
 
 class RemovePushTokenActionHandlerTests: MessagingTestBase {
 
+    // MARK: - Helpers
+
+    let deviceToken = "deviceToken"
+    let pushToken = PushToken(
+        deviceToken: "deviceToken".data(using: .utf8)!,
+        appIdentifier: "appIdentifier",
+        transportType: "APNS",
+        tokenType: .standard,
+        isRegistered: false
+    )
+
+    func responseWithStatus(_ status: Int) -> ZMTransportResponse {
+        return ZMTransportResponse(
+            payload: nil,
+            httpStatus: status,
+            transportSessionError: nil,
+            apiVersion: APIVersion.v0.rawValue
+        )
+    }
+
+    // MARK: - Request generation
+
+    func test_itGeneratesARequest() throws {
+        // Given
+        let sut = RemovePushTokenActionHandler(context: syncMOC)
+        let action = RemovePushTokenAction(deviceToken: deviceToken)
+
+        // When
+        let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v0))
+
+        // Then
+        XCTAssertEqual(request.path, "/push/tokens/\(deviceToken)")
+        XCTAssertEqual(request.method, .methodDELETE)
+    }
+
+    // MARK: - Response handling
+
+    func test_itHandlesResponse_201() throws {
+        // Given
+        let sut = RemovePushTokenActionHandler(context: syncMOC)
+        var action = RemovePushTokenAction(deviceToken: deviceToken)
+
+        // Expectation
+        let didSucceed = expectation(description: "didSucceed")
+
+        action.onResult { result in
+            guard case .success = result else { return }
+            didSucceed.fulfill()
+        }
+
+        // When
+        sut.handleResponse(responseWithStatus(201), action: action)
+
+        // Then
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+    }
+
+    func test_itHandlesResponse_204() throws {
+        // Given
+        let sut = RemovePushTokenActionHandler(context: syncMOC)
+        var action = RemovePushTokenAction(deviceToken: deviceToken)
+
+        // Expectation
+        let didSucceed = expectation(description: "didSucceed")
+
+        action.onResult { result in
+            guard case .success = result else { return }
+            didSucceed.fulfill()
+        }
+
+        // When
+        sut.handleResponse(responseWithStatus(204), action: action)
+
+        // Then
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+    }
+
+    func test_itHandlesResponse_404() throws {
+        // Given
+        let sut = RemovePushTokenActionHandler(context: syncMOC)
+        var action = RemovePushTokenAction(deviceToken: deviceToken)
+
+        // Expectation
+        let didFail = expectation(description: "didFail")
+
+        action.onResult { result in
+            guard case .failure(.tokenDoesNotExist) = result else { return }
+            didFail.fulfill()
+        }
+
+        // When
+        sut.handleResponse(responseWithStatus(404), action: action)
+
+        // Then
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+    }
+
+    func test_itHandlesResponse_UnknownError() throws {
+        // Given
+        let sut = RemovePushTokenActionHandler(context: syncMOC)
+        var action = RemovePushTokenAction(deviceToken: deviceToken)
+
+        // Expectation
+        let didFail = expectation(description: "didFail")
+
+        action.onResult { result in
+            guard case .failure(.unknown(999)) = result else { return }
+            didFail.fulfill()
+        }
+
+        // When
+        sut.handleResponse(responseWithStatus(999), action: action)
+
+        // Then
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+    }
     
 }

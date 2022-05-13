@@ -35,7 +35,6 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
 
     enum RequestType: String {
         case getToken
-        case deleteToken
     }
 
     private let registerPushTokenActionHandler: RegisterPushTokenActionHandler
@@ -101,19 +100,9 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
         let request: ZMTransportRequest
         let requestType: RequestType
 
-        if let legacyPushToken = client.legacyPushToken, legacyPushToken.isMarkedForDeletion {
-            request = ZMTransportRequest(path: "\(PushTokenPath)/\(legacyPushToken.deviceTokenString)", method: .methodDELETE, payload: nil, apiVersion: apiVersion.rawValue)
-            requestType = .deleteToken
-        } else if let pushToken = client.pushToken {
-            if pushToken.isMarkedForDeletion {
-                request = ZMTransportRequest(path: "\(PushTokenPath)/\(pushToken.deviceTokenString)", method: .methodDELETE, payload: nil, apiVersion: apiVersion.rawValue)
-                requestType = .deleteToken
-            } else if pushToken.isMarkedForDownload {
-                request = ZMTransportRequest(path: "\(PushTokenPath)", method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
-                requestType = .getToken
-            } else {
-                return nil
-            }
+        if let pushToken = client.pushToken, pushToken.isMarkedForDownload {
+            request = ZMTransportRequest(path: "\(PushTokenPath)", method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
+            requestType = .getToken
         } else {
             return nil
         }
@@ -137,21 +126,6 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
         guard let requestTypeValue = userInfo[Keys.RequestTypeKey], let requestType = RequestType(rawValue: requestTypeValue) else { return false }
 
         switch requestType {
-        case .deleteToken:
-            if let legacyPushToken = client.legacyPushToken, legacyPushToken.isMarkedForDeletion {
-                client.legacyPushToken = nil
-
-                // Return true to indicate more requests are needed because we still need to register the new push token.
-                return true
-
-            // The token might have changed in the meantime, check if it's still up for deletion
-            } else if let token = client.pushToken, token.isMarkedForDeletion {
-                client.pushToken = nil
-                NotificationInContext(name: Self.registerCurrentPushTokenNotificationName, context: managedObjectContext.notificationContext).post()
-                return false
-            } else {
-                return false
-            }
         case .getToken:
             guard let pushToken = client.pushToken,
                   let responseData = response.rawData else { return false }
