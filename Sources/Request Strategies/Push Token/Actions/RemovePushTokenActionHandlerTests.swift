@@ -24,13 +24,6 @@ class RemovePushTokenActionHandlerTests: MessagingTestBase {
     // MARK: - Helpers
 
     let deviceToken = "deviceToken"
-    let pushToken = PushToken(
-        deviceToken: "deviceToken".data(using: .utf8)!,
-        appIdentifier: "appIdentifier",
-        transportType: "APNS",
-        tokenType: .standard,
-        isRegistered: false
-    )
 
     func responseWithStatus(_ status: Int) -> ZMTransportResponse {
         return ZMTransportResponse(
