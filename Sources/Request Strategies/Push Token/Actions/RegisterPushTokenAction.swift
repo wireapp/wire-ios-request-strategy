@@ -19,13 +19,13 @@
 import Foundation
 import WireDataModel
 
-class RegisterPushTokenAction: EntityAction {
+public class RegisterPushTokenAction: EntityAction {
 
     // MARK: - Types
 
-    typealias Result = Void
+    public typealias Result = Void
 
-    enum Failure: Error {
+    public enum Failure: Error {
 
         case appDoesNotExist
         case unknown(status: Int)
@@ -34,16 +34,16 @@ class RegisterPushTokenAction: EntityAction {
 
     // MARK: - Properties
 
-    var resultHandler: ResultHandler?
+    public var resultHandler: ResultHandler?
 
-    let appID: String
-    let token: String
-    let tokenType: String
-    let clientID: String
+    public let appID: String
+    public let token: String
+    public let tokenType: String
+    public let clientID: String
 
     // MARK: - Life cycle
 
-    init(token: PushToken, clientID: String) {
+    public init(token: PushToken, clientID: String) {
         self.appID = token.appIdentifier
         self.token = token.deviceTokenString
         self.tokenType = token.transportType
