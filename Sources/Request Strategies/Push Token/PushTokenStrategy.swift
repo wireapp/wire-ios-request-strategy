@@ -23,7 +23,7 @@ let VoIPIdentifierSuffix = "-voip"
 let TokenKey = "token"
 let PushTokenPath = "/push/tokens"
 
-public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, ZMContextChangeTrackerSource, ZMEventConsumer {
+public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, ZMContextChangeTrackerSource, ZMEventConsumer, ZMRequestGeneratorSource {
 
     @objc public static let registerCurrentPushTokenNotificationName = Notification.Name(rawValue: "ZMUserSessionResetPushTokensNotification")
 
@@ -35,8 +35,17 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
 
     enum RequestType: String {
         case getToken
-        case postToken
         case deleteToken
+    }
+
+    private let registerPushTokenActionHandler: RegisterPushTokenActionHandler
+    private let actionSync: EntityActionSync
+
+    public var requestGenerators: [ZMRequestGenerator] {
+        return [
+            actionSync,
+            pushKitTokenSync
+        ]
     }
 
     fileprivate var pushKitTokenSync: ZMUpstreamModifiedObjectSync!
@@ -57,6 +66,12 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
                 applicationStatus: ApplicationStatus,
                 analytics: AnalyticsType?) {
 
+        registerPushTokenActionHandler = RegisterPushTokenActionHandler(context: managedObjectContext)
+
+        actionSync = EntityActionSync(actionHandlers: [
+            registerPushTokenActionHandler
+        ])
+
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
         pushKitTokenSync = ZMUpstreamModifiedObjectSync(
             transcoder: self,
@@ -73,7 +88,7 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
     }
 
     public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
-        return pushKitTokenSync.nextRequest(for: apiVersion)
+        return requestGenerators.nextRequest(for: apiVersion)
     }
 
 // MARK: - ZMUpstreamTranscoder
@@ -96,14 +111,6 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
             } else if pushToken.isMarkedForDownload {
                 request = ZMTransportRequest(path: "\(PushTokenPath)", method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
                 requestType = .getToken
-            } else if !pushToken.isRegistered {
-                let tokenPayload = PushTokenPayload(pushToken: pushToken, clientIdentifier: clientIdentifier)
-                let payloadData = try! JSONEncoder().encode(tokenPayload)
-
-                // In various places (MockTransport for example) the payload is expected to be dictionary
-                let payload = ((try? JSONDecoder().decode([String: String].self, from: payloadData)) ?? [:]) as NSDictionary
-                request = ZMTransportRequest(path: "\(PushTokenPath)", method: .methodPOST, payload: payload, apiVersion: apiVersion.rawValue)
-                requestType = .postToken
             } else {
                 return nil
             }
@@ -130,12 +137,6 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
         guard let requestTypeValue = userInfo[Keys.RequestTypeKey], let requestType = RequestType(rawValue: requestTypeValue) else { return false }
 
         switch requestType {
-        case .postToken:
-            guard let pushToken = client.pushToken else { return false }
-            var token = pushToken.resetFlags()
-            token.isRegistered = true
-            client.pushToken = token
-            return false
         case .deleteToken:
             if let legacyPushToken = client.legacyPushToken, legacyPushToken.isMarkedForDeletion {
                 client.legacyPushToken = nil
