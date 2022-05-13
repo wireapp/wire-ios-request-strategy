@@ -50,6 +50,9 @@
 		06C394B6248E6FDA00AE736A /* ZMSimpleListRequestPaginator.h in Headers */ = {isa = PBXBuildFile; fileRef = 06025667248E617D00E060E1 /* ZMSimpleListRequestPaginator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06C394B7248E6FDE00AE736A /* ZMSimpleListRequestPaginator+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 06025669248E61BF00E060E1 /* ZMSimpleListRequestPaginator+Internal.h */; };
 		06C394C5248E851000AE736A /* NotificationsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06C394C4248E851000AE736A /* NotificationsTracker.swift */; };
+		06CDDE9F282E9CC200F9360F /* RemovePushTokenAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CDDE9E282E9CC200F9360F /* RemovePushTokenAction.swift */; };
+		06CDDEA1282E9E7F00F9360F /* RemovePushTokenActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CDDEA0282E9E7F00F9360F /* RemovePushTokenActionHandler.swift */; };
+		06CDDEA3282E9E9800F9360F /* RemovePushTokenActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CDDEA2282E9E9800F9360F /* RemovePushTokenActionHandlerTests.swift */; };
 		06CF5DFA27FC900F00822FAB /* ZMLocalNotification+Calling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CF5DF927FC900F00822FAB /* ZMLocalNotification+Calling.swift */; };
 		160ADE9C270DBD0A003FA638 /* ConnectToUserActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160ADE9B270DBD0A003FA638 /* ConnectToUserActionHandlerTests.swift */; };
 		16189D02268B104C004831BE /* ProteusMessageSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16189D01268B104C004831BE /* ProteusMessageSyncTests.swift */; };
@@ -389,6 +392,9 @@
 		0693115524F7B17300D14DF5 /* ZMLocalNotificationTests_SystemMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMLocalNotificationTests_SystemMessage.swift; sourceTree = "<group>"; };
 		06ADF693264B467E002E0C7A /* MockAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAnalytics.swift; sourceTree = "<group>"; };
 		06C394C4248E851000AE736A /* NotificationsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsTracker.swift; sourceTree = "<group>"; };
+		06CDDE9E282E9CC200F9360F /* RemovePushTokenAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemovePushTokenAction.swift; sourceTree = "<group>"; };
+		06CDDEA0282E9E7F00F9360F /* RemovePushTokenActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemovePushTokenActionHandler.swift; sourceTree = "<group>"; };
+		06CDDEA2282E9E9800F9360F /* RemovePushTokenActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemovePushTokenActionHandlerTests.swift; sourceTree = "<group>"; };
 		06CF5DF927FC900F00822FAB /* ZMLocalNotification+Calling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMLocalNotification+Calling.swift"; sourceTree = "<group>"; };
 		160ADE9B270DBD0A003FA638 /* ConnectToUserActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectToUserActionHandlerTests.swift; sourceTree = "<group>"; };
 		16189D01268B104C004831BE /* ProteusMessageSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProteusMessageSyncTests.swift; sourceTree = "<group>"; };
@@ -1059,6 +1065,9 @@
 				EE90C2A4282E7EA900474379 /* RegisterPushTokenAction.swift */,
 				EE90C2A6282E7EC800474379 /* RegisterPushTokenActionHandler.swift */,
 				EE90C2A9282E855B00474379 /* RegisterPushTokenActionHandlerTests.swift */,
+				06CDDE9E282E9CC200F9360F /* RemovePushTokenAction.swift */,
+				06CDDEA0282E9E7F00F9360F /* RemovePushTokenActionHandler.swift */,
+				06CDDEA2282E9E9800F9360F /* RemovePushTokenActionHandlerTests.swift */,
 			);
 			path = Actions;
 			sourceTree = "<group>";
@@ -1717,6 +1726,7 @@
 				1682462F257A1FB7002AF17B /* KeyPathObjectSync.swift in Sources */,
 				BF1F52C61ECC74E5002FB553 /* Array+RequestGenerator.swift in Sources */,
 				0693115024F79E2500D14DF5 /* UserNotificationCenterMock.swift in Sources */,
+				06CDDE9F282E9CC200F9360F /* RemovePushTokenAction.swift in Sources */,
 				062DD2D82760CFAA00E27FD9 /* UUID+SafeLogging.swift in Sources */,
 				5E9EA4DE2243C10400D401B2 /* LinkAttachmentsPreprocessor.swift in Sources */,
 				166901E01D7081C7000FE4AF /* ZMRemoteIdentifierObjectSync.m in Sources */,
@@ -1775,6 +1785,7 @@
 				F14B7AEA222009BA00458624 /* UserRichProfileRequestStrategy.swift in Sources */,
 				16D0E07F1DF88B430075DF8F /* EntityTranscoder.swift in Sources */,
 				0649D14024F63AA0001DDC78 /* LocalNotificationContentType.swift in Sources */,
+				06CDDEA1282E9E7F00F9360F /* RemovePushTokenActionHandler.swift in Sources */,
 				EE90C2A7282E7EC800474379 /* RegisterPushTokenActionHandler.swift in Sources */,
 				F18401A62073BE0800E9F4CC /* MissingClientsRequestStrategy.swift in Sources */,
 				0649D12224F5C5EF001DDC78 /* ZMLocalNotification.swift in Sources */,
@@ -1853,6 +1864,7 @@
 				EE82318927D22D79008CD77B /* String+Random.swift in Sources */,
 				1621D2651D75C750007108C2 /* ZMLocallyModifiedObjectSetTests.m in Sources */,
 				06474DA624B4B1EA002C695D /* EventDecoderTest.swift in Sources */,
+				06CDDEA3282E9E9800F9360F /* RemovePushTokenActionHandlerTests.swift in Sources */,
 				068084982563B7310047899C /* FeatureConfigRequestStrategyTests.swift in Sources */,
 				168D7BBC26F330DE00789960 /* MessagingTest+Payloads.swift in Sources */,
 				1621D26D1D75C806007108C2 /* NSManagedObjectContext+TestHelpers.m in Sources */,
