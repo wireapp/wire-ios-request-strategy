@@ -200,6 +200,9 @@
 		EE82318927D22D79008CD77B /* String+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE82318827D22D79008CD77B /* String+Random.swift */; };
 		EE90C29E282E785800474379 /* PushTokenStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE90C29D282E785800474379 /* PushTokenStrategy.swift */; };
 		EE90C2A0282E7A3800474379 /* PushTokenStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE90C29F282E7A3800474379 /* PushTokenStrategyTests.swift */; };
+		EE90C2A7282E7EC800474379 /* RegisterPushTokenActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE90C2A6282E7EC800474379 /* RegisterPushTokenActionHandler.swift */; };
+		EE90C2A8282E7ECF00474379 /* RegisterPushTokenAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE90C2A4282E7EA900474379 /* RegisterPushTokenAction.swift */; };
+		EE90C2AA282E855B00474379 /* RegisterPushTokenActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE90C2A9282E855B00474379 /* RegisterPushTokenActionHandlerTests.swift */; };
 		EEAC16D4281AE5F700B7A34D /* CallEventContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAC16D3281AE5F700B7A34D /* CallEventContent.swift */; };
 		EEAC16D6281AEB0200B7A34D /* CallEventContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAC16D5281AEB0200B7A34D /* CallEventContentTests.swift */; };
 		F14B7AEA222009BA00458624 /* UserRichProfileRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14B7AE9222009BA00458624 /* UserRichProfileRequestStrategy.swift */; };
@@ -555,6 +558,9 @@
 		EE82318827D22D79008CD77B /* String+Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Random.swift"; sourceTree = "<group>"; };
 		EE90C29D282E785800474379 /* PushTokenStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTokenStrategy.swift; sourceTree = "<group>"; };
 		EE90C29F282E7A3800474379 /* PushTokenStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTokenStrategyTests.swift; sourceTree = "<group>"; };
+		EE90C2A4282E7EA900474379 /* RegisterPushTokenAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterPushTokenAction.swift; sourceTree = "<group>"; };
+		EE90C2A6282E7EC800474379 /* RegisterPushTokenActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterPushTokenActionHandler.swift; sourceTree = "<group>"; };
+		EE90C2A9282E855B00474379 /* RegisterPushTokenActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterPushTokenActionHandlerTests.swift; sourceTree = "<group>"; };
 		EEAC16D3281AE5F700B7A34D /* CallEventContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallEventContent.swift; sourceTree = "<group>"; };
 		EEAC16D5281AEB0200B7A34D /* CallEventContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallEventContentTests.swift; sourceTree = "<group>"; };
 		F14B7AE9222009BA00458624 /* UserRichProfileRequestStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRichProfileRequestStrategy.swift; sourceTree = "<group>"; };
@@ -1050,6 +1056,9 @@
 		EE90C2A1282E7E1F00474379 /* Actions */ = {
 			isa = PBXGroup;
 			children = (
+				EE90C2A4282E7EA900474379 /* RegisterPushTokenAction.swift */,
+				EE90C2A6282E7EC800474379 /* RegisterPushTokenActionHandler.swift */,
+				EE90C2A9282E855B00474379 /* RegisterPushTokenActionHandlerTests.swift */,
 			);
 			path = Actions;
 			sourceTree = "<group>";
@@ -1766,8 +1775,10 @@
 				F14B7AEA222009BA00458624 /* UserRichProfileRequestStrategy.swift in Sources */,
 				16D0E07F1DF88B430075DF8F /* EntityTranscoder.swift in Sources */,
 				0649D14024F63AA0001DDC78 /* LocalNotificationContentType.swift in Sources */,
+				EE90C2A7282E7EC800474379 /* RegisterPushTokenActionHandler.swift in Sources */,
 				F18401A62073BE0800E9F4CC /* MissingClientsRequestStrategy.swift in Sources */,
 				0649D12224F5C5EF001DDC78 /* ZMLocalNotification.swift in Sources */,
+				EE90C2A8282E7ECF00474379 /* RegisterPushTokenAction.swift in Sources */,
 				166901DD1D7081C7000FE4AF /* ZMLocallyModifiedObjectSyncStatus.m in Sources */,
 				F18401BB2073BE0800E9F4CC /* LinkPreviewAssetDownloadRequestStrategy.swift in Sources */,
 				16751E8524CF72970099AE09 /* DeliveryReceiptRequestStrategy.swift in Sources */,
@@ -1855,6 +1866,7 @@
 				16E70F94270EEEEB00718E5D /* PayloadProcessing+ConnectionTests.swift in Sources */,
 				16189D0A268B2C34004831BE /* ModifiedKeyObjectSyncTests.swift in Sources */,
 				F1956200202A141B005347C0 /* ZMDownstreamObjectSyncOrderingTests.m in Sources */,
+				EE90C2AA282E855B00474379 /* RegisterPushTokenActionHandlerTests.swift in Sources */,
 				5E9EA4E02243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift in Sources */,
 				F18401EE2073C26C00E9F4CC /* LinkPreviewAssetUploadRequestStrategyTests.swift in Sources */,
 				06474D6024B310B6002C695D /* NotificationsTrackerTests.swift in Sources */,
