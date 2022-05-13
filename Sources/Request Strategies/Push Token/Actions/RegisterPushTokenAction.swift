@@ -25,10 +25,24 @@ public class RegisterPushTokenAction: EntityAction {
 
     public typealias Result = Void
 
-    public enum Failure: Error {
+    public enum Failure: LocalizedError, SafeForLoggingStringConvertible {
 
         case appDoesNotExist
         case unknown(status: Int)
+
+        public var errorDescription: String? {
+            switch self {
+            case .appDoesNotExist:
+                return "Application identifier does not exist."
+
+            case .unknown(let status):
+                return "Unknown error (response status: \(status))"
+            }
+        }
+
+        public var safeForLoggingDescription: String {
+            return errorDescription ?? ""
+        }
 
     }
 
