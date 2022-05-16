@@ -213,4 +213,3 @@ private struct PushTokenPayload: Codable {
     let transport: String
     let client: String
 }
-

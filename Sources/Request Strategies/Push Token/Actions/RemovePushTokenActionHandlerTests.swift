@@ -130,5 +130,5 @@ class RemovePushTokenActionHandlerTests: MessagingTestBase {
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
-    
+
 }

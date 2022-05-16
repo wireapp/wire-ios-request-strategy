@@ -29,7 +29,7 @@ public class RemovePushTokenAction: EntityAction {
 
         case tokenDoesNotExist
         case unknown(status: Int)
-        
+
         public var errorDescription: String? {
             switch self {
             case .tokenDoesNotExist:
@@ -59,4 +59,3 @@ public class RemovePushTokenAction: EntityAction {
     }
 
 }
-
