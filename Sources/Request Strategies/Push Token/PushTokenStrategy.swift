@@ -39,6 +39,7 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
 
     private let registerPushTokenActionHandler: RegisterPushTokenActionHandler
     private let removePushTokenActionHandler: RemovePushTokenActionHandler
+    private let getPushTokensActionHandler: GetPushTokensActionHandler
     private let actionSync: EntityActionSync
 
     public var requestGenerators: [ZMRequestGenerator] {
@@ -68,10 +69,12 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMUpstreamTranscoder, Z
 
         registerPushTokenActionHandler = RegisterPushTokenActionHandler(context: managedObjectContext)
         removePushTokenActionHandler = RemovePushTokenActionHandler(context: managedObjectContext)
+        getPushTokensActionHandler = GetPushTokensActionHandler(context: managedObjectContext)
 
         actionSync = EntityActionSync(actionHandlers: [
             registerPushTokenActionHandler,
-            removePushTokenActionHandler
+            removePushTokenActionHandler,
+            getPushTokensActionHandler
         ])
 
         super.init(withManagedObjectContext: managedObjectContext, applicationStatus: applicationStatus)
