@@ -60,8 +60,7 @@ class GetPushTokensActionHandler: ActionHandler<GetPushTokensAction> {
                         deviceToken: token.token.zmHexDecodedData()!,
                         appIdentifier: token.app,
                         transportType: token.transport,
-                        tokenType: token.isStandardAPNSToken ? .standard : .voip,
-                        isRegistered: true
+                        tokenType: token.isStandardAPNSToken ? .standard : .voip
                     )
             }
 

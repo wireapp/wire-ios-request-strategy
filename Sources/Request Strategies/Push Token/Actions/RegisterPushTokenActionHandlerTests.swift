@@ -27,8 +27,7 @@ class RegisterPushTokenActionHandlerTests: MessagingTestBase {
         deviceToken: "deviceToken".data(using: .utf8)!,
         appIdentifier: "appIdentifier",
         transportType: "APNS",
-        tokenType: .standard,
-        isRegistered: false
+        tokenType: .standard
     )
 
     func responseWithStatus(_ status: Int) -> ZMTransportResponse {
