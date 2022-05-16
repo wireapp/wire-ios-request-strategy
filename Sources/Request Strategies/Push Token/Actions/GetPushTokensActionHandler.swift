@@ -52,7 +52,9 @@ class GetPushTokensActionHandler: ActionHandler<GetPushTokensAction> {
             }
 
             let tokens = payload.tokens
-                .filter { $0.isStandardAPNSToken || $0.isVoIPToken }
+                .filter {
+                    $0.client == action.clientID && ($0.isStandardAPNSToken || $0.isVoIPToken)
+                }
                 .map { token in
                     PushToken(
                         deviceToken: token.token.zmHexDecodedData()!,

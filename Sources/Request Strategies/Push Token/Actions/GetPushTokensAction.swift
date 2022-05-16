@@ -49,10 +49,12 @@ public class GetPushTokensAction: EntityAction {
     // MARK: - Properties
 
     public var resultHandler: ResultHandler?
+    public let clientID: String
 
     // MARK: - Life cycle
 
-    public init(resultHandler: ResultHandler? = nil) {
+    public init(clientID: String, resultHandler: ResultHandler? = nil) {
+        self.clientID = clientID
         self.resultHandler = resultHandler
     }
 

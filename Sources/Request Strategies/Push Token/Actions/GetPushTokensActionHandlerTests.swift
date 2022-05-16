@@ -26,16 +26,8 @@ class GetPushTokensActionHandlerTests: MessagingTestBase {
     typealias Payload = GetPushTokensActionHandler.ResponsePayload
     typealias Token = GetPushTokensActionHandler.Token
 
-    let token = Data([0x01, 0x02, 0x03]).zmHexEncodedString()
-
-    lazy var apns = Token(app: "app", client: "client1", token: token, transport: "APNS")
-    lazy var apnsSandbox = Token(app: "app", client: "client2", token: token, transport: "APNS_SANDBOX")
-    lazy var voIP = Token(app: "app", client: "client3", token: token, transport: "APNS_VOIP")
-    lazy var voIPSandbox = Token(app: "app", client: "client4", token: token, transport: "APNS_VOIP_SANDBOX")
-    lazy var gcm = Token(app: "app", client: "client5", token: token, transport: "GCM")
-
-    func token(withData data: Data, type: String) -> Token {
-        return Token(app: "app", client: "client", token: data.zmHexEncodedString(), transport: type)
+    func token(clientID: String, data: Data, type: String) -> Token {
+        return Token(app: "app", client: clientID, token: data.zmHexEncodedString(), transport: type)
     }
 
     func response(payload: GetPushTokensActionHandler.ResponsePayload, status: Int) -> ZMTransportResponse {
@@ -58,7 +50,7 @@ class GetPushTokensActionHandlerTests: MessagingTestBase {
     func test_itGeneratesARequest() throws {
         // Given
         let sut = GetPushTokensActionHandler(context: syncMOC)
-        let action = GetPushTokensAction()
+        let action = GetPushTokensAction(clientID: "clientID")
 
         // When
         let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v0))
@@ -73,7 +65,7 @@ class GetPushTokensActionHandlerTests: MessagingTestBase {
     func test_itHandlesResponse_200() throws {
         // Given
         let sut = GetPushTokensActionHandler(context: syncMOC)
-        var action = GetPushTokensAction()
+        var action = GetPushTokensAction(clientID: "clientA")
 
         // Expectation
         let didSucceed = expectation(description: "didSucceed")
@@ -87,36 +79,30 @@ class GetPushTokensActionHandlerTests: MessagingTestBase {
 
         // When
         let payload = Payload(tokens: [
-            token(withData: Data([0x01, 0x01, 0x01]), type: "APNS"),
-            token(withData: Data([0x02, 0x02, 0x02]), type: "APNS_SANDBOX"),
-            token(withData: Data([0x03, 0x03, 0x03]), type: "APNS_VOIP"),
-            token(withData: Data([0x04, 0x04, 0x04]), type: "APNS_VOIP_SANDBOX"),
-            token(withData: Data([0x05, 0x05, 0x05]), type: "GCM")
+            token(clientID: "clientA", data: Data([0x01, 0x01, 0x01]), type: "APNS"),
+            token(clientID: "clientB", data: Data([0x02, 0x02, 0x02]), type: "APNS_SANDBOX"),
+            token(clientID: "clientA", data: Data([0x03, 0x03, 0x03]), type: "APNS_VOIP"),
+            token(clientID: "clientB", data: Data([0x04, 0x04, 0x04]), type: "APNS_VOIP_SANDBOX"),
+            token(clientID: "clientA", data: Data([0x05, 0x05, 0x05]), type: "GCM")
         ])
 
         sut.handleResponse(response(payload: payload, status: 200), action: action)
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
 
         // Then
-        XCTAssertEqual(receivedTokens.count, 4)
+        XCTAssertEqual(receivedTokens.count, 2)
 
         let apns = PushToken(deviceToken: Data([0x01, 0x01, 0x01]), appIdentifier: "app", transportType: "APNS", tokenType: .standard, isRegistered: true)
         XCTAssertEqual(receivedTokens.element(atIndex: 0), apns)
 
-        let apnsSandbox = PushToken(deviceToken: Data([0x02, 0x02, 0x02]), appIdentifier: "app", transportType: "APNS_SANDBOX", tokenType: .standard, isRegistered: true)
-        XCTAssertEqual(receivedTokens.element(atIndex: 1), apnsSandbox)
-
         let voIP = PushToken(deviceToken: Data([0x03, 0x3, 0x03]), appIdentifier: "app", transportType: "APNS_VOIP", tokenType: .voip, isRegistered: true)
-        XCTAssertEqual(receivedTokens.element(atIndex: 2), voIP)
-
-        let voIPSandbox = PushToken(deviceToken: Data([0x04, 0x04, 0x04]), appIdentifier: "app", transportType: "APNS_VOIP_SANDBOX", tokenType: .voip, isRegistered: true)
-        XCTAssertEqual(receivedTokens.element(atIndex: 3), voIPSandbox)
+        XCTAssertEqual(receivedTokens.element(atIndex: 1), voIP)
     }
 
     func test_itHandlesResponse_200_MalformedResponse() throws {
         // Given
         let sut = GetPushTokensActionHandler(context: syncMOC)
-        var action = GetPushTokensAction()
+        var action = GetPushTokensAction(clientID: "clientID")
 
         // Expectation
         let didFail = expectation(description: "didFail")
@@ -136,7 +122,7 @@ class GetPushTokensActionHandlerTests: MessagingTestBase {
     func test_itHandlesResponse_UnknownError() throws {
         // Given
         let sut = GetPushTokensActionHandler(context: syncMOC)
-        var action = GetPushTokensAction()
+        var action = GetPushTokensAction(clientID: "clientID")
 
         // Expectation
         let didFail = expectation(description: "didFail")
