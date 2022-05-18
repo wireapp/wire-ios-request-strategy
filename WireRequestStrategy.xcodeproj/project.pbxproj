@@ -54,6 +54,8 @@
 		06CDDEA1282E9E7F00F9360F /* RemovePushTokenActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CDDEA0282E9E7F00F9360F /* RemovePushTokenActionHandler.swift */; };
 		06CDDEA3282E9E9800F9360F /* RemovePushTokenActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CDDEA2282E9E9800F9360F /* RemovePushTokenActionHandlerTests.swift */; };
 		06CF5DFA27FC900F00822FAB /* ZMLocalNotification+Calling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CF5DF927FC900F00822FAB /* ZMLocalNotification+Calling.swift */; };
+		06FDC62F28354DAE008300DB /* PushTokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FDC62E28354DAE008300DB /* PushTokenStorage.swift */; };
+		06FDC63128354DBD008300DB /* PushTokenStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FDC63028354DBD008300DB /* PushTokenStorageTests.swift */; };
 		160ADE9C270DBD0A003FA638 /* ConnectToUserActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160ADE9B270DBD0A003FA638 /* ConnectToUserActionHandlerTests.swift */; };
 		16189D02268B104C004831BE /* ProteusMessageSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16189D01268B104C004831BE /* ProteusMessageSyncTests.swift */; };
 		16189D06268B214E004831BE /* InsertedObjectSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16189D05268B214E004831BE /* InsertedObjectSyncTests.swift */; };
@@ -398,6 +400,8 @@
 		06CDDEA0282E9E7F00F9360F /* RemovePushTokenActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemovePushTokenActionHandler.swift; sourceTree = "<group>"; };
 		06CDDEA2282E9E9800F9360F /* RemovePushTokenActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemovePushTokenActionHandlerTests.swift; sourceTree = "<group>"; };
 		06CF5DF927FC900F00822FAB /* ZMLocalNotification+Calling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMLocalNotification+Calling.swift"; sourceTree = "<group>"; };
+		06FDC62E28354DAE008300DB /* PushTokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTokenStorage.swift; sourceTree = "<group>"; };
+		06FDC63028354DBD008300DB /* PushTokenStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTokenStorageTests.swift; sourceTree = "<group>"; };
 		160ADE9B270DBD0A003FA638 /* ConnectToUserActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectToUserActionHandlerTests.swift; sourceTree = "<group>"; };
 		16189D01268B104C004831BE /* ProteusMessageSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProteusMessageSyncTests.swift; sourceTree = "<group>"; };
 		16189D05268B214E004831BE /* InsertedObjectSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertedObjectSyncTests.swift; sourceTree = "<group>"; };
@@ -1058,6 +1062,8 @@
 			children = (
 				EE90C2A1282E7E1F00474379 /* Actions */,
 				EE90C29D282E785800474379 /* PushTokenStrategy.swift */,
+				06FDC62E28354DAE008300DB /* PushTokenStorage.swift */,
+				06FDC63028354DBD008300DB /* PushTokenStorageTests.swift */,
 			);
 			path = "Push Token";
 			sourceTree = "<group>";
@@ -1798,6 +1804,7 @@
 				F18401A62073BE0800E9F4CC /* MissingClientsRequestStrategy.swift in Sources */,
 				0649D12224F5C5EF001DDC78 /* ZMLocalNotification.swift in Sources */,
 				EE90C2A8282E7ECF00474379 /* RegisterPushTokenAction.swift in Sources */,
+				06FDC62F28354DAE008300DB /* PushTokenStorage.swift in Sources */,
 				166901DD1D7081C7000FE4AF /* ZMLocallyModifiedObjectSyncStatus.m in Sources */,
 				F18401BB2073BE0800E9F4CC /* LinkPreviewAssetDownloadRequestStrategy.swift in Sources */,
 				16751E8524CF72970099AE09 /* DeliveryReceiptRequestStrategy.swift in Sources */,
@@ -1888,6 +1895,7 @@
 				F1956200202A141B005347C0 /* ZMDownstreamObjectSyncOrderingTests.m in Sources */,
 				EE90C2AA282E855B00474379 /* RegisterPushTokenActionHandlerTests.swift in Sources */,
 				5E9EA4E02243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift in Sources */,
+				06FDC63128354DBD008300DB /* PushTokenStorageTests.swift in Sources */,
 				F18401EE2073C26C00E9F4CC /* LinkPreviewAssetUploadRequestStrategyTests.swift in Sources */,
 				06474D6024B310B6002C695D /* NotificationsTrackerTests.swift in Sources */,
 				0693114A24F799F400D14DF5 /* ZMLocalNotificationTests.swift in Sources */,

@@ -77,6 +77,7 @@ public class PushTokenStrategy: AbstractRequestStrategy, ZMEventConsumer {
         //    }
         // }
 
-        // TODO: what should we do here? Remove the local copy?
+        // We ignore the payload and remove the local push token
+        PushTokenStorage.pushToken = nil
     }
 }
