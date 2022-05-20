@@ -140,8 +140,7 @@ extension OTREntity {
             else {
                 return []
             }
-            clientListByUser = clientListByUserID.mappingUserIDsToUsers(in: context, domain: nil)
-
+            clientListByUser = clientListByUserID.materializingUsers(withDomain: nil, in: context)
         case .v1:
             guard let payload = Payload.MessageSendingStatus(response) else {
                 return []

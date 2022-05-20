@@ -66,18 +66,18 @@ extension Payload.MessageSendingStatus {
 
     func missingClientListByUser(context: NSManagedObjectContext) -> Payload.ClientListByUser {
 
-        let clientListByUserTuples = missing.flatMap { (domain, userClientsByUserID) in
-            userClientsByUserID.mappingUserIDsToUsers(in: context, domain: domain)
+        let clientIDsByUser = missing.flatMap { (domain, clientIDsByUserID) in
+            clientIDsByUserID.materializingUsers(withDomain: domain, in: context)
         }
 
-        return Payload.ClientListByUser(clientListByUserTuples, uniquingKeysWith: +)
+        return Payload.ClientListByUser(clientIDsByUser, uniquingKeysWith: +)
     }
 
 }
 
 extension Payload.ClientListByUserID {
 
-    func mappingUserIDsToUsers(in context: NSManagedObjectContext, domain: String?) -> [ZMUser: [String]] {
+    func materializingUsers(withDomain domain: String?, in context: NSManagedObjectContext)  -> Payload.ClientListByUser {
 
         return reduce(into: Payload.ClientListByUser()) { (result, tuple: (userID: String, clientIDs: [String])) in
             guard let userID = UUID(uuidString: tuple.userID) else { return }
