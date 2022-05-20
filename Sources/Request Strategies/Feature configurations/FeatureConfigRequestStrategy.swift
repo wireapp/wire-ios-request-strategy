@@ -152,6 +152,10 @@ extension FeatureConfigRequestStrategy: ZMDownstreamTranscoder {
         case .classifiedDomains:
             let response = try decoder.decode(ConfigResponse<Feature.ClassifiedDomains.Config>.self, from: data)
             featureService.storeClassifiedDomains(.init(status: response.status, config: response.config))
+
+        case .digitalSignature:
+            let response = try decoder.decode(SimpleConfigResponse.self, from: data)
+            featureService.storeDigitalSignature(.init(status: response.status))
         }
     }
 
@@ -272,6 +276,9 @@ private extension Feature {
 
         case .classifiedDomains:
             return "classifiedDomains"
+
+        case .digitalSignature:
+            return "digitalSignature"
         }
     }
 
