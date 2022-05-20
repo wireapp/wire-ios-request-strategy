@@ -121,13 +121,13 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
 
 }
 
-struct FeatureStatus: Decodable {
+struct FeatureStatus: Codable {
 
     let status: Feature.Status
 
 }
 
-struct FeatureStatusWithConfig<Config: Decodable>: Decodable {
+struct FeatureStatusWithConfig<Config: Codable>: Codable {
 
     let status: Feature.Status
     let config: Config

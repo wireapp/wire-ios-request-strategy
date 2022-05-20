@@ -39,7 +39,10 @@ final class GetFeatureConfigsActionHandler: ActionHandler<GetFeatureConfigsActio
 
         switch (response.httpStatus, response.payloadLabel()) {
         case (200, _):
-            guard let data = response.rawData else {
+            guard
+                let data = response.rawData,
+                !data.isEmpty
+            else {
                 action.fail(with: .malformedResponse)
                 return
             }
@@ -47,10 +50,9 @@ final class GetFeatureConfigsActionHandler: ActionHandler<GetFeatureConfigsActio
             do {
                 let payload = try JSONDecoder().decode(ResponsePayload.self, from: data)
                 processPayload(payload)
-
+                action.succeed(with: ())
             } catch {
                 action.fail(with: .failedToDecodeResponse(reason: error.localizedDescription))
-                return
             }
 
         case (403, "operation-denied"):
@@ -120,9 +122,9 @@ final class GetFeatureConfigsActionHandler: ActionHandler<GetFeatureConfigsActio
 
 // MARK: - Response Payload
 
-private extension GetFeatureConfigsActionHandler {
+extension GetFeatureConfigsActionHandler {
 
-    struct ResponsePayload: Decodable {
+    struct ResponsePayload: Codable {
 
         let appLock: FeatureStatusWithConfig<Feature.AppLock.Config>
         let classifiedDomains: FeatureStatusWithConfig<Feature.ClassifiedDomains.Config>

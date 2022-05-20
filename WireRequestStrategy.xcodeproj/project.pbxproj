@@ -214,6 +214,7 @@
 		EEAC16D6281AEB0200B7A34D /* CallEventContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAC16D5281AEB0200B7A34D /* CallEventContentTests.swift */; };
 		EEB5DE05283773C3009B4741 /* GetFeatureConfigsAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB5DE04283773C3009B4741 /* GetFeatureConfigsAction.swift */; };
 		EEB5DE0728377635009B4741 /* GetFeatureConfigsActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB5DE0628377635009B4741 /* GetFeatureConfigsActionHandler.swift */; };
+		EEB5DE0F28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB5DE0E28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift */; };
 		F14B7AEA222009BA00458624 /* UserRichProfileRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14B7AE9222009BA00458624 /* UserRichProfileRequestStrategy.swift */; };
 		F14B7AEC222009C200458624 /* UserRichProfileRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14B7AEB222009C200458624 /* UserRichProfileRequestStrategyTests.swift */; };
 		F154EDC71F447B6C00CB8184 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F154EDC61F447B6C00CB8184 /* AppDelegate.swift */; };
@@ -581,6 +582,7 @@
 		EEAC16D5281AEB0200B7A34D /* CallEventContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallEventContentTests.swift; sourceTree = "<group>"; };
 		EEB5DE04283773C3009B4741 /* GetFeatureConfigsAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetFeatureConfigsAction.swift; sourceTree = "<group>"; };
 		EEB5DE0628377635009B4741 /* GetFeatureConfigsActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetFeatureConfigsActionHandler.swift; sourceTree = "<group>"; };
+		EEB5DE0E28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetFeatureConfigsActionHandlerTests.swift; sourceTree = "<group>"; };
 		F14B7AE9222009BA00458624 /* UserRichProfileRequestStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRichProfileRequestStrategy.swift; sourceTree = "<group>"; };
 		F14B7AEB222009C200458624 /* UserRichProfileRequestStrategyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRichProfileRequestStrategyTests.swift; sourceTree = "<group>"; };
 		F154EDC41F447B6C00CB8184 /* WireRequestStrategyTestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WireRequestStrategyTestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -804,6 +806,7 @@
 			children = (
 				EEB5DE04283773C3009B4741 /* GetFeatureConfigsAction.swift */,
 				EEB5DE0628377635009B4741 /* GetFeatureConfigsActionHandler.swift */,
+				EEB5DE0E28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift */,
 				068084952563B6940047899C /* FeatureConfigRequestStrategy.swift */,
 				068084972563B7310047899C /* FeatureConfigRequestStrategyTests.swift */,
 			);
@@ -1895,6 +1898,7 @@
 				06474D6624B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m in Sources */,
 				F14B7AEC222009C200458624 /* UserRichProfileRequestStrategyTests.swift in Sources */,
 				0693114B24F79A0500D14DF5 /* ZMLocalNotificationTests_Event.swift in Sources */,
+				EEB5DE0F28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift in Sources */,
 				F18401F02073C26C00E9F4CC /* LinkPreviewAssetDownloadRequestStrategyTests.swift in Sources */,
 				F18401FF2073C2EA00E9F4CC /* MessagingTestBase.swift in Sources */,
 				16189D02268B104C004831BE /* ProteusMessageSyncTests.swift in Sources */,
