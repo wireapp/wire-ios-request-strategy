@@ -50,7 +50,7 @@ final class GetFeatureConfigsActionHandler: ActionHandler<GetFeatureConfigsActio
             do {
                 let payload = try JSONDecoder().decode(ResponsePayload.self, from: data)
                 processPayload(payload)
-                action.succeed(with: ())
+                action.succeed()
             } catch {
                 action.fail(with: .failedToDecodeResponse(reason: error.localizedDescription))
             }
