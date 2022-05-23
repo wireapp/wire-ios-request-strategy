@@ -56,7 +56,11 @@ public final class FeatureConfigRequestStrategy: AbstractRequestStrategy {
         return actionSync.nextRequest(for: apiVersion)
     }
 
-    // MARK: - Event processing
+}
+
+// MARK: - Event processing
+
+extension FeatureConfigRequestStrategy: ZMEventConsumer {
 
     public func processEvents(
         _ events: [ZMUpdateEvent],
