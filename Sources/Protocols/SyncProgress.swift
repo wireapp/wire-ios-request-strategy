@@ -68,7 +68,7 @@ import Foundation
         case .fetchingSelfUser:
             return "fetchingSelfUser"
         case .fetchingLegalHoldStatus:
-            return "fetchingLegalHoldStatus"
+            return "fetchingLegalHoldStatus"
         case .fetchingLabels:
             return "fetchingLabels"
         case .fetchingMissedEvents:
