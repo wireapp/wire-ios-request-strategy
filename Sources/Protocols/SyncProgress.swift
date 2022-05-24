@@ -29,7 +29,6 @@ import Foundation
     case fetchingUsers
     case fetchingSelfUser
     case fetchingLegalHoldStatus
-    case fetchingFeatureFlags
     case fetchingLabels
     case fetchingMissedEvents
     case done
@@ -69,9 +68,7 @@ import Foundation
         case .fetchingSelfUser:
             return "fetchingSelfUser"
         case .fetchingLegalHoldStatus:
-            return "fetchingLegalHoldStatus"
-        case .fetchingFeatureFlags:
-            return "fetchingFeatureFlags"
+            return "fetchingLegalHoldStatus"
         case .fetchingLabels:
             return "fetchingLabels"
         case .fetchingMissedEvents:
