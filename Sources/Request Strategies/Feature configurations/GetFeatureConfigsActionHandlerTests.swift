@@ -43,7 +43,7 @@ class GetFeatureConfigsActionHandlerTests: MessagingTestBase {
 
     // MARK: - Request generation
 
-    func test_itGeneratesARequest() throws {
+    func test_ItGeneratesARequest() throws {
         // Given
         let sut = GetFeatureConfigsActionHandler(context: syncMOC)
         let action = GetFeatureConfigsAction()
@@ -58,7 +58,7 @@ class GetFeatureConfigsActionHandlerTests: MessagingTestBase {
 
     // MARK: - Response handling
 
-    func test_itHandlesResponse_200() throws {
+    func test_ItHandlesResponse_200() throws {
         // Given
         let sut = GetFeatureConfigsActionHandler(context: syncMOC)
         var action = GetFeatureConfigsAction()
@@ -128,7 +128,7 @@ class GetFeatureConfigsActionHandlerTests: MessagingTestBase {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }
 
-    func test_itHandlesResponse_200_MalformedResponse() throws {
+    func test_ItHandlesResponse_200_MalformedResponse() throws {
         // Given
         let sut = GetFeatureConfigsActionHandler(context: syncMOC)
         var action = GetFeatureConfigsAction()
@@ -153,7 +153,7 @@ class GetFeatureConfigsActionHandlerTests: MessagingTestBase {
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
 
-    func test_itHandlesResponse_200_FailedToDecodeResponse() throws {
+    func test_ItHandlesResponse_200_FailedToDecodeResponse() throws {
         // Given
         let sut = GetFeatureConfigsActionHandler(context: syncMOC)
         var action = GetFeatureConfigsAction()
@@ -180,7 +180,7 @@ class GetFeatureConfigsActionHandlerTests: MessagingTestBase {
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
 
-    func test_itHandlesResponse_403_InsuffientPermissions() throws {
+    func test_ItHandlesResponse_403_InsuffientPermissions() throws {
         // Given
         let sut = GetFeatureConfigsActionHandler(context: syncMOC)
         var action = GetFeatureConfigsAction()
@@ -205,7 +205,7 @@ class GetFeatureConfigsActionHandlerTests: MessagingTestBase {
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
 
-    func test_itHandlesResponse_403_UserIsNotTeamMember() throws {
+    func test_ItHandlesResponse_403_UserIsNotTeamMember() throws {
         // Given
         let sut = GetFeatureConfigsActionHandler(context: syncMOC)
         var action = GetFeatureConfigsAction()
@@ -230,7 +230,7 @@ class GetFeatureConfigsActionHandlerTests: MessagingTestBase {
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
 
-    func test_itHandlesResponse_404_TeamNotFound() throws {
+    func test_ItHandlesResponse_404_TeamNotFound() throws {
         // Given
         let sut = GetFeatureConfigsActionHandler(context: syncMOC)
         var action = GetFeatureConfigsAction()
@@ -255,7 +255,7 @@ class GetFeatureConfigsActionHandlerTests: MessagingTestBase {
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
 
-    func test_itHandlesResponse_UnknownResponse() throws {
+    func test_ItHandlesResponse_UnknownResponse() throws {
         // Given
         let sut = GetFeatureConfigsActionHandler(context: syncMOC)
         var action = GetFeatureConfigsAction()
