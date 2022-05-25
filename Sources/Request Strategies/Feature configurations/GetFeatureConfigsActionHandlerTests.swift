@@ -211,7 +211,6 @@ class GetFeatureConfigsActionHandlerTests: MessagingTestBase {
         var action = GetFeatureConfigsAction()
 
         // Expectation
-        // Expectation
         let gotResult = expectation(description: "gotResult")
 
         action.onResult { result in
