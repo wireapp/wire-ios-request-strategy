@@ -19,7 +19,7 @@
 import Foundation
 import WireDataModel
 
-public final class MLSStrategy: AbstractRequestStrategy {
+public final class MLSRequestStrategy: AbstractRequestStrategy {
 
     // MARK: - Properties
 
