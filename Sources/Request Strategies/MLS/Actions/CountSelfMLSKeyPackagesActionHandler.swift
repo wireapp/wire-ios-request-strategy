@@ -28,19 +28,19 @@ class CountSelfMLSKeyPackagesActionHandler: ActionHandler<CountSelfMLSKeyPackage
     ) -> ZMTransportRequest? {
 
         var action = action
-
+        
         guard !action.clientID.isEmpty else {
             action.notifyResult(.failure(.invalidClientID))
             return nil
         }
 
-            return ZMTransportRequest(
-                path: "/mls/key-package/self/\(action.clientID)/count",
-                method: .methodGET,
-                payload: nil,
-                apiVersion: apiVersion.rawValue
-            )
-        }
+        return ZMTransportRequest(
+            path: "/mls/key-package/self/\(action.clientID)/count",
+            method: .methodGET,
+            payload: nil,
+            apiVersion: apiVersion.rawValue
+        )
+    }
 
     override func handleResponse(
         _ response: ZMTransportResponse,
