@@ -177,6 +177,9 @@
 		5E9EA4E02243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4DF2243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift */; };
 		70C781FD2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C781FC2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift */; };
 		70E77B79273187660021EE70 /* UpdateRoleActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E77B78273187660021EE70 /* UpdateRoleActionHandler.swift */; };
+		7AEBB6752859E6020090B524 /* CountSelfMLSKeyPackagesAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBB6742859E6020090B524 /* CountSelfMLSKeyPackagesAction.swift */; };
+		7AEBB677285A10620090B524 /* CountSelfMLSKeyPackagesActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBB676285A10620090B524 /* CountSelfMLSKeyPackagesActionHandler.swift */; };
+		7AEBB679285A16400090B524 /* CountSelfMLSKeyPackagesActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBB678285A16400090B524 /* CountSelfMLSKeyPackagesActionHandlerTests.swift */; };
 		8792F55721AD944100795027 /* UserPropertyRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */; };
 		87F7288521AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F7288421AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift */; };
 		A90C56E62685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C56E52685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift */; };
@@ -546,6 +549,9 @@
 		5E9EA4DF2243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkAttachmentsPreprocessorTests.swift; sourceTree = "<group>"; };
 		70C781FC2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateRoleActionHandlerTests.swift; sourceTree = "<group>"; };
 		70E77B78273187660021EE70 /* UpdateRoleActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateRoleActionHandler.swift; sourceTree = "<group>"; };
+		7AEBB6742859E6020090B524 /* CountSelfMLSKeyPackagesAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountSelfMLSKeyPackagesAction.swift; sourceTree = "<group>"; };
+		7AEBB676285A10620090B524 /* CountSelfMLSKeyPackagesActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountSelfMLSKeyPackagesActionHandler.swift; sourceTree = "<group>"; };
+		7AEBB678285A16400090B524 /* CountSelfMLSKeyPackagesActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountSelfMLSKeyPackagesActionHandlerTests.swift; sourceTree = "<group>"; };
 		8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPropertyRequestStrategy.swift; sourceTree = "<group>"; };
 		87F7288421AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPropertyRequestStrategyTests.swift; sourceTree = "<group>"; };
 		A90C56E52685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMImagePreprocessingTrackerTests.swift; sourceTree = "<group>"; };
@@ -1068,6 +1074,16 @@
 			path = Processing;
 			sourceTree = "<group>";
 		};
+		7AEBB6732859E5F00090B524 /* Actions */ = {
+			isa = PBXGroup;
+			children = (
+				7AEBB6742859E6020090B524 /* CountSelfMLSKeyPackagesAction.swift */,
+				7AEBB676285A10620090B524 /* CountSelfMLSKeyPackagesActionHandler.swift */,
+				7AEBB678285A16400090B524 /* CountSelfMLSKeyPackagesActionHandlerTests.swift */,
+			);
+			path = Actions;
+			sourceTree = "<group>";
+		};
 		EE90C29C282E782900474379 /* Push Token */ = {
 			isa = PBXGroup;
 			children = (
@@ -1098,6 +1114,7 @@
 		EEE0EDAF2858905100BBEE29 /* MLS */ = {
 			isa = PBXGroup;
 			children = (
+				7AEBB6732859E5F00090B524 /* Actions */,
 				EEE0EDB02858906500BBEE29 /* MLSRequestStrategy.swift */,
 			);
 			path = MLS;
@@ -1747,6 +1764,7 @@
 				16A48936268A0665001F9127 /* ModifiedKeyObjectSync.swift in Sources */,
 				16A4894B268B0D1D001F9127 /* LinkPreviewUpdateRequestStrategy.swift in Sources */,
 				166901F51D7081C7000FE4AF /* ZMUpstreamRequest.m in Sources */,
+				7AEBB6752859E6020090B524 /* CountSelfMLSKeyPackagesAction.swift in Sources */,
 				F18401B42073BE0800E9F4CC /* ZMAbstractRequestStrategy.m in Sources */,
 				060ED6D62499F41000412C4A /* PushNotificationStatus.swift in Sources */,
 				169BA1CD25E95DC900374343 /* Payload+Processing.swift in Sources */,
@@ -1776,6 +1794,7 @@
 				161E05442665465A00DADC3D /* SyncProgress.swift in Sources */,
 				166901D41D7081C7000FE4AF /* ZMDownstreamObjectSync.m in Sources */,
 				0649D14524F63BBD001DDC78 /* LocalNotificationType+Configuration.swift in Sources */,
+				7AEBB677285A10620090B524 /* CountSelfMLSKeyPackagesActionHandler.swift in Sources */,
 				F18401C32073BE0800E9F4CC /* AssetV3DownloadRequestStrategy.swift in Sources */,
 				0649D19B24F66E9E001DDC78 /* ZMLocalNotification+Events.swift in Sources */,
 				F18401BF2073BE0800E9F4CC /* AssetClientMessageRequestStrategy.swift in Sources */,
@@ -1878,6 +1897,7 @@
 				0693115624F7B17300D14DF5 /* ZMLocalNotificationTests_SystemMessage.swift in Sources */,
 				EE3246042823196100F2A84A /* VoIPPushHelperTests.swift in Sources */,
 				F18401FE2073C2EA00E9F4CC /* MessagingTest+Encryption.swift in Sources */,
+				7AEBB679285A16400090B524 /* CountSelfMLSKeyPackagesActionHandlerTests.swift in Sources */,
 				16A86B4622A5485E00A674F8 /* IdentifierObjectSyncTests.swift in Sources */,
 				A90C56E62685C20E00F1007B /* ZMImagePreprocessingTrackerTests.swift in Sources */,
 				16972DED2668E699008AF3A2 /* UserProfileRequestStrategyTests.swift in Sources */,
