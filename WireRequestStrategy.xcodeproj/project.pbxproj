@@ -1910,6 +1910,7 @@
 				06474D6624B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m in Sources */,
 				F14B7AEC222009C200458624 /* UserRichProfileRequestStrategyTests.swift in Sources */,
 				0693114B24F79A0500D14DF5 /* ZMLocalNotificationTests_Event.swift in Sources */,
+				63CC83BB285B4EB8008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift in Sources */,
 				EEB5DE0F28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift in Sources */,
 				F18401F02073C26C00E9F4CC /* LinkPreviewAssetDownloadRequestStrategyTests.swift in Sources */,
 				F18401FF2073C2EA00E9F4CC /* MessagingTestBase.swift in Sources */,
