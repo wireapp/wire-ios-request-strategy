@@ -23,12 +23,21 @@ class UploadSelfMLSKeyPackagesActionHandler: ActionHandler<UploadSelfMLSKeyPacka
     // MARK: - Methods
 
     override func request(for action: UploadSelfMLSKeyPackagesAction, apiVersion: APIVersion) -> ZMTransportRequest? {
+        var action = action
+
+        guard apiVersion > .v0 else {
+            action.notifyResult(.failure(.unsupportedAPIVersion))
+            return nil
+        }
+
         guard
             !action.clientID.isEmpty,
             !action.keyPackages.isEmpty
-        else { return nil }
+        else {
+            action.notifyResult(.failure(.emptyParameters))
+            return nil
+        }
 
-        // TODO: Check API version
         return ZMTransportRequest(
             path: "/mls/key-packages/self/\(action.clientID)",
             method: .methodPOST,
