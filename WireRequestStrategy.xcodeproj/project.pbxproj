@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -175,6 +175,9 @@
 		5E68F22722452CDC00298376 /* LinkPreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E68F22622452CDC00298376 /* LinkPreprocessor.swift */; };
 		5E9EA4DE2243C10400D401B2 /* LinkAttachmentsPreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4DD2243C10400D401B2 /* LinkAttachmentsPreprocessor.swift */; };
 		5E9EA4E02243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4DF2243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift */; };
+		63CC83D6285B8060008549AD /* UploadSelfMLSKeyPackagesAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83D3285B8060008549AD /* UploadSelfMLSKeyPackagesAction.swift */; };
+		63CC83D7285B8060008549AD /* UploadSelfMLSKeyPackagesActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83D4285B8060008549AD /* UploadSelfMLSKeyPackagesActionHandler.swift */; };
+		63CC83D9285B8079008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83D5285B8060008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift */; };
 		70C781FD2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C781FC2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift */; };
 		70E77B79273187660021EE70 /* UpdateRoleActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E77B78273187660021EE70 /* UpdateRoleActionHandler.swift */; };
 		8792F55721AD944100795027 /* UserPropertyRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */; };
@@ -544,6 +547,9 @@
 		5E68F22622452CDC00298376 /* LinkPreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkPreprocessor.swift; sourceTree = "<group>"; };
 		5E9EA4DD2243C10400D401B2 /* LinkAttachmentsPreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkAttachmentsPreprocessor.swift; sourceTree = "<group>"; };
 		5E9EA4DF2243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkAttachmentsPreprocessorTests.swift; sourceTree = "<group>"; };
+		63CC83D3285B8060008549AD /* UploadSelfMLSKeyPackagesAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadSelfMLSKeyPackagesAction.swift; sourceTree = "<group>"; };
+		63CC83D4285B8060008549AD /* UploadSelfMLSKeyPackagesActionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadSelfMLSKeyPackagesActionHandler.swift; sourceTree = "<group>"; };
+		63CC83D5285B8060008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadSelfMLSKeyPackagesActionHandlerTests.swift; sourceTree = "<group>"; };
 		70C781FC2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateRoleActionHandlerTests.swift; sourceTree = "<group>"; };
 		70E77B78273187660021EE70 /* UpdateRoleActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateRoleActionHandler.swift; sourceTree = "<group>"; };
 		8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPropertyRequestStrategy.swift; sourceTree = "<group>"; };
@@ -1068,6 +1074,16 @@
 			path = Processing;
 			sourceTree = "<group>";
 		};
+		63CC83D2285B8060008549AD /* Actions */ = {
+			isa = PBXGroup;
+			children = (
+				63CC83D3285B8060008549AD /* UploadSelfMLSKeyPackagesAction.swift */,
+				63CC83D4285B8060008549AD /* UploadSelfMLSKeyPackagesActionHandler.swift */,
+				63CC83D5285B8060008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift */,
+			);
+			path = Actions;
+			sourceTree = "<group>";
+		};
 		EE90C29C282E782900474379 /* Push Token */ = {
 			isa = PBXGroup;
 			children = (
@@ -1098,6 +1114,7 @@
 		EEE0EDAF2858905100BBEE29 /* MLS */ = {
 			isa = PBXGroup;
 			children = (
+				63CC83D2285B8060008549AD /* Actions */,
 				EEE0EDB02858906500BBEE29 /* MLSRequestStrategy.swift */,
 			);
 			path = MLS;
@@ -1742,6 +1759,7 @@
 				16FFDE441DF6C668003494D6 /* DependencyEntitySync.swift in Sources */,
 				166A22912577C06B00EF313D /* ResetSessionRequestStrategy.swift in Sources */,
 				166901E41D7081C7000FE4AF /* ZMSingleRequestSync.m in Sources */,
+				63CC83D6285B8060008549AD /* UploadSelfMLSKeyPackagesAction.swift in Sources */,
 				16A86B2722A128A800A674F8 /* IdentifierObjectSync.swift in Sources */,
 				F18401C82073BE0800E9F4CC /* AssetDownloadRequestFactory.swift in Sources */,
 				16A48936268A0665001F9127 /* ModifiedKeyObjectSync.swift in Sources */,
@@ -1751,6 +1769,7 @@
 				060ED6D62499F41000412C4A /* PushNotificationStatus.swift in Sources */,
 				169BA1CD25E95DC900374343 /* Payload+Processing.swift in Sources */,
 				F18401D82073BE0800E9F4CC /* ZMConversation+Notifications.swift in Sources */,
+				63CC83D7285B8060008549AD /* UploadSelfMLSKeyPackagesActionHandler.swift in Sources */,
 				F18401D92073BE0800E9F4CC /* EncryptionSessionDirectory+UpdateEvents.swift in Sources */,
 				F18401C72073BE0800E9F4CC /* AssetV3PreviewDownloadStrategy.swift in Sources */,
 				F18401B52073BE0800E9F4CC /* OTREntityTranscoder.swift in Sources */,
@@ -1910,7 +1929,6 @@
 				06474D6624B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m in Sources */,
 				F14B7AEC222009C200458624 /* UserRichProfileRequestStrategyTests.swift in Sources */,
 				0693114B24F79A0500D14DF5 /* ZMLocalNotificationTests_Event.swift in Sources */,
-				63CC83BB285B4EB8008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift in Sources */,
 				EEB5DE0F28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift in Sources */,
 				F18401F02073C26C00E9F4CC /* LinkPreviewAssetDownloadRequestStrategyTests.swift in Sources */,
 				F18401FF2073C2EA00E9F4CC /* MessagingTestBase.swift in Sources */,
@@ -1930,6 +1948,7 @@
 				16E5F71826EF4DBF00F35FBA /* ConversationRequestStrategyTests.swift in Sources */,
 				F18401E72073C26200E9F4CC /* MissingClientsRequestStrategyTests.swift in Sources */,
 				1621D2671D75C776007108C2 /* ZMRemoteIdentifierObjectSyncTests.m in Sources */,
+				63CC83D9285B8079008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift in Sources */,
 				1621D26A1D75C782007108C2 /* ZMTimedSingleRequestSyncTests.m in Sources */,
 				16751EBB24D1BDA00099AE09 /* DeliveryReceiptRequestStrategyTests.swift in Sources */,
 				16CC0833268DC32D00C0613C /* LinkPreviewUpdateRequestStrategyTests.swift in Sources */,
