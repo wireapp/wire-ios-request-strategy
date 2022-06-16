@@ -29,6 +29,7 @@ public final class CountSelfMLSKeyPackagesAction: EntityAction {
         case clientNotFound
         case malformedResponse
         case unknown(status: Int)
+        case invalidClientID
 
         public var errorDescription: String? {
             switch self {
@@ -38,6 +39,8 @@ public final class CountSelfMLSKeyPackagesAction: EntityAction {
                 return "Malformed response"
             case .unknown(let status):
                 return "Unknown error (response status: \(status))"
+            case .invalidClientID:
+                return "Invalid clientID"
             }
         }
     }

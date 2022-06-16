@@ -27,7 +27,10 @@ class CountSelfMLSKeyPackagesActionHandler: ActionHandler<CountSelfMLSKeyPackage
         apiVersion: APIVersion
     ) -> ZMTransportRequest? {
 
+        var action = action
+
         guard !action.clientID.isEmpty else {
+            action.notifyResult(.failure(.invalidClientID))
             return nil
         }
 
@@ -55,8 +58,10 @@ class CountSelfMLSKeyPackagesActionHandler: ActionHandler<CountSelfMLSKeyPackage
             }
 
             action.notifyResult(.success(payload.count))
+
         case 404:
             action.notifyResult(.failure(.clientNotFound))
+
         default:
             action.notifyResult(.failure(.unknown(status: response.httpStatus)))
         }
