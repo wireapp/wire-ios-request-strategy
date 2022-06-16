@@ -45,6 +45,26 @@ class UploadSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
         XCTAssertEqual(actualPayload, expectedPayload)
     }
 
+    func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {
+        test_itDoesntGenerateARequest(
+            action: UploadSelfMLSKeyPackagesAction(clientID: clientId, keyPackages: keyPackages),
+            apiVersion: .v0
+        ) {
+            guard case .failure(.unsupportedAPIVersion) = $0 else { return false }
+            return true
+        }
+    }
+
+    func test_itDoesntGenerateARequest_WhenParametersAreEmpty() {
+        test_itDoesntGenerateARequest(
+            action: UploadSelfMLSKeyPackagesAction(clientID: "", keyPackages: []),
+            apiVersion: .v1
+        ) {
+            guard case .failure(.emptyParameters) = $0 else { return false }
+            return true
+        }
+    }
+
     // MARK: - Response handling
 
     func test_itHandlesResponse_201() {
@@ -129,5 +149,26 @@ class UploadSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
 
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+    }
+
+    private func test_itDoesntGenerateARequest(action: UploadSelfMLSKeyPackagesAction, apiVersion: APIVersion, validateResult: @escaping (Swift.Result<Void, Failure>) -> Bool) {
+        // Given
+        var action = action
+        let sut = UploadSelfMLSKeyPackagesActionHandler(context: syncMOC)
+
+        // Expectation
+        let expectation = expectation(description: "didFail")
+
+        action.onResult { result in
+            guard validateResult(result) else { return }
+            expectation.fulfill()
+        }
+
+        // When
+        let request = sut.request(for: action, apiVersion: apiVersion)
+
+        // Then
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        XCTAssertNil(request)
     }
 }
