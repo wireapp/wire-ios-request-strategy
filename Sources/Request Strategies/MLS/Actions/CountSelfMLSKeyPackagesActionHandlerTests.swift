@@ -22,7 +22,7 @@ import XCTest
 class CountSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
 
     let clientID = "clientID"
-    let requestPath = "/mls/key-package/self/clientID/count"
+    let requestPath = "/v1/mls/key-package/self/clientID/count"
 
     typealias Payload = CountSelfMLSKeyPackagesActionHandler.ResponsePayload
 
@@ -32,7 +32,7 @@ class CountSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
         let action = CountSelfMLSKeyPackagesAction(clientID: clientID)
 
         // When
-        let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v0))
+        let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v1))
 
         // Then
         XCTAssertEqual(request.path, requestPath)
