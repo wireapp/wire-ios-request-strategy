@@ -32,7 +32,6 @@ public class UploadSelfMLSKeyPackagesAction: EntityAction {
         case invalidBody
         case identityMismatch
         case clientNotFound
-        case malformedResponse
         case unknown(status: Int)
 
         public var errorDescription: String? {
@@ -49,8 +48,6 @@ public class UploadSelfMLSKeyPackagesAction: EntityAction {
                 return "Prekey credential does not match qualified client ID."
             case .clientNotFound:
                 return "Client not found."
-            case .malformedResponse:
-                return "Malformed response."
             case .unknown(let status):
                 return "Unknown error (response status: \(status))"
             }
