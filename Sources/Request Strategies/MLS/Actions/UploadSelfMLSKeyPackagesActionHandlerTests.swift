@@ -137,7 +137,7 @@ class UploadSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
         var action = UploadSelfMLSKeyPackagesAction(clientID: clientId, keyPackages: keyPackages)
 
         // Expectation
-        let expectation = expectation(description: expectationDescription)
+        let expectation = self.expectation(description: expectationDescription)
 
         action.onResult { result in
             guard validateResult(result) else { return }
@@ -157,7 +157,7 @@ class UploadSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
         let sut = UploadSelfMLSKeyPackagesActionHandler(context: syncMOC)
 
         // Expectation
-        let expectation = expectation(description: "didFail")
+        let expectation = self.expectation(description: "didFail")
 
         action.onResult { result in
             guard validateResult(result) else { return }
