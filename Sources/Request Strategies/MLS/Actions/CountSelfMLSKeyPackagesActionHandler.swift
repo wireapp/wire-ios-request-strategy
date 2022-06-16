@@ -28,9 +28,14 @@ class CountSelfMLSKeyPackagesActionHandler: ActionHandler<CountSelfMLSKeyPackage
     ) -> ZMTransportRequest? {
 
         var action = action
-        
+
+        guard apiVersion > .v0 else {
+            action.notifyResult(.failure(.apiVersionNotSupported))
+            return nil
+        }
+
         guard !action.clientID.isEmpty else {
-            action.notifyResult(.failure(.invalidClientID))
+            action.notifyResult(.failure(.clientNotFound))
             return nil
         }
 

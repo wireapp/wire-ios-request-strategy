@@ -28,8 +28,9 @@ public final class CountSelfMLSKeyPackagesAction: EntityAction {
 
         case clientNotFound
         case malformedResponse
-        case unknown(status: Int)
+        case unknown(status: Int?)
         case invalidClientID
+        case apiVersionNotSupported
 
         public var errorDescription: String? {
             switch self {
