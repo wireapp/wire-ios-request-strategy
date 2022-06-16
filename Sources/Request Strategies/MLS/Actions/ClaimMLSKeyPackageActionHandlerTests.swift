@@ -23,31 +23,15 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
 
     let domain = "example.com"
     let userId = UUID()
-    let skipOwn = UUID().transportString()
+    let excludedSelfCliendId = UUID().transportString()
     let clientId = UUID().transportString()
-
-    // MARK: - Helpers
-
-    typealias Payload = ClaimMLSKeyPackageActionHandler.ResponsePayload
-    typealias Result = ClaimMLSKeyPackageAction.Result
-    typealias Failure = ClaimMLSKeyPackageAction.Failure
-
-    func response(payload: Payload?, status: Int) -> ZMTransportResponse {
-        var payloadString: String?
-        if let payload = payload {
-            let data = try! JSONEncoder().encode(payload)
-            payloadString = String(bytes: data, encoding: .utf8)
-        }
-
-        return ZMTransportResponse(payload: payloadString as ZMTransportData?, httpStatus: status, transportSessionError: nil, apiVersion: APIVersion.v1.rawValue)
-    }
 
     // MARK: - Request generation
 
     func test_itGenerateARequest() throws {
         // Given
         let sut = ClaimMLSKeyPackageActionHandler(context: syncMOC)
-        let action = ClaimMLSKeyPackageAction(domain: domain, userId: userId, skipOwn: skipOwn)
+        let action = ClaimMLSKeyPackageAction(domain: domain, userId: userId, excludedSelfClientId: excludedSelfCliendId)
 
         // When
         let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v1))
@@ -57,7 +41,7 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
         XCTAssertEqual(request.method, .methodPOST)
 
         let actualPayload = request.payload as? [String: String]
-        let expectedPayload = ["skip_own": skipOwn]
+        let expectedPayload = ["skip_own": excludedSelfCliendId]
 
         XCTAssertEqual(actualPayload, expectedPayload)
     }
@@ -119,7 +103,23 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
         }
     }
 
-    func test_itHandlesResponse(status: Int, validateResult: @escaping (Swift.Result<Result, Failure>) -> Bool) {
+    // MARK: - Helpers
+
+    private typealias Payload = ClaimMLSKeyPackageActionHandler.ResponsePayload
+    private typealias Result = ClaimMLSKeyPackageAction.Result
+    private typealias Failure = ClaimMLSKeyPackageAction.Failure
+
+    private func response(payload: Payload?, status: Int) -> ZMTransportResponse {
+        var payloadString: String?
+        if let payload = payload {
+            let data = try! JSONEncoder().encode(payload)
+            payloadString = String(bytes: data, encoding: .utf8)
+        }
+
+        return ZMTransportResponse(payload: payloadString as ZMTransportData?, httpStatus: status, transportSessionError: nil, apiVersion: APIVersion.v1.rawValue)
+    }
+
+    private func test_itHandlesResponse(status: Int, validateResult: @escaping (Swift.Result<Result, Failure>) -> Bool) {
         // Given
         let sut = ClaimMLSKeyPackageActionHandler(context: syncMOC)
         var action = ClaimMLSKeyPackageAction(domain: domain, userId: userId)
