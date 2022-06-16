@@ -167,7 +167,7 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
         let sut = ClaimMLSKeyPackageActionHandler(context: syncMOC)
 
         // Expectation
-        let expectation = expectation(description: "didFail")
+        let expectation = self.expectation(description: "didFail")
 
         action.onResult { result in
             guard validateResult(result) else { return }
