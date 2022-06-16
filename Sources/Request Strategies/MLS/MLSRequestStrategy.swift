@@ -24,7 +24,6 @@ public final class MLSRequestStrategy: AbstractRequestStrategy {
     // MARK: - Properties
 
     private let entitySync: EntityActionSync
-    private let claimMLSKeyPackageActionHandler: ClaimMLSKeyPackageActionHandler
 
     // MARK: - Life cycle
 
@@ -33,10 +32,8 @@ public final class MLSRequestStrategy: AbstractRequestStrategy {
         applicationStatus: ApplicationStatus
     ) {
 
-        claimMLSKeyPackageActionHandler = ClaimMLSKeyPackageActionHandler(context: managedObjectContext)
-
         entitySync = EntityActionSync(actionHandlers: [
-            claimMLSKeyPackageActionHandler
+            ClaimMLSKeyPackageActionHandler(context: managedObjectContext),
         ])
 
         super.init(
