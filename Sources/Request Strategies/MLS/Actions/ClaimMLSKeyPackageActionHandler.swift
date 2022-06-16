@@ -22,11 +22,15 @@ class ClaimMLSKeyPackageActionHandler: ActionHandler<ClaimMLSKeyPackageAction> {
 
     // MARK: - Methods
 
-    override func request(for action: ActionHandler<ClaimMLSKeyPackageAction>.Action, apiVersion: APIVersion) -> ZMTransportRequest? {
-        let path = "/mls/key-packages/claim/\(action.domain)/\(action.userId.transportString())"
+    override func request(for action: ClaimMLSKeyPackageAction, apiVersion: APIVersion) -> ZMTransportRequest? {
+        guard let domain = action.domain?.nilIfEmpty ?? APIVersion.domain else {
+            return nil
+        }
+
+        let path = "/mls/key-packages/claim/\(domain)/\(action.userId.transportString())"
 
         var payload: ZMTransportData?
-        if let skipOwn = action.skipOwn {
+        if let skipOwn = action.excludedSelfClientId, !skipOwn.isEmpty {
             payload = ["skip_own": skipOwn] as ZMTransportData
         }
 
@@ -38,7 +42,7 @@ class ClaimMLSKeyPackageActionHandler: ActionHandler<ClaimMLSKeyPackageAction> {
         )
     }
 
-    override func handleResponse(_ response: ZMTransportResponse, action: ActionHandler<ClaimMLSKeyPackageAction>.Action) {
+    override func handleResponse(_ response: ZMTransportResponse, action: ClaimMLSKeyPackageAction) {
         var action = action
 
         switch response.httpStatus {

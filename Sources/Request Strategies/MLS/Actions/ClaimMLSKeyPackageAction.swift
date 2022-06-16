@@ -25,7 +25,7 @@ public class ClaimMLSKeyPackageAction: EntityAction {
     // Until we know what type is best for the result, we'll use [KeyPackage]
     public typealias Result = [KeyPackage]
 
-    public enum Failure: LocalizedError, SafeForLoggingStringConvertible {
+    public enum Failure: LocalizedError {
 
         case malformedResponse
         case invalidSkipOwn
@@ -44,24 +44,20 @@ public class ClaimMLSKeyPackageAction: EntityAction {
                 return "Unknown error (response status: \(status))"
             }
         }
-
-        public var safeForLoggingDescription: String {
-            return errorDescription ?? ""
-        }
     }
 
     // MARK: - Properties
 
     /// the self client id to provide if we wish to avoid claiming the key package for that client
-    public let skipOwn: String?
-    public let domain: String
+    public let excludedSelfClientId: String?
+    public let domain: String?
     public let userId: UUID
     public var resultHandler: ResultHandler?
 
-    init(domain: String, userId: UUID, skipOwn: String? = nil, resultHandler: ResultHandler? = nil) {
+    init(domain: String?, userId: UUID, excludedSelfClientId: String? = nil, resultHandler: ResultHandler? = nil) {
         self.domain = domain
         self.userId = userId
-        self.skipOwn = skipOwn
+        self.excludedSelfClientId = excludedSelfClientId
         self.resultHandler = resultHandler
     }
 }

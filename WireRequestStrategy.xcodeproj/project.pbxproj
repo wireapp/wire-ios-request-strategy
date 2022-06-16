@@ -178,6 +178,7 @@
 		63CC83AF2859D0D8008549AD /* ClaimMLSKeyPackageAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83AE2859D0D8008549AD /* ClaimMLSKeyPackageAction.swift */; };
 		63CC83B12859D488008549AD /* ClaimMLSKeyPackageActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83B02859D488008549AD /* ClaimMLSKeyPackageActionHandler.swift */; };
 		63CC83B3285A1E59008549AD /* ClaimMLSKeyPackageActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83B2285A1E59008549AD /* ClaimMLSKeyPackageActionHandlerTests.swift */; };
+		63CC83B9285B4845008549AD /* String+Empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83B8285B4845008549AD /* String+Empty.swift */; };
 		70C781FD2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C781FC2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift */; };
 		70E77B79273187660021EE70 /* UpdateRoleActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E77B78273187660021EE70 /* UpdateRoleActionHandler.swift */; };
 		8792F55721AD944100795027 /* UserPropertyRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */; };
@@ -550,6 +551,7 @@
 		63CC83AE2859D0D8008549AD /* ClaimMLSKeyPackageAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimMLSKeyPackageAction.swift; sourceTree = "<group>"; };
 		63CC83B02859D488008549AD /* ClaimMLSKeyPackageActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimMLSKeyPackageActionHandler.swift; sourceTree = "<group>"; };
 		63CC83B2285A1E59008549AD /* ClaimMLSKeyPackageActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimMLSKeyPackageActionHandlerTests.swift; sourceTree = "<group>"; };
+		63CC83B8285B4845008549AD /* String+Empty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Empty.swift"; sourceTree = "<group>"; };
 		70C781FC2732B0100059DF07 /* UpdateRoleActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateRoleActionHandlerTests.swift; sourceTree = "<group>"; };
 		70E77B78273187660021EE70 /* UpdateRoleActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateRoleActionHandler.swift; sourceTree = "<group>"; };
 		8792F55621AD944100795027 /* UserPropertyRequestStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPropertyRequestStrategy.swift; sourceTree = "<group>"; };
@@ -1492,6 +1494,7 @@
 				06025669248E61BF00E060E1 /* ZMSimpleListRequestPaginator+Internal.h */,
 				06474D6524B3227E002C695D /* ZMSimpleListRequestPaginatorTests.m */,
 				167BCBC326087F8900E9D7E3 /* ZMTBaseTests+CoreDataStack.swift */,
+				63CC83B8285B4845008549AD /* String+Empty.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1849,6 +1852,7 @@
 				06FDC62F28354DAE008300DB /* PushTokenStorage.swift in Sources */,
 				166901DD1D7081C7000FE4AF /* ZMLocallyModifiedObjectSyncStatus.m in Sources */,
 				F18401BB2073BE0800E9F4CC /* LinkPreviewAssetDownloadRequestStrategy.swift in Sources */,
+				63CC83B9285B4845008549AD /* String+Empty.swift in Sources */,
 				16751E8524CF72970099AE09 /* DeliveryReceiptRequestStrategy.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
