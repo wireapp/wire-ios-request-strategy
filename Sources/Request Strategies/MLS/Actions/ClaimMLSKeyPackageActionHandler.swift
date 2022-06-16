@@ -23,7 +23,15 @@ class ClaimMLSKeyPackageActionHandler: ActionHandler<ClaimMLSKeyPackageAction> {
     // MARK: - Methods
 
     override func request(for action: ClaimMLSKeyPackageAction, apiVersion: APIVersion) -> ZMTransportRequest? {
+        var action = action
+
+        guard apiVersion > .v0 else {
+            action.notifyResult(.failure(.unsupportedAPIVersion))
+            return nil
+        }
+
         guard let domain = action.domain?.nilIfEmpty ?? APIVersion.domain else {
+            action.notifyResult(.failure(.missingDomain))
             return nil
         }
 

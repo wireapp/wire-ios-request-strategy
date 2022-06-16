@@ -27,6 +27,8 @@ public class ClaimMLSKeyPackageAction: EntityAction {
 
     public enum Failure: LocalizedError {
 
+        case missingDomain
+        case unsupportedAPIVersion
         case malformedResponse
         case invalidSkipOwn
         case userOrDomainNotFound
@@ -34,8 +36,12 @@ public class ClaimMLSKeyPackageAction: EntityAction {
 
         public var errorDescription: String? {
             switch self {
+            case .missingDomain:
+                return "Missing domain."
+            case .unsupportedAPIVersion:
+                return "API version not supported."
             case .malformedResponse:
-                return "Malformed response"
+                return "Malformed response."
             case .invalidSkipOwn:
                 return "Invalid parameter: skip own."
             case .userOrDomainNotFound:
