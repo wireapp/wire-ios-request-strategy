@@ -33,7 +33,7 @@ public final class MLSRequestStrategy: AbstractRequestStrategy {
     ) {
 
         entitySync = EntityActionSync(actionHandlers: [
-            ClaimMLSKeyPackageActionHandler(context: managedObjectContext),
+            ClaimMLSKeyPackageActionHandler(context: managedObjectContext)
         ])
 
         super.init(
