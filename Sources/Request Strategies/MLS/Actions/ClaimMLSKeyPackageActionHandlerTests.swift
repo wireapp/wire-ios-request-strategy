@@ -46,6 +46,28 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
         XCTAssertEqual(actualPayload, expectedPayload)
     }
 
+    func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {
+        test_itDoesntGenerateARequest(
+            action: ClaimMLSKeyPackageAction(domain: domain, userId: userId, excludedSelfClientId: excludedSelfCliendId),
+            apiVersion: .v0
+        ) {
+            guard case .failure(.unsupportedAPIVersion) = $0 else { return false }
+            return true
+        }
+    }
+
+    func test_itDoesntGenerateARequest_WhenDomainIsMissing() {
+        APIVersion.domain = nil
+
+        test_itDoesntGenerateARequest(
+            action: ClaimMLSKeyPackageAction(domain: "", userId: userId, excludedSelfClientId: excludedSelfCliendId),
+            apiVersion: .v1
+        ) {
+            guard case .failure(.missingDomain) = $0 else { return false }
+            return true
+        }
+    }
+
     // MARK: - Response handling
 
     func test_itHandlesResponse_200() {
@@ -137,5 +159,26 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
 
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+    }
+
+    private func test_itDoesntGenerateARequest(action: ClaimMLSKeyPackageAction, apiVersion: APIVersion, validateResult: @escaping (Swift.Result<Result, Failure>) -> Bool) {
+        // Given
+        var action = action
+        let sut = ClaimMLSKeyPackageActionHandler(context: syncMOC)
+
+        // Expectation
+        let expectation = expectation(description: "didFail")
+
+        action.onResult { result in
+            guard validateResult(result) else { return }
+            expectation.fulfill()
+        }
+
+        // When
+        let request = sut.request(for: action, apiVersion: apiVersion)
+
+        // Then
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        XCTAssertNil(request)
     }
 }
