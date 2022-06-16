@@ -28,7 +28,7 @@ public final class CountSelfMLSKeyPackagesAction: EntityAction {
 
         case clientNotFound
         case malformedResponse
-        case unknown(status: Int?)
+        case unknown(status: Int)
         case invalidClientID
         case apiVersionNotSupported
 
@@ -42,6 +42,8 @@ public final class CountSelfMLSKeyPackagesAction: EntityAction {
                 return "Unknown error (response status: \(status))"
             case .invalidClientID:
                 return "Invalid clientID"
+            case .apiVersionNotSupported:
+                return "Api version not supported"
             }
         }
     }
