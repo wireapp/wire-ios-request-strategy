@@ -78,7 +78,8 @@ class CountSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
         }
 
         // When
-        sut.handleResponse(response(payload: nil, status: 200), action: action)
+        let invalidPayload: ZMTransportData? = nil
+        sut.handleResponse(response(payload: invalidPayload, status: 200), action: action)
 
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
@@ -98,7 +99,8 @@ class CountSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
         }
 
         // When
-        sut.handleResponse(response(payload: nil, status: 999), action: action)
+        let invalidPayload: ZMTransportData? = nil
+        sut.handleResponse(response(payload: invalidPayload, status: 999), action: action)
 
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))

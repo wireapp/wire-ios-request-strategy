@@ -40,10 +40,6 @@ public final class CountSelfMLSKeyPackagesAction: EntityAction {
                 return "Unknown error (response status: \(status))"
             }
         }
-
-        public var safeForLoggingDescription: String {
-            return errorDescription ?? ""
-        }
     }
 
     // MARK: - Properties

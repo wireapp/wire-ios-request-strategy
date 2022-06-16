@@ -24,7 +24,12 @@ class CountSelfMLSKeyPackagesActionHandler: ActionHandler<CountSelfMLSKeyPackage
 
     override func request(
         for action: ActionHandler<CountSelfMLSKeyPackagesAction>.Action,
-        apiVersion: APIVersion) -> ZMTransportRequest? {
+        apiVersion: APIVersion
+    ) -> ZMTransportRequest? {
+
+        guard !action.clientID.isEmpty else {
+            return nil
+        }
 
             return ZMTransportRequest(
                 path: "/mls/key-package/self/\(action.clientID)/count",
