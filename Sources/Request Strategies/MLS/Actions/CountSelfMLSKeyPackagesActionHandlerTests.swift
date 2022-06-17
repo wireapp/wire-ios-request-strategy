@@ -30,13 +30,58 @@ class CountSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
         // Given
         let sut  = CountSelfMLSKeyPackagesActionHandler(context: syncMOC)
         let action = CountSelfMLSKeyPackagesAction(clientID: clientID)
+        let apiVersion: APIVersion = .v1
 
         // When
-        let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v1))
+        let request = try XCTUnwrap(sut.request(for: action, apiVersion: apiVersion))
 
         // Then
         XCTAssertEqual(request.path, requestPath)
         XCTAssertEqual(request.method, .methodGET)
+    }
+
+    func test_sut_FailsToGeneratesRequestForUnsupportedAPIVersion() throws {
+        // Given
+        let sut  = CountSelfMLSKeyPackagesActionHandler(context: syncMOC)
+        var action = CountSelfMLSKeyPackagesAction(clientID: clientID)
+        let apiVersion: APIVersion = .v0
+
+        // Expectation
+        let didFail = expectation(description: "didFail")
+
+        action.onResult { result in
+            guard case .failure(.endpointNotAvailable) = result else { return }
+            didFail.fulfill()
+        }
+
+        // When
+        let request = sut.request(for: action, apiVersion: apiVersion)
+
+        // Then
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        XCTAssertNil(request)
+    }
+
+    func test_sut_FailsToGeneratesRequestForInvalidClientID() throws {
+        // Given
+        let sut  = CountSelfMLSKeyPackagesActionHandler(context: syncMOC)
+        var action = CountSelfMLSKeyPackagesAction(clientID: "")
+        let apiVersion: APIVersion = .v1
+
+        // Expectation
+        let didFail = expectation(description: "didFail")
+
+        action.onResult { result in
+            guard case .failure(.invalidClientID) = result else { return }
+            didFail.fulfill()
+        }
+
+        // When
+        let request = sut.request(for: action, apiVersion: apiVersion)
+
+        // Then
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        XCTAssertNil(request)
     }
 
     func test_sut_HandlesResponse_200() throws {
@@ -78,8 +123,27 @@ class CountSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
         }
 
         // When
-        let invalidPayload: ZMTransportData? = nil
-        sut.handleResponse(response(payload: invalidPayload, status: 200), action: action)
+        sut.handleResponse(response(status: 200), action: action)
+
+        // Then
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+    }
+
+    func test_sut_HandlesResponse_404() throws {
+        // Given
+        let sut = CountSelfMLSKeyPackagesActionHandler(context: syncMOC)
+        var action = CountSelfMLSKeyPackagesAction(clientID: clientID)
+
+        // Expectation
+        let didFail = expectation(description: "didFail")
+
+        action.onResult { result in
+            guard case .failure(.clientNotFound) = result else { return }
+            didFail.fulfill()
+        }
+
+        // When
+        sut.handleResponse(response(status: 404), action: action)
 
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
@@ -99,8 +163,7 @@ class CountSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
         }
 
         // When
-        let invalidPayload: ZMTransportData? = nil
-        sut.handleResponse(response(payload: invalidPayload, status: 999), action: action)
+        sut.handleResponse(response(status: 999), action: action)
 
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
@@ -116,12 +179,12 @@ extension CountSelfMLSKeyPackagesActionHandlerTests {
         return response(payload: payloadAsString as ZMTransportData, status: status)
     }
 
-    func response(payload: ZMTransportData?, status: Int) -> ZMTransportResponse {
+    func response(payload: ZMTransportData? = nil, status: Int) -> ZMTransportResponse {
         return ZMTransportResponse(
             payload: payload,
             httpStatus: status,
             transportSessionError: nil,
-            apiVersion: APIVersion.v0.rawValue
+            apiVersion: APIVersion.v1.rawValue
         )
     }
 }

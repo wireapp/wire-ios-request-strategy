@@ -28,9 +28,9 @@ public final class CountSelfMLSKeyPackagesAction: EntityAction {
 
         case clientNotFound
         case malformedResponse
-        case unknown(status: Int)
         case invalidClientID
-        case apiVersionNotSupported
+        case endpointNotAvailable
+        case unknown(status: Int)
 
         public var errorDescription: String? {
             switch self {
@@ -38,12 +38,12 @@ public final class CountSelfMLSKeyPackagesAction: EntityAction {
                 return "Client not found"
             case .malformedResponse:
                 return "Malformed response"
-            case .unknown(let status):
-                return "Unknown error (response status: \(status))"
+            case .endpointNotAvailable:
+                return "End point not available"
             case .invalidClientID:
                 return "Invalid clientID"
-            case .apiVersionNotSupported:
-                return "Api version not supported"
+            case .unknown(let status):
+                return "Unknown error (response status: \(status))"
             }
         }
     }
