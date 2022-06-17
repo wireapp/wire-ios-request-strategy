@@ -28,9 +28,9 @@ public class ClaimMLSKeyPackageAction: EntityAction {
     public enum Failure: LocalizedError {
 
         case missingDomain
-        case unsupportedAPIVersion
+        case endpointUnavailable
         case malformedResponse
-        case invalidSkipOwn
+        case invalidSelfClientId
         case userOrDomainNotFound
         case unknown(status: Int)
 
@@ -38,12 +38,12 @@ public class ClaimMLSKeyPackageAction: EntityAction {
             switch self {
             case .missingDomain:
                 return "Missing domain."
-            case .unsupportedAPIVersion:
-                return "API version not supported."
+            case .endpointUnavailable:
+                return "Endpoint unavailable."
             case .malformedResponse:
                 return "Malformed response."
-            case .invalidSkipOwn:
-                return "Invalid parameter: skip own."
+            case .invalidSelfClientId:
+                return "Invalid self client id for parameter: skip own."
             case .userOrDomainNotFound:
                 return "User domain or user not found."
             case .unknown(let status):

@@ -26,12 +26,12 @@ class ClaimMLSKeyPackageActionHandler: ActionHandler<ClaimMLSKeyPackageAction> {
         var action = action
 
         guard apiVersion > .v0 else {
-            action.notifyResult(.failure(.unsupportedAPIVersion))
+            action.fail(with: .endpointUnavailable)
             return nil
         }
 
         guard let domain = action.domain?.nilIfEmpty ?? APIVersion.domain else {
-            action.notifyResult(.failure(.missingDomain))
+            action.fail(with: .missingDomain)
             return nil
         }
 
@@ -59,16 +59,16 @@ class ClaimMLSKeyPackageActionHandler: ActionHandler<ClaimMLSKeyPackageAction> {
                 let data = response.rawData,
                 let payload = try? JSONDecoder().decode(ResponsePayload.self, from: data)
             else {
-                return action.notifyResult(.failure(.malformedResponse))
+                return action.fail(with: .malformedResponse)
             }
 
-            action.notifyResult(.success(payload.keyPackages))
+            action.succeed(with: payload.keyPackages)
         case 400:
-            action.notifyResult(.failure(.invalidSkipOwn))
+            action.fail(with: .invalidSelfClientId)
         case 404:
-            action.notifyResult(.failure(.userOrDomainNotFound))
+            action.fail(with: .userOrDomainNotFound)
         default:
-            action.notifyResult(.failure(.unknown(status: response.httpStatus)))
+            action.fail(with: .unknown(status: response.httpStatus))
         }
     }
 }

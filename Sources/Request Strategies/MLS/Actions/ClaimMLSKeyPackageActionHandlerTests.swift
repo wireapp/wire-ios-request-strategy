@@ -51,7 +51,7 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
             action: ClaimMLSKeyPackageAction(domain: domain, userId: userId, excludedSelfClientId: excludedSelfCliendId),
             apiVersion: .v0
         ) {
-            guard case .failure(.unsupportedAPIVersion) = $0 else { return false }
+            guard case .failure(.endpointUnavailable) = $0 else { return false }
             return true
         }
     }
@@ -106,7 +106,7 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
 
     func test_itHandlesResponse_400() {
         test_itHandlesResponse(status: 400) {
-            guard case .failure(.invalidSkipOwn) = $0 else { return false }
+            guard case .failure(.invalidSelfClientId) = $0 else { return false }
             return true
         }
     }
@@ -147,7 +147,7 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
         var action = ClaimMLSKeyPackageAction(domain: domain, userId: userId)
 
         // Expectation
-        let didFail = expectation(description: "didFail")
+        let didFail = expectation(description: "didPassValidation")
 
         action.onResult { result in
             guard validateResult(result) else { return }
