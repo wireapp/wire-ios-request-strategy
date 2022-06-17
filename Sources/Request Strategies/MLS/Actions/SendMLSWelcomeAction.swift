@@ -27,7 +27,7 @@ public class SendMLSWelcomeAction: EntityAction {
     public enum Failure: LocalizedError {
 
         case emptyParameters
-        case unsupportedAPIVersion
+        case endpointUnavailable
         case invalidBody
         case keyPackageRefNotFound
         case unknown(status: Int)
@@ -36,8 +36,8 @@ public class SendMLSWelcomeAction: EntityAction {
             switch self {
             case .emptyParameters:
                 return "Empty parameter(s)."
-            case .unsupportedAPIVersion:
-                return "API Version not supported."
+            case .endpointUnavailable:
+                return "Endpoint unavailable."
             case .invalidBody:
                 return "Invalid body."
             case .keyPackageRefNotFound:

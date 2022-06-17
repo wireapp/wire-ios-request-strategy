@@ -26,12 +26,12 @@ class SendMLSWelcomeActionHandler: ActionHandler<SendMLSWelcomeAction> {
         var action = action
 
         guard apiVersion > .v0 else {
-            action.notifyResult(.failure(.unsupportedAPIVersion))
+            action.fail(with: .endpointUnavailable)
             return nil
         }
 
         guard !action.body.isEmpty else {
-            action.notifyResult(.failure(.emptyParameters))
+            action.fail(with: .emptyParameters)
             return nil
         }
 
@@ -48,13 +48,13 @@ class SendMLSWelcomeActionHandler: ActionHandler<SendMLSWelcomeAction> {
 
         switch (response.httpStatus, response.payloadLabel()) {
         case (201, _):
-            action.notifyResult(.success(()))
+            action.succeed()
         case (400, _):
-            action.notifyResult(.failure(.invalidBody))
+            action.fail(with: .invalidBody)
         case (404, "mls-key-package-ref-not-found"):
-            action.notifyResult(.failure(.keyPackageRefNotFound))
+            action.fail(with: .keyPackageRefNotFound)
         default:
-            action.notifyResult(.failure(.unknown(status: response.httpStatus)))
+            action.fail(with: .unknown(status: response.httpStatus))
         }
     }
 }
