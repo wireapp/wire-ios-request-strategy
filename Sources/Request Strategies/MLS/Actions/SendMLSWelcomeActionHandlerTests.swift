@@ -19,9 +19,14 @@
 import Foundation
 @testable import WireRequestStrategy
 
-class SendMLSWelcomeActionHandlerTests: MessagingTestBase {
+class SendMLSWelcomeActionHandlerTests: ActionHandlerTestBase<SendMLSWelcomeAction, SendMLSWelcomeActionHandler> {
 
     let body = "abc123"
+
+    override func setUp() {
+        super.setUp()
+        action = SendMLSWelcomeAction(body: body)
+    }
 
     // MARK: - Request generation
 
@@ -62,93 +67,30 @@ class SendMLSWelcomeActionHandlerTests: MessagingTestBase {
     // MARK: - Response handling
 
     func test_itHandlesResponse_201() {
-        test_itHandlesResponse(status: 201, label: nil, expectationDescription: "didSucceed") {
+        test_itHandlesResponse(status: 201) {
             guard case .success = $0 else { return false }
             return true
         }
     }
 
     func test_itHandlesResponse_400() {
-        test_itHandlesFailure(status: 400) {
+        test_itHandlesResponse(status: 400) {
             guard case .failure(.invalidBody) = $0 else { return false }
             return true
         }
     }
 
     func test_itHandlesResponse_404() {
-        test_itHandlesFailure(status: 404, label: "mls-key-package-ref-not-found") {
+        test_itHandlesResponse(status: 404, label: "mls-key-package-ref-not-found") {
             guard case .failure(.keyPackageRefNotFound) = $0 else { return false }
             return true
         }
     }
 
     func test_itHandlesResponse_UnkownError() {
-        test_itHandlesFailure(status: 999) {
+        test_itHandlesResponse(status: 999) {
             guard case .failure(.unknown(status: 999)) = $0 else { return false }
             return true
         }
-    }
-
-    // MARK: - Helpers
-
-    private typealias Failure = SendMLSWelcomeAction.Failure
-
-    private func response(status: Int, label: String? = nil) -> ZMTransportResponse {
-        var payload: [String: String]?
-        if let label = label {
-            payload = ["label": label]
-        }
-
-        return ZMTransportResponse(
-            payload: payload as ZMTransportData?,
-            httpStatus: status,
-            transportSessionError: nil,
-            apiVersion: APIVersion.v1.rawValue
-        )
-    }
-
-    private func test_itHandlesFailure(status: Int, label: String? = nil, validateResult: @escaping (Swift.Result<Void, Failure>) -> Bool) {
-        test_itHandlesResponse(status: status, label: label, expectationDescription: "didFail", validateResult: validateResult)
-    }
-
-    private func test_itHandlesResponse(status: Int, label: String?, expectationDescription: String, validateResult: @escaping (Swift.Result<Void, Failure>) -> Bool) {
-        // Given
-        let sut = SendMLSWelcomeActionHandler(context: syncMOC)
-        var action = SendMLSWelcomeAction(body: body)
-
-        // Expectation
-        let expectation = self.expectation(description: expectationDescription)
-
-        action.onResult { result in
-            guard validateResult(result) else { return }
-            expectation.fulfill()
-        }
-
-        // When
-        sut.handleResponse(response(status: status, label: label), action: action)
-
-        // Then
-        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
-    }
-
-    private func test_itDoesntGenerateARequest(action: SendMLSWelcomeAction, apiVersion: APIVersion, validateResult: @escaping (Swift.Result<Void, Failure>) -> Bool) {
-        // Given
-        var action = action
-        let sut = SendMLSWelcomeActionHandler(context: syncMOC)
-
-        // Expectation
-        let expectation = self.expectation(description: "didFail")
-
-        action.onResult { result in
-            guard validateResult(result) else { return }
-            expectation.fulfill()
-        }
-
-        // When
-        let request = sut.request(for: action, apiVersion: apiVersion)
-
-        // Then
-        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
-        XCTAssertNil(request)
     }
 }

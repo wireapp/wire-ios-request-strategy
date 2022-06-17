@@ -19,12 +19,20 @@
 import Foundation
 @testable import WireRequestStrategy
 
-class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
+class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPackageAction, ClaimMLSKeyPackageActionHandler> {
 
     let domain = "example.com"
     let userId = UUID()
     let excludedSelfCliendId = UUID().transportString()
     let clientId = UUID().transportString()
+
+    override func setUp() {
+        super.setUp()
+        action = ClaimMLSKeyPackageAction(
+            domain: domain,
+            userId: userId
+        )
+    }
 
     // MARK: - Request generation
 
@@ -128,8 +136,6 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
     // MARK: - Helpers
 
     private typealias Payload = ClaimMLSKeyPackageActionHandler.ResponsePayload
-    private typealias Result = ClaimMLSKeyPackageAction.Result
-    private typealias Failure = ClaimMLSKeyPackageAction.Failure
 
     private func response(payload: Payload?, status: Int) -> ZMTransportResponse {
         var payloadString: String?
@@ -138,47 +144,11 @@ class ClaimMLSKeyPackageActionHandlerTests: MessagingTestBase {
             payloadString = String(bytes: data, encoding: .utf8)
         }
 
-        return ZMTransportResponse(payload: payloadString as ZMTransportData?, httpStatus: status, transportSessionError: nil, apiVersion: APIVersion.v1.rawValue)
-    }
-
-    private func test_itHandlesResponse(status: Int, validateResult: @escaping (Swift.Result<Result, Failure>) -> Bool) {
-        // Given
-        let sut = ClaimMLSKeyPackageActionHandler(context: syncMOC)
-        var action = ClaimMLSKeyPackageAction(domain: domain, userId: userId)
-
-        // Expectation
-        let didFail = expectation(description: "didPassValidation")
-
-        action.onResult { result in
-            guard validateResult(result) else { return }
-            didFail.fulfill()
-        }
-
-        // When
-        sut.handleResponse(response(payload: nil, status: status), action: action)
-
-        // Then
-        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
-    }
-
-    private func test_itDoesntGenerateARequest(action: ClaimMLSKeyPackageAction, apiVersion: APIVersion, validateResult: @escaping (Swift.Result<Result, Failure>) -> Bool) {
-        // Given
-        var action = action
-        let sut = ClaimMLSKeyPackageActionHandler(context: syncMOC)
-
-        // Expectation
-        let expectation = self.expectation(description: "didFail")
-
-        action.onResult { result in
-            guard validateResult(result) else { return }
-            expectation.fulfill()
-        }
-
-        // When
-        let request = sut.request(for: action, apiVersion: apiVersion)
-
-        // Then
-        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
-        XCTAssertNil(request)
+        return ZMTransportResponse(
+            payload: payloadString as ZMTransportData?,
+            httpStatus: status,
+            transportSessionError: nil,
+            apiVersion: APIVersion.v1.rawValue
+        )
     }
 }
