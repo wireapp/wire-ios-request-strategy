@@ -26,7 +26,7 @@ class UploadSelfMLSKeyPackagesActionHandler: ActionHandler<UploadSelfMLSKeyPacka
         var action = action
 
         guard apiVersion > .v0 else {
-            action.notifyResult(.failure(.unsupportedAPIVersion))
+            action.fail(with: .endpointUnavailable)
             return nil
         }
 
@@ -34,7 +34,7 @@ class UploadSelfMLSKeyPackagesActionHandler: ActionHandler<UploadSelfMLSKeyPacka
             !action.clientID.isEmpty,
             !action.keyPackages.isEmpty
         else {
-            action.notifyResult(.failure(.emptyParameters))
+            action.fail(with: .emptyParameters)
             return nil
         }
 
@@ -51,17 +51,17 @@ class UploadSelfMLSKeyPackagesActionHandler: ActionHandler<UploadSelfMLSKeyPacka
 
         switch (response.httpStatus, response.payloadLabel()) {
         case (201, _):
-            action.notifyResult(.success(()))
+            action.succeed()
         case (400, "mls-protocol-error"):
-            action.notifyResult(.failure(.mlsProtocolError))
+            action.fail(with: .mlsProtocolError)
         case (400, _):
-            action.notifyResult(.failure(.invalidBody))
+            action.fail(with: .invalidBody)
         case (403, "mls-identity-mismatch"):
-            action.notifyResult(.failure(.identityMismatch))
+            action.fail(with: .identityMismatch)
         case (404, _):
-            action.notifyResult(.failure(.clientNotFound))
+            action.fail(with: .clientNotFound)
         default:
-            action.notifyResult(.failure(.unknown(status: response.httpStatus)))
+            action.fail(with: .unknown(status: response.httpStatus))
         }
     }
 }

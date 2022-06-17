@@ -50,7 +50,7 @@ class UploadSelfMLSKeyPackagesActionHandlerTests: MessagingTestBase {
             action: UploadSelfMLSKeyPackagesAction(clientID: clientId, keyPackages: keyPackages),
             apiVersion: .v0
         ) {
-            guard case .failure(.unsupportedAPIVersion) = $0 else { return false }
+            guard case .failure(.endpointUnavailable) = $0 else { return false }
             return true
         }
     }

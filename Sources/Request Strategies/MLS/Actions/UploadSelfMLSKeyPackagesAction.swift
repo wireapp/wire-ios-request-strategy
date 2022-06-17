@@ -27,7 +27,7 @@ public class UploadSelfMLSKeyPackagesAction: EntityAction {
     public enum Failure: LocalizedError {
 
         case emptyParameters
-        case unsupportedAPIVersion
+        case endpointUnavailable
         case mlsProtocolError
         case invalidBody
         case identityMismatch
@@ -38,8 +38,8 @@ public class UploadSelfMLSKeyPackagesAction: EntityAction {
             switch self {
             case .emptyParameters:
                 return "Empty parameter(s)."
-            case .unsupportedAPIVersion:
-                return "API Version not supported."
+            case .endpointUnavailable:
+                return "Endpoint unavailable."
             case .mlsProtocolError:
                 return "MLS protocol error."
             case .invalidBody:
