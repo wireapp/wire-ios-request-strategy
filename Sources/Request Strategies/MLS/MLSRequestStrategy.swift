@@ -35,7 +35,6 @@ public final class MLSRequestStrategy: AbstractRequestStrategy {
             SendMLSMessagesActionHandler(context: managedObjectContext)
         ])
 
-
         super.init(
             withManagedObjectContext: managedObjectContext,
             applicationStatus: applicationStatus

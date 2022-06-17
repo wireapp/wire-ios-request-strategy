@@ -30,11 +30,11 @@ class SendMLSMessagesActionHandler: ActionHandler<SendMLSMessagesAction> {
         var action = action
 
         guard apiVersion > .v0 else {
-            action.notifyResult(.failure(.endpointNotAvailable))
+            action.notifyResult(.failure(.endpointUnavailable))
             return nil
         }
 
-        guard !action.body.isEmpty else {
+        guard !action.mlsMessage.isEmpty else {
             action.notifyResult(.failure(.invalidBody))
             return nil
         }
@@ -42,7 +42,7 @@ class SendMLSMessagesActionHandler: ActionHandler<SendMLSMessagesAction> {
         return ZMTransportRequest(
             path: "/mls/messages",
             method: .methodPOST,
-            payload: action.body as ZMTransportData,
+            payload: action.mlsMessage as ZMTransportData,
             apiVersion: apiVersion.rawValue
         )
     }
@@ -55,47 +55,43 @@ class SendMLSMessagesActionHandler: ActionHandler<SendMLSMessagesAction> {
 
         switch (response.httpStatus, response.payloadLabel()) {
         case (201, _):
-            action.notifyResult(.success(()))
+            action.succeed()
 
         case (400, "mls-protocol-error"):
-            action.notifyResult(.failure(.mlsProtocolError))
+            action.fail(with: .mlsProtocolError)
 
         case (400, _):
-            action.notifyResult(.failure(.invalidBody))
+            action.fail(with: .invalidBody)
 
         case (403, "missing-legalhold-consent"):
-            action.notifyResult(.failure(.missingLegalHoldConsent))
+            action.fail(with: .missingLegalHoldConsent)
 
         case (403, "legalhold-not-enabled"):
-            action.notifyResult(.failure(.legalHoldNotEnabled))
+            action.fail(with: .legalHoldNotEnabled)
 
         case (404, "mls-proposal-not-found"):
-            action.notifyResult(.failure(.mlsProposalNotFound))
+            action.fail(with: .mlsProposalNotFound)
 
         case (404, "mls-key-package-ref-not-found"):
-            action.notifyResult(.failure(.mlsKeyPackageRefNotFound))
+            action.fail(with: .mlsKeyPackageRefNotFound)
 
         case (404, "no-conversation"):
-            action.notifyResult(.failure(.noConversation))
+            action.fail(with: .noConversation)
 
         case (409, "mls-stale-message"):
-            action.notifyResult(.failure(.mlsStaleMessage))
+            action.fail(with: .mlsStaleMessage)
 
         case (409, "mls-client-mismatch"):
-            action.notifyResult(.failure(.mlsClientMismatch))
+            action.fail(with: .mlsClientMismatch)
 
         case (422, "mls-unsupported-proposal"):
-            action.notifyResult(.failure(.mlsUnsupportedProposal))
+            action.fail(with: .mlsUnsupportedProposal)
 
         case (422, "mls-unsupported-message"):
-            action.notifyResult(.failure(.mlsUnsupportedMessage))
+            action.fail(with: .mlsUnsupportedMessage)
 
         default:
             action.notifyResult(.failure(.unknown(status: response.httpStatus)))
         }
     }
-}
-
-extension SendMLSMessagesActionHandler {
-
 }

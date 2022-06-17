@@ -21,21 +21,23 @@ import XCTest
 
 class SendMLSMessagesActionHandlerTests: MessagingTestBase {
 
-    let body = "body"
+    let mlsMessage = "mlsMessage"
     var sut: SendMLSMessagesActionHandler!
 
-    override func setUpWithError() throws {
+    override func setUp() {
+        super.setUp()
         sut = SendMLSMessagesActionHandler(context: syncMOC)
     }
 
-    override func tearDownWithError() throws {
+    override func tearDown() {
         sut = nil
+        super.tearDown()
     }
 
     // MARK: - Request generation
     func test_itGenerateARequest() throws {
         // Given
-        let action = SendMLSMessagesAction(body: body)
+        let action = SendMLSMessagesAction(mlsMessage: mlsMessage)
 
         // When
         let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v1))
@@ -43,22 +45,22 @@ class SendMLSMessagesActionHandlerTests: MessagingTestBase {
         // Then
         XCTAssertEqual(request.path, "/v1/mls/messages")
         XCTAssertEqual(request.method, .methodPOST)
-        XCTAssertEqual(request.payload as? String, body)
+        XCTAssertEqual(request.payload as? String, mlsMessage)
     }
 
     func test_itFailsToGeneratesRequestForUnsupportedAPIVersion() {
         test_itDoesntGenerateARequest(
-            action: SendMLSMessagesAction(body: body),
+            action: SendMLSMessagesAction(mlsMessage: mlsMessage),
             apiVersion: .v0
         ) {
-            guard case .failure(.endpointNotAvailable) = $0 else { return false }
+            guard case .failure(.endpointUnavailable) = $0 else { return false }
             return true
         }
     }
 
     func test_itFailsToGeneratesRequestForInvalidBody() {
         test_itDoesntGenerateARequest(
-            action: SendMLSMessagesAction(body: ""),
+            action: SendMLSMessagesAction(mlsMessage: ""),
             apiVersion: .v1
         ) {
             guard case .failure(.invalidBody) = $0 else { return false }
@@ -184,7 +186,7 @@ extension SendMLSMessagesActionHandlerTests {
 
     private func test_itHandlesResponse(status: Int, label: String?, expectationDescription: String, validateResult: @escaping (Swift.Result<Void, Failure>) -> Bool) {
         // Given
-        var action = SendMLSMessagesAction(body: body)
+        var action = SendMLSMessagesAction(mlsMessage: mlsMessage)
 
         // Expectation
         let expectation = self.expectation(description: expectationDescription)

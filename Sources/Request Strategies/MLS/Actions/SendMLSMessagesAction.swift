@@ -37,7 +37,7 @@ public final class SendMLSMessagesAction: EntityAction {
         case mlsClientMismatch
         case mlsUnsupportedProposal
         case mlsUnsupportedMessage
-        case endpointNotAvailable
+        case endpointUnavailable
         case malformedResponse
         case unknown(status: Int)
 
@@ -65,7 +65,7 @@ public final class SendMLSMessagesAction: EntityAction {
                 return "Unsupported proposal type"
             case .mlsUnsupportedMessage:
                 return "Attempted to send a message with an unsupported combination of content type and wire format"
-            case .endpointNotAvailable:
+            case .endpointUnavailable:
                 return "End point not available"
             case .malformedResponse:
                 return "Malformed response"
@@ -78,13 +78,13 @@ public final class SendMLSMessagesAction: EntityAction {
     // MARK: - Properties
 
     public var resultHandler: ResultHandler?
-    public var body: String
+    public var mlsMessage: String
 
     // MARK: - Life cycle
 
-    init(body: String,
+    init(mlsMessage: String,
          resultHandler: ResultHandler? = nil) {
-        self.body = body
+        self.mlsMessage = mlsMessage
         self.resultHandler = resultHandler
     }
 }
