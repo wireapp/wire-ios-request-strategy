@@ -33,6 +33,8 @@ public final class MLSRequestStrategy: AbstractRequestStrategy {
     ) {
         entitySync = EntityActionSync(actionHandlers: [
             CountSelfMLSKeyPackagesActionHandler(context: managedObjectContext)
+            UploadSelfMLSKeyPackagesActionHandler(context: managedObjectContext),
+            ClaimMLSKeyPackageActionHandler(context: managedObjectContext)
         ])
 
         super.init(
