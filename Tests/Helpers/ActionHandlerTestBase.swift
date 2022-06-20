@@ -72,6 +72,7 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
 
     func test_itHandlesResponse(
         status: Int,
+        payload: ZMTransportData? = nil,
         label: String? = nil,
         validation: @escaping ValidationBlock
     ) {
@@ -82,6 +83,7 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         test_itHandlesResponse(
             action: action,
             status: status,
+            payload: payload,
             label: label,
             validation: validation
         )
@@ -90,6 +92,7 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
     func test_itHandlesResponse(
         action: Action,
         status: Int,
+        payload: ZMTransportData? = nil,
         label: String? = nil,
         apiVersion: APIVersion = .v1,
         validation: @escaping ValidationBlock
@@ -102,13 +105,22 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         expect(action: &action, toPassValidation: validation)
 
         // When
-        sut.handleResponse(response(status: status, label: label, apiVersion: apiVersion), action: action)
+        let response = response(
+            status: status,
+            payload: payload,
+            label: label,
+            apiVersion: apiVersion
+        )
+        sut.handleResponse(response, action: action)
 
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
 
-    private func expect(action: inout Action, toPassValidation validateResult: @escaping ValidationBlock) {
+    private func expect(
+        action: inout Action,
+        toPassValidation validateResult: @escaping ValidationBlock
+    ) {
         let expectation = self.expectation(description: "didPassValidation")
 
         action.onResult { result in
@@ -117,14 +129,20 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         }
     }
 
-    private func response(status: Int, label: String? = nil, apiVersion: APIVersion) -> ZMTransportResponse {
-        var payload: [String: String]?
-        if let label = label {
-            payload = ["label": label]
+    private func response(
+        status: Int,
+        payload: ZMTransportData?,
+        label: String?,
+        apiVersion: APIVersion) -> ZMTransportResponse
+    {
+        var payload = payload
+
+        if payload == nil, let label = label {
+            payload = ["label": label] as ZMTransportData
         }
 
         return ZMTransportResponse(
-            payload: payload as ZMTransportData?,
+            payload: payload,
             httpStatus: status,
             transportSessionError: nil,
             apiVersion: apiVersion.rawValue

@@ -75,28 +75,25 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
     // MARK: - Response handling
 
     func test_itHandlesResponse_200() {
-        // Given
-        let sut = ClaimMLSKeyPackageActionHandler(context: syncMOC)
-        var action = ClaimMLSKeyPackageAction(domain: domain, userId: userId)
-        let keyPackage = KeyPackage(client: clientId, domain: domain, keyPackage: "a2V5IHBhY2thZ2UgZGF0YQo=", keyPackageRef: "string", userID: userId)
-
-        // Expectation
-        let didSucceed = expectation(description: "didSucceed")
+        let keyPackage = KeyPackage(
+            client: clientId,
+            domain: domain,
+            keyPackage: "a2V5IHBhY2thZ2UgZGF0YQo=",
+            keyPackageRef: "string",
+            userID: userId
+        )
         var receivedKeyPackages = [KeyPackage]()
 
-        action.onResult { result in
-            guard case .success(let keyPackages) = result else { return }
+        // When / Then
+        test_itHandlesResponse(
+            status: 200,
+            payload: transportData(for: Payload(keyPackages: [keyPackage]))
+        ) {
+            guard case .success(let keyPackages) = $0 else { return false }
             receivedKeyPackages = keyPackages
-            didSucceed.fulfill()
+            return true
         }
 
-        // When
-        let payload = Payload(keyPackages: [keyPackage])
-
-        sut.handleResponse(response(payload: payload, status: 200), action: action)
-        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
-
-        // Then
         XCTAssertEqual(receivedKeyPackages.count, 1)
         XCTAssertEqual(receivedKeyPackages.first, keyPackage)
     }
@@ -133,18 +130,8 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
 
     private typealias Payload = ClaimMLSKeyPackageActionHandler.ResponsePayload
 
-    private func response(payload: Payload?, status: Int) -> ZMTransportResponse {
-        var payloadString: String?
-        if let payload = payload {
-            let data = try! JSONEncoder().encode(payload)
-            payloadString = String(bytes: data, encoding: .utf8)
-        }
-
-        return ZMTransportResponse(
-            payload: payloadString as ZMTransportData?,
-            httpStatus: status,
-            transportSessionError: nil,
-            apiVersion: APIVersion.v1.rawValue
-        )
+    private func transportData(for payload: Payload?) -> ZMTransportData? {
+        let data = try! JSONEncoder().encode(payload)
+        return String(bytes: data, encoding: .utf8) as ZMTransportData?
     }
 }
