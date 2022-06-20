@@ -22,7 +22,9 @@ import UIKit
 
 class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>>: MessagingTestBase {
 
-    typealias ValidationBlock = (Swift.Result<Action.Result, Action.Failure>) -> Bool
+    typealias Result = Action.Result
+    typealias Failure = Action.Failure
+    typealias ValidationBlock = (Swift.Result<Result, Failure>) -> Bool
 
     var action: Action!
 
@@ -30,6 +32,8 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         action = nil
         super.tearDown()
     }
+
+    // MARK: Request generation
 
     func test_itGeneratesARequest<Payload: Equatable>(
         for action: Action,
@@ -70,25 +74,16 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         XCTAssertNil(request)
     }
 
-    func test_itHandlesResponse(
-        status: Int,
-        payload: ZMTransportData? = nil,
-        label: String? = nil,
-        validation: @escaping ValidationBlock
-    ) {
-        guard let action = self.action else {
-            return XCTFail("action must be set in child class' setup")
-        }
+    // MARK: - Response Handling
 
-        test_itHandlesResponse(
-            action: action,
-            status: status,
-            payload: payload,
-            label: label,
-            validation: validation
-        )
-    }
-
+    /// This methods helps testing that the sut handles the transport response as expected
+    /// - Parameters:
+    ///   - action: The action on which to expect validation
+    ///   - status: The reponse status
+    ///   - payload: The payload returned by the response
+    ///   - label: The error label returned in the response payload (won't be included if `payload` is not `nil`)
+    ///   - apiVersion: The api version of the response
+    ///   - validation: The validation block to perform on the action result
     func test_itHandlesResponse(
         action: Action,
         status: Int,
@@ -116,6 +111,70 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
+}
+
+extension ActionHandlerTestBase {
+
+    // MARK: - Interface
+
+    func test_itDoesntGenerateARequest(
+        action: Action,
+        apiVersion: APIVersion,
+        expectedError: Failure
+    ) where Failure: Equatable {
+        test_itDoesntGenerateARequest(action: action, apiVersion: apiVersion, validation: {
+            guard case .failure(let error) = $0 else { return false}
+            return error == expectedError
+        })
+    }
+
+    func test_itHandlesResponse(
+        status: Int,
+        payload: ZMTransportData? = nil,
+        label: String? = nil,
+        validation: @escaping ValidationBlock
+    ) {
+        guard let action = self.action else {
+            return XCTFail("action must be set in child class' setup")
+        }
+
+        test_itHandlesResponse(
+            action: action,
+            status: status,
+            payload: payload,
+            label: label,
+            validation: validation
+        )
+    }
+
+    @discardableResult
+    func test_itHandlesSuccess(status: Int, payload: ZMTransportData? = nil) -> Result? {
+        var result: Result?
+
+        test_itHandlesResponse(status: status, payload: payload) {
+            guard case .success(let res) = $0 else { return false }
+            result = res
+            return true
+        }
+
+        return result
+    }
+
+    func test_itHandlesFailure(
+        status: Int,
+        label: String? = nil,
+        expectedError: Failure
+    ) where Failure: Equatable {
+        test_itHandlesResponse(status: status, label: label) {
+            guard case .failure(let error) = $0 else { return false}
+            return error == expectedError
+        }
+    }
+}
+
+extension ActionHandlerTestBase {
+
+    // MARK: - Helpers
 
     private func expect(
         action: inout Action,

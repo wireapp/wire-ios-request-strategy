@@ -53,11 +53,9 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
     func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {
         test_itDoesntGenerateARequest(
             action: ClaimMLSKeyPackageAction(domain: domain, userId: userId, excludedSelfClientId: excludedSelfCliendId),
-            apiVersion: .v0
-        ) {
-            guard case .failure(.endpointUnavailable) = $0 else { return false }
-            return true
-        }
+            apiVersion: .v0,
+            expectedError: .endpointUnavailable
+        )
     }
 
     func test_itDoesntGenerateARequest_WhenDomainIsMissing() {
@@ -65,16 +63,15 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
 
         test_itDoesntGenerateARequest(
             action: ClaimMLSKeyPackageAction(domain: "", userId: userId, excludedSelfClientId: excludedSelfCliendId),
-            apiVersion: .v1
-        ) {
-            guard case .failure(.missingDomain) = $0 else { return false }
-            return true
-        }
+            apiVersion: .v1,
+            expectedError: .missingDomain
+        )
     }
 
     // MARK: - Response handling
 
     func test_itHandlesResponse_200() {
+        // Given
         let keyPackage = KeyPackage(
             client: clientId,
             domain: domain,
@@ -82,48 +79,44 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
             keyPackageRef: "string",
             userID: userId
         )
-        var receivedKeyPackages = [KeyPackage]()
 
-        // When / Then
-        test_itHandlesResponse(
+        // When
+        let receivedKeyPackages = test_itHandlesSuccess(
             status: 200,
             payload: transportData(for: Payload(keyPackages: [keyPackage]))
-        ) {
-            guard case .success(let keyPackages) = $0 else { return false }
-            receivedKeyPackages = keyPackages
-            return true
-        }
+        )
 
-        XCTAssertEqual(receivedKeyPackages.count, 1)
-        XCTAssertEqual(receivedKeyPackages.first, keyPackage)
+        // Then
+        XCTAssertEqual(receivedKeyPackages?.count, 1)
+        XCTAssertEqual(receivedKeyPackages?.first, keyPackage)
     }
 
     func test_itHandlesResponse_200_MalformedResponse() {
-        test_itHandlesResponse(status: 200) {
-            guard case .failure(.malformedResponse) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 200,
+            expectedError: .malformedResponse
+        )
     }
 
     func test_itHandlesResponse_400() {
-        test_itHandlesResponse(status: 400) {
-            guard case .failure(.invalidSelfClientId) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 400,
+            expectedError: .invalidSelfClientId
+        )
     }
 
     func test_itHandlesResponse_404() {
-        test_itHandlesResponse(status: 404) {
-            guard case .failure(.userOrDomainNotFound) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 404,
+            expectedError: .userOrDomainNotFound
+        )
     }
 
     func test_itHandlesResponse_UnkownError() {
-        test_itHandlesResponse(status: 999) {
-            guard case .failure(.unknown(status: 999)) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 999,
+            expectedError: .unknown(status: 999)
+        )
     }
 
     // MARK: - Helpers

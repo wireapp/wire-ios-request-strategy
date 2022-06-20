@@ -43,50 +43,44 @@ class SendMLSWelcomeActionHandlerTests: ActionHandlerTestBase<SendMLSWelcomeActi
     func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {
         test_itDoesntGenerateARequest(
             action: SendMLSWelcomeAction(body: body),
-            apiVersion: .v0
-        ) {
-            guard case .failure(.endpointUnavailable) = $0 else { return false }
-            return true
-        }
+            apiVersion: .v0,
+            expectedError: .endpointUnavailable
+        )
     }
 
     func test_itDoesntGenerateARequest_WhenParametersAreEmpty() {
         test_itDoesntGenerateARequest(
             action: SendMLSWelcomeAction(body: ""),
-            apiVersion: .v1
-        ) {
-            guard case .failure(.emptyParameters) = $0 else { return false }
-            return true
-        }
+            apiVersion: .v1,
+            expectedError: .emptyParameters
+        )
     }
 
     // MARK: - Response handling
 
     func test_itHandlesResponse_201() {
-        test_itHandlesResponse(status: 201) {
-            guard case .success = $0 else { return false }
-            return true
-        }
+        test_itHandlesSuccess(status: 201)
     }
 
     func test_itHandlesResponse_400() {
-        test_itHandlesResponse(status: 400) {
-            guard case .failure(.invalidBody) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 400,
+            expectedError: .invalidBody
+        )
     }
 
     func test_itHandlesResponse_404() {
-        test_itHandlesResponse(status: 404, label: "mls-key-package-ref-not-found") {
-            guard case .failure(.keyPackageRefNotFound) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 404,
+            label: "mls-key-package-ref-not-found",
+            expectedError: .keyPackageRefNotFound
+        )
     }
 
     func test_itHandlesResponse_UnkownError() {
-        test_itHandlesResponse(status: 999) {
-            guard case .failure(.unknown(status: 999)) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 999,
+            expectedError: .unknown(status: 999)
+        )
     }
 }

@@ -48,64 +48,59 @@ class UploadSelfMLSKeyPackagesActionHandlerTests: ActionHandlerTestBase<UploadSe
     func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {
         test_itDoesntGenerateARequest(
             action: UploadSelfMLSKeyPackagesAction(clientID: clientId, keyPackages: keyPackages),
-            apiVersion: .v0
-        ) {
-            guard case .failure(.endpointUnavailable) = $0 else { return false }
-            return true
-        }
+            apiVersion: .v0,
+            expectedError: .endpointUnavailable
+        )
     }
 
     func test_itDoesntGenerateARequest_WhenParametersAreEmpty() {
         test_itDoesntGenerateARequest(
             action: UploadSelfMLSKeyPackagesAction(clientID: "", keyPackages: []),
-            apiVersion: .v1
-        ) {
-            guard case .failure(.emptyParameters) = $0 else { return false }
-            return true
-        }
+            apiVersion: .v1,
+            expectedError: .emptyParameters
+        )
     }
 
     // MARK: - Response handling
 
     func test_itHandlesResponse_201() {
-        test_itHandlesResponse(status: 201) {
-            guard case .success = $0 else { return false }
-            return true
-        }
+        test_itHandlesSuccess(status: 201)
     }
 
     func test_itHandlesResponse_400() {
-        test_itHandlesResponse(status: 400) {
-            guard case .failure(.invalidBody) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 400,
+            expectedError: .invalidBody
+        )
     }
 
     func test_itHandlesResponse_400_ProtocolError() {
-        test_itHandlesResponse(status: 400, label: "mls-protocol-error") {
-            guard case .failure(.mlsProtocolError) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 400,
+            label: "mls-protocol-error",
+            expectedError: .mlsProtocolError
+        )
     }
 
     func test_itHandlesResponse_403_IdentityMismatch() {
-        test_itHandlesResponse(status: 403, label: "mls-identity-mismatch") {
-            guard case .failure(.identityMismatch) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 403,
+            label: "mls-identity-mismatch",
+            expectedError: .identityMismatch
+        )
     }
 
     func test_itHandlesResponse_404() {
-        test_itHandlesResponse(status: 404) {
-            guard case .failure(.clientNotFound) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 404,
+            expectedError: .clientNotFound
+        )
     }
 
     func test_itHandlesResponse_UnkownError() {
-        test_itHandlesResponse(status: 999) {
-            guard case .failure(.unknown(status: 999)) = $0 else { return false }
-            return true
-        }
+        test_itHandlesFailure(
+            status: 999,
+            expectedError: .unknown(status: 999)
+        )
     }
 }
