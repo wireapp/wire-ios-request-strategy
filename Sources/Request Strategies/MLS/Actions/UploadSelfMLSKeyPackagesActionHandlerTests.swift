@@ -33,21 +33,16 @@ class UploadSelfMLSKeyPackagesActionHandlerTests: ActionHandlerTestBase<UploadSe
     // MARK: - Request generation
 
     func test_itGenerateARequest() throws {
-        // Given
-        let sut = UploadSelfMLSKeyPackagesActionHandler(context: syncMOC)
-        let action = UploadSelfMLSKeyPackagesAction(clientID: clientId, keyPackages: keyPackages)
-
-        // When
-        let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v1))
-
-        // Then
-        XCTAssertEqual(request.path, "/v1/mls/key-packages/self/\(clientId)")
-        XCTAssertEqual(request.method, .methodPOST)
-
-        let actualPayload = request.payload as? [String: [String]]
-        let expectedPayload = ["key_packages": keyPackages]
-
-        XCTAssertEqual(actualPayload, expectedPayload)
+        try test_itGeneratesARequest(
+            for: UploadSelfMLSKeyPackagesAction(
+                clientID: clientId,
+                keyPackages: keyPackages
+            ),
+            expectedPath: "/v1/mls/key-packages/self/\(clientId)",
+            expectedPayload: ["key_packages": keyPackages],
+            expectedMethod: .methodPOST,
+            apiVersion: .v1
+        )
     }
 
     func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {

@@ -37,21 +37,17 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
     // MARK: - Request generation
 
     func test_itGenerateARequest() throws {
-        // Given
-        let sut = ClaimMLSKeyPackageActionHandler(context: syncMOC)
-        let action = ClaimMLSKeyPackageAction(domain: domain, userId: userId, excludedSelfClientId: excludedSelfCliendId)
-
-        // When
-        let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v1))
-
-        // Then
-        XCTAssertEqual(request.path, "/v1/mls/key-packages/claim/\(domain)/\(userId.transportString())")
-        XCTAssertEqual(request.method, .methodPOST)
-
-        let actualPayload = request.payload as? [String: String]
-        let expectedPayload = ["skip_own": excludedSelfCliendId]
-
-        XCTAssertEqual(actualPayload, expectedPayload)
+        try test_itGeneratesARequest(
+            for: ClaimMLSKeyPackageAction(
+                domain: domain,
+                userId: userId,
+                excludedSelfClientId: excludedSelfCliendId
+            ),
+            expectedPath: "/v1/mls/key-packages/claim/\(domain)/\(userId.transportString())",
+            expectedPayload: ["skip_own": excludedSelfCliendId],
+            expectedMethod: .methodPOST,
+            apiVersion: .v1
+        )
     }
 
     func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {

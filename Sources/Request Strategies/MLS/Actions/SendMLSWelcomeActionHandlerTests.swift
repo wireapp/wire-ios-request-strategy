@@ -31,17 +31,13 @@ class SendMLSWelcomeActionHandlerTests: ActionHandlerTestBase<SendMLSWelcomeActi
     // MARK: - Request generation
 
     func test_itGenerateARequest() throws {
-        // Given
-        let sut = SendMLSWelcomeActionHandler(context: syncMOC)
-        let action = SendMLSWelcomeAction(body: body)
-
-        // When
-        let request = try XCTUnwrap(sut.request(for: action, apiVersion: .v1))
-
-        // Then
-        XCTAssertEqual(request.path, "/v1/mls/welcome")
-        XCTAssertEqual(request.method, .methodPOST)
-        XCTAssertEqual(request.payload as? String, body)
+        try test_itGeneratesARequest(
+            for: SendMLSWelcomeAction(body: body),
+            expectedPath: "/v1/mls/welcome",
+            expectedPayload: body,
+            expectedMethod: .methodPOST,
+            apiVersion: .v1
+        )
     }
 
     func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {

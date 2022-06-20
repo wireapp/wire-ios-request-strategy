@@ -22,6 +22,8 @@ import UIKit
 
 class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>>: MessagingTestBase {
 
+    typealias ValidationBlock = (Swift.Result<Action.Result, Action.Failure>) -> Bool
+
     var action: Action!
 
     override func tearDown() {
@@ -29,7 +31,24 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         super.tearDown()
     }
 
-    typealias ValidationBlock = (Swift.Result<Action.Result, Action.Failure>) -> Bool
+    func test_itGeneratesARequest<Payload: Equatable>(
+        for action: Action,
+        expectedPath: String,
+        expectedPayload: Payload,
+        expectedMethod: ZMTransportRequestMethod,
+        apiVersion: APIVersion = .v1) throws
+    {
+        // Given
+        let sut = Handler(context: syncMOC)
+
+        // When
+        let request = try XCTUnwrap(sut.request(for: action, apiVersion: apiVersion))
+
+        // Then
+        XCTAssertEqual(request.path, expectedPath)
+        XCTAssertEqual(request.method, expectedMethod)
+        XCTAssertEqual(request.payload as? Payload, expectedPayload)
+    }
 
     func test_itDoesntGenerateARequest(
         action: Action,
@@ -72,6 +91,7 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         action: Action,
         status: Int,
         label: String? = nil,
+        apiVersion: APIVersion = .v1,
         validation: @escaping ValidationBlock
     ) {
         // Given
@@ -82,7 +102,7 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         expect(action: &action, toPassValidation: validation)
 
         // When
-        sut.handleResponse(response(status: status, label: label), action: action)
+        sut.handleResponse(response(status: status, label: label, apiVersion: apiVersion), action: action)
 
         // Then
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
@@ -97,7 +117,7 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         }
     }
 
-    private func response(status: Int, label: String? = nil) -> ZMTransportResponse {
+    private func response(status: Int, label: String? = nil, apiVersion: APIVersion) -> ZMTransportResponse {
         var payload: [String: String]?
         if let label = label {
             payload = ["label": label]
@@ -107,7 +127,7 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
             payload: payload as ZMTransportData?,
             httpStatus: status,
             transportSessionError: nil,
-            apiVersion: APIVersion.v1.rawValue
+            apiVersion: apiVersion.rawValue
         )
     }
 }
