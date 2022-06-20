@@ -100,7 +100,7 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         expect(action: &action, toPassValidation: validation)
 
         // When
-        let response = response(
+        let response = self.response(
             status: status,
             payload: payload,
             label: label,
