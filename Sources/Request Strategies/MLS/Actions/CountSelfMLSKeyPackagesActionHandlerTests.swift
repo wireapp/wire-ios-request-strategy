@@ -79,12 +79,3 @@ class CountSelfMLSKeyPackagesActionHandlerTests: ActionHandlerTestBase<CountSelf
         ])
     }
 }
-
-// MARK: - Helpers methods
-extension CountSelfMLSKeyPackagesActionHandlerTests {
-
-    private func transportData(for payload: Payload?) -> ZMTransportData? {
-        let data = try! JSONEncoder().encode(payload)
-        return String(bytes: data, encoding: .utf8) as ZMTransportData?
-    }
-}

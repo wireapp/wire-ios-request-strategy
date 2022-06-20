@@ -21,6 +21,8 @@ import Foundation
 
 class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPackageAction, ClaimMLSKeyPackageActionHandler> {
 
+    private typealias Payload = ClaimMLSKeyPackageActionHandler.ResponsePayload
+
     let domain = "example.com"
     let userId = UUID()
     let excludedSelfCliendId = UUID().transportString()
@@ -98,14 +100,5 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
             .failure(status: 404, error: .userOrDomainNotFound),
             .failure(status: 999, error: .unknown(status: 999))
         ])
-    }
-
-    // MARK: - Helpers
-
-    private typealias Payload = ClaimMLSKeyPackageActionHandler.ResponsePayload
-
-    private func transportData(for payload: Payload?) -> ZMTransportData? {
-        let data = try! JSONEncoder().encode(payload)
-        return String(bytes: data, encoding: .utf8) as ZMTransportData?
     }
 }
