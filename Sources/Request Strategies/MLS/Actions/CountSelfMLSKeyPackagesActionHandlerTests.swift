@@ -72,20 +72,11 @@ class CountSelfMLSKeyPackagesActionHandlerTests: ActionHandlerTestBase<CountSelf
     }
 
     func test_itHandlesFailures() {
-        test_itHandlesFailure(
-            status: 200,
-            expectedError: .malformedResponse
-        )
-
-        test_itHandlesFailure(
-            status: 404,
-            expectedError: .clientNotFound
-        )
-
-        test_itHandlesFailure(
-            status: 999,
-            expectedError: .unknown(status: 999)
-        )
+        test_itHandlesFailures([
+            .failure(status: 200, error: .malformedResponse),
+            .failure(status: 404, error: .clientNotFound),
+            .failure(status: 999, error: .unknown(status: 999))
+        ])
     }
 }
 

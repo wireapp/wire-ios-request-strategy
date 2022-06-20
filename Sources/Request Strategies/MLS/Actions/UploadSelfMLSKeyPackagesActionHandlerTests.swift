@@ -68,31 +68,12 @@ class UploadSelfMLSKeyPackagesActionHandlerTests: ActionHandlerTestBase<UploadSe
     }
 
     func test_itHandlesFailures() {
-        test_itHandlesFailure(
-            status: 400,
-            expectedError: .invalidBody
-        )
-
-        test_itHandlesFailure(
-            status: 400,
-            label: "mls-protocol-error",
-            expectedError: .mlsProtocolError
-        )
-
-        test_itHandlesFailure(
-            status: 403,
-            label: "mls-identity-mismatch",
-            expectedError: .identityMismatch
-        )
-
-        test_itHandlesFailure(
-            status: 404,
-            expectedError: .clientNotFound
-        )
-
-        test_itHandlesFailure(
-            status: 999,
-            expectedError: .unknown(status: 999)
-        )
+        test_itHandlesFailures([
+            .failure(status: 400, error: .invalidBody),
+            .failure(status: 400, error: .mlsProtocolError, label: "mls-protocol-error"),
+            .failure(status: 403, error: .identityMismatch, label: "mls-identity-mismatch"),
+            .failure(status: 404, error: .clientNotFound),
+            .failure(status: 999, error: .unknown(status: 999))
+        ])
     }
 }

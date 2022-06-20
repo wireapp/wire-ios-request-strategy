@@ -59,75 +59,19 @@ class SendMLSMessageActionHandlerTests: ActionHandlerTestBase<SendMLSMessageActi
     }
 
     func test_itHandlesFailures() {
-
-        test_itHandlesFailure(
-            status: 400,
-            expectedError: .invalidBody
-        )
-
-        test_itHandlesFailure(
-            status: 400,
-            label: "mls-protocol-error",
-            expectedError: .mlsProtocolError
-        )
-
-        test_itHandlesFailure(
-            status: 403,
-            label: "missing-legalhold-consent",
-            expectedError: .missingLegalHoldConsent
-        )
-
-        test_itHandlesFailure(
-            status: 403,
-            label: "legalhold-not-enabled",
-            expectedError: .legalHoldNotEnabled
-        )
-
-        test_itHandlesFailure(
-            status: 404,
-            label: "mls-proposal-not-found",
-            expectedError: .mlsProposalNotFound
-        )
-
-        test_itHandlesFailure(
-            status: 404,
-            label: "mls-key-package-ref-not-found",
-            expectedError: .mlsKeyPackageRefNotFound
-        )
-
-        test_itHandlesFailure(
-            status: 404,
-            label: "no-conversation",
-            expectedError: .noConversation
-        )
-
-        test_itHandlesFailure(
-            status: 409,
-            label: "mls-stale-message",
-            expectedError: .mlsStaleMessage
-        )
-
-        test_itHandlesFailure(
-            status: 409,
-            label: "mls-client-mismatch",
-            expectedError: .mlsClientMismatch
-        )
-
-        test_itHandlesFailure(
-            status: 422,
-            label: "mls-unsupported-proposal",
-            expectedError: .mlsUnsupportedProposal
-        )
-
-        test_itHandlesFailure(
-            status: 422,
-            label: "mls-unsupported-message",
-            expectedError: .mlsUnsupportedMessage
-        )
-
-        test_itHandlesFailure(
-            status: 999,
-            expectedError: .unknown(status: 999)
-        )
+        test_itHandlesFailures([
+            .failure(status: 400, error: .invalidBody),
+            .failure(status: 400, error: .mlsProtocolError, label: "mls-protocol-error"),
+            .failure(status: 403, error: .missingLegalHoldConsent, label: "missing-legalhold-consent"),
+            .failure(status: 403, error: .legalHoldNotEnabled, label: "legalhold-not-enabled"),
+            .failure(status: 404, error: .mlsProposalNotFound, label: "mls-proposal-not-found"),
+            .failure(status: 404, error: .mlsKeyPackageRefNotFound, label: "mls-key-package-ref-not-found"),
+            .failure(status: 404, error: .noConversation, label: "no-conversation"),
+            .failure(status: 409, error: .mlsStaleMessage, label: "mls-stale-message"),
+            .failure(status: 409, error: .mlsClientMismatch, label: "mls-client-mismatch"),
+            .failure(status: 422, error: .mlsUnsupportedProposal, label: "mls-unsupported-proposal"),
+            .failure(status: 422, error: .mlsUnsupportedMessage, label: "mls-unsupported-message"),
+            .failure(status: 999, error: .unknown(status: 999))
+        ])
     }
 }

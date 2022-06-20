@@ -190,6 +190,24 @@ extension ActionHandlerTestBase where Failure: Equatable {
             return error == expectedError
         }
     }
+
+    func test_itHandlesFailures(_ failures: [FailureCase]) {
+        failures.forEach(test_itHandlesFailure)
+    }
+
+    func test_itHandlesFailure(_ failure: FailureCase) {
+        test_itHandlesFailure(status: failure.status, label: failure.label, expectedError: failure.error)
+    }
+
+    struct FailureCase {
+        let status: Int
+        let error: Failure
+        let label: String?
+
+        static func failure(status: Int, error: Failure, label: String? = nil) -> Self {
+            return .init(status: status, error: error, label: label)
+        }
+    }
 }
 
 extension ActionHandlerTestBase {

@@ -32,7 +32,7 @@ class SendMLSWelcomeActionHandlerTests: ActionHandlerTestBase<SendMLSWelcomeActi
 
     func test_itGenerateARequest() throws {
         try test_itGeneratesARequest(
-            for: SendMLSWelcomeAction(body: body),
+            for: action,
             expectedPath: "/v1/mls/welcome",
             expectedPayload: body,
             expectedMethod: .methodPOST,
@@ -63,20 +63,10 @@ class SendMLSWelcomeActionHandlerTests: ActionHandlerTestBase<SendMLSWelcomeActi
     }
 
     func test_itHandlesFailures() {
-        test_itHandlesFailure(
-            status: 400,
-            expectedError: .invalidBody
-        )
-
-        test_itHandlesFailure(
-            status: 404,
-            label: "mls-key-package-ref-not-found",
-            expectedError: .keyPackageRefNotFound
-        )
-
-        test_itHandlesFailure(
-            status: 999,
-            expectedError: .unknown(status: 999)
-        )
+        test_itHandlesFailures([
+            .failure(status: 400, error: .invalidBody),
+            .failure(status: 404, error: .keyPackageRefNotFound, label: "mls-key-package-ref-not-found"),
+            .failure(status: 999, error: .unknown(status: 999))
+        ])
     }
 }

@@ -92,25 +92,12 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
     }
 
     func test_itHandlesFailures() {
-        test_itHandlesFailure(
-            status: 200,
-            expectedError: .malformedResponse
-        )
-
-        test_itHandlesFailure(
-            status: 400,
-            expectedError: .invalidSelfClientId
-        )
-
-        test_itHandlesFailure(
-            status: 404,
-            expectedError: .userOrDomainNotFound
-        )
-
-        test_itHandlesFailure(
-            status: 999,
-            expectedError: .unknown(status: 999)
-        )
+        test_itHandlesFailures([
+            .failure(status: 200, error: .malformedResponse),
+            .failure(status: 400, error: .invalidSelfClientId),
+            .failure(status: 404, error: .userOrDomainNotFound),
+            .failure(status: 999, error: .unknown(status: 999))
+        ])
     }
 
     // MARK: - Helpers
