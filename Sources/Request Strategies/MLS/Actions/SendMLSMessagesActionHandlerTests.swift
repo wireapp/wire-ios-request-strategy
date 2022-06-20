@@ -83,21 +83,21 @@ class SendMLSMessagesActionHandlerTests: MessagingTestBase {
         }
     }
 
-    func test_itHandlesResponse_404_mlsProtocolError() {
+    func test_itHandlesResponse_400_mlsProtocolError() {
         test_itHandlesFailure(status: 400, label: "mls-protocol-error") {
             guard case .failure(.mlsProtocolError) = $0 else { return false }
             return true
         }
     }
 
-    func test_itHandlesResponse_404_missingLegalHoldConsent() {
+    func test_itHandlesResponse_403_missingLegalHoldConsent() {
         test_itHandlesFailure(status: 403, label: "missing-legalhold-consent") {
             guard case .failure(.missingLegalHoldConsent) = $0 else { return false }
             return true
         }
     }
 
-    func test_itHandlesResponse_404_legalHoldNotEnabled() {
+    func test_itHandlesResponse_403_legalHoldNotEnabled() {
         test_itHandlesFailure(status: 403, label: "legalhold-not-enabled") {
             guard case .failure(.legalHoldNotEnabled) = $0 else { return false }
             return true
@@ -125,28 +125,28 @@ class SendMLSMessagesActionHandlerTests: MessagingTestBase {
         }
     }
 
-    func test_itHandlesResponse_404_mlsStaleMessage() {
+    func test_itHandlesResponse_409_mlsStaleMessage() {
         test_itHandlesFailure(status: 409, label: "mls-stale-message") {
             guard case .failure(.mlsStaleMessage) = $0 else { return false }
             return true
         }
     }
 
-    func test_itHandlesResponse_404_mlsClientMismatch() {
+    func test_itHandlesResponse_409_mlsClientMismatch() {
         test_itHandlesFailure(status: 409, label: "mls-client-mismatch") {
             guard case .failure(.mlsClientMismatch) = $0 else { return false }
             return true
         }
     }
 
-    func test_itHandlesResponse_404_mlsUnsupportedProposal() {
+    func test_itHandlesResponse_422_mlsUnsupportedProposal() {
         test_itHandlesFailure(status: 422, label: "mls-unsupported-proposal") {
             guard case .failure(.mlsUnsupportedProposal) = $0 else { return false }
             return true
         }
     }
 
-    func test_itHandlesResponse_404_mlsUnsupportedMessage() {
+    func test_itHandlesResponse_422_mlsUnsupportedMessage() {
         test_itHandlesFailure(status: 422, label: "mls-unsupported-message") {
             guard case .failure(.mlsUnsupportedMessage) = $0 else { return false }
             return true
