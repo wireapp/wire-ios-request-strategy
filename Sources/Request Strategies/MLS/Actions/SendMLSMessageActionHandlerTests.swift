@@ -16,58 +16,50 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
+import XCTest
 @testable import WireRequestStrategy
 
-class UploadSelfMLSKeyPackagesActionHandlerTests: ActionHandlerTestBase<UploadSelfMLSKeyPackagesAction, UploadSelfMLSKeyPackagesActionHandler> {
+class SendMLSMessageActionHandlerTests: ActionHandlerTestBase<SendMLSMessageAction, SendMLSMessageActionHandler> {
 
-    let domain = "example.com"
-    let clientId = UUID().transportString()
-    let keyPackages = ["a2V5IHBhY2thZ2UgZGF0YQo="]
+    let mlsMessage = "mlsMessage"
 
     override func setUp() {
         super.setUp()
-        action = UploadSelfMLSKeyPackagesAction(clientID: clientId, keyPackages: keyPackages)
+        action = SendMLSMessageAction(mlsMessage: mlsMessage)
     }
 
     // MARK: - Request generation
-
-    func test_itGeneratesARequest() throws {
+    func test_itGenerateARequest() throws {
         try test_itGeneratesARequest(
-            for: UploadSelfMLSKeyPackagesAction(
-                clientID: clientId,
-                keyPackages: keyPackages
-            ),
-            expectedPath: "/v1/mls/key-packages/self/\(clientId)",
-            expectedPayload: ["key_packages": keyPackages],
+            for: action,
+            expectedPath: "/v1/mls/messages",
+            expectedPayload: mlsMessage,
             expectedMethod: .methodPOST,
             apiVersion: .v1
         )
     }
 
-    func test_itDoesntGenerateRequests() {
-        // when the endpoint is unavailable
+    func test_itFailsToGenerateRequests() {
         test_itDoesntGenerateARequest(
             action: action,
             apiVersion: .v0,
             expectedError: .endpointUnavailable
         )
 
-        // when there are empty parameters
         test_itDoesntGenerateARequest(
-            action: UploadSelfMLSKeyPackagesAction(clientID: "", keyPackages: []),
+            action: SendMLSMessageAction(mlsMessage: ""),
             apiVersion: .v1,
-            expectedError: .emptyParameters
+            expectedError: .invalidBody
         )
     }
 
     // MARK: - Response handling
-
     func test_itHandlesSuccess() {
         test_itHandlesSuccess(status: 201)
     }
 
     func test_itHandlesFailures() {
+
         test_itHandlesFailure(
             status: 400,
             expectedError: .invalidBody
@@ -81,13 +73,56 @@ class UploadSelfMLSKeyPackagesActionHandlerTests: ActionHandlerTestBase<UploadSe
 
         test_itHandlesFailure(
             status: 403,
-            label: "mls-identity-mismatch",
-            expectedError: .identityMismatch
+            label: "missing-legalhold-consent",
+            expectedError: .missingLegalHoldConsent
+        )
+
+        test_itHandlesFailure(
+            status: 403,
+            label: "legalhold-not-enabled",
+            expectedError: .legalHoldNotEnabled
         )
 
         test_itHandlesFailure(
             status: 404,
-            expectedError: .clientNotFound
+            label: "mls-proposal-not-found",
+            expectedError: .mlsProposalNotFound
+        )
+
+        test_itHandlesFailure(
+            status: 404,
+            label: "mls-key-package-ref-not-found",
+            expectedError: .mlsKeyPackageRefNotFound
+        )
+
+        test_itHandlesFailure(
+            status: 404,
+            label: "no-conversation",
+            expectedError: .noConversation
+        )
+
+        test_itHandlesFailure(
+            status: 409,
+            label: "mls-stale-message",
+            expectedError: .mlsStaleMessage
+        )
+
+        test_itHandlesFailure(
+            status: 409,
+            label: "mls-client-mismatch",
+            expectedError: .mlsClientMismatch
+        )
+
+        test_itHandlesFailure(
+            status: 422,
+            label: "mls-unsupported-proposal",
+            expectedError: .mlsUnsupportedProposal
+        )
+
+        test_itHandlesFailure(
+            status: 422,
+            label: "mls-unsupported-message",
+            expectedError: .mlsUnsupportedMessage
         )
 
         test_itHandlesFailure(

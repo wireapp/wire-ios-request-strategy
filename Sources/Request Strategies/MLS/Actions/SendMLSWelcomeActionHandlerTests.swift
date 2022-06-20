@@ -40,15 +40,15 @@ class SendMLSWelcomeActionHandlerTests: ActionHandlerTestBase<SendMLSWelcomeActi
         )
     }
 
-    func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {
+    func test_itDoesntGenerateRequests() {
+        // when the endpoint is unavailable
         test_itDoesntGenerateARequest(
-            action: SendMLSWelcomeAction(body: body),
+            action: action,
             apiVersion: .v0,
             expectedError: .endpointUnavailable
         )
-    }
 
-    func test_itDoesntGenerateARequest_WhenParametersAreEmpty() {
+        // when there are empty parameters
         test_itDoesntGenerateARequest(
             action: SendMLSWelcomeAction(body: ""),
             apiVersion: .v1,
@@ -58,26 +58,22 @@ class SendMLSWelcomeActionHandlerTests: ActionHandlerTestBase<SendMLSWelcomeActi
 
     // MARK: - Response handling
 
-    func test_itHandlesResponse_201() {
+    func test_itHandlesSuccess() {
         test_itHandlesSuccess(status: 201)
     }
 
-    func test_itHandlesResponse_400() {
+    func test_itHandlesFailures() {
         test_itHandlesFailure(
             status: 400,
             expectedError: .invalidBody
         )
-    }
 
-    func test_itHandlesResponse_404() {
         test_itHandlesFailure(
             status: 404,
             label: "mls-key-package-ref-not-found",
             expectedError: .keyPackageRefNotFound
         )
-    }
 
-    func test_itHandlesResponse_UnkownError() {
         test_itHandlesFailure(
             status: 999,
             expectedError: .unknown(status: 999)

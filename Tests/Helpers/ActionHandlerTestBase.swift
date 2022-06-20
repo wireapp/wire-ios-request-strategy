@@ -33,12 +33,12 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         super.tearDown()
     }
 
-    // MARK: Request generation
+    // MARK: Request Generation
 
     func test_itGeneratesARequest<Payload: Equatable>(
         for action: Action,
         expectedPath: String,
-        expectedPayload: Payload,
+        expectedPayload: Payload?,
         expectedMethod: ZMTransportRequestMethod,
         apiVersion: APIVersion = .v1) throws
     {
@@ -115,7 +115,24 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
 
 extension ActionHandlerTestBase {
 
-    // MARK: - Interface
+    // MARK: - Additional Interfaces
+
+    struct DefaultEquatable: Equatable {}
+
+    func test_itGeneratesARequest(
+        for action: Action,
+        expectedPath: String,
+        expectedMethod: ZMTransportRequestMethod,
+        apiVersion: APIVersion = .v1) throws
+    {
+        try test_itGeneratesARequest(
+            for: action,
+            expectedPath: expectedPath,
+            expectedPayload: Optional<DefaultEquatable>.none,
+            expectedMethod: expectedMethod,
+            apiVersion: apiVersion
+        )
+    }
 
     func test_itDoesntGenerateARequest(
         action: Action,

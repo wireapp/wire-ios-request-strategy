@@ -36,7 +36,7 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
 
     // MARK: - Request generation
 
-    func test_itGenerateARequest() throws {
+    func test_itGeneratesARequest() throws {
         try test_itGeneratesARequest(
             for: ClaimMLSKeyPackageAction(
                 domain: domain,
@@ -50,15 +50,15 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
         )
     }
 
-    func test_itDoesntGenerateARequest_WhenAPIVersionIsNotSupported() {
+    func test_itDoesntGenerateRequests() {
+        // when the endpoint is unavailable
         test_itDoesntGenerateARequest(
-            action: ClaimMLSKeyPackageAction(domain: domain, userId: userId, excludedSelfClientId: excludedSelfCliendId),
+            action: action,
             apiVersion: .v0,
             expectedError: .endpointUnavailable
         )
-    }
 
-    func test_itDoesntGenerateARequest_WhenDomainIsMissing() {
+        // when the domain is missing
         APIVersion.domain = nil
 
         test_itDoesntGenerateARequest(
@@ -70,7 +70,7 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
 
     // MARK: - Response handling
 
-    func test_itHandlesResponse_200() {
+    func test_itHandlesSuccess() {
         // Given
         let keyPackage = KeyPackage(
             client: clientId,
@@ -91,28 +91,22 @@ class ClaimMLSKeyPackageActionHandlerTests: ActionHandlerTestBase<ClaimMLSKeyPac
         XCTAssertEqual(receivedKeyPackages?.first, keyPackage)
     }
 
-    func test_itHandlesResponse_200_MalformedResponse() {
+    func test_itHandlesFailures() {
         test_itHandlesFailure(
             status: 200,
             expectedError: .malformedResponse
         )
-    }
 
-    func test_itHandlesResponse_400() {
         test_itHandlesFailure(
             status: 400,
             expectedError: .invalidSelfClientId
         )
-    }
 
-    func test_itHandlesResponse_404() {
         test_itHandlesFailure(
             status: 404,
             expectedError: .userOrDomainNotFound
         )
-    }
 
-    func test_itHandlesResponse_UnkownError() {
         test_itHandlesFailure(
             status: 999,
             expectedError: .unknown(status: 999)
