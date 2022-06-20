@@ -115,8 +115,6 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
 
 extension ActionHandlerTestBase {
 
-    // MARK: - Additional Interfaces
-
     struct DefaultEquatable: Equatable {}
 
     func test_itGeneratesARequest(
@@ -132,17 +130,6 @@ extension ActionHandlerTestBase {
             expectedMethod: expectedMethod,
             apiVersion: apiVersion
         )
-    }
-
-    func test_itDoesntGenerateARequest(
-        action: Action,
-        apiVersion: APIVersion,
-        expectedError: Failure
-    ) where Failure: Equatable {
-        test_itDoesntGenerateARequest(action: action, apiVersion: apiVersion, validation: {
-            guard case .failure(let error) = $0 else { return false}
-            return error == expectedError
-        })
     }
 
     func test_itHandlesResponse(
@@ -176,12 +163,28 @@ extension ActionHandlerTestBase {
 
         return result
     }
+}
+
+extension ActionHandlerTestBase where Failure: Equatable {
+
+    // MARK: Failures Assessment
+
+    func test_itDoesntGenerateARequest(
+        action: Action,
+        apiVersion: APIVersion,
+        expectedError: Failure
+    ) {
+        test_itDoesntGenerateARequest(action: action, apiVersion: apiVersion, validation: {
+            guard case .failure(let error) = $0 else { return false}
+            return error == expectedError
+        })
+    }
 
     func test_itHandlesFailure(
         status: Int,
         label: String? = nil,
         expectedError: Failure
-    ) where Failure: Equatable {
+    ) {
         test_itHandlesResponse(status: status, label: label) {
             guard case .failure(let error) = $0 else { return false}
             return error == expectedError
