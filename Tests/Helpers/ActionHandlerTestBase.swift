@@ -40,8 +40,8 @@ class ActionHandlerTestBase<Action: EntityAction, Handler: ActionHandler<Action>
         expectedPath: String,
         expectedPayload: Payload?,
         expectedMethod: ZMTransportRequestMethod,
-        apiVersion: APIVersion = .v1) throws
-    {
+        apiVersion: APIVersion = .v1
+    ) throws {
         // Given
         let sut = Handler(context: syncMOC)
 
@@ -121,12 +121,12 @@ extension ActionHandlerTestBase {
         for action: Action,
         expectedPath: String,
         expectedMethod: ZMTransportRequestMethod,
-        apiVersion: APIVersion = .v1) throws
-    {
+        apiVersion: APIVersion = .v1
+    ) throws {
         try test_itGeneratesARequest(
             for: action,
             expectedPath: expectedPath,
-            expectedPayload: Optional<DefaultEquatable>.none,
+            expectedPayload: DefaultEquatable?.none,
             expectedMethod: expectedMethod,
             apiVersion: apiVersion
         )
@@ -240,8 +240,8 @@ extension ActionHandlerTestBase {
         status: Int,
         payload: ZMTransportData?,
         label: String?,
-        apiVersion: APIVersion) -> ZMTransportResponse
-    {
+        apiVersion: APIVersion
+    ) -> ZMTransportResponse {
         var payload = payload
 
         if payload == nil, let label = label {
