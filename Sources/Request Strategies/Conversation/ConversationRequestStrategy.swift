@@ -144,7 +144,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         case .v0:
             conversationByIDSync.sync(identifiers: conversations.compactMap(\.remoteIdentifier))
 
-        case .v1:
+        case .v1, .v2:
             if let qualifiedIDs = conversations.qualifiedIDs {
                 conversationByQualifiedIDSync.sync(identifiers: qualifiedIDs)
             } else if let domain = APIVersion.domain {

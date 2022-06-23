@@ -90,6 +90,9 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
                         let userIdSet: Set<UserClientByUserIDTranscoder.T> = [userID]
                         self.userClientsByUserID.sync(identifiers: userIdSet)
                     }
+                case .v2:
+                    // GET /users/:id/clients has been removed. Use the qualified endpoint GET /users/:domain/:id/clients instead.
+                    fatalError("API version not implemented")
                 }
 
                 RequestAvailableNotification.notifyNewRequestsAvailable(self)
