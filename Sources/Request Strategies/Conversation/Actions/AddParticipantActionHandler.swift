@@ -42,6 +42,9 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction> {
             return nonFederatedRequest(for: action, apiVersion: apiVersion)
         case .v1:
             return federatedRequest(for: action, apiVersion: apiVersion)
+        case .v2:
+            // TODO : it should same as v1 but the path should be change(drop the suffix v2).
+            fatal("Api change needed")
         }
     }
 
@@ -83,6 +86,7 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction> {
             // Log error
             return nil
         }
+        // we are only passing uuid not the domainID
         let path = "/conversations/\(conversationID.uuid)/members/v2"
 
         return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: apiVersion.rawValue)

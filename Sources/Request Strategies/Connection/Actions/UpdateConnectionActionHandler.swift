@@ -26,7 +26,7 @@ class UpdateConnectionActionHandler: ActionHandler<UpdateConnectionAction> {
         switch apiVersion {
         case .v0:
             return nonFederatedRequest(for: action, apiVersion: apiVersion)
-        case .v1:
+        case .v1, .v2:
             return federatedRequest(for: action, apiVersion: apiVersion)
         }
     }
@@ -77,6 +77,8 @@ class UpdateConnectionActionHandler: ActionHandler<UpdateConnectionAction> {
         }
 
         return ZMTransportRequest(path: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid.transportString())", method: .methodPUT, payload: payloadAsString as ZMTransportData, apiVersion: apiVersion.rawValue)
+        
+        // TODO: For v2 use POST instead of PUT
     }
 
     override func handleResponse(_ response: ZMTransportResponse, action: ActionHandler<UpdateConnectionAction>.Action) {

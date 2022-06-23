@@ -177,7 +177,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
                 }
             }
 
-        case .v1:
+        case .v1, .v2:
             conversationQualifiedIDsSync.fetch { [weak self] (result) in
                 switch result {
                 case .success(let qualifiedConversationIDList):
@@ -285,7 +285,7 @@ extension ConversationRequestStrategy: KeyPathObjectSyncTranscoder {
             guard let identifier = object.remoteIdentifier else { return }
             synchronize(unqualifiedID: identifier)
 
-        case .v1:
+        case .v1, .v2:
             if let qualifiedID = object.qualifiedID {
                 synchronize(qualifiedID: qualifiedID)
             } else if let identifier = object.remoteIdentifier, let domain = APIVersion.domain {
@@ -472,7 +472,7 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                                              payload: payloadAsString as ZMTransportData?,
                                              apiVersion: apiVersion.rawValue)
 
-            case .v1:
+            case .v1, .v2:
                 guard let domain = conversation.domain.nonEmptyValue ?? APIVersion.domain else { return nil }
                 request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/name",
                                              method: .methodPUT,
@@ -504,8 +504,7 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
                                              apiVersion: apiVersion.rawValue)
-
-            case .v1:
+            case .v1, .v2:
                 guard let domain = conversation.domain.nonEmptyValue ?? APIVersion.domain else { return nil }
                 request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/self",
                                              method: .methodPUT,
@@ -797,6 +796,7 @@ class ConversationByQualifiedIDListTranscoder: IdentifierObjectSyncTranscoder {
     func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         // GET /conversations?ids=?
 
+        // TODO: create a switch for api versions here
         guard
             let payloadData = Payload.QualifiedUserIDList(qualifiedIDs: Array(identifiers)).payloadData(encoder: encoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)

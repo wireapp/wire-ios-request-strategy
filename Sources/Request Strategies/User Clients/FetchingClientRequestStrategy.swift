@@ -148,6 +148,9 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
                     // Fallback.
                     result.1.append(userClientID)
                 }
+            case .v2:
+                // TODO: same as v1 but except the fallback use the local domain
+                fatal("Api changes needed")
             }
         }
 
