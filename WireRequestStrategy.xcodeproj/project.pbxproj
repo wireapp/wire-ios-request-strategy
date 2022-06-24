@@ -201,6 +201,7 @@
 		EE202DAB27F1F4CC00083AB3 /* VoIPPushPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE202DAA27F1F4CC00083AB3 /* VoIPPushPayload.swift */; };
 		EE3245FC2821D41000F2A84A /* VoIPPushHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3245FB2821D41000F2A84A /* VoIPPushHelper.swift */; };
 		EE3246042823196100F2A84A /* VoIPPushHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3246032823196100F2A84A /* VoIPPushHelperTests.swift */; };
+		EE4345DF2865D0FB0090AC34 /* ConversationByQualifiedIDListTranscoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4345DE2865D0FB0090AC34 /* ConversationByQualifiedIDListTranscoderTests.swift */; };
 		EE4C5FBE27D2C5CD000C0D45 /* BundledMessageNotificationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4C5FBD27D2C5CD000C0D45 /* BundledMessageNotificationBuilder.swift */; };
 		EE82318927D22D79008CD77B /* String+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE82318827D22D79008CD77B /* String+Random.swift */; };
 		EE90C29E282E785800474379 /* PushTokenStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE90C29D282E785800474379 /* PushTokenStrategy.swift */; };
@@ -571,6 +572,7 @@
 		EE202DAA27F1F4CC00083AB3 /* VoIPPushPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoIPPushPayload.swift; sourceTree = "<group>"; };
 		EE3245FB2821D41000F2A84A /* VoIPPushHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoIPPushHelper.swift; sourceTree = "<group>"; };
 		EE3246032823196100F2A84A /* VoIPPushHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoIPPushHelperTests.swift; sourceTree = "<group>"; };
+		EE4345DE2865D0FB0090AC34 /* ConversationByQualifiedIDListTranscoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationByQualifiedIDListTranscoderTests.swift; sourceTree = "<group>"; };
 		EE4C5FBD27D2C5CD000C0D45 /* BundledMessageNotificationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundledMessageNotificationBuilder.swift; sourceTree = "<group>"; };
 		EE82318827D22D79008CD77B /* String+Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Random.swift"; sourceTree = "<group>"; };
 		EE90C29D282E785800474379 /* PushTokenStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTokenStrategy.swift; sourceTree = "<group>"; };
@@ -898,6 +900,7 @@
 				168D7CB526FB0E7000789960 /* Actions */,
 				1658EA6126DE22C0003D0090 /* ConversationRequestStrategy.swift */,
 				16E5F71726EF4DBF00F35FBA /* ConversationRequestStrategyTests.swift */,
+				EE4345DE2865D0FB0090AC34 /* ConversationByQualifiedIDListTranscoderTests.swift */,
 			);
 			path = Conversation;
 			sourceTree = "<group>";
@@ -1917,6 +1920,7 @@
 				5E9EA4E02243C6B200D401B2 /* LinkAttachmentsPreprocessorTests.swift in Sources */,
 				06FDC63128354DBD008300DB /* PushTokenStorageTests.swift in Sources */,
 				F18401EE2073C26C00E9F4CC /* LinkPreviewAssetUploadRequestStrategyTests.swift in Sources */,
+				EE4345DF2865D0FB0090AC34 /* ConversationByQualifiedIDListTranscoderTests.swift in Sources */,
 				06474D6024B310B6002C695D /* NotificationsTrackerTests.swift in Sources */,
 				0693114A24F799F400D14DF5 /* ZMLocalNotificationTests.swift in Sources */,
 				F18401EA2073C26700E9F4CC /* AbstractRequestStrategyTests.swift in Sources */,
