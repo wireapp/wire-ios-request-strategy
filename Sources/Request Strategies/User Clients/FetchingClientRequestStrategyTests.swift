@@ -81,6 +81,33 @@ extension FetchClientRequestStrategyTests {
         }
     }
 
+    func testThatItCreatesARequest_WhenUserClientNeedsToBeUpdatedFromBackendForV2() {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            APIVersion.domain = "localDomain"
+            self.apiVersion = .v2
+            self.otherUser.domain = nil
+            let clientUUID = UUID()
+            let client = UserClient.fetchUserClient(withRemoteId: clientUUID.transportString(), forUser: self.otherUser, createIfNeeded: true)!
+            let clientSet: Set<NSManagedObject> = [client]
+            
+            // WHEN
+            client.needsToBeUpdatedFromBackend = true
+            self.sut.objectsDidChange(clientSet)
+            
+            // THEN
+            let request = self.sut.nextRequest(for: self.apiVersion)
+            if let request = request,
+               let localDomain = APIVersion.domain {
+                let path = "/v2/users/\(localDomain)/\(self.otherUser.remoteIdentifier!.transportString())/clients/\(clientUUID.transportString())"
+                XCTAssertEqual(request.path, path)
+                XCTAssertEqual(request.method, .methodGET)
+            } else {
+                XCTFail("Failed to create request")
+            }
+        }
+    }
+
     func testThatItUpdatesTheClient_WhenReceivingTheResponse() {
         apiVersion = .v1
 
@@ -402,6 +429,35 @@ extension FetchClientRequestStrategyTests {
             // THEN
             if let request = request {
                 let path = "/users/\(user.remoteIdentifier!.transportString())/clients"
+                XCTAssertEqual(request.path, path)
+                XCTAssertEqual(request.method, .methodGET)
+            } else {
+                XCTFail("Failed to create request")
+            }
+        }
+    }
+
+    func testThatItCreatesLegacyRequest_WhenFederationEndpointIsNotAvailableForV2() {
+        // GIVEN
+        APIVersion.domain = "localDomain"
+        self.apiVersion = .v2
+        var user: ZMUser!
+        self.syncMOC.performGroupedBlockAndWait {
+            XCTAssertEqual(self.selfClient.missingClients?.count, 0)
+            user = self.selfClient.user!
+            user.domain = nil
+            user.fetchUserClients()
+        }
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
+
+        self.syncMOC.performGroupedBlockAndWait {
+            // WHEN
+            let request = self.sut.nextRequest(for: self.apiVersion)
+            
+            // THEN
+            if let request = request,
+               let localDomain = APIVersion.domain {
+                let path = "/v2/users/\(localDomain)/\(user.remoteIdentifier!.transportString())/clients"
                 XCTAssertEqual(request.path, path)
                 XCTAssertEqual(request.method, .methodGET)
             } else {
