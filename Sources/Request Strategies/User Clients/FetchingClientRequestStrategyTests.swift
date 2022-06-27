@@ -90,11 +90,11 @@ extension FetchClientRequestStrategyTests {
             let clientUUID = UUID()
             let client = UserClient.fetchUserClient(withRemoteId: clientUUID.transportString(), forUser: self.otherUser, createIfNeeded: true)!
             let clientSet: Set<NSManagedObject> = [client]
-            
+
             // WHEN
             client.needsToBeUpdatedFromBackend = true
             self.sut.objectsDidChange(clientSet)
-            
+
             // THEN
             let request = self.sut.nextRequest(for: self.apiVersion)
             if let request = request,
