@@ -129,10 +129,7 @@ public final class ClientMessageRequestFactory: NSObject {
     }
 
     public func requestToGetAsset(_ assetId: String, inConversation conversationId: UUID, apiVersion: APIVersion) -> ZMTransportRequest {
-        // TODO: GET /conversations/:conv/assets/:id and GET /conversations/:conv/otr/assets/:id have been removed.
-        // TODO: We should also have a switch over the api version here.
-        fatalError("API version not implemented")
-
+        guard apiVersion < .v2 else { fatalError("Endpoint not availale in API v2") }
         let path = "/" + ["conversations", conversationId.transportString(), "otr", "assets", assetId].joined(separator: "/")
         let request = ZMTransportRequest.imageGet(fromPath: path, apiVersion: apiVersion.rawValue)
         request.forceToBackgroundSession()
@@ -144,6 +141,7 @@ public final class ClientMessageRequestFactory: NSObject {
 // MARK: - Downloading
 extension ClientMessageRequestFactory {
     func downstreamRequestForEcryptedOriginalFileMessage(_ message: ZMAssetClientMessage, apiVersion: APIVersion) -> ZMTransportRequest? {
+        guard apiVersion < .v2 else { fatalError("Endpoint not availale in API v2") }
         guard let conversation = message.conversation, let identifier = conversation.remoteIdentifier else { return nil }
         let path = "/conversations/\(identifier.transportString())/otr/assets/\(message.assetId!.transportString())"
 

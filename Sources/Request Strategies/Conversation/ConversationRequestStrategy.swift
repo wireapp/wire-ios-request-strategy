@@ -181,6 +181,8 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
             conversationQualifiedIDsSync.fetch { [weak self] (result) in
                 switch result {
                 case .success(let qualifiedConversationIDList):
+
+                    // here we could use a different sync, or do the switch inside.
                     self?.conversationByQualifiedIDListSync.sync(identifiers: qualifiedConversationIDList.conversations)
                 case .failure:
                     self?.syncProgress.failCurrentSyncPhase(phase: .fetchingConversations)
@@ -749,6 +751,7 @@ class ConversationByIDListTranscoder: IdentifierObjectSyncTranscoder {
 
     func request(for identifiers: Set<UUID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         // GET /conversations?ids=?
+        guard apiVersion < .v2 else { return nil }
         let converationIDs = identifiers.map({ $0.transportString() }).joined(separator: ",")
         return ZMTransportRequest(getFromPath: "/conversations?ids=\(converationIDs)", apiVersion: apiVersion.rawValue)
     }
@@ -794,9 +797,6 @@ class ConversationByQualifiedIDListTranscoder: IdentifierObjectSyncTranscoder {
     }
 
     func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
-        // GET /conversations?ids=?
-
-        // TODO: create a switch for api versions here
         guard
             let payloadData = Payload.QualifiedUserIDList(qualifiedIDs: Array(identifiers)).payloadData(encoder: encoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
@@ -804,7 +804,9 @@ class ConversationByQualifiedIDListTranscoder: IdentifierObjectSyncTranscoder {
             return nil
         }
 
-        return ZMTransportRequest(path: "/conversations/list/v2", method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: apiVersion.rawValue)
+        let path = apiVersion >= .v2 ? "/conversations/list" : "/conversations/list/v2"
+
+        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData, apiVersion: apiVersion.rawValue)
     }
 
     func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
