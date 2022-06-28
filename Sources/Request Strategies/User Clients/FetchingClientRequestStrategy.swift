@@ -219,7 +219,6 @@ final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
         guard let identifier = identifiers.first else { return nil }
 
         let path = "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)"
-
         return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
@@ -328,7 +327,6 @@ final class UserClientByUserIDTranscoder: IdentifierObjectSyncTranscoder {
         guard let userId = identifiers.first?.transportString() else { return nil }
 
         let path = "/users/\(userId)/clients"
-
         return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
