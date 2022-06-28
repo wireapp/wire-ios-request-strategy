@@ -185,11 +185,10 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
     }
 
     private func qualifiedIDWithFallback(from userClient: UserClient) -> QualifiedID? {
-        guard let userID = userClient.user?.remoteIdentifier,
+        guard
+            let userID = userClient.user?.remoteIdentifier,
             let domain = userClient.user?.domain.nonEmptyValue ?? APIVersion.domain
-        else {
-            return nil
-        }
+        else { return nil }
 
         return .init(uuid: userID, domain: domain)
     }
@@ -219,7 +218,7 @@ final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
     public func request(for identifiers: Set<UserClientID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let identifier = identifiers.first else { return nil }
 
-        let path: String = "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)"
+        let path = "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)"
 
         return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
@@ -328,7 +327,7 @@ final class UserClientByUserIDTranscoder: IdentifierObjectSyncTranscoder {
     public func request(for identifiers: Set<UUID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let userId = identifiers.first?.transportString() else { return nil }
 
-        let path: String = "/users/\(userId)/clients"
+        let path = "/users/\(userId)/clients"
 
         return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
