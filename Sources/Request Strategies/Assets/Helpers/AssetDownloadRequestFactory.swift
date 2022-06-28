@@ -31,8 +31,8 @@ public final class AssetDownloadRequestFactory: NSObject {
             guard let domain = domain.nonEmptyValue ?? APIVersion.domain else { return nil }
             path = "/assets/v4/\(domain)/\(key)"
         case .v2:
-            // TODO: for path replace /assets/v4 with /assets
-            fatal("API changes needed")
+            guard let domain = domain.nonEmptyValue ?? APIVersion.domain else { return nil }
+            path = "/assets/\(domain)/\(key)"
         }
 
         let request = ZMTransportRequest.assetGet(fromPath: path, assetToken: token, apiVersion: apiVersion.rawValue)
