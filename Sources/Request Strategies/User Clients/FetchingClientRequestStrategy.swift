@@ -82,13 +82,19 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
                     let userIdSet: Set<UserClientByUserIDTranscoder.T> = [userID]
                     self.userClientsByUserID.sync(identifiers: userIdSet)
 
-                case .v1, .v2:
+                case .v1:
                     if let domain = user.domain {
                         let qualifiedID = QualifiedID(uuid: userID, domain: domain)
                         self.userClientsByQualifiedUserID.sync(identifiers: [qualifiedID])
                     } else {
                         let userIdSet: Set<UserClientByUserIDTranscoder.T> = [userID]
                         self.userClientsByUserID.sync(identifiers: userIdSet)
+                    }
+
+                case .v2:
+                    if let domain = user.domain.nonEmptyValue ?? APIVersion.domain {
+                        let qualifiedID = QualifiedID(uuid: userID, domain: domain)
+                        self.userClientsByQualifiedUserID.sync(identifiers: [qualifiedID])
                     }
                 }
 
@@ -137,13 +143,17 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
                 guard let userClientID = userClientID(from: userClient) else { return }
                 result.1.append(userClientID)
 
-            case .v1, .v2:
+            case .v1:
                 // We prefer to by qualifiedUserID since can be done in batches and is more efficent.
                 if let qualifiedID = qualifiedID(from: userClient) {
                     result.0.append(qualifiedID)
                 } else if let userClientID = userClientID(from: userClient) {
                     // Fallback.
                     result.1.append(userClientID)
+                }
+            case .v2:
+                if let qualifiedID = qualifiedIDWithFallback(from: userClient) {
+                    result.0.append(qualifiedID)
                 }
             }
         }
@@ -167,6 +177,16 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
         guard
             let userID = userClient.user?.remoteIdentifier,
             let domain = userClient.user?.domain
+        else {
+            return nil
+        }
+
+        return .init(uuid: userID, domain: domain)
+    }
+
+    private func qualifiedIDWithFallback(from userClient: UserClient) -> QualifiedID? {
+        guard let userID = userClient.user?.remoteIdentifier,
+            let domain = userClient.user?.domain.nonEmptyValue ?? APIVersion.domain
         else {
             return nil
         }
@@ -199,15 +219,8 @@ final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
     public func request(for identifiers: Set<UserClientID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let identifier = identifiers.first else { return nil }
 
-        let path: String
+        let path: String = "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)"
 
-        switch apiVersion {
-        case .v0, .v1:
-            path = "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)"
-        case .v2:
-            guard let domain  = APIVersion.domain else { return nil }
-            path = "/users/\(domain)/\(identifier.userId.transportString())/clients/\(identifier.clientId)"
-        }
         return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
@@ -315,15 +328,7 @@ final class UserClientByUserIDTranscoder: IdentifierObjectSyncTranscoder {
     public func request(for identifiers: Set<UUID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let userId = identifiers.first?.transportString() else { return nil }
 
-        let path: String
-
-        switch apiVersion {
-        case .v0, .v1:
-            path = "/users/\(userId)/clients"
-        case .v2:
-            guard let domain  = APIVersion.domain else { return nil }
-            path = "/users/\(domain)/\(userId)/clients"
-        }
+        let path: String = "/users/\(userId)/clients"
 
         return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
