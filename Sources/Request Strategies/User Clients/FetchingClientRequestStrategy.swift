@@ -90,9 +90,12 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
                         let userIdSet: Set<UserClientByUserIDTranscoder.T> = [userID]
                         self.userClientsByUserID.sync(identifiers: userIdSet)
                     }
+
                 case .v2:
-                    // GET /users/:id/clients has been removed. Use the qualified endpoint GET /users/:domain/:id/clients instead.
-                    fatalError("API version not implemented")
+                    if let domain = user.domain.nonEmptyValue ?? APIVersion.domain {
+                        let qualifiedID = QualifiedID(uuid: userID, domain: domain)
+                        self.userClientsByQualifiedUserID.sync(identifiers: [qualifiedID])
+                    }
                 }
 
                 RequestAvailableNotification.notifyNewRequestsAvailable(self)
@@ -149,8 +152,9 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
                     result.1.append(userClientID)
                 }
             case .v2:
-                // TODO: same as v1 but except the fallback use the local domain
-                fatal("Api changes needed")
+                if let qualifiedID = qualifiedIDWithFallback(from: userClient) {
+                    result.0.append(qualifiedID)
+                }
             }
         }
 
@@ -180,6 +184,15 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
         return .init(uuid: userID, domain: domain)
     }
 
+    private func qualifiedIDWithFallback(from userClient: UserClient) -> QualifiedID? {
+        guard
+            let userID = userClient.user?.remoteIdentifier,
+            let domain = userClient.user?.domain.nonEmptyValue ?? APIVersion.domain
+        else { return nil }
+
+        return .init(uuid: userID, domain: domain)
+    }
+
 }
 
 final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
@@ -205,8 +218,8 @@ final class UserClientByUserClientIDTranscoder: IdentifierObjectSyncTranscoder {
     public func request(for identifiers: Set<UserClientID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let identifier = identifiers.first else { return nil }
 
-        // GET /users/<user-id>/clients/<client-id>
-        return ZMTransportRequest(path: "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)", method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
+        let path = "/users/\(identifier.userId.transportString())/clients/\(identifier.clientId)"
+        return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<UserClientID>) {
@@ -313,8 +326,7 @@ final class UserClientByUserIDTranscoder: IdentifierObjectSyncTranscoder {
     public func request(for identifiers: Set<UUID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard let userId = identifiers.first?.transportString() else { return nil }
 
-        // GET /users/<user-id>/clients
-        let path = NSString.path(withComponents: ["/users", "\(userId)", "clients"])
+        let path = "/users/\(userId)/clients"
         return ZMTransportRequest(path: path, method: .methodGET, payload: nil, apiVersion: apiVersion.rawValue)
     }
 
