@@ -85,6 +85,7 @@ extension Payload {
             case teamID = "team"
             case messageTimer = "message_timer"
             case readReceiptMode = "receipt_mode"
+            case `protocol`
         }
 
         static var eventType: ZMUpdateEventType {
@@ -105,6 +106,7 @@ extension Payload {
         let teamID: UUID?
         let messageTimer: TimeInterval?
         let readReceiptMode: Int?
+        var `protocol`: String?
 
         init(qualifiedID: QualifiedID? = nil,
              id: UUID?  = nil,
@@ -119,7 +121,8 @@ extension Payload {
              lastEventTime: String? = nil,
              teamID: UUID? = nil,
              messageTimer: TimeInterval? = nil,
-             readReceiptMode: Int? = nil) {
+             readReceiptMode: Int? = nil,
+             protocol: String? = nil) {
 
             self.qualifiedID = qualifiedID
             self.id = id
@@ -135,6 +138,7 @@ extension Payload {
             self.teamID = teamID
             self.messageTimer = messageTimer
             self.readReceiptMode = readReceiptMode
+            self.protocol = `protocol`
         }
     }
 
@@ -393,6 +397,7 @@ extension Payload {
         enum CodingKeys: String, CodingKey {
             case userIDs = "user_ids"
             case users
+            case `protocol`
         }
 
         static var eventType: ZMUpdateEventType {
@@ -401,6 +406,7 @@ extension Payload {
 
         let userIDs: [UUID]?
         let users: [ConversationMember]?
+        var `protocol`: String?
     }
 
     struct UpdateConversationConnectionRequest: EventData {

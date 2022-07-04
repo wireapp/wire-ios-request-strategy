@@ -560,4 +560,60 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         }
     }
 
+    // MARK: - MLS: Conversation Create
+
+    func testUpdateOrCreateConversation_Group_MLS_AsksToUpdateConversationIfNeeded() {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let mockEventProcessor = MockMLSEventProcessor()
+            MLSEventProcessor.shared = mockEventProcessor
+
+            let qualifiedID = self.groupConversation.qualifiedID!
+            let conversation = Payload.Conversation(qualifiedID: qualifiedID,
+                                                    type: BackendConversationType.group.rawValue,
+                                                    protocol: "mls")
+            // when
+            conversation.updateOrCreate(in: self.syncMOC)
+
+            // then
+            XCTAssertTrue(mockEventProcessor.didCallUpdateConversationIfNeeded)
+        }
+    }
+
+    // MARK: - MLS: Conversation Member Join
+
+    func testUpdateConversationMemberJoin_MLS_AsksToUpdateConversationIfNeeded() {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let mockEventProcessor = MockMLSEventProcessor()
+            MLSEventProcessor.shared = mockEventProcessor
+
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            let selfMember = Payload.ConversationMember(qualifiedID: selfUser.qualifiedID)
+            let payload = Payload.UpdateConverationMemberJoin(userIDs: [], users: [selfMember])
+            let event = Payload.ConversationEvent(
+                id: self.groupConversation.remoteIdentifier,
+                qualifiedID: self.groupConversation.qualifiedID,
+                from: self.otherUser.remoteIdentifier,
+                qualifiedFrom: self.otherUser.qualifiedID,
+                timestamp: nil,
+                type: nil,
+                data: payload
+            )
+
+            let updateEvent = self.updateEvent(
+                from: payload,
+                conversationID: self.groupConversation.qualifiedID,
+                senderID: self.otherUser.qualifiedID,
+                timestamp: nil
+            )
+
+            // when
+            event.process(in: self.syncMOC, originalEvent: updateEvent)
+
+            // then
+            print(mockEventProcessor.didCallUpdateConversationIfNeeded)
+            XCTAssertTrue(mockEventProcessor.didCallUpdateConversationIfNeeded)
+        }
+    }
 }
