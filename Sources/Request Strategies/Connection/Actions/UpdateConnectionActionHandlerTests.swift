@@ -72,24 +72,6 @@ class UpdateConnectionActionHandlerTests: MessagingTestBase {
         }
     }
 
-    func testThatItCreatesARequestForUpdatingConnection_APIV2() throws {
-        try syncMOC.performGroupedAndWait { _ in
-            // given
-            let userID = self.oneToOneConversation.connection!.to.qualifiedID!
-            let action = UpdateConnectionAction(connection: self.oneToOneConversation.connection!,
-                                                newStatus: .cancelled)
-
-            // when
-            let request = try XCTUnwrap(self.sut.request(for: action, apiVersion: .v2))
-
-            // then
-            XCTAssertEqual(request.path, "/v2/connections/\(userID.domain)/\(userID.uuid.transportString())")
-            XCTAssertEqual(request.method, .methodPOST)
-            let payload = Payload.ConnectionUpdate(request)
-            XCTAssertEqual(payload?.status, .cancelled)
-        }
-    }
-
     // MARK: - Request Processing
 
     func testThatItParsesAllKnownConnectionUpdateErrorResponses() {

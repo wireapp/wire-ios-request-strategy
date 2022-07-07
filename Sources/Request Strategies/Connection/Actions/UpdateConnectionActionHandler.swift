@@ -27,11 +27,8 @@ class UpdateConnectionActionHandler: ActionHandler<UpdateConnectionAction> {
         case .v0:
             return v0Request(for: action)
 
-        case .v1:
+        case .v1, .v2:
             return v1Request(for: action)
-
-        case .v2:
-            return v2Request(for: action)
         }
     }
 
@@ -68,24 +65,6 @@ class UpdateConnectionActionHandler: ActionHandler<UpdateConnectionAction> {
             method: .methodPUT,
             payload: payload,
             apiVersion: 1
-        )
-    }
-
-    private func v2Request(for action: UpdateConnectionAction) -> ZMTransportRequest? {
-        guard
-            let connection = ZMConnection.existingObject(for: action.connectionID, in: context),
-            let qualifiedID = connection.to.qualifiedID,
-            let payload = payload(from: action)
-        else {
-            Logging.network.error("Can't create request to update connection status")
-            return nil
-        }
-
-        return ZMTransportRequest(
-            path: "/connections/\(qualifiedID.domain)/\(qualifiedID.uuid.transportString())",
-            method: .methodPOST,
-            payload: payload,
-            apiVersion: 2
         )
     }
 
