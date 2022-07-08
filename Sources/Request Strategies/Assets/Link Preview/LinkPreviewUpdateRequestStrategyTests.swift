@@ -26,7 +26,7 @@ class LinkPreviewUpdateRequestStrategyTests: MessagingTestBase {
 
     private var apiVersion: APIVersion! {
         didSet {
-            APIVersion.current = apiVersion
+            setCurrentAPIVersion(apiVersion)
         }
     }
 
