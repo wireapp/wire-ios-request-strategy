@@ -525,15 +525,20 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
         return nil
     }
 
-    public func request(forInserting managedObject: ZMManagedObject,
-                        forKeys keys: Set<String>?,
-                        apiVersion: APIVersion) -> ZMUpstreamRequest? {
-
-        guard let conversation = managedObject as? ZMConversation else {
+    public func request(
+        forInserting managedObject: ZMManagedObject,
+        forKeys keys: Set<String>?,
+        apiVersion: APIVersion
+    ) -> ZMUpstreamRequest? {
+        guard
+            let conversation = managedObject as? ZMConversation,
+            let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient(),
+            let selfClientID = selfClient.remoteIdentifier
+        else {
             return nil
         }
 
-        let payload = Payload.NewConversation(conversation)
+        let payload = Payload.NewConversation(conversation, selfClientID: selfClientID)
 
         guard
             let payloadData = payload.payloadData(encoder: .defaultEncoder),
@@ -542,10 +547,12 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
             return nil
         }
 
-        let request = ZMTransportRequest(path: "/conversations",
-                                         method: .methodPOST,
-                                         payload: payloadAsString as ZMTransportData?,
-                                         apiVersion: apiVersion.rawValue)
+        let request = ZMTransportRequest(
+            path: "/conversations",
+            method: .methodPOST,
+            payload: payloadAsString as ZMTransportData?,
+            apiVersion: apiVersion.rawValue
+        )
 
         return ZMUpstreamRequest(transportRequest: request)
     }
