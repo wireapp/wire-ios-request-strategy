@@ -322,6 +322,44 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         }
     }
 
+    func testUpdateOrCreateConversation_Group_UpdatesMessageProtocol() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let conversationPayload = Payload.Conversation(
+                qualifiedID: self.groupConversation.qualifiedID!,
+                type: BackendConversationType.group.rawValue,
+                messageProtocol: "proteus"
+            )
+
+            // when
+            conversationPayload.updateOrCreate(in: self.syncMOC)
+
+            // then
+            XCTAssertEqual(self.groupConversation.messageProtocol, .proteus)
+        }
+    }
+
+    func testUpdateOrCreateConversation_Group_UpdatesGroupID() throws {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let groupID = MLSGroupID(Data([0x00, 0x01, 0x02, 0x03]))
+
+            let conversationPayload = Payload.Conversation(
+                qualifiedID: self.groupConversation.qualifiedID!,
+                type: BackendConversationType.group.rawValue,
+                groupID: groupID.base64EncodedString,
+                messageProtocol: "mls"
+            )
+
+            // when
+            conversationPayload.updateOrCreate(in: self.syncMOC)
+
+            // then
+            XCTAssertEqual(self.groupConversation.messageProtocol, .mls)
+            XCTAssertEqual(self.groupConversation.mlsGroupID, groupID)
+        }
+    }
+
     // MARK: 1:1 / Connection Conversations
 
     func testUpdateOrCreateConversation_OneToOne_CreatesConversation() throws {
