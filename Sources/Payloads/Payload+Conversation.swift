@@ -35,6 +35,8 @@ extension Payload {
             case messageTimer = "message_timer"
             case readReceiptMode = "receipt_mode"
             case conversationRole = "conversation_role"
+            case creatorClient = "creator_client"
+            case messageProtocol = "protocol"
         }
 
         let users: [UUID]?
@@ -48,13 +50,29 @@ extension Payload {
         let readReceiptMode: Int?
         let conversationRole: String?
 
-        init(_ conversation: ZMConversation) {
-            if let qualifiedUsers = conversation.localParticipantsExcludingSelf.qualifiedUserIDs {
-                self.qualifiedUsers = qualifiedUsers
-                self.users = nil
-            } else {
+        // API V2 only
+        let creatorClient: String?
+        let messageProtocol: String?
+
+        init(_ conversation: ZMConversation, selfClientID: String) {
+            switch conversation.messageProtocol {
+            case .mls:
+                messageProtocol = "mls"
+                creatorClient = selfClientID
                 qualifiedUsers = nil
-                users = conversation.localParticipantsExcludingSelf.map(\.remoteIdentifier)
+                users = nil
+
+            case .proteus:
+                messageProtocol = "proteus"
+                creatorClient = nil
+
+                if let qualifiedUsers = conversation.localParticipantsExcludingSelf.qualifiedUserIDs {
+                    self.qualifiedUsers = qualifiedUsers
+                    self.users = nil
+                } else {
+                    qualifiedUsers = nil
+                    users = conversation.localParticipantsExcludingSelf.map(\.remoteIdentifier)
+                }
             }
 
             name = conversation.userDefinedName
@@ -85,6 +103,9 @@ extension Payload {
             case teamID = "team"
             case messageTimer = "message_timer"
             case readReceiptMode = "receipt_mode"
+            case groupID = "group_id"
+            case epoch
+            case messageProtocol = "protocol"
         }
 
         static var eventType: ZMUpdateEventType {
@@ -106,21 +127,30 @@ extension Payload {
         let messageTimer: TimeInterval?
         let readReceiptMode: Int?
 
-        init(qualifiedID: QualifiedID? = nil,
-             id: UUID?  = nil,
-             type: Int? = nil,
-             creator: UUID? = nil,
-             access: [String]? = nil,
-             accessRole: String? = nil,
-             accessRoleV2: [String]? = nil,
-             name: String? = nil,
-             members: ConversationMembers? = nil,
-             lastEvent: String? = nil,
-             lastEventTime: String? = nil,
-             teamID: UUID? = nil,
-             messageTimer: TimeInterval? = nil,
-             readReceiptMode: Int? = nil) {
+        // API V2 only
+        let groupID: String?
+        let epoch: UInt?
+        let messageProtocol: String?
 
+        init(
+            qualifiedID: QualifiedID? = nil,
+            id: UUID?  = nil,
+            type: Int? = nil,
+            creator: UUID? = nil,
+            access: [String]? = nil,
+            accessRole: String? = nil,
+            accessRoleV2: [String]? = nil,
+            name: String? = nil,
+            members: ConversationMembers? = nil,
+            lastEvent: String? = nil,
+            lastEventTime: String? = nil,
+            teamID: UUID? = nil,
+            messageTimer: TimeInterval? = nil,
+            readReceiptMode: Int? = nil,
+            groupID: String? = nil,
+            epoch: UInt? = nil,
+            messageProtocol: String? = nil
+        ) {
             self.qualifiedID = qualifiedID
             self.id = id
             self.type = type
@@ -135,6 +165,9 @@ extension Payload {
             self.teamID = teamID
             self.messageTimer = messageTimer
             self.readReceiptMode = readReceiptMode
+            self.groupID = groupID
+            self.epoch = epoch
+            self.messageProtocol = messageProtocol
         }
     }
 
