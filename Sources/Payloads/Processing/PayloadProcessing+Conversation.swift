@@ -174,6 +174,7 @@ extension Payload.Conversation {
         updateMembers(for: conversation, context: context)
         updateConversationTimestamps(for: conversation, serverTimestamp: serverTimestamp)
         updateConversationStatus(for: conversation)
+        updateMessageProtocol(for: conversation)
         updateMLSStatus(for: conversation, context: context)
 
         if created {
@@ -242,10 +243,22 @@ extension Payload.Conversation {
         }
     }
 
+    private func updateMessageProtocol(for conversation: ZMConversation) {
+        guard
+            let messageProtocolString = messageProtocol,
+            let messageProtocol = MessageProtocol(string: messageProtocolString)
+        else {
+            Logging.eventProcessing.error("message protocol is missing or invalid")
+            return
+        }
+
+        conversation.messageProtocol = messageProtocol
+    }
+
     private func updateMLSStatus(for conversation: ZMConversation, context: NSManagedObjectContext) {
         MLSEventProcessor.shared.updateConversationIfNeeded(
-            conversation,
-            protocol: `protocol`,
+            conversation: conversation,
+            groupID: mlsGroupID,
             context: context
         )
     }
@@ -380,8 +393,8 @@ extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberJo
 
     private func updateMLSStatus(for conversation: ZMConversation, context: NSManagedObjectContext) {
         MLSEventProcessor.shared.updateConversationIfNeeded(
-            conversation,
-            protocol: data.protocol,
+            conversation: conversation,
+            groupID: data.mlsGroupID,
             context: context
         )
     }
@@ -515,6 +528,23 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationConnect
     func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
         // TODO jacob refactor to append method on conversation
         _ = ZMSystemMessage.createOrUpdate(from: originalEvent, in: context)
+    }
+
+}
+
+extension Payload.ConversationEvent where T == Payload.UpdateConversationMLSWelcome {
+
+    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
+        guard
+            let identifier = id ?? qualifiedID?.uuid,
+            let domain = qualifiedID?.domain ?? APIVersion.domain
+        else {
+            Logging.eventProcessing.error("Missing conversation id or domain, aborting...")
+            return
+        }
+
+        let conversation = ZMConversation.fetch(with: identifier, domain: domain, in: context)
+        MLSEventProcessor.shared.process(welcomeMessage: data.message, for: conversation, in: context)
     }
 
 }

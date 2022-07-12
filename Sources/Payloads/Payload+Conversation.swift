@@ -85,7 +85,8 @@ extension Payload {
             case teamID = "team"
             case messageTimer = "message_timer"
             case readReceiptMode = "receipt_mode"
-            case `protocol`
+            case messageProtocol = "protocol"
+            case mlsGroupID = "group_id"
         }
 
         static var eventType: ZMUpdateEventType {
@@ -106,7 +107,8 @@ extension Payload {
         let teamID: UUID?
         let messageTimer: TimeInterval?
         let readReceiptMode: Int?
-        var `protocol`: String?
+        let messageProtocol: String?
+        let mlsGroupID: String?
 
         init(qualifiedID: QualifiedID? = nil,
              id: UUID?  = nil,
@@ -122,7 +124,9 @@ extension Payload {
              teamID: UUID? = nil,
              messageTimer: TimeInterval? = nil,
              readReceiptMode: Int? = nil,
-             protocol: String? = nil) {
+             messageProtocol: String? = nil,
+             mlsGroupID: String? = nil
+        ) {
 
             self.qualifiedID = qualifiedID
             self.id = id
@@ -138,7 +142,8 @@ extension Payload {
             self.teamID = teamID
             self.messageTimer = messageTimer
             self.readReceiptMode = readReceiptMode
-            self.protocol = `protocol`
+            self.messageProtocol = messageProtocol
+            self.mlsGroupID = mlsGroupID
         }
     }
 
@@ -397,7 +402,8 @@ extension Payload {
         enum CodingKeys: String, CodingKey {
             case userIDs = "user_ids"
             case users
-            case `protocol`
+            case messageProtocol = "protocol"
+            case mlsGroupID = "group_id"
         }
 
         static var eventType: ZMUpdateEventType {
@@ -406,7 +412,8 @@ extension Payload {
 
         let userIDs: [UUID]?
         let users: [ConversationMember]?
-        var `protocol`: String?
+        let messageProtocol: String?
+        let mlsGroupID: String?
     }
 
     struct UpdateConversationConnectionRequest: EventData {
@@ -481,6 +488,14 @@ extension Payload {
 
         init(name: String) {
             self.name = name
+        }
+    }
+
+    struct UpdateConversationMLSWelcome: EventData {
+        let message: String
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationMLSWelcome
         }
     }
 

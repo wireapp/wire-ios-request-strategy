@@ -22,8 +22,15 @@ import Foundation
 class MockMLSEventProcessor: MLSEventProcessing {
 
     var didCallUpdateConversationIfNeeded: Bool = false
-    func updateConversationIfNeeded(_ conversation: ZMConversation, protocol: String?, context: NSManagedObjectContext) {
+
+    func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext) {
         didCallUpdateConversationIfNeeded = true
+    }
+
+    var processedMessage: String?
+
+    func process(welcomeMessage: String, for conversation: ZMConversation?, in context: NSManagedObjectContext) {
+        processedMessage = welcomeMessage
     }
 
 }

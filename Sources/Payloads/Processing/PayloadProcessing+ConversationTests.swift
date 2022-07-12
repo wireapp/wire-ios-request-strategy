@@ -253,7 +253,8 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
 
             let conversationPayload = Payload.Conversation(qualifiedID: qualifiedID,
                                                            type: BackendConversationType.group.rawValue,
-                                                           accessRole: accessRole.rawValue)
+                                                           accessRole: accessRole.rawValue,
+                                                           messageProtocol: "proteus")
             // WHEN
             conversationPayload.updateOrCreate(in: self.syncMOC)
 
@@ -566,12 +567,12 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             // given
             let mockEventProcessor = MockMLSEventProcessor()
-            MLSEventProcessor.shared = mockEventProcessor
+            MLSEventProcessor.setMock(mockEventProcessor)
 
             let qualifiedID = self.groupConversation.qualifiedID!
             let conversation = Payload.Conversation(qualifiedID: qualifiedID,
                                                     type: BackendConversationType.group.rawValue,
-                                                    protocol: "mls")
+                                                    messageProtocol: "mls")
             // when
             conversation.updateOrCreate(in: self.syncMOC)
 
@@ -586,34 +587,68 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             // given
             let mockEventProcessor = MockMLSEventProcessor()
-            MLSEventProcessor.shared = mockEventProcessor
+            MLSEventProcessor.setMock(mockEventProcessor)
 
             let selfUser = ZMUser.selfUser(in: self.syncMOC)
             let selfMember = Payload.ConversationMember(qualifiedID: selfUser.qualifiedID)
-            let payload = Payload.UpdateConverationMemberJoin(userIDs: [], users: [selfMember])
-            let event = Payload.ConversationEvent(
-                id: self.groupConversation.remoteIdentifier,
-                qualifiedID: self.groupConversation.qualifiedID,
-                from: self.otherUser.remoteIdentifier,
-                qualifiedFrom: self.otherUser.qualifiedID,
-                timestamp: nil,
-                type: nil,
-                data: payload
+            let payload = Payload.UpdateConverationMemberJoin(
+                userIDs: [],
+                users: [selfMember],
+                messageProtocol: "mls",
+                mlsGroupID: "id"
             )
-
-            let updateEvent = self.updateEvent(
-                from: payload,
-                conversationID: self.groupConversation.qualifiedID,
-                senderID: self.otherUser.qualifiedID,
-                timestamp: nil
-            )
+            let event = self.conversationEvent(with: payload)
+            let updateEvent = self.updateEvent(from: payload)
 
             // when
             event.process(in: self.syncMOC, originalEvent: updateEvent)
 
             // then
-            print(mockEventProcessor.didCallUpdateConversationIfNeeded)
             XCTAssertTrue(mockEventProcessor.didCallUpdateConversationIfNeeded)
         }
+    }
+
+    // MARK: - MLS: Welcome Message
+
+    func testUpdateConversationMLSWelcome_AsksToProcessWelcomeMessage() {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let mockEventProcessor = MockMLSEventProcessor()
+            MLSEventProcessor.setMock(mockEventProcessor)
+
+            let message = "welcome message"
+            let payload = Payload.UpdateConversationMLSWelcome(message: message)
+            let event = self.conversationEvent(with: payload)
+            let updateEvent = self.updateEvent(from: payload)
+
+            // when
+            event.process(in: self.syncMOC, originalEvent: updateEvent)
+
+            // then
+            XCTAssertEqual(message, mockEventProcessor.processedMessage)
+        }
+    }
+
+    // MARK: - Helpers
+
+    func updateEvent<T: EventData>(from payload: T) -> ZMUpdateEvent {
+        return updateEvent(
+            from: payload,
+            conversationID: self.groupConversation.qualifiedID,
+            senderID: self.otherUser.qualifiedID,
+            timestamp: nil
+        )
+    }
+
+    func conversationEvent<T: EventData>(with payload: T) -> Payload.ConversationEvent<T> {
+        return Payload.ConversationEvent(
+            id: self.groupConversation.remoteIdentifier,
+            qualifiedID: self.groupConversation.qualifiedID,
+            from: self.otherUser.remoteIdentifier,
+            qualifiedFrom: self.otherUser.qualifiedID,
+            timestamp: nil,
+            type: nil,
+            data: payload
+        )
     }
 }

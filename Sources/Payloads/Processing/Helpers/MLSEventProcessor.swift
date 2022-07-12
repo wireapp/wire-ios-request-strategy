@@ -19,21 +19,61 @@ import Foundation
 import WireDataModel
 
 protocol MLSEventProcessing {
-    func updateConversationIfNeeded(_ conversation: ZMConversation, protocol: String?, context: NSManagedObjectContext)
+    func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext)
+    func process(welcomeMessage: String, for conversation: ZMConversation?, in context: NSManagedObjectContext)
 }
 
 class MLSEventProcessor: MLSEventProcessing {
 
-    static var shared: MLSEventProcessing = MLSEventProcessor()
+    private(set) static var shared: MLSEventProcessing = MLSEventProcessor()
 
-    func updateConversationIfNeeded(_ conversation: ZMConversation, protocol: String?, context: NSManagedObjectContext) {
+    // MARK: - Update conversation
+
+    func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext) {
+        guard conversation.messageProtocol == .mls else { return }
+
+        guard let mlsGroupID = MLSGroupID(from: groupID) else {
+            return Logging.eventProcessing.error("MLS group ID is missing or invalid")
+        }
+
+        conversation.mlsGroupID = mlsGroupID
+
+        guard let mlsController = context.mlsController else {
+            return Logging.eventProcessing.error("Missing MLSController in context")
+        }
+
+        conversation.isPendingWelcomeMessage = !mlsController.conversationExists(groupID: mlsGroupID)
+    }
+
+    // MARK: - Process welcome message
+
+    func process(welcomeMessage: String, for conversation: ZMConversation?, in context: NSManagedObjectContext) {
+        let groupID = context.mlsController?.processWelcomeMessage(welcomeMessage: welcomeMessage)
+
+        guard groupID != nil else {
+            return Logging.eventProcessing.error("Couldn't process welcome message")
+        }
+
+        conversation?.isPendingWelcomeMessage = false
+    }
+}
+
+extension MLSGroupID {
+    init?(from groupIdString: String?) {
         guard
-            `protocol` == "mls",
-            context.zm_isSyncContext,
-            let coreCrypto = context.coreCrypto,
-            let conversationId = conversation.remoteIdentifier
-        else { return }
+            let groupID = groupIdString,
+            !groupID.isEmpty,
+            let bytes = groupID.bytes
+        else {
+            return nil
+        }
 
-        conversation.isPendingWelcomeMessage = !coreCrypto.wire_conversationExists(conversationId: Bytes(uuid: conversationId))
+        self.init(bytes: bytes)
+    }
+}
+
+extension MLSEventProcessor {
+    static func setMock(_ mock: MLSEventProcessing) {
+        Self.shared = mock
     }
 }

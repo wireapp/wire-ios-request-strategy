@@ -19,89 +19,103 @@ import Foundation
 import XCTest
 @testable import WireRequestStrategy
 
-private class CoreCryptoMock: CoreCryptoProtocol {
+class MLSControllerMock: MLSControllerProtocol {
 
     var hasWelcomeMessageBeenProcessed = false
-    func wire_conversationExists(conversationId: [UInt8]) -> Bool {
+
+    func conversationExists(groupID: MLSGroupID) -> Bool {
         return hasWelcomeMessageBeenProcessed
     }
 
-    func wire_setCallbacks(callbacks: CoreCryptoCallbacks) throws {
-        // no op
-    }
+    var processedWelcomeMessage: String?
+    var groupID: MLSGroupID?
 
-    func wire_clientPublicKey() throws -> [UInt8] {
-        return []
+    func processWelcomeMessage(welcomeMessage: String) -> MLSGroupID? {
+        processedWelcomeMessage = welcomeMessage
+        return groupID
     }
-
-    func wire_clientKeypackages(amountRequested: UInt32) throws -> [[UInt8]] {
-        return []
-    }
-
-    func wire_createConversation(conversationId: [UInt8], config: ConversationConfiguration) throws -> MemberAddedMessages? {
-        return nil
-    }
-
-    func wire_processWelcomeMessage(welcomeMessage: [UInt8]) throws -> [UInt8] {
-        return []
-    }
-
-    func wire_addClientsToConversation(conversationId: [UInt8], clients: [Invitee]) throws -> MemberAddedMessages? {
-        return nil
-    }
-
-    func wire_removeClientsFromConversation(conversationId: [UInt8], clients: [[UInt8]]) throws -> [UInt8]? {
-        return nil
-    }
-
-    func wire_leaveConversation(conversationId: [UInt8], otherClients: [[UInt8]]) throws -> ConversationLeaveMessages {
-        return ConversationLeaveMessages(selfRemovalProposal: [], otherClientsRemovalCommit: [])
-    }
-
-    func wire_decryptMessage(conversationId: [UInt8], payload: [UInt8]) throws -> [UInt8]? {
-        return nil
-    }
-
-    func wire_encryptMessage(conversationId: [UInt8], message: [UInt8]) throws -> [UInt8] {
-        return []
-    }
-
-    func wire_newAddProposal(conversationId: [UInt8], keyPackage: [UInt8]) throws -> [UInt8] {
-        return []
-    }
-
-    func wire_newUpdateProposal(conversationId: [UInt8]) throws -> [UInt8] {
-        return []
-    }
-
-    func wire_newRemoveProposal(conversationId: [UInt8], clientId: [UInt8]) throws -> [UInt8] {
-        return []
-    }
-
 }
 
 class MLSEventProcessorTests: MessagingTestBase {
 
-    private var coreCryptoMock: CoreCryptoMock!
+    var mlsControllerMock: MLSControllerMock!
     var conversation: ZMConversation!
+    var domain = "example.com"
+    let groupIdString = "identifier".data(using: .utf8)!.base64EncodedString()
 
     override func setUp() {
         super.setUp()
-        coreCryptoMock = CoreCryptoMock()
         syncMOC.performGroupedBlockAndWait {
-            self.syncMOC.coreCrypto = self.coreCryptoMock
+            self.mlsControllerMock = MLSControllerMock()
+            self.syncMOC.setMock(mlsController: self.mlsControllerMock)
             self.conversation = ZMConversation.insertNewObject(in: self.syncMOC)
-            self.conversation.remoteIdentifier = UUID()
+            self.conversation.mlsGroupID = MLSGroupID(bytes: self.groupIdString.bytes!)
+            self.conversation.domain = self.domain
         }
     }
 
     override func tearDown() {
-        coreCryptoMock = nil
+        mlsControllerMock = nil
         conversation = nil
         super.tearDown()
     }
 
-    func test_itUpdatesConversation_WhenProtocolIsMLS_AndWelcomeMessageWasProcessed() {
+    // MARK: - Process Welcome Message
+
+    func test_itProcessesMessageAndUpdatesConversation() {
+        syncMOC.performGroupedBlockAndWait {
+            // Given
+            let message = "welcome message"
+            self.mlsControllerMock.groupID = self.conversation.mlsGroupID
+
+            // When
+            MLSEventProcessor.shared.process(welcomeMessage: message, for: self.conversation, in: self.syncMOC)
+
+            // Then
+            XCTAssertEqual(message, self.mlsControllerMock.processedWelcomeMessage)
+            XCTAssertFalse(self.conversation.isPendingWelcomeMessage)
+        }
+    }
+
+    // MARK: - Update Conversation
+
+    func test_itUpdates_MessageProtocol() {
+        syncMOC.performGroupedBlockAndWait {
+            // Given
+            self.conversation.messageProtocol = .proteus
+
+            // When
+            MLSEventProcessor.shared.updateConversationIfNeeded(
+                conversation: self.conversation,
+                protocol: "mls",
+                groupID: self.groupIdString,
+                context: self.syncMOC
+            )
+
+            // Then
+            XCTAssertEqual(self.conversation.messageProtocol, .mls)
+        }
+    }
+
+    func test_itUpdates_GroupID() {
+        syncMOC.performGroupedBlockAndWait {
+            // Given
+            self.conversation.mlsGroupID = nil
+
+            // When
+            MLSEventProcessor.shared.updateConversationIfNeeded(
+                conversation: self.conversation,
+                protocol: "mls",
+                groupID: self.groupIdString,
+                context: self.syncMOC
+            )
+
+            // Then
+            XCTAssertEqual(self.conversation.mlsGroupID?.bytes, self.groupIdString.bytes)
+        }
+    }
+
+    func test_itUpdates_IsPendingWelcomeMessage_WhenProtocolIsMLS_AndWelcomeMessageWasProcessed() {
         assert_isPendingWelcomeMessage(
             originalValue: true,
             expectedValue: false,
@@ -110,7 +124,7 @@ class MLSEventProcessorTests: MessagingTestBase {
         )
     }
 
-    func test_itUpdatesConversation_WhenProtocolIsMLS_AndWelcomeMessageWasNotProcessed() {
+    func test_itUpdates_IsPendingWelcomeMessage_WhenProtocolIsMLS_AndWelcomeMessageWasNotProcessed() {
         assert_isPendingWelcomeMessage(
             originalValue: false,
             expectedValue: true,
@@ -119,7 +133,7 @@ class MLSEventProcessorTests: MessagingTestBase {
         )
     }
 
-    func test_itDoesntUpdateConversation_WhenProtocolIsNotMLS() {
+    func test_itDoesntUpdate_IsPendingWelcomeMessage_WhenProtocolIsNotMLS() {
         assert_isPendingWelcomeMessage(
             originalValue: true,
             expectedValue: true,
@@ -127,6 +141,8 @@ class MLSEventProcessorTests: MessagingTestBase {
             protocol: "proteus"
         )
     }
+
+    // MARK: - Helpers
 
     func assert_isPendingWelcomeMessage(
         originalValue: Bool,
@@ -137,12 +153,13 @@ class MLSEventProcessorTests: MessagingTestBase {
         syncMOC.performGroupedBlockAndWait {
             // Given
             self.conversation.isPendingWelcomeMessage = originalValue
-            self.coreCryptoMock.hasWelcomeMessageBeenProcessed = hasWelcomeMessageBeenProcessed
+            self.mlsControllerMock.hasWelcomeMessageBeenProcessed = hasWelcomeMessageBeenProcessed
 
             // When
             MLSEventProcessor.shared.updateConversationIfNeeded(
-                self.conversation,
+                conversation: self.conversation,
                 protocol: `protocol`,
+                groupID: self.groupIdString,
                 context: self.syncMOC
             )
 
