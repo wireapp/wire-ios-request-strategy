@@ -198,6 +198,10 @@ extension Payload.Conversation {
         if let creator = fetchCreator(in: context) {
             conversation.creator = creator
         }
+
+        conversation.mlsGroupID = groupID.flatMap(MLSGroupID.init(base64Encoded:))
+        conversation.messageProtocol = messageProtocol == "mls" ? .mls : .proteus
+        // TODO: [John] store epoch?
     }
 
     func updateMembers(for conversation: ZMConversation, context: NSManagedObjectContext) {
