@@ -17,6 +17,7 @@
 
 import Foundation
 import XCTest
+import WireDataModel
 @testable import WireRequestStrategy
 
 class ConversationRequestStrategyTests: MessagingTestBase {
@@ -343,6 +344,55 @@ class ConversationRequestStrategyTests: MessagingTestBase {
     }
 
     // MARK: - Response processing
+
+    func testThatMLSGroupIsCreated() {
+        self.syncMOC.performGroupedBlockAndWait {
+            // given
+            let mlsController = MockMLSController()
+            self.syncMOC.test_setMockMLSController(mlsController)
+
+            let id = UUID.create()
+            let qualifiedID = QualifiedID(uuid: id, domain: self.owningDomain)
+
+            guard let request = self.sut.request(
+                forInserting: self.groupConversation,
+                forKeys: nil,
+                apiVersion: .v2
+            ) else {
+                XCTFail("Failed to create request")
+                return
+            }
+
+            let payload = Payload.Conversation(
+                qualifiedID: qualifiedID,
+                id: id,
+                type: BackendConversationType.group.rawValue,
+                messageProtocol: "mls"
+            )
+
+            let payloadData = payload.payloadData()!
+            let payloadString = String(bytes: payloadData, encoding: .utf8)!
+
+            let response = ZMTransportResponse(
+                payload: payloadString as ZMTransportData,
+                httpStatus: 201,
+                transportSessionError: nil,
+                apiVersion: 2
+            )
+
+            // when
+            self.sut.updateInsertedObject(
+                self.groupConversation,
+                request: request,
+                response: response
+            )
+
+            // then
+            XCTAssertEqual(mlsController.createGroupCalls, [self.groupConversation])
+        }
+
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+    }
 
     func testThatConversationResetsNeedsToBeUpdatedFromBackend_OnPermanentErrors() {
         // given
@@ -1161,6 +1211,16 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         ]
 
         return ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nil)!
+    }
+
+}
+
+class MockMLSController: MLSControllerProtocol {
+
+    var createGroupCalls = [ZMConversation]()
+
+    func createGroup(for conversation: ZMConversation) throws {
+        createGroupCalls.append(conversation)
     }
 
 }
