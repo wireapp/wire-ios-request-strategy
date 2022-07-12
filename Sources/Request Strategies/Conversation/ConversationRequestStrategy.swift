@@ -397,10 +397,11 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
         return false
     }
 
-    public func updateInsertedObject(_ managedObject: ZMManagedObject,
-                                     request upstreamRequest: ZMUpstreamRequest,
-                                     response: ZMTransportResponse) {
-
+    public func updateInsertedObject(
+        _ managedObject: ZMManagedObject,
+        request upstreamRequest: ZMUpstreamRequest,
+        response: ZMTransportResponse
+    ) {
         guard
             let newConversation = managedObject as? ZMConversation,
             let rawData = response.rawData,
@@ -412,9 +413,12 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
         }
 
         var deletedDuplicate = false
-        if let existingConversation = ZMConversation.fetch(with: conversationID,
-                                                           domain: payload.qualifiedID?.domain,
-                                                           in: managedObjectContext) {
+
+        if let existingConversation = ZMConversation.fetch(
+            with: conversationID,
+            domain: payload.qualifiedID?.domain,
+            in: managedObjectContext
+        ) {
             managedObjectContext.delete(existingConversation)
             deletedDuplicate = true
         }
@@ -422,6 +426,25 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
         newConversation.remoteIdentifier = conversationID
         payload.updateOrCreate(in: managedObjectContext)
         newConversation.needsToBeUpdatedFromBackend = deletedDuplicate
+
+        if newConversation.messageProtocol == .mls {
+            guard let mlsController = managedObjectContext.mlsController else {
+                Logging.network.warn("Can't create mls group because mls controller doesn't exist.")
+                return
+            }
+
+            guard #available(iOS 13, *) else {
+                Logging.network.warn("Can't create mls group on iOS 12.")
+                return
+            }
+
+            do {
+                try mlsController.createGroup(for: newConversation)
+            } catch let error {
+                Logging.network.error("Failed to create mls group: \(String(describing: error))")
+                return
+            }
+        }
     }
 
     public func updateUpdatedObject(_ managedObject: ZMManagedObject,
