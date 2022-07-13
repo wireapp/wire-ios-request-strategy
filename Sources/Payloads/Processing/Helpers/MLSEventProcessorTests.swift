@@ -79,24 +79,6 @@ class MLSEventProcessorTests: MessagingTestBase {
 
     // MARK: - Update Conversation
 
-    func test_itUpdates_MessageProtocol() {
-        syncMOC.performGroupedBlockAndWait {
-            // Given
-            self.conversation.messageProtocol = .proteus
-
-            // When
-            MLSEventProcessor.shared.updateConversationIfNeeded(
-                conversation: self.conversation,
-                protocol: "mls",
-                groupID: self.groupIdString,
-                context: self.syncMOC
-            )
-
-            // Then
-            XCTAssertEqual(self.conversation.messageProtocol, .mls)
-        }
-    }
-
     func test_itUpdates_GroupID() {
         syncMOC.performGroupedBlockAndWait {
             // Given
@@ -105,7 +87,6 @@ class MLSEventProcessorTests: MessagingTestBase {
             // When
             MLSEventProcessor.shared.updateConversationIfNeeded(
                 conversation: self.conversation,
-                protocol: "mls",
                 groupID: self.groupIdString,
                 context: self.syncMOC
             )
@@ -158,7 +139,6 @@ class MLSEventProcessorTests: MessagingTestBase {
             // When
             MLSEventProcessor.shared.updateConversationIfNeeded(
                 conversation: self.conversation,
-                protocol: `protocol`,
                 groupID: self.groupIdString,
                 context: self.syncMOC
             )
