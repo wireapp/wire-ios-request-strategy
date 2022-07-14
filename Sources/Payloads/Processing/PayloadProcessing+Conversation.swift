@@ -537,7 +537,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationMLSWelc
     func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
         guard
             let identifier = id ?? qualifiedID?.uuid,
-            let domain = qualifiedID?.domain ?? APIVersion.domain
+            let domain = qualifiedID?.domain.nilIfEmpty ?? APIVersion.domain
         else {
             Logging.eventProcessing.error("Missing conversation id or domain, aborting...")
             return
