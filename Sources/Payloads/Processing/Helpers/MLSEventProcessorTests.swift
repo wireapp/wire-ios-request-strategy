@@ -30,9 +30,10 @@ class MLSControllerMock: MLSControllerProtocol {
     var processedWelcomeMessage: String?
     var groupID: MLSGroupID?
 
-    func processWelcomeMessage(welcomeMessage: String) -> MLSGroupID? {
+    @discardableResult
+    func processWelcomeMessage(welcomeMessage: String) throws -> MLSGroupID {
         processedWelcomeMessage = welcomeMessage
-        return groupID
+        return groupID ?? MLSGroupID(data: .init())
     }
 }
 
@@ -49,7 +50,7 @@ class MLSEventProcessorTests: MessagingTestBase {
             self.mlsControllerMock = MLSControllerMock()
             self.syncMOC.setMock(mlsController: self.mlsControllerMock)
             self.conversation = ZMConversation.insertNewObject(in: self.syncMOC)
-            self.conversation.mlsGroupID = MLSGroupID(bytes: self.groupIdString.bytes!)
+            self.conversation.mlsGroupID = MLSGroupID(bytes: self.groupIdString.base64EncodedBytes!)
             self.conversation.domain = self.domain
             self.conversation.messageProtocol = .mls
         }
@@ -93,7 +94,7 @@ class MLSEventProcessorTests: MessagingTestBase {
             )
 
             // Then
-            XCTAssertEqual(self.conversation.mlsGroupID?.bytes, self.groupIdString.bytes)
+            XCTAssertEqual(self.conversation.mlsGroupID?.bytes, self.groupIdString.base64EncodedBytes)
         }
     }
 

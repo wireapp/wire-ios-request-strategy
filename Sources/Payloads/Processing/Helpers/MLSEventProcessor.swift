@@ -48,9 +48,9 @@ class MLSEventProcessor: MLSEventProcessing {
     // MARK: - Process welcome message
 
     func process(welcomeMessage: String, for conversation: ZMConversation?, in context: NSManagedObjectContext) {
-        let groupID = context.mlsController?.processWelcomeMessage(welcomeMessage: welcomeMessage)
-
-        guard groupID != nil else {
+        do {
+            try context.mlsController?.processWelcomeMessage(welcomeMessage: welcomeMessage)
+        } catch {
             return Logging.eventProcessing.error("Couldn't process welcome message")
         }
 
@@ -63,7 +63,7 @@ extension MLSGroupID {
         guard
             let groupID = groupIdString,
             !groupID.isEmpty,
-            let bytes = groupID.bytes
+            let bytes = groupID.base64EncodedBytes
         else {
             return nil
         }
