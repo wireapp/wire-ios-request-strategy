@@ -73,7 +73,16 @@ extension MLSGroupID {
 }
 
 extension MLSEventProcessor {
+
+    /// Use this method to set the `MLSEventProcessor` singleton to a custom class instance
+    /// Don't forget to call `MLSEventProcessor.reset()` after your test is done
+    /// - Parameter mock: a custom class instance conforming to the `MLSEventProcessing` protocol
     static func setMock(_ mock: MLSEventProcessing) {
         Self.shared = mock
+    }
+
+    /// Use this method to reset the `MLSEventProcessor` singleton to its original state
+    static func reset() {
+        Self.shared = MLSEventProcessor()
     }
 }

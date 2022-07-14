@@ -51,6 +51,7 @@ class MLSEventProcessorTests: MessagingTestBase {
             self.conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             self.conversation.mlsGroupID = MLSGroupID(bytes: self.groupIdString.bytes!)
             self.conversation.domain = self.domain
+            self.conversation.messageProtocol = .mls
         }
     }
 
@@ -101,7 +102,7 @@ class MLSEventProcessorTests: MessagingTestBase {
             originalValue: true,
             expectedValue: false,
             hasWelcomeMessageBeenProcessed: true,
-            protocol: "mls"
+            messageProtocol: .mls
         )
     }
 
@@ -110,7 +111,7 @@ class MLSEventProcessorTests: MessagingTestBase {
             originalValue: false,
             expectedValue: true,
             hasWelcomeMessageBeenProcessed: false,
-            protocol: "mls"
+            messageProtocol: .mls
         )
     }
 
@@ -119,7 +120,7 @@ class MLSEventProcessorTests: MessagingTestBase {
             originalValue: true,
             expectedValue: true,
             hasWelcomeMessageBeenProcessed: true,
-            protocol: "proteus"
+            messageProtocol: .proteus
         )
     }
 
@@ -129,11 +130,12 @@ class MLSEventProcessorTests: MessagingTestBase {
         originalValue: Bool,
         expectedValue: Bool,
         hasWelcomeMessageBeenProcessed: Bool,
-        protocol: String
+        messageProtocol: MessageProtocol
     ) {
         syncMOC.performGroupedBlockAndWait {
             // Given
             self.conversation.isPendingWelcomeMessage = originalValue
+            self.conversation.messageProtocol = messageProtocol
             self.mlsControllerMock.hasWelcomeMessageBeenProcessed = hasWelcomeMessageBeenProcessed
 
             // When
