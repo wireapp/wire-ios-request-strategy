@@ -267,6 +267,10 @@ extension ConversationRequestStrategy: ZMEventConsumer {
                 let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationConnectionRequest>(payloadData)
                 conversationEvent?.process(in: managedObjectContext, originalEvent: event)
 
+            case .conversationMLSWelcome:
+                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationMLSWelcome>(payloadData)
+                conversationEvent?.process(in: managedObjectContext, originalEvent: event)
+
             default:
                 break
             }
@@ -438,11 +442,13 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 return
             }
 
-            do {
-                try mlsController.createGroup(for: newConversation)
-            } catch let error {
-                Logging.network.error("Failed to create mls group: \(String(describing: error))")
-                return
+            Task {
+                do {
+                    try await mlsController.createGroup(for: newConversation)
+                } catch let error {
+                    Logging.network.error("Failed to create mls group: \(String(describing: error))")
+                    return
+                }
             }
         }
     }

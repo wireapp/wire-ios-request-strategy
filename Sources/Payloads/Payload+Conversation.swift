@@ -103,9 +103,10 @@ extension Payload {
             case teamID = "team"
             case messageTimer = "message_timer"
             case readReceiptMode = "receipt_mode"
-            case groupID = "group_id"
-            case epoch
             case messageProtocol = "protocol"
+            case mlsGroupID = "group_id"
+            case epoch
+
         }
 
         static var eventType: ZMUpdateEventType {
@@ -126,30 +127,27 @@ extension Payload {
         let teamID: UUID?
         let messageTimer: TimeInterval?
         let readReceiptMode: Int?
-
-        // API V2 only
-        let groupID: String?
-        let epoch: UInt?
         let messageProtocol: String?
+        let mlsGroupID: String?
+        let epoch: UInt?
 
-        init(
-            qualifiedID: QualifiedID? = nil,
-            id: UUID?  = nil,
-            type: Int? = nil,
-            creator: UUID? = nil,
-            access: [String]? = nil,
-            accessRole: String? = nil,
-            accessRoleV2: [String]? = nil,
-            name: String? = nil,
-            members: ConversationMembers? = nil,
-            lastEvent: String? = nil,
-            lastEventTime: String? = nil,
-            teamID: UUID? = nil,
-            messageTimer: TimeInterval? = nil,
-            readReceiptMode: Int? = nil,
-            groupID: String? = nil,
-            epoch: UInt? = nil,
-            messageProtocol: String? = nil
+        init(qualifiedID: QualifiedID? = nil,
+             id: UUID?  = nil,
+             type: Int? = nil,
+             creator: UUID? = nil,
+             access: [String]? = nil,
+             accessRole: String? = nil,
+             accessRoleV2: [String]? = nil,
+             name: String? = nil,
+             members: ConversationMembers? = nil,
+             lastEvent: String? = nil,
+             lastEventTime: String? = nil,
+             teamID: UUID? = nil,
+             messageTimer: TimeInterval? = nil,
+             readReceiptMode: Int? = nil,
+             messageProtocol: String? = nil,
+             mlsGroupID: String? = nil,
+             epoch: UInt? = nil
         ) {
             self.qualifiedID = qualifiedID
             self.id = id
@@ -165,9 +163,9 @@ extension Payload {
             self.teamID = teamID
             self.messageTimer = messageTimer
             self.readReceiptMode = readReceiptMode
-            self.groupID = groupID
-            self.epoch = epoch
             self.messageProtocol = messageProtocol
+            self.mlsGroupID = mlsGroupID
+            self.epoch = epoch
         }
     }
 
@@ -426,6 +424,8 @@ extension Payload {
         enum CodingKeys: String, CodingKey {
             case userIDs = "user_ids"
             case users
+            case messageProtocol = "protocol"
+            case mlsGroupID = "group_id"
         }
 
         static var eventType: ZMUpdateEventType {
@@ -434,6 +434,8 @@ extension Payload {
 
         let userIDs: [UUID]?
         let users: [ConversationMember]?
+        let messageProtocol: String?
+        let mlsGroupID: String?
     }
 
     struct UpdateConversationConnectionRequest: EventData {
@@ -508,6 +510,14 @@ extension Payload {
 
         init(name: String) {
             self.name = name
+        }
+    }
+
+    struct UpdateConversationMLSWelcome: EventData {
+        let message: String
+
+        static var eventType: ZMUpdateEventType {
+            return .conversationMLSWelcome
         }
     }
 
