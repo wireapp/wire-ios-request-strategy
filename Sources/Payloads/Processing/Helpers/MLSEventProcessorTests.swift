@@ -42,7 +42,7 @@ class MLSControllerMock: MLSControllerProtocol {
 
     var createGroupCalls = [ZMConversation]()
 
-    @available(iOS 13, *)
+    @available(iOS 15, *)
     func createGroup(for conversation: ZMConversation) async throws {
         createGroupCalls.append(conversation)
     }

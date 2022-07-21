@@ -437,8 +437,8 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 return
             }
 
-            guard #available(iOS 13, *) else {
-                Logging.network.warn("Can't create mls group on iOS 12.")
+            guard #available(iOS 15, *) else {
+                Logging.network.warn("iOS 15 required for creating an mls group.")
                 return
             }
 
