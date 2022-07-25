@@ -168,7 +168,6 @@ extension Payload.Conversation {
         conversation.conversationType = .group
         conversation.remoteIdentifier = conversationID
         conversation.domain = APIVersion.isFederationEnabled ? qualifiedID?.domain : nil
-        conversation.mlsGroupID = mlsGroupID.flatMap(MLSGroupID.init(base64Encoded:))
         conversation.needsToBeUpdatedFromBackend = false
 
         updateMetadata(for: conversation, context: context)
