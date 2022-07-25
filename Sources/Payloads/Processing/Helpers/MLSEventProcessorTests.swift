@@ -22,7 +22,7 @@ import XCTest
 class MLSControllerMock: MLSControllerProtocol {
 
     @available(iOS 15.0.0, *)
-    func addMembersToConversation(with users: [MLSUser], for groupID: MLSGroupID) async throws { }
+    func addMembersToConversation(with users: [MLSUser], for groupID: MLSGroupID) async throws {}
 
     var hasWelcomeMessageBeenProcessed = false
 
