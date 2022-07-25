@@ -546,19 +546,18 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationConnect
 
 }
 
-extension Payload.ConversationEvent where T == Payload.UpdateConversationMLSWelcome {
+extension Payload.UpdateConversationMLSWelcome {
 
     func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
         guard
-            let identifier = id ?? qualifiedID?.uuid,
-            let domain = qualifiedID?.domain.nilIfEmpty ?? APIVersion.domain
+            let domain = qualifiedID.domain.nilIfEmpty ?? APIVersion.domain
         else {
-            Logging.eventProcessing.error("Missing conversation id or domain, aborting...")
+            Logging.eventProcessing.error("Missing conversation domain, aborting...")
             return
         }
 
-        let conversation = ZMConversation.fetch(with: identifier, domain: domain, in: context)
-        MLSEventProcessor.shared.process(welcomeMessage: data.message, for: conversation, in: context)
+        let conversation = ZMConversation.fetch(with: id, domain: domain, in: context)
+        MLSEventProcessor.shared.process(welcomeMessage: data, for: conversation, in: context)
     }
 
 }

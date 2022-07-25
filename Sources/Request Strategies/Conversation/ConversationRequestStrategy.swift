@@ -269,7 +269,7 @@ extension ConversationRequestStrategy: ZMEventConsumer {
                 conversationEvent?.process(in: managedObjectContext, originalEvent: event)
 
             case .conversationMLSWelcome:
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationMLSWelcome>(payloadData)
+                let conversationEvent = Payload.UpdateConversationMLSWelcome(payloadData)
                 conversationEvent?.process(in: managedObjectContext, originalEvent: event)
 
             default:
