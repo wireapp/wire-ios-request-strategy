@@ -21,9 +21,6 @@ import XCTest
 
 class MLSControllerMock: MLSControllerProtocol {
 
-    @available(iOS 15.0.0, *)
-    func addMembersToConversation(with users: [MLSUser], for groupID: MLSGroupID) async throws {}
-
     var hasWelcomeMessageBeenProcessed = false
 
     func conversationExists(groupID: MLSGroupID) -> Bool {
@@ -49,6 +46,9 @@ class MLSControllerMock: MLSControllerProtocol {
     func createGroup(for conversation: ZMConversation) async throws {
         createGroupCalls.append(conversation)
     }
+
+    @available(iOS 15.0.0, *)
+    func addMembersToConversation(with users: [MLSUser], for groupID: MLSGroupID) async throws {}
 }
 
 class MLSEventProcessorTests: MessagingTestBase {

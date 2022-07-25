@@ -165,6 +165,49 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
         }
     }
 
+    func testThatItProcessMemberJoinEventInTheResponse_WhenMessageProtocolIsMLS() throws {
+        syncMOC.performGroupedAndWait { [self] syncMOC in
+            // given
+            let mlsControllerMock = MLSControllerMock()
+            self.syncMOC.test_setMockMLSController(mlsControllerMock)
+            let mlsGroupID = "identifier".data(using: .utf8)!.base64EncodedString()
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            let action = AddParticipantAction(users: [user], conversation: conversation)
+
+            let member = Payload.ConversationMember(
+                id: user.remoteIdentifier,
+                qualifiedID: user.qualifiedID,
+                conversationRole: ZMConversation.defaultMemberRoleName
+            )
+
+            let memberJoined = Payload.UpdateConverationMemberJoin(
+                userIDs: [user.remoteIdentifier],
+                users: [member],
+                messageProtocol: "mls",
+                mlsGroupID: mlsGroupID
+            )
+            let conversationEvent = conversationEventPayload(
+                from: memberJoined,
+                conversationID: conversation.qualifiedID,
+                senderID: selfUser.qualifiedID
+            )
+
+            let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!
+            let response = ZMTransportResponse(
+                payload: payloadAsString as ZMTransportData,
+                httpStatus: 200,
+                transportSessionError: nil,
+                apiVersion: APIVersion.v0.rawValue
+            )
+
+            // when
+            self.sut.handleResponse(response, action: action)
+
+            // then
+            XCTAssertTrue(conversation.localParticipants.contains(user))
+        }
+    }
+
     func testThatItRefetchTeamUsers_On403() {
         syncMOC.performGroupedAndWait { [self] syncMOC in
             // given
