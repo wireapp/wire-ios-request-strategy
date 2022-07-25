@@ -134,7 +134,41 @@ class AddParticipantActionHandler: ActionHandler<AddParticipantAction> {
 
             conversationEvent.process(in: context, originalEvent: updateEvent)
 
-            action.notifyResult(.success(Void()))
+            guard conversationEvent.data.messageProtocol == "mls" else {
+                action.notifyResult(.success(()))
+                return
+            }
+
+            guard let users = conversationEvent.data.users else {
+                action.notifyResult(.failure(.unknown))
+                return
+            }
+
+            let mlsUser: [MLSUser] = users.compactMap { user in
+                guard let id = user.id else { return nil }
+                guard let domain = (user.qualifiedID?.domain.nilIfEmpty ?? APIVersion.domain) else { return nil }
+
+                return MLSUser(id: id, domain: domain)
+            }
+
+            guard
+                #available(iOS 15, *),
+                let mlsController = context.mlsController,
+                let groupID = conversationEvent.data.mlsGroupID,
+                let mlsGroupID = MLSGroupID(base64Encoded: groupID)
+            else {
+                Logging.network.warn("iOS 15 required for adding members to mls group.")
+                return
+            }
+
+            Task {
+                do {
+                    try await mlsController.addMembersToConversation(with: mlsUser, for: mlsGroupID)
+
+                } catch {
+                    Logging.network.error("Failed to add members to mls group: \(String(describing: error))")
+                }
+            }
 
         case 204:
             action.notifyResult(.success(Void()))
