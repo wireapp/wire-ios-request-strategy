@@ -361,6 +361,8 @@ extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberJo
             return
         }
 
+        updateMessageProtocol(for: conversation)
+
         if let usersAndRoles = data.users?.map({ $0.fetchUserAndRole(in: context, conversation: conversation)! }) {
             let selfUser = ZMUser.selfUser(in: context)
             let users = Set(usersAndRoles.map { $0.0 })
@@ -389,6 +391,18 @@ extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberJo
             conversation.addParticipantsAndUpdateConversationState(users: users, role: nil)
         }
 
+    }
+
+    private func updateMessageProtocol(for conversation: ZMConversation) {
+        guard
+            let messageProtocolString = data.messageProtocol,
+            let messageProtocol = MessageProtocol(string: messageProtocolString)
+        else {
+            Logging.eventProcessing.error("message protocol is missing or invalid")
+            return
+        }
+
+        conversation.messageProtocol = messageProtocol
     }
 
     private func updateMLSStatus(for conversation: ZMConversation, context: NSManagedObjectContext) {
