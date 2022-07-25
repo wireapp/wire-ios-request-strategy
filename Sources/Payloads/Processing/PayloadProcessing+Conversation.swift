@@ -550,7 +550,7 @@ extension Payload.UpdateConversationMLSWelcome {
 
     func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
         guard
-            let domain = qualifiedID.domain.nilIfEmpty ?? APIVersion.domain
+            let domain = qualifiedID?.domain.nilIfEmpty ?? APIVersion.domain
         else {
             Logging.eventProcessing.error("Missing conversation domain, aborting...")
             return

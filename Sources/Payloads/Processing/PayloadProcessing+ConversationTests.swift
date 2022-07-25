@@ -691,9 +691,16 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             MLSEventProcessor.setMock(mockEventProcessor)
 
             let message = "welcome message"
-            let payload = Payload.UpdateConversationMLSWelcome(message: message)
-            let event = self.conversationEvent(with: payload)
-            let updateEvent = self.updateEvent(from: payload)
+            let event = Payload.UpdateConversationMLSWelcome(
+                id: self.groupConversation.remoteIdentifier!,
+                qualifiedID: self.groupConversation.qualifiedID,
+                from: self.otherUser.remoteIdentifier,
+                qualifiedFrom: self.otherUser.qualifiedID,
+                timestamp: Date(),
+                type: "conversation.mls-welcome",
+                data: message
+            )
+            let updateEvent = self.updateEvent(from: event.payloadData()!)
 
             // when
             event.process(in: self.syncMOC, originalEvent: updateEvent)
