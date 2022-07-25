@@ -73,7 +73,8 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
         .conversationAccessModeUpdate,
         .conversationMessageTimerUpdate,
         .conversationReceiptModeUpdate,
-        .conversationConnectRequest
+        .conversationConnectRequest,
+        .conversationMLSWelcome
     ]
 
     public init(withManagedObjectContext managedObjectContext: NSManagedObjectContext,
