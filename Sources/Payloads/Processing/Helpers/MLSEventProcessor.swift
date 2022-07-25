@@ -30,7 +30,9 @@ class MLSEventProcessor: MLSEventProcessing {
     // MARK: - Update conversation
 
     func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext) {
-        guard conversation.messageProtocol == .mls else { return }
+        guard conversation.messageProtocol == .mls else {
+            return Logging.eventProcessing.info("Message protocol is not mls")
+        }
 
         guard let mlsGroupID = MLSGroupID(from: groupID) else {
             return Logging.eventProcessing.error("MLS group ID is missing or invalid")
