@@ -354,7 +354,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let id = UUID.create()
             let qualifiedID = QualifiedID(uuid: id, domain: self.owningDomain)
 
-            let expectedUsers = self.groupConversation.localParticipants.map(MLSGroupID.init(from:))
+            let expectedUsers = self.groupConversation.localParticipants.map(MLSUser.init(from:))
 
             guard let request = self.sut.request(
                 forInserting: self.groupConversation,
