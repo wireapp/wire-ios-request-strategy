@@ -354,6 +354,8 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             let id = UUID.create()
             let qualifiedID = QualifiedID(uuid: id, domain: self.owningDomain)
 
+            let expectedUsers = self.groupConversation.localParticipants.map(MLSGroupID.init(from:))
+
             guard let request = self.sut.request(
                 forInserting: self.groupConversation,
                 forKeys: nil,
@@ -388,7 +390,11 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             )
 
             // then
-            XCTAssertEqual(mlsController.createGroupCalls, [self.groupConversation])
+            XCTAssertEqual(mlsController.createGroupCalls.count, 1)
+
+            let createGroupCall = mlsController.createGroupCalls.element(atIndex: 0)
+            XCTAssertEqual(createGroupCall.0, self.groupConversation)
+            XCTAssertEqual(createGroupCall.1, expectedUsers)
         }
 
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
