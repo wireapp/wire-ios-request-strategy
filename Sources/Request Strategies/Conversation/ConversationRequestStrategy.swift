@@ -439,31 +439,33 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
 
         newConversation.needsToBeUpdatedFromBackend = deletedDuplicate
 
-        if newConversation.messageProtocol == .mls {
-            guard let mlsController = managedObjectContext.mlsController else {
-                Logging.network.warn("Can't create mls group because mls controller doesn't exist.")
+        guard newConversation.messageProtocol == .mls else { return }
+
+        guard let mlsController = managedObjectContext.mlsController else {
+            Logging.network.warn("Can't create mls group because mls controller doesn't exist.")
+            return
+        }
+
+        guard let groupID = newConversation.mlsGroupID else {
+            Logging.network.warn("Can't create mls group because it doesn't have a group id.")
+            return
+        }
+
+        do {
+            try mlsController.createGroup(for: groupID)
+        } catch let error {
+            Logging.network.error("Failed to create mls group: \(String(describing: error))")
+            return
+        }
+
+        newConversation.addParticipants(Array(pendingParticipants)) { result in
+            switch result {
+            case .success:
+                break
+
+            case .failure(let error):
+                Logging.network.error("Failed to add participants to new conversation: \(String(describing: error))")
                 return
-            }
-
-            guard #available(iOS 15, *) else {
-                Logging.network.warn("iOS 15 required for creating an mls group.")
-                return
-            }
-
-            guard let groupID = newConversation.mlsGroupID else {
-                Logging.network.warn("Can't create mls group because it doesn't have a group id.")
-                return
-            }
-
-            let users = pendingParticipants.map(MLSUser.init(from:))
-
-            Task {
-                do {
-                    try await mlsController.createGroup(for: groupID, with: users)
-                } catch let error {
-                    Logging.network.error("Failed to create mls group: \(String(describing: error))")
-                    return
-                }
             }
         }
     }
