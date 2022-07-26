@@ -116,8 +116,10 @@ extension EncryptionSessionsDirectory {
 
     /// Decrypted data from event
     private func decryptedData(_ event: ZMUpdateEvent, client: UserClient) throws -> (createdNewSession: Bool, decryptedData: Data)? {
-        guard let encryptedData = try event.encryptedMessageData(),
-            let sessionIdentifier = client.sessionIdentifier else { return nil }
+        guard
+            let encryptedData = try event.encryptedMessageData(),
+            let sessionIdentifier = client.sessionIdentifier
+        else { return nil }
 
         /// Check if it's the "bomb" message (gave encrypting on the sender)
         guard encryptedData != ZMFailedToCreateEncryptedMessagePayloadString.data(using: .utf8) else {
@@ -198,21 +200,42 @@ extension ZMUpdateEvent {
 
     /// Returns a decrypted version of self, injecting the decrypted data
     /// in its payload and wrapping the payload in a new updateEvent
-    fileprivate func decryptedEvent(decryptedData: Data) -> ZMUpdateEvent? {
-        guard var payload = self.payload as? [String: Any],
-            var eventData = payload["data"] as? [String: Any] else {
-                return nil
+    private func decryptedEvent(decryptedData: Data) -> ZMUpdateEvent? {
+        guard
+            var payload = self.payload as? [String: Any],
+            var eventData = payload["data"] as? [String: Any]
+        else {
+            return nil
         }
+
         if self.type == .conversationOtrMessageAdd, let wrappedData = eventData["data"] as? String {
             payload["external"] = wrappedData
         }
 
         eventData[self.plaintextPayloadKey] = decryptedData.base64String()
         payload["data"] = eventData
-        let decryptedEvent = ZMUpdateEvent.decryptedUpdateEvent(fromEventStreamPayload: payload as NSDictionary, uuid: self.uuid, transient: false, source: self.source)
+
+        return decryptedEvent(payload: payload)
+    }
+
+    // TODO: Move this somewhere else
+    func decryptedMLSEvent(decryptedData: Data) -> ZMUpdateEvent? {
+        guard var payload = self.payload as? [String: Any] else {
+            return nil
+        }
+
+        payload["data"] = ["text": decryptedData.base64EncodedString()]
+
+        return decryptedEvent(payload: payload)
+    }
+
+    func decryptedEvent(payload: [String: Any]) -> ZMUpdateEvent? {
+        let decryptedEvent = ZMUpdateEvent.decryptedUpdateEvent(fromEventStreamPayload: payload as NSDictionary, uuid: uuid, transient: false, source: source)
+
         if !self.debugInformation.isEmpty {
             decryptedEvent?.appendDebugInformation(debugInformation)
         }
+
         return decryptedEvent
     }
 
