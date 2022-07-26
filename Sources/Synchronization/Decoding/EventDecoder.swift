@@ -117,9 +117,12 @@ extension EventDecoder {
             guard let `self` = self else { return }
 
             decryptedEvents = events.compactMap { event -> ZMUpdateEvent? in
-                if event.type == .conversationOtrMessageAdd || event.type == .conversationOtrAssetAdd {
+                switch event.type {
+                case .conversationOtrMessageAdd, .conversationOtrAssetAdd:
                     return sessionsDirectory.decryptAndAddClient(event, in: self.syncMOC)
-                } else {
+                case .conversationMLSMessageAdd:
+                    return self.decryptMlsMessage(from: event, context: self.syncMOC)
+                default:
                     return event
                 }
             }
@@ -138,6 +141,32 @@ extension EventDecoder {
         }
 
         return decryptedEvents
+    }
+
+    func decryptMlsMessage(from updateEvent: ZMUpdateEvent, context: NSManagedObjectContext) -> ZMUpdateEvent? {
+        guard let mlsController = context.mlsController else {
+            Logging.eventProcessing.info("MLS controller is missing from context")
+            return nil
+        }
+
+        guard let payload = updateEvent.eventPayload(type: Payload.UpdateConversationMLSMessageAdd.self) else {
+            Logging.eventProcessing.error("invalid update event payload")
+            return nil
+        }
+
+        guard let conversation = ZMConversation.fetch(with: payload.id, domain: payload.qualifiedID?.domain, in: context) else {
+            Logging.eventProcessing.error("MLS conversation does not exist")
+            return nil
+        }
+
+        do {
+            let decryptedData = try mlsController.decrypt(message: payload.data, for: conversation)
+            let decryptedEvent = updateEvent.decryptedMLSEvent(decryptedData: decryptedData)
+            return decryptedEvent
+        } catch {
+            Logging.eventProcessing.error("failed to decrypt message: \(String(describing: error))")
+            return nil
+        }
     }
 
     // Processes the stored events in the database in batches of size EventDecoder.BatchSize` and calls the `consumeBlock` for each batch.
