@@ -663,22 +663,24 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             let mockEventProcessor = MockMLSEventProcessor()
             MLSEventProcessor.setMock(mockEventProcessor)
 
-            let selfUser = ZMUser.selfUser(in: self.syncMOC)
-            let selfMember = Payload.ConversationMember(qualifiedID: selfUser.qualifiedID)
-            let payload = Payload.UpdateConverationMemberJoin(
-                userIDs: [],
-                users: [selfMember],
-                messageProtocol: "mls",
-                mlsGroupID: "id"
-            )
-            let event = self.conversationEvent(with: payload)
-            let updateEvent = self.updateEvent(from: payload)
-
             // when
-            event.process(in: self.syncMOC, originalEvent: updateEvent)
+            self.processMemberJoinEvent()
 
             // then
             XCTAssertTrue(mockEventProcessor.didCallUpdateConversationIfNeeded)
+        }
+    }
+
+    func testUpdateConversationMemberJoin_UpdatesMessageProtocol() {
+        syncMOC.performAndWait {
+            // given
+            self.groupConversation.messageProtocol = .proteus
+
+            // when
+            self.processMemberJoinEvent()
+
+            // then
+            XCTAssertEqual(self.groupConversation.messageProtocol, .mls)
         }
     }
 
@@ -730,6 +732,25 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             timestamp: nil,
             type: nil,
             data: payload
+        )
+    }
+
+    private func processMemberJoinEvent() {
+        let payload = memberJoinPayload()
+        let event = conversationEvent(with: payload)
+        let updateEvent = updateEvent(from: payload)
+
+        event.process(in: syncMOC, originalEvent: updateEvent)
+    }
+
+    private func memberJoinPayload() -> Payload.UpdateConverationMemberJoin {
+        let selfUser = ZMUser.selfUser(in: syncMOC)
+        let selfMember = Payload.ConversationMember(qualifiedID: selfUser.qualifiedID)
+        return Payload.UpdateConverationMemberJoin(
+            userIDs: [],
+            users: [selfMember],
+            messageProtocol: "mls",
+            mlsGroupID: "id"
         )
     }
 }
