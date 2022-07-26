@@ -428,7 +428,15 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
         }
 
         newConversation.remoteIdentifier = conversationID
+
+        // If this is an mls conversation, then the initial participants won't have
+        // been added yet on the backend. This means that when we process response payload
+        // we'll actually overwrite the local participants with just the self user. We
+        // store the pending participants now so we can pass them to the mls controllr
+        // when we actually create the mls group.
+        let pendingParticipants = newConversation.localParticipants
         payload.updateOrCreate(in: managedObjectContext)
+
         newConversation.needsToBeUpdatedFromBackend = deletedDuplicate
 
         if newConversation.messageProtocol == .mls {
@@ -442,9 +450,16 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 return
             }
 
+            guard let groupID = newConversation.mlsGroupID else {
+                Logging.network.warn("Can't create mls group because it doesn't have a group id.")
+                return
+            }
+
+            let users = pendingParticipants.map(MLSUser.init(from:))
+
             Task {
                 do {
-                    try await mlsController.createGroup(for: newConversation)
+                    try await mlsController.createGroup(for: groupID, with: users)
                 } catch let error {
                     Logging.network.error("Failed to create mls group: \(String(describing: error))")
                     return
