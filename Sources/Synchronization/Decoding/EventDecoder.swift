@@ -150,21 +150,31 @@ extension EventDecoder {
         }
 
         guard let payload = updateEvent.eventPayload(type: Payload.UpdateConversationMLSMessageAdd.self) else {
-            Logging.eventProcessing.error("invalid update event payload")
+            Logging.eventProcessing.warn("invalid update event payload")
             return nil
         }
 
+        // NOTE: May need to change this so that we get the group ID from the payload in case there's a handshake message
+        // that needs to be processed before the conversation has been created
         guard let conversation = ZMConversation.fetch(with: payload.id, domain: payload.qualifiedID?.domain, in: context) else {
-            Logging.eventProcessing.error("MLS conversation does not exist")
+            Logging.eventProcessing.warn("MLS conversation does not exist")
+            return nil
+        }
+
+        guard let groupID = conversation.mlsGroupID else {
+            Logging.eventProcessing.warn("Missing MLS group ID")
             return nil
         }
 
         do {
-            let decryptedData = try mlsController.decrypt(message: payload.data, for: conversation)
-            let decryptedEvent = updateEvent.decryptedMLSEvent(decryptedData: decryptedData)
-            return decryptedEvent
+            guard
+                let decryptedData = try mlsController.decrypt(message: payload.data, for: groupID)
+            else {
+                return nil
+            }
+            return updateEvent.decryptedMLSEvent(decryptedData: decryptedData)
         } catch {
-            Logging.eventProcessing.error("failed to decrypt message: \(String(describing: error))")
+            Logging.eventProcessing.warn("failed to decrypt message: \(String(describing: error))")
             return nil
         }
     }
