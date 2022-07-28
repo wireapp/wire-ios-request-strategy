@@ -19,38 +19,9 @@ import Foundation
 import XCTest
 @testable import WireRequestStrategy
 
-class MLSControllerMock: MLSControllerProtocol {
-
-    var hasWelcomeMessageBeenProcessed = false
-
-    func conversationExists(groupID: MLSGroupID) -> Bool {
-        return hasWelcomeMessageBeenProcessed
-    }
-
-    var processedWelcomeMessage: String?
-    var groupID: MLSGroupID?
-
-    @discardableResult
-    func processWelcomeMessage(welcomeMessage: String) throws -> MLSGroupID {
-        processedWelcomeMessage = welcomeMessage
-        return groupID ?? MLSGroupID(Data())
-    }
-
-    func uploadKeyPackagesIfNeeded() {
-
-    }
-
-    var createGroupCalls = [(MLSGroupID, [MLSUser])]()
-
-    @available(iOS 15, *)
-    func createGroup(for groupID: MLSGroupID, with users: [MLSUser]) async throws {
-        createGroupCalls.append((groupID, users))
-    }
-}
-
 class MLSEventProcessorTests: MessagingTestBase {
 
-    var mlsControllerMock: MLSControllerMock!
+    var mlsControllerMock: MockMLSController!
     var conversation: ZMConversation!
     var domain = "example.com"
     let groupIdString = "identifier".data(using: .utf8)!.base64EncodedString()
@@ -58,7 +29,7 @@ class MLSEventProcessorTests: MessagingTestBase {
     override func setUp() {
         super.setUp()
         syncMOC.performGroupedBlockAndWait {
-            self.mlsControllerMock = MLSControllerMock()
+            self.mlsControllerMock = MockMLSController()
             self.syncMOC.test_setMockMLSController(self.mlsControllerMock)
             self.conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             self.conversation.mlsGroupID = MLSGroupID(self.groupIdString.base64EncodedBytes!)
