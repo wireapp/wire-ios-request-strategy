@@ -125,26 +125,15 @@ extension ClientMessageRequestStrategy: ZMEventConsumer {
     public func messageNoncesToPrefetch(toProcessEvents events: [ZMUpdateEvent]) -> Set<UUID> {
         return Set(events.compactMap {
             switch $0.type {
-            case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
+            case .conversationClientMessageAdd,
+                 .conversationOtrMessageAdd,
+                 .conversationOtrAssetAdd,
+                 .conversationMLSMessageAdd:
                 return $0.messageNonce
             default:
                 return nil
             }
         })
-    }
-
-    private func nonces(for updateEvents: [ZMUpdateEvent]) -> [UpdateEventWithNonce] {
-        return updateEvents.compactMap {
-            switch $0.type {
-            case .conversationClientMessageAdd, .conversationOtrMessageAdd, .conversationOtrAssetAdd:
-                if let nonce = $0.messageNonce {
-                    return UpdateEventWithNonce(event: $0, nonce: nonce)
-                }
-                return nil
-            default:
-                return nil
-            }
-        }
     }
 
     func insertMessage(from event: ZMUpdateEvent, prefetchResult: ZMFetchRequestBatchResult?) {
