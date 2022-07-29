@@ -357,7 +357,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberJo
         guard
             let conversation = fetchOrCreateConversation(in: context)
         else {
-            Logging.eventProcessing.error("Member join update missing conversation, aborting...")
+            Logging.eventProcessing.warn("Member join update missing conversation, aborting...")
             return
         }
 
@@ -398,7 +398,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberJo
             let messageProtocolString = data.messageProtocol,
             let messageProtocol = MessageProtocol(string: messageProtocolString)
         else {
-            Logging.eventProcessing.error("message protocol is missing or invalid")
+            Logging.eventProcessing.warn("message protocol is missing or invalid")
             return
         }
 
