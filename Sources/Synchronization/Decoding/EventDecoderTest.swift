@@ -387,11 +387,11 @@ extension EventDecoderTest {
     func test_DecryptMLSMessage_ReturnsDecryptedEvent() {
         syncMOC.performAndWait {
             // Given
-            mockMLSController.mockDecryptedData = Data(randomBytes)
+            mockMLSController.mockDecryptedData = randomData
 
             let event = mlsMessageAddEvent(
-                data: Data(randomBytes).base64EncodedString(),
-                groupID: MLSGroupID(randomBytes)
+                data: randomData.base64EncodedString(),
+                groupID: randomGroupID
             )
 
             // When
@@ -423,7 +423,7 @@ extension EventDecoderTest {
         syncMOC.performAndWait {
             // Given
             let event = mlsMessageAddEvent(
-                data: Data(randomBytes).base64EncodedString(),
+                data: randomData.base64EncodedString(),
                 groupID: nil
             )
 
@@ -441,8 +441,8 @@ extension EventDecoderTest {
             mockMLSController.mockDecryptedData = nil
 
             let event = mlsMessageAddEvent(
-                data: Data(randomBytes).base64EncodedString(),
-                groupID: MLSGroupID(randomBytes)
+                data: randomData.base64EncodedString(),
+                groupID: randomGroupID
             )
 
             // When
@@ -459,8 +459,8 @@ extension EventDecoderTest {
             mockMLSController.mockDecryptionError = .failedToDecryptMessage
 
             let event = mlsMessageAddEvent(
-                data: Data(randomBytes).base64EncodedString(),
-                groupID: MLSGroupID(randomBytes)
+                data: randomData.base64EncodedString(),
+                groupID: randomGroupID
             )
 
             // When
@@ -471,14 +471,12 @@ extension EventDecoderTest {
         }
     }
 
-    var randomBytes: Bytes {
-        var bytes = [UInt8]()
+    var randomData: Data {
+        Data(Bytes.random())
+    }
 
-        for _ in 1...3 {
-            bytes.append(UInt8.random(in: 1...10))
-        }
-
-        return bytes
+    var randomGroupID: MLSGroupID {
+        MLSGroupID(Bytes.random())
     }
 }
 
