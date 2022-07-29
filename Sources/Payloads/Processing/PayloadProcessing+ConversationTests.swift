@@ -22,11 +22,9 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
 
     override func setUp() {
         super.setUp()
-        MLSEventProcessor.setMock(MockMLSEventProcessor())
     }
 
     override func tearDown() {
-        MLSEventProcessor.reset()
         APIVersion.isFederationEnabled = false
         super.tearDown()
     }
@@ -397,27 +395,6 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         }
     }
 
-    func testUpdateOrCreateConversation_Group_Updates_MLSGroupID() {
-        syncMOC.performGroupedBlockAndWait {
-            // given
-            let mlsGroupID = MLSGroupID(Data([1, 2, 3]))
-            self.groupConversation.mlsGroupID = nil
-            let qualifiedID = self.groupConversation.qualifiedID!
-            let conversationPayload = Payload.Conversation.stub(
-                qualifiedID: qualifiedID,
-                type: .group,
-                messageProtocol: "mls",
-                mlsGroupID: mlsGroupID.base64EncodedString
-            )
-
-            // when
-            conversationPayload.updateOrCreate(in: self.syncMOC)
-
-            // then
-            XCTAssertEqual(self.groupConversation.mlsGroupID, mlsGroupID)
-        }
-    }
-
     // MARK: 1:1 / Connection Conversations
 
     func testUpdateOrCreateConversation_OneToOne_CreatesConversation() throws {
@@ -659,17 +636,17 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
     // MARK: - MLS: Conversation Create
 
     func testUpdateOrCreateConversation_Group_MLS_AsksToUpdateConversationIfNeeded() {
-        syncMOC.performGroupedBlockAndWait {
+        syncMOC.performAndWait {
             // given
             let mockEventProcessor = MockMLSEventProcessor()
             MLSEventProcessor.setMock(mockEventProcessor)
 
-            let qualifiedID = self.groupConversation.qualifiedID!
+            let qualifiedID = groupConversation.qualifiedID!
             let conversation = Payload.Conversation(qualifiedID: qualifiedID,
                                                     type: BackendConversationType.group.rawValue,
                                                     messageProtocol: "mls")
             // when
-            conversation.updateOrCreate(in: self.syncMOC)
+            conversation.updateOrCreate(in: syncMOC)
 
             // then
             XCTAssertTrue(mockEventProcessor.didCallUpdateConversationIfNeeded)
@@ -679,13 +656,13 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
     // MARK: - MLS: Conversation Member Join
 
     func testUpdateConversationMemberJoin_MLS_AsksToUpdateConversationIfNeeded() {
-        syncMOC.performGroupedBlockAndWait {
+        syncMOC.performAndWait {
             // given
             let mockEventProcessor = MockMLSEventProcessor()
             MLSEventProcessor.setMock(mockEventProcessor)
 
             // when
-            self.processMemberJoinEvent()
+            processMemberJoinEvent()
 
             // then
             XCTAssertTrue(mockEventProcessor.didCallUpdateConversationIfNeeded)
@@ -695,10 +672,10 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
     func testUpdateConversationMemberJoin_UpdatesMessageProtocol() {
         syncMOC.performAndWait {
             // given
-            self.groupConversation.messageProtocol = .proteus
+            groupConversation.messageProtocol = .proteus
 
             // when
-            self.processMemberJoinEvent()
+            processMemberJoinEvent()
 
             // then
             XCTAssertEqual(self.groupConversation.messageProtocol, .mls)
@@ -708,17 +685,17 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
     // MARK: - MLS: Welcome Message
 
     func testUpdateConversationMLSWelcome_AsksToProcessWelcomeMessage() {
-        syncMOC.performGroupedBlockAndWait {
+        syncMOC.performAndWait {
             // given
             let mockEventProcessor = MockMLSEventProcessor()
             MLSEventProcessor.setMock(mockEventProcessor)
 
             let message = "welcome message"
             let event = Payload.UpdateConversationMLSWelcome(
-                id: self.groupConversation.remoteIdentifier!,
-                qualifiedID: self.groupConversation.qualifiedID,
-                from: self.otherUser.remoteIdentifier,
-                qualifiedFrom: self.otherUser.qualifiedID,
+                id: groupConversation.remoteIdentifier!,
+                qualifiedID: groupConversation.qualifiedID,
+                from: otherUser.remoteIdentifier,
+                qualifiedFrom: otherUser.qualifiedID,
                 timestamp: Date(),
                 type: "conversation.mls-welcome",
                 data: message
@@ -726,7 +703,7 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             let updateEvent = self.updateEvent(from: event.payloadData()!)
 
             // when
-            event.process(in: self.syncMOC, originalEvent: updateEvent)
+            event.process(in: syncMOC, originalEvent: updateEvent)
 
             // then
             XCTAssertEqual(message, mockEventProcessor.processedMessage)
