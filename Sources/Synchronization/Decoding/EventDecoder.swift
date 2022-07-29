@@ -154,10 +154,13 @@ extension EventDecoder {
             return nil
         }
 
-        // NOTE: May need to change this so that we get the group ID from the payload in case there's a handshake message
-        // that needs to be processed before the conversation has been created
         guard let conversation = ZMConversation.fetch(with: payload.id, domain: payload.qualifiedID?.domain, in: context) else {
             Logging.eventProcessing.warn("MLS conversation does not exist")
+            return nil
+        }
+
+        guard !conversation.isPendingWelcomeMessage else {
+            Logging.eventProcessing.warn("MLS conversation is still pending welcome message")
             return nil
         }
 
