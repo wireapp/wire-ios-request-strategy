@@ -18,7 +18,7 @@
 import Foundation
 import WireDataModel
 
-class ConversationEventProcessor: NSObject, ConversationEventProcessorProtocol {
+public class ConversationEventProcessor: NSObject, ConversationEventProcessorProtocol {
 
     // MARK: - Properties
 
@@ -26,73 +26,75 @@ class ConversationEventProcessor: NSObject, ConversationEventProcessorProtocol {
 
     // MARK: - Life cycle
 
-    init(context: NSManagedObjectContext) {
+    public init(context: NSManagedObjectContext) {
         self.context = context
         super.init()
     }
 
     // MARK: - Methods
 
-    func processConversationEvents(_ events: [ZMUpdateEvent]) {
-        for event in events {
-            switch event.type {
-            case .conversationCreate:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.Conversation>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+    public func processConversationEvents(_ events: [ZMUpdateEvent]) {
+        context.performAndWait {
+            for event in events {
+                switch event.type {
+                case .conversationCreate:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.Conversation>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationDelete:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationDeleted>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationDelete:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationDeleted>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationMemberLeave:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberLeave>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationMemberLeave:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberLeave>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationMemberJoin:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberJoin>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationMemberJoin:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberJoin>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationRename:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationName>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationRename:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationName>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationMemberUpdate:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.ConversationMember>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationMemberUpdate:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.ConversationMember>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationAccessModeUpdate:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationAccess>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationAccessModeUpdate:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationAccess>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationMessageTimerUpdate:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationMessageTimer>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationMessageTimerUpdate:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationMessageTimer>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationReceiptModeUpdate:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationReceiptMode>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationReceiptModeUpdate:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationReceiptMode>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationConnectRequest:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationConnectionRequest>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationConnectRequest:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationConnectionRequest>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            case .conversationMLSWelcome:
-                guard let data = payloadData(from: event) else { break }
-                let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationMLSWelcome>(data)
-                conversationEvent?.process(in: context, originalEvent: event)
+                case .conversationMLSWelcome:
+                    guard let data = payloadData(from: event) else { break }
+                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationMLSWelcome>(data)
+                    conversationEvent?.process(in: context, originalEvent: event)
 
-            default:
-                break
+                default:
+                    break
+                }
             }
         }
     }
