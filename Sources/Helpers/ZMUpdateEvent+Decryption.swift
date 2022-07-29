@@ -26,9 +26,7 @@ extension ZMUpdateEvent {
     /// - Parameter decryptedData: data representing the decrypted value of the update event data. Must have been decrypted with core crypto
     /// - Returns: a version of `self` with a payload containing the decrypted data
     func decryptedMLSEvent(decryptedData: Data) -> ZMUpdateEvent? {
-        guard type == .conversationMLSMessageAdd else {
-            fatal("decrypting wrong type of event")
-        }
+        assert(type == .conversationMLSMessageAdd, "decrypting wrong type of event")
 
         guard var payload = self.payload as? [String: Any] else {
             return nil
