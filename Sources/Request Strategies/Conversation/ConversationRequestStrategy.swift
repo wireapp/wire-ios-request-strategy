@@ -393,13 +393,22 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 return
             }
 
-            let users = pendingParticipants.map(MLSUser.init(from:))
-
             do {
                 try mlsController.createGroup(for: groupID)
             } catch let error {
                 Logging.network.error("Failed to create mls group: \(String(describing: error))")
                 return
+            }
+
+            let users = pendingParticipants.map(MLSUser.init(from:))
+
+            Task {
+                do {
+                    try await mlsController.addMembersToConversation(with: users, for: groupID)
+                } catch let error {
+                    Logging.network.error("Failed to add members to mls group: \(String(describing: error))")
+                    return
+                }
             }
         }
     }
