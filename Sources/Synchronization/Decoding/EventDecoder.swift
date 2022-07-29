@@ -170,6 +170,7 @@ extension EventDecoder {
             guard
                 let decryptedData = try mlsController.decrypt(message: payload.data, for: groupID)
             else {
+                Logging.eventProcessing.info("No decrypted data returned, likely due to handshake message")
                 return nil
             }
             return updateEvent.decryptedMLSEvent(decryptedData: decryptedData)
