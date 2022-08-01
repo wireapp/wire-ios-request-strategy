@@ -108,17 +108,36 @@ extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
     typealias Object = ZMClientMessage
 
     func insert(object: ZMClientMessage, completion: @escaping () -> Void) {
-        proteusMessageSync.sync(object) { [weak self] result, response in
+        guard let conversation = object.conversation else {
+            // TODO: warn
+            completion()
+            return
+        }
+
+        switch conversation.messageProtocol {
+        case .proteus:
+            synchronizeProteusMessage(object, completion: completion)
+
+        case .mls:
+            synchronizeMLSMessage(object, completion: completion)
+        }
+    }
+
+    private func synchronizeProteusMessage(
+        _ message: ZMClientMessage,
+        completion: @escaping () -> Void
+    ) {
+        proteusMessageSync.sync(message) { [weak self] result, response in
             switch result {
             case .success:
-                object.markAsSent()
-                self?.deleteMessageIfNecessary(object)
+                message.markAsSent()
+                self?.deleteMessageIfNecessary(message)
 
             case .failure(let error):
                 switch error {
                 case .expired, .gaveUpRetrying:
-                    object.expire()
-                    self?.localNotificationDispatcher.didFailToSend(object)
+                    message.expire()
+                    self?.localNotificationDispatcher.didFailToSend(message)
 
                     let payload = Payload.ResponseFailure(response, decoder: .defaultDecoder)
                     if response.httpStatus == 403 && payload?.label == .missingLegalholdConsent {
@@ -130,6 +149,14 @@ extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
                 }
             }
         }
+    }
+
+    private func synchronizeMLSMessage(
+        _ message: ZMClientMessage,
+        completion: @escaping () -> Void
+    ) {
+        // TODO: implement
+        completion()
     }
 
     private func deleteMessageIfNecessary(_ message: ZMClientMessage) {
