@@ -78,7 +78,8 @@ public class ConversationEventProcessor: NSObject, ConversationEventProcessorPro
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationMLSWelcome:
-                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConversationMLSWelcome>.self)
+                    guard let data = event.payloadData else { break }
+                    let conversationEvent = Payload.UpdateConversationMLSWelcome(data)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 default:
