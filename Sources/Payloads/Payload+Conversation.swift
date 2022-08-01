@@ -513,7 +513,7 @@ extension Payload {
         }
     }
 
-    struct UpdateConversationMLSWelcome: Codable {
+    struct UpdateConversationMLSWelcome: EventData {
 
         enum CodingKeys: String, CodingKey {
             case id = "conversation"
@@ -534,7 +534,7 @@ extension Payload {
         let data: String
     }
 
-    struct UpdateConversationMLSMessageAdd: Codable {
+    struct UpdateConversationMLSMessageAdd: EventData {
 
         enum CodingKeys: String, CodingKey {
             case id = "conversation"
