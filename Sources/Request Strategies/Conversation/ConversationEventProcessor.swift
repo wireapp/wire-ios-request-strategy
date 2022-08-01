@@ -38,58 +38,47 @@ public class ConversationEventProcessor: NSObject, ConversationEventProcessorPro
             for event in events {
                 switch event.type {
                 case .conversationCreate:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.Conversation>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.Conversation>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationDelete:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationDeleted>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConversationDeleted>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationMemberLeave:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberLeave>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConverationMemberLeave>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationMemberJoin:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConverationMemberJoin>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConverationMemberJoin>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationRename:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationName>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConversationName>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationMemberUpdate:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.ConversationMember>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.ConversationMember>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationAccessModeUpdate:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationAccess>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConversationAccess>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationMessageTimerUpdate:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationMessageTimer>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConversationMessageTimer>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationReceiptModeUpdate:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationReceiptMode>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConversationReceiptMode>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationConnectRequest:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationConnectionRequest>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConversationConnectionRequest>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 case .conversationMLSWelcome:
-                    guard let data = payloadData(from: event) else { break }
-                    let conversationEvent = Payload.ConversationEvent<Payload.UpdateConversationMLSWelcome>(data)
+                    let conversationEvent = event.eventPayload(type: Payload.ConversationEvent<Payload.UpdateConversationMLSWelcome>.self)
                     conversationEvent?.process(in: context, originalEvent: event)
 
                 default:
@@ -97,19 +86,6 @@ public class ConversationEventProcessor: NSObject, ConversationEventProcessorPro
                 }
             }
         }
-    }
-
-    // MARK: - Helpers
-
-    private func payloadData(from event: ZMUpdateEvent) -> Data? {
-        guard
-            let payloadAsDictionary = event.payload as? [String: Any],
-            let payloadData = try? JSONSerialization.data(withJSONObject: payloadAsDictionary, options: [])
-        else {
-            return nil
-        }
-
-        return payloadData
     }
 
 }
