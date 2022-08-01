@@ -30,7 +30,7 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
     // MARK: - Properties
 
     let insertedObjectSync: InsertedObjectSync<ClientMessageRequestStrategy>
-    let messageSync: ProteusMessageSync<ZMClientMessage>
+    let proteusMessageSync: ProteusMessageSync<ZMClientMessage>
     let messageExpirationTimer: MessageExpirationTimer
     let linkAttachmentsPreprocessor: LinkAttachmentsPreprocessor
     let localNotificationDispatcher: PushMessageHandler
@@ -46,7 +46,7 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
             insertPredicate: Self.shouldBeSentPredicate(context: managedObjectContext)
         )
 
-        messageSync = ProteusMessageSync<ZMClientMessage>(
+        proteusMessageSync = ProteusMessageSync<ZMClientMessage>(
             context: managedObjectContext,
             applicationStatus: applicationStatus
         )
@@ -76,7 +76,7 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
 
         insertedObjectSync.transcoder = self
 
-        messageSync.onRequestScheduled { [weak self] message, _ in
+        proteusMessageSync.onRequestScheduled { [weak self] message, _ in
             self?.messageExpirationTimer.stop(for: message)
         }
     }
@@ -92,11 +92,11 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
             insertedObjectSync,
             messageExpirationTimer,
             linkAttachmentsPreprocessor
-        ] + messageSync.contextChangeTrackers
+        ] + proteusMessageSync.contextChangeTrackers
     }
 
     public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
-        return messageSync.nextRequest(for: apiVersion)
+        return proteusMessageSync.nextRequest(for: apiVersion)
     }
 
 }
@@ -108,7 +108,7 @@ extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
     typealias Object = ZMClientMessage
 
     func insert(object: ZMClientMessage, completion: @escaping () -> Void) {
-        messageSync.sync(object) { [weak self] result, response in
+        proteusMessageSync.sync(object) { [weak self] result, response in
             switch result {
             case .success:
                 object.markAsSent()
@@ -197,5 +197,5 @@ private struct UpdateEventWithNonce {
 
     let event: ZMUpdateEvent
     let nonce: UUID
-    
+
 }
