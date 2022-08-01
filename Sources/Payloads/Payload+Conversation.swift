@@ -525,10 +525,6 @@ extension Payload {
             case data
         }
 
-        static var eventType: ZMUpdateEventType {
-            return .conversationMLSWelcome
-        }
-
         let id: UUID
         let qualifiedID: QualifiedID?
         let from: UUID
@@ -548,10 +544,6 @@ extension Payload {
             case timestamp = "time"
             case type
             case data
-        }
-
-        static var eventType: ZMUpdateEventType {
-            return .conversationMLSMessageAdd
         }
 
         let id: UUID

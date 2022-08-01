@@ -546,14 +546,6 @@ extension Payload.ConversationEvent where T == Payload.UpdateConversationConnect
 
 }
 
-extension Payload.ConversationEvent where T == Payload.UpdateConversationMLSWelcome {
-
-    func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
-        data.process(in: context, originalEvent: originalEvent)
-    }
-
-}
-
 extension Payload.UpdateConversationMLSWelcome {
 
     func process(in context: NSManagedObjectContext, originalEvent: ZMUpdateEvent) {
