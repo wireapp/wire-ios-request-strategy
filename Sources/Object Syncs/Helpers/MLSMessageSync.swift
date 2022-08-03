@@ -27,11 +27,12 @@ class MLSMessageSync<Message: MLSMessage>: NSObject, ZMContextChangeTrackerSourc
     // MARK: - Properties
 
     let dependencySync: DependencyEntitySync<Transcoder<Message>>
-    let transcoder = Transcoder<Message>()
+    let transcoder: Transcoder<Message>
 
     // MARK: - Life cycle
 
     init(context: NSManagedObjectContext) {
+        transcoder = Transcoder(context: context)
         dependencySync = DependencyEntitySync(
             transcoder: transcoder,
             context: context
