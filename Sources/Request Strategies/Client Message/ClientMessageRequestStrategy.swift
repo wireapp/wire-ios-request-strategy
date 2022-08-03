@@ -30,7 +30,7 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
     // MARK: - Properties
 
     let insertedObjectSync: InsertedObjectSync<ClientMessageRequestStrategy>
-    let proteusMessageSync: ProteusMessageSync<ZMClientMessage>
+    let messageSync: MessageSync<ZMClientMessage>
     let messageExpirationTimer: MessageExpirationTimer
     let linkAttachmentsPreprocessor: LinkAttachmentsPreprocessor
     let localNotificationDispatcher: PushMessageHandler
@@ -46,9 +46,9 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
             insertPredicate: Self.shouldBeSentPredicate(context: managedObjectContext)
         )
 
-        proteusMessageSync = ProteusMessageSync<ZMClientMessage>(
+        messageSync = MessageSync(
             context: managedObjectContext,
-            applicationStatus: applicationStatus
+            appStatus: applicationStatus
         )
 
         self.localNotificationDispatcher = localNotificationDispatcher
@@ -76,7 +76,7 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
 
         insertedObjectSync.transcoder = self
 
-        proteusMessageSync.onRequestScheduled { [weak self] message, _ in
+        messageSync.onRequestScheduled { [weak self] message, _ in
             self?.messageExpirationTimer.stop(for: message)
         }
     }
@@ -92,11 +92,11 @@ public class ClientMessageRequestStrategy: AbstractRequestStrategy, ZMContextCha
             insertedObjectSync,
             messageExpirationTimer,
             linkAttachmentsPreprocessor
-        ] + proteusMessageSync.contextChangeTrackers
+        ] + messageSync.contextChangeTrackers
     }
 
     public override func nextRequestIfAllowed(for apiVersion: APIVersion) -> ZMTransportRequest? {
-        return proteusMessageSync.nextRequest(for: apiVersion)
+        return messageSync.nextRequest(for: apiVersion)
     }
 
 }
@@ -127,7 +127,7 @@ extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
         _ message: ZMClientMessage,
         completion: @escaping () -> Void
     ) {
-        proteusMessageSync.sync(message) { [weak self] result, response in
+        messageSync.sync(message) { [weak self] result, response in
             switch result {
             case .success:
                 message.markAsSent()
