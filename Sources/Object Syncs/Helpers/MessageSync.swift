@@ -24,13 +24,14 @@ import Foundation
 /// This sync ensures that each message is sent to the backend using the appropriate
 /// protocol.
 
-class MessageSync<Message: ProteusMessage>: NSObject, ZMContextChangeTrackerSource, ZMRequestGenerator {
+class MessageSync<Message: ProteusMessage & MLSMessage>: NSObject, ZMContextChangeTrackerSource, ZMRequestGenerator {
 
     typealias OnRequestScheduledHandler = (_ message: Message, _ request: ZMTransportRequest) -> Void
 
     // MARK: - Properties
 
     private let proteusMessageSync: ProteusMessageSync<Message>
+    private let mlsMessageSync: MLSMessageSync<Message>
 
     // MARK: - Life cycle
 
@@ -39,32 +40,47 @@ class MessageSync<Message: ProteusMessage>: NSObject, ZMContextChangeTrackerSour
             context: context,
             applicationStatus: appStatus
         )
+
+        mlsMessageSync = MLSMessageSync(context: context)
     }
 
     // MARK: - Change tracker
 
     var contextChangeTrackers: [ZMContextChangeTracker] {
-        return proteusMessageSync.contextChangeTrackers
+        return proteusMessageSync.contextChangeTrackers + mlsMessageSync.contextChangeTrackers
     }
 
     // MARK: - Request generator
 
     func nextRequest(for apiVersion: APIVersion) -> ZMTransportRequest? {
-        return proteusMessageSync.nextRequest(for: apiVersion)
+        return [proteusMessageSync, mlsMessageSync].nextRequest(for: apiVersion)
     }
 
     // MARK: - Methods
 
     func onRequestScheduled(_ handler: @escaping OnRequestScheduledHandler) {
         proteusMessageSync.onRequestScheduled(handler)
+        mlsMessageSync.onRequestScheduled(handler)
     }
 
     func sync(_ message: Message, completion: @escaping EntitySyncHandler) {
-        proteusMessageSync.sync(message, completion: completion)
+        guard let conversation = message.conversation else {
+            // TODO: report error via completion
+            return
+        }
+
+        switch conversation.messageProtocol {
+        case .proteus:
+            proteusMessageSync.sync(message, completion: completion)
+
+        case .mls:
+            mlsMessageSync.sync(message, completion: completion)
+        }
     }
 
     func expireMessages(withDependency dependency: NSObject) {
         proteusMessageSync.expireMessages(withDependency: dependency)
+        mlsMessageSync.expireMessages(withDependency: dependency)
     }
 
 }

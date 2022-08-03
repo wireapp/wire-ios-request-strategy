@@ -20,15 +20,20 @@ import Foundation
 
 class MLSMessageSync<Message: MLSMessage>: NSObject, ZMContextChangeTrackerSource, ZMRequestGenerator {
 
+    // MARK: - Types
+
+    public typealias OnRequestScheduledHandler = (_ message: Message, _ request: ZMTransportRequest) -> Void
+
     // MARK: - Properties
 
     let dependencySync: DependencyEntitySync<Transcoder<Message>>
+    let transcoder = Transcoder<Message>()
 
     // MARK: - Life cycle
 
     init(context: NSManagedObjectContext) {
         dependencySync = DependencyEntitySync(
-            transcoder: Transcoder(),
+            transcoder: transcoder,
             context: context
         )
 
@@ -49,6 +54,10 @@ class MLSMessageSync<Message: MLSMessage>: NSObject, ZMContextChangeTrackerSourc
 
     // MARK: - Methods
 
+    func onRequestScheduled(_ handler: @escaping OnRequestScheduledHandler) {
+        transcoder.onRequestScheduledHandler = handler
+    }
+
     func sync(_ message: Message, completion: @escaping EntitySyncHandler) {
         dependencySync.synchronize(entity: message, completion: completion)
         RequestAvailableNotification.notifyNewRequestsAvailable(nil)
@@ -59,5 +68,3 @@ class MLSMessageSync<Message: MLSMessage>: NSObject, ZMContextChangeTrackerSourc
     }
 
 }
-
-

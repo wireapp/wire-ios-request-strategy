@@ -28,3 +28,4 @@ protocol MLSEncryptedPayloadGenerator {}
 
 extension ZMClientMessage: MLSMessage {}
 extension ZMAssetClientMessage: MLSMessage {}
+extension GenericMessageEntity: MLSMessage {}

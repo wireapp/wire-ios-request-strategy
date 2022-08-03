@@ -26,10 +26,15 @@ extension MLSMessageSync {
 
         typealias Entity = Message
 
+        // MARK: - Properties
+
+        var onRequestScheduledHandler: OnRequestScheduledHandler?
+
         // MARK: - Request generation
 
         func request(forEntity entity: Entity, apiVersion: APIVersion) -> ZMTransportRequest? {
             fatalError("not implemented")
+            // onRequestScheduledHandler?(entity, request)
         }
 
         // MARK: - Response handling
