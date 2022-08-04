@@ -49,33 +49,57 @@ extension MLSMessageSync {
             }
         }
 
-        private func v2Request(for entity: Message) -> ZMTransportRequest? {
-            guard
-                let conversation = entity.conversation,
-                conversation.messageProtocol == .mls,
-                let mlsController = context.mlsController
-            else {
+        private func v2Request(for message: Message) -> ZMTransportRequest? {
+            guard let encryptedMessage = encryptMessage(message) else {
                 return nil
             }
-
-            // mlsController.encryptMessage(...)
 
             let request = ZMTransportRequest(
                 path: "/mls/messages",
                 method: .methodPOST,
-                binaryData: Data(),
+                binaryData: encryptedMessage,
                 type: "message/mls",
                 contentDisposition: nil,
                 apiVersion: 2
             )
 
-            if let expirationDate = entity.expirationDate {
+            if let expirationDate = message.expirationDate {
                 request.expire(at: expirationDate)
             }
 
-            onRequestScheduledHandler?(entity, request)
+            onRequestScheduledHandler?(message, request)
 
             return request
+        }
+
+        private func encryptMessage(_ message: Message) -> Data? {
+            guard
+                let conversation = message.conversation,
+                conversation.messageProtocol == .mls
+            else {
+                Logging.mls.warn("can't encrypt message b/c it doesn't belong to an mls conversation.")
+                return nil
+            }
+
+            guard let groupID = conversation.mlsGroupID else {
+                Logging.mls.warn("can't encrypt message b/c mls group id is missing.")
+                return nil
+            }
+
+            guard let mlsController = context.mlsController else {
+                Logging.mls.warn("can't encrypt message b/c mls controller is missing.")
+                return nil
+            }
+
+            do {
+                return try message.encryptForTransport { messageData in
+                    let encryptedBytes = try mlsController.encrypt(message: messageData.bytes, for: groupID)
+                    return encryptedBytes.data
+                }
+            } catch let error {
+                Logging.mls.warn("failed to encrypt message for transport: \(String(describing: error))")
+                return nil
+            }
         }
 
         // MARK: - Response handling

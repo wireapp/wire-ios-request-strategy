@@ -22,10 +22,17 @@ import Foundation
 
 protocol MLSMessage: OTREntity, MLSEncryptedPayloadGenerator, Hashable {}
 
-/// A type that can generate payloads encrypted via mls.
-
-protocol MLSEncryptedPayloadGenerator {}
-
 extension ZMClientMessage: MLSMessage {}
+
 extension ZMAssetClientMessage: MLSMessage {}
-extension GenericMessageEntity: MLSMessage {}
+
+// TODO: [John] generic message entity has a lot of proteus related code (regarding recipients).
+// We should factor that out.
+
+extension GenericMessageEntity: MLSMessage {
+
+    public func encryptForTransport(using encrypt: (Data) throws -> Data) throws -> Data {
+        return try message.encryptForTransport(using: encrypt)
+    }
+
+}
