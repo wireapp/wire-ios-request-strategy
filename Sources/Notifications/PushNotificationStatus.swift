@@ -27,13 +27,15 @@ open class PushNotificationStatus: NSObject {
     private var eventIdRanking = NSMutableOrderedSet()
     private var completionHandlers: [UUID: () -> Void] = [:]
     private let managedObjectContext: NSManagedObjectContext
+    private let debugModeEnabled: Bool
 
     public var hasEventsToFetch: Bool {
         return eventIdRanking.count > 0
     }
 
-    public init(managedObjectContext: NSManagedObjectContext) {
+    public init(managedObjectContext: NSManagedObjectContext, debugModeEnabled: Bool = false) {
         self.managedObjectContext = managedObjectContext
+        self.debugModeEnabled = debugModeEnabled
     }
 
     /// Schedule to fetch an event with a given UUID
@@ -49,10 +51,16 @@ open class PushNotificationStatus: NSObject {
         if lastEventIdIsNewerThan(lastEventId: managedObjectContext.zm_lastNotificationID, eventId: eventId) {
             // We have already fetched the event and will therefore immediately call the completion handler
             Logging.eventProcessing.info("Already fetched event with [\(eventId)]")
+            if debugModeEnabled {
+                DebugLogger.addStep(step: "Already fetched event", eventID: eventId.uuidString)
+            }
             return completionHandler()
         }
 
-        Logging.eventProcessing.info("Scheduling to fetch events notified by push [\(eventId)]")
+        if debugModeEnabled {
+            Logging.eventProcessing.info("Scheduling to fetch events notified by push [\(eventId)]")
+        }
+        DebugLogger.addStep(step: "Scheduling to fetch event", eventID: eventId.uuidString)
 
         eventIdRanking.add(eventId)
         completionHandlers[eventId] = completionHandler
@@ -73,7 +81,14 @@ open class PushNotificationStatus: NSObject {
 
         guard finished else { return }
 
-        Logging.eventProcessing.info("Finished to fetching all available events")
+        if debugModeEnabled {
+            Logging.eventProcessing.info("Finished to fetching all available events")
+        }
+        if debugModeEnabled {
+            for eventID in eventIds {
+                DebugLogger.addStep(step: "Did fetched event", eventID: eventID.uuidString)
+            }
+        }
 
         if let lastEventId = lastEventId {
             managedObjectContext.zm_lastNotificationID = lastEventId

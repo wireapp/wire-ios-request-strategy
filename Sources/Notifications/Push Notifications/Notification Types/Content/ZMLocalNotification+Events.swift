@@ -27,7 +27,9 @@ public extension ZMLocalNotification {
 
         switch event.type {
         case .conversationOtrMessageAdd:
-            guard let message = GenericMessage(from: event) else { break }
+            guard let message = GenericMessage(from: event) else {
+                DebugLogger.addStep(step: "!MessageAddEvent: failed to create notification from event", eventID: event.uuid.uuidString)
+                break }
             builderType = message.hasReaction ? ReactionEventNotificationBuilder.self : NewMessageNotificationBuilder.self
 
         case .conversationCreate:
@@ -284,6 +286,7 @@ private class NewMessageNotificationBuilder: EventNotificationBuilder {
             let message = GenericMessage(from: event),
             let contentType = LocalNotificationContentType(message: message, conversation: conversation, in: managedObjectContext)
         else {
+            DebugLogger.addStep(step: "!failed to create notification", eventID: event.uuid.uuidString)
             return nil
         }
 
@@ -320,15 +323,18 @@ private class NewMessageNotificationBuilder: EventNotificationBuilder {
             let senderUUID = event.senderUUID,
             conversation.isMessageSilenced(message, senderID: senderUUID) {
             Logging.push.safePublic("Not creating local notification for message with nonce = \(event.messageNonce) because conversation is silenced")
+                DebugLogger.addStep(step: "!shouldn't create notification", eventID: event.uuid.uuidString)
             return false
         }
         if ZMUser.selfUser(in: moc).remoteIdentifier == event.senderUUID {
+            DebugLogger.addStep(step: "!shouldn't create notification", eventID: event.uuid.uuidString)
             return false
         }
 
         if let timeStamp = event.timestamp,
             let lastRead = conversation?.lastReadServerTimeStamp,
             lastRead.compare(timeStamp) != .orderedAscending {
+            DebugLogger.addStep(step: "!shouldn't create notification", eventID: event.uuid.uuidString)
             return false
         }
         return true

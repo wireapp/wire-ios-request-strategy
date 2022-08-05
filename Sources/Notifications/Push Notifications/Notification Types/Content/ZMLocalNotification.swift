@@ -66,6 +66,7 @@ public class ZMLocalNotification: NSObject {
     public var userInfo: NotificationUserInfo?
 
     public init?(builder: NotificationBuilder, moc: NSManagedObjectContext) {
+        
         guard builder.shouldCreateNotification() else { return nil }
         self.type = builder.notificationType
         self.title = builder.titleText()

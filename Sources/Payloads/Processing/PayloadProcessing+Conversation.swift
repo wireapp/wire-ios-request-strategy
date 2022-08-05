@@ -316,7 +316,6 @@ extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberLe
             Logging.eventProcessing.error("Member leave update missing conversation or users, aborting...")
             return
         }
-
         if !conversation.localParticipants.isDisjoint(with: removedUsers) {
             // TODO jacob refactor to append method on conversation
             _ = ZMSystemMessage.createOrUpdate(from: originalEvent, in: context)

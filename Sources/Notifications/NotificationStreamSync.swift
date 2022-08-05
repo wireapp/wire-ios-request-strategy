@@ -98,7 +98,6 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
         let tp = ZMSTimePoint.init(interval: 10, label: NSStringFromClass(type(of: self)))
         var latestEventId: UUID?
         let source = ZMUpdateEventSource.pushNotification
-
         guard let eventsDictionaries = eventDictionariesFrom(payload: payload) else {
             return nil
         }
@@ -111,6 +110,9 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
         latestEventId = events.last(where: { !$0.isTransient })?.uuid
 
         //        ZMLogWithLevelAndTag(ZMLogLevelInfo, ZMTAG_EVENT_PROCESSING, @"Downloaded %lu event(s)", (unsigned long)parsedEvents.count);
+        for event in events {
+                DebugLogger.addStep(step: "Decoding", eventID: event.uuid.uuidString)
+        }
 
         tp?.warnIfLongerThanInterval()
         return latestEventId

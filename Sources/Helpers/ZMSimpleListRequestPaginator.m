@@ -91,6 +91,7 @@ ZM_EMPTY_ASSERTING_INIT()
     [queryItems addObject:[NSURLQueryItem queryItemWithName:@"size" value:[@(self.pageSize) stringValue]]];
 
     if (self.lastUUIDOfPreviousPage != nil) {
+        [DebugLogger addStep:@"Generated request" value: [self.lastUUIDOfPreviousPage uuidString]]
         [queryItems addObject:[NSURLQueryItem queryItemWithName:self.startKey value:self.lastUUIDOfPreviousPage.transportString]];
     }
     if (self.includeClientID) {

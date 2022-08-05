@@ -237,7 +237,6 @@ class ConnectionByIDTranscoder: IdentifierObjectSyncTranscoder {
             Logging.network.warn("Can't process response, aborting.")
             return
         }
-
         payload.update(connection, in: context)
     }
 
@@ -289,7 +288,6 @@ class ConnectionByQualifiedIDTranscoder: IdentifierObjectSyncTranscoder {
             Logging.network.error("Can't process response, aborting.")
             return
         }
-
         payload.update(connection, in: context)
     }
 
