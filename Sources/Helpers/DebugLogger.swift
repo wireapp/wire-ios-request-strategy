@@ -19,10 +19,10 @@ import Foundation
 
 public class DebugLogger {
     public static var storage: UserDefaults = .standard
-    static let DebugFlagIsOnKey = "DebugFlagIsOn"
-    static let PushNotificationLogsKey = "PushNotificationLogs"
+    public static let DebugFlagIsOnKey = "DebugFlagIsOn"
+    public static let PushNotificationLogsKey = "PushNotificationLogs"
 
-    static func addStep(step: String, eventID: String) {
+    public static func addStep(step: String, eventID: String) {
         guard storage.bool(forKey: DebugFlagIsOnKey) == true else { return }
         var logsDictionary = (storage.object(forKey: PushNotificationLogsKey) as? Dictionary<String, Any>) ?? [:]
         var eventDictionary: [String: String] = (logsDictionary[eventID] as? Dictionary<String, String>) ?? [:]
@@ -32,7 +32,7 @@ public class DebugLogger {
         storage.set(logsDictionary, forKey: PushNotificationLogsKey)
     }
 
-    static func addFinalStep(eventID: String) {
+    public static func addFinalStep(eventID: String) {
         guard storage.bool(forKey: DebugFlagIsOnKey) == true else { return }
         var logsDictionary = (storage.object(forKey: PushNotificationLogsKey) as? Dictionary<String, Any>) ?? [:]
         let eventDictionary: [String: String] = (logsDictionary[eventID] as? Dictionary<String, String>) ?? [:]
