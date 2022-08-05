@@ -17,7 +17,7 @@
 //
 import Foundation
 
-class DebugLogger {
+public class DebugLogger {
     public static var storage: UserDefaults = .standard
     static let DebugFlagIsOnKey = "DebugFlagIsOn"
     static let PushNotificationLogsKey = "PushNotificationLogs"
