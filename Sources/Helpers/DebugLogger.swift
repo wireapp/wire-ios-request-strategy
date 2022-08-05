@@ -13,7 +13,7 @@ class DebugLogger {
     static let PushNotificationLogsKey = "PushNotificationLogs"
 
     static func addStep(step: String, eventID: String) {
-        guard storage.object(forKey: DebugFlagIsOnKey) == true else { return }
+        guard storage.bool(forKey: DebugFlagIsOnKey) == true else { return }
         var logsDictionary = (storage.object(forKey: PushNotificationLogsKey) as? Dictionary<String, Any>) ?? [:]
         var eventDictionary: [String: String] = (logsDictionary[eventID] as? Dictionary<String, String>) ?? [:]
         let timeStamp = "\(Date().timeIntervalSince1970)"
@@ -23,7 +23,7 @@ class DebugLogger {
     }
 
     static func addFinalStep(eventID: String) {
-        guard storage.object(forKey: DebugFlagIsOnKey) == true else { return }
+        guard storage.bool(forKey: DebugFlagIsOnKey) == true else { return }
         var logsDictionary = (storage.object(forKey: PushNotificationLogsKey) as? Dictionary<String, Any>) ?? [:]
         let eventDictionary: [String: String] = (logsDictionary[eventID] as? Dictionary<String, String>) ?? [:]
         guard let start = eventDictionary.keys.sorted().first,
@@ -39,11 +39,3 @@ class DebugLogger {
         }
     }
 }
-
-
-extension UserDefaults {
-    public static var applicationGroup: UserDefaults {
-        return UserDefaults(suiteName: Bundle.main.applicationGroupIdentifier) ?? .standard
-    }
-}
-

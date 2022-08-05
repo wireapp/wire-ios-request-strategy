@@ -111,7 +111,7 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
 
         //        ZMLogWithLevelAndTag(ZMLogLevelInfo, ZMTAG_EVENT_PROCESSING, @"Downloaded %lu event(s)", (unsigned long)parsedEvents.count);
         for event in events {
-                DebugLogger.addStep(step: "Decoding", eventID: event.uuid.uuidString)
+                DebugLogger.addStep(step: "Decoding", eventID: event.uuid?.uuidString ?? "")
         }
 
         tp?.warnIfLongerThanInterval()
