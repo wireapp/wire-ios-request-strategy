@@ -19,8 +19,10 @@ import Foundation
 import WireDataModel
 
 protocol MLSEventProcessing {
+
     func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext)
-    func process(welcomeMessage: String, for conversation: ZMConversation?, in context: NSManagedObjectContext)
+    func process(welcomeMessage: String, in context: NSManagedObjectContext)
+
 }
 
 class MLSEventProcessor: MLSEventProcessing {
@@ -31,17 +33,17 @@ class MLSEventProcessor: MLSEventProcessing {
 
     func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext) {
         guard conversation.messageProtocol == .mls else {
-            return Logging.eventProcessing.info("Message protocol is not mls")
+            return Logging.mls.info("Message protocol is not mls")
         }
 
         guard let mlsGroupID = MLSGroupID(from: groupID) else {
-            return Logging.eventProcessing.warn("MLS group ID is missing or invalid")
+            return Logging.mls.warn("MLS group ID is missing or invalid")
         }
 
         conversation.mlsGroupID = mlsGroupID
 
         guard let mlsController = context.mlsController else {
-            return Logging.eventProcessing.warn("Missing MLSController in context")
+            return Logging.mls.warn("Missing MLSController in context")
         }
 
         conversation.isPendingWelcomeMessage = !mlsController.conversationExists(groupID: mlsGroupID)
@@ -49,14 +51,17 @@ class MLSEventProcessor: MLSEventProcessing {
 
     // MARK: - Process welcome message
 
-    func process(welcomeMessage: String, for conversation: ZMConversation?, in context: NSManagedObjectContext) {
+    func process(welcomeMessage: String, in context: NSManagedObjectContext) {
         do {
-            try context.mlsController?.processWelcomeMessage(welcomeMessage: welcomeMessage)
-        } catch {
-            return Logging.eventProcessing.warn("Couldn't process welcome message")
-        }
+            // TODO: unwrap the controller
+            let groupID = try context.mlsController?.processWelcomeMessage(welcomeMessage: welcomeMessage)
 
-        conversation?.isPendingWelcomeMessage = false
+            // TODO: Fetch conversation using group id
+            let conversation = ZMConversation.fetch(with: groupID, in: context)
+            conversation?.isPendingWelcomeMessage = false
+        } catch {
+            return Logging.mls.warn("Couldn't process welcome message for conversation: \(String(describing: error))")
+        }
     }
 }
 
