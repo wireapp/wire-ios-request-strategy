@@ -21,7 +21,7 @@ import WireDataModel
 protocol MLSEventProcessing {
 
     func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext)
-    func process(welcomeMessage: String, in context: NSManagedObjectContext)
+    func process(welcomeMessage: String, domain: String, in context: NSManagedObjectContext)
 
 }
 
@@ -51,13 +51,9 @@ class MLSEventProcessor: MLSEventProcessing {
 
     // MARK: - Process welcome message
 
-    func process(welcomeMessage: String, in context: NSManagedObjectContext) {
+    func process(welcomeMessage: String, domain: String, in context: NSManagedObjectContext) {
         guard let mlsController = context.mlsController else {
             return Logging.mls.warn("Missing MLSController in context")
-        }
-
-        guard let domain = qualifiedID?.domain.nilIfEmpty ?? APIVersion.domain else {
-            return Logging.mls.warn("Missing conversation domain, aborting...")
         }
 
         do {
