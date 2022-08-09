@@ -56,10 +56,14 @@ class MLSEventProcessor: MLSEventProcessing {
             return Logging.mls.warn("Missing MLSController in context")
         }
 
+        guard let domain = qualifiedID?.domain.nilIfEmpty ?? APIVersion.domain else {
+            return Logging.mls.warn("Missing conversation domain, aborting...")
+        }
+
         do {
             let groupID = try mlsController.processWelcomeMessage(welcomeMessage: welcomeMessage)
 
-            guard let conversation = ZMConversation.fetch(with: groupID, in: context) else {
+            guard let conversation = ZMConversation.fetch(with: groupID, domain: domain, in: context) else {
                 return Logging.mls.warn("Conversation does not exist")
             }
 
