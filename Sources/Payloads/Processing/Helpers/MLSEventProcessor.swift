@@ -52,13 +52,18 @@ class MLSEventProcessor: MLSEventProcessing {
     // MARK: - Process welcome message
 
     func process(welcomeMessage: String, in context: NSManagedObjectContext) {
-        do {
-            // TODO: unwrap the controller
-            let groupID = try context.mlsController?.processWelcomeMessage(welcomeMessage: welcomeMessage)
+        guard let mlsController = context.mlsController else {
+            return Logging.mls.warn("Missing MLSController in context")
+        }
 
-            // TODO: Fetch conversation using group id
-            let conversation = ZMConversation.fetch(with: groupID, in: context)
-            conversation?.isPendingWelcomeMessage = false
+        do {
+            let groupID = try mlsController.processWelcomeMessage(welcomeMessage: welcomeMessage)
+
+            guard let conversation = ZMConversation.fetch(with: groupID, in: context) else {
+                return Logging.mls.warn("Conversation does not exist")
+            }
+
+            conversation.isPendingWelcomeMessage = false
         } catch {
             return Logging.mls.warn("Couldn't process welcome message for conversation: \(String(describing: error))")
         }
