@@ -453,6 +453,12 @@ extension Payload {
         let access: [String]
         let accessRole: String?
         let accessRoleV2: [String]?
+
+        init?(_ conversation: ZMConversation) {
+            access = conversation.accessMode?.stringValue ?? []
+            accessRole = ConversationAccessRole.fromAccessRoleV2(conversation.accessRoles).rawValue
+            accessRoleV2 = conversation.accessRoles.map(\.rawValue)
+        }
     }
 
     struct UpdateConversationName: EventData {

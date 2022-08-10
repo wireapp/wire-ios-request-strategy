@@ -60,7 +60,8 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
     var keysToSync: [String] = [
         ZMConversationUserDefinedNameKey,
         ZMConversationArchivedChangedTimeStampKey,
-        ZMConversationSilencedChangedTimeStampKey
+        ZMConversationSilencedChangedTimeStampKey,
+        AccessRoleStringsKeyV2
     ]
 
     let eventsToProcess: [ZMUpdateEventType] = [
@@ -520,6 +521,24 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
             return ZMUpstreamRequest(keys: changedKeys,
                                      transportRequest: request)
 
+        }
+
+        /// Updates access roles for conversations created by private users with wrong access roles.  Patch in SE  modifies `AccessRoleStringsKeyV2`
+        if keys.contains(AccessRoleStringsKeyV2) {
+            guard conversation.team == nil,
+                  let payload = Payload.UpdateConversationAccess(conversation),
+                  let payloadData = payload.payloadData(encoder: .defaultEncoder),
+                  let payloadAsString = String(bytes: payloadData, encoding: .utf8)else {
+                return nil
+            }
+            let request = ZMTransportRequest(path: "/conversations/\(conversationID)/access",
+                                             method: .methodPUT,
+                                             payload: payloadAsString as ZMTransportData?,
+                                             apiVersion: apiVersion.rawValue)
+
+            let changedKeys: Set<String> = [AccessRoleStringsKeyV2]
+            return ZMUpstreamRequest(keys: changedKeys,
+                                     transportRequest: request)
         }
 
         return nil
