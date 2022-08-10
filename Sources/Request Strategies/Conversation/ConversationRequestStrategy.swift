@@ -528,9 +528,9 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
             guard conversation.team == nil,
                   let payload = Payload.UpdateConversationAccess(conversation),
                   let payloadData = payload.payloadData(encoder: .defaultEncoder),
-                  let payloadAsString = String(bytes: payloadData, encoding: .utf8)else {
-                return nil
-            }
+                  let payloadAsString = String(bytes: payloadData, encoding: .utf8) else {
+                      return nil
+                  }
             let request = ZMTransportRequest(path: "/conversations/\(conversationID)/access",
                                              method: .methodPUT,
                                              payload: payloadAsString as ZMTransportData?,
