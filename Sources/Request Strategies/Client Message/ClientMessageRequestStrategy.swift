@@ -116,6 +116,10 @@ extension ClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
 
             case .failure(let error):
                 switch error {
+                case .messageProtocolMissing:
+                    object.expire()
+                    self?.localNotificationDispatcher.didFailToSend(object)
+
                 case .expired, .gaveUpRetrying:
                     object.expire()
                     self?.localNotificationDispatcher.didFailToSend(object)

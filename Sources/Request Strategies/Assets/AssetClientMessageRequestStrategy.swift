@@ -74,6 +74,9 @@ extension AssetClientMessageRequestStrategy: InsertedObjectSyncTranscoder {
                 object.markAsSent()
             case .failure(let error):
                 switch error {
+                case .messageProtocolMissing:
+                    object.expire()
+
                 case .expired, .gaveUpRetrying:
                     object.expire()
 

@@ -65,7 +65,8 @@ class MessageSync<Message: ProteusMessage & MLSMessage>: NSObject, ZMContextChan
 
     func sync(_ message: Message, completion: @escaping EntitySyncHandler) {
         guard let conversation = message.conversation else {
-            // TODO: report error via completion
+            Logging.messageProcessing.warn("failed to sync message b/c message protocol can't be determined")
+            completion(.failure(.messageProtocolMissing), .init())
             return
         }
 
