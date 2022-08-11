@@ -26,9 +26,6 @@ extension ZMClientMessage: MLSMessage {}
 
 extension ZMAssetClientMessage: MLSMessage {}
 
-// TODO: [John] generic message entity has a lot of proteus related code (regarding recipients).
-// We should factor that out.
-
 extension GenericMessageEntity: MLSMessage {
 
     public func encryptForTransport(using encrypt: (Data) throws -> Data) throws -> Data {
