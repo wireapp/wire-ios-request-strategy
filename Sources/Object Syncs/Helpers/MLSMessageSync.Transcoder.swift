@@ -104,7 +104,10 @@ extension MLSMessageSync {
 
         // MARK: - Response handling
 
-        func request(forEntity entity: Message, didCompleteWithResponse response: ZMTransportResponse) {
+        func request(
+            forEntity entity: Message,
+            didCompleteWithResponse response: ZMTransportResponse
+        ) {
             guard let apiVersion = APIVersion(rawValue: response.apiVersion) else { return }
 
             switch apiVersion {
@@ -116,14 +119,23 @@ extension MLSMessageSync {
             }
         }
 
-        private func v2processResponse(_ response: ZMTransportResponse, for entity: Message) {
-            entity.delivered(with: response)
+        private func v2processResponse(
+            _ response: ZMTransportResponse,
+            for entity: Message
+        ) {
+            guard response.result == .success else {
+                Logging.mls.warn("failed to send mls message. Response: \(response)")
+                return
+            }
 
-            // TODO: anything else to do here?
+            entity.delivered(with: response)
         }
 
-        func shouldTryToResend(entity: Entity, afterFailureWithResponse response: ZMTransportResponse) -> Bool {
-            fatalError("not implmented")
+        func shouldTryToResend(
+            entity: Entity,
+            afterFailureWithResponse response: ZMTransportResponse
+        ) -> Bool {
+            return false
         }
 
     }
