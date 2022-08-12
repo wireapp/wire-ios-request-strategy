@@ -42,7 +42,7 @@ import XCTest
 
     var dependentObjectNeedingUpdateBeforeProcessing: NSObject?
 
-    init(messageData: Data = Data(), conversation: ZMConversation, context: NSManagedObjectContext) {
+    init(messageData: Data = Data(), conversation: ZMConversation?, context: NSManagedObjectContext) {
         self.messageData = messageData
         self.conversation = conversation
         self.context = context
