@@ -42,6 +42,7 @@ extension MLSMessageSync {
         func request(forEntity entity: Message, apiVersion: APIVersion) -> ZMTransportRequest? {
             switch apiVersion {
             case .v0, .v1:
+                Logging.mls.warn("can't send mls message on api version: \(apiVersion.rawValue)")
                 return nil
 
             case .v2:
