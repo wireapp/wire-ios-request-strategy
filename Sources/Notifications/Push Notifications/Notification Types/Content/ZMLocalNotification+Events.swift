@@ -324,18 +324,18 @@ private class NewMessageNotificationBuilder: EventNotificationBuilder {
             let senderUUID = event.senderUUID,
             conversation.isMessageSilenced(message, senderID: senderUUID) {
             Logging.push.safePublic("Not creating local notification for message with nonce = \(event.messageNonce) because conversation is silenced")
-            DebugLogger.addStep(step: "! Shouldn't create notification", eventID: event.uuid?.uuidString ?? "")
+            DebugLogger.addStep(step: "! Shouldn't create notification, conversation is silenced", eventID: event.uuid?.uuidString ?? "")
             return false
         }
         if ZMUser.selfUser(in: moc).remoteIdentifier == event.senderUUID {
-            DebugLogger.addStep(step: "! Shouldn't create notification", eventID: event.uuid?.uuidString ?? "")
+            DebugLogger.addStep(step: "! Shouldn't create notification, selfUser.remoteIdentifier == event.senderUUID", eventID: event.uuid?.uuidString ?? "")
             return false
         }
 
         if let timeStamp = event.timestamp,
             let lastRead = conversation?.lastReadServerTimeStamp,
             lastRead.compare(timeStamp) != .orderedAscending {
-            DebugLogger.addStep(step: "! Shouldn't create notification", eventID: event.uuid?.uuidString ?? "")
+            DebugLogger.addStep(step: "! Shouldn't create notification, timeStamp: \(timeStamp), lastRead = \(lastRead)", eventID: event.uuid?.uuidString ?? "")
             return false
         }
         return true
