@@ -45,22 +45,19 @@ open class PushNotificationStatus: NSObject {
     @objc(fetchEventId:completionHandler:)
     public func fetch(eventId: UUID, completionHandler: @escaping () -> Void) {
         guard eventId.isType1UUID else {
+            DebugLogger.addStep(step: "! eventId.isType1UUID is FALSE ", eventID: "!")
             return zmLog.error("Attempt to fetch event id not conforming to UUID type1: \(eventId)")
         }
 
         if lastEventIdIsNewerThan(lastEventId: managedObjectContext.zm_lastNotificationID, eventId: eventId) {
             // We have already fetched the event and will therefore immediately call the completion handler
             Logging.eventProcessing.info("Already fetched event with [\(eventId)]")
-            if debugModeEnabled {
-                DebugLogger.addStep(step: "Already fetched event", eventID: eventId.uuidString)
-            }
+            DebugLogger.addStep(step: "! Already fetched event: ", eventID: eventId.uuidString)
             return completionHandler()
         }
 
-        if debugModeEnabled {
-            Logging.eventProcessing.info("Scheduling to fetch events notified by push [\(eventId)]")
-        }
-        DebugLogger.addStep(step: "Scheduling to fetch event", eventID: eventId.uuidString)
+        Logging.eventProcessing.info("Scheduling to fetch events notified by push [\(eventId)]")
+        DebugLogger.addStep(step: "Scheduling to fetch event: ", eventID: eventId.uuidString)
 
         eventIdRanking.add(eventId)
         completionHandlers[eventId] = completionHandler
@@ -84,10 +81,8 @@ open class PushNotificationStatus: NSObject {
         if debugModeEnabled {
             Logging.eventProcessing.info("Finished to fetching all available events")
         }
-        if debugModeEnabled {
-            for eventID in eventIds {
-                DebugLogger.addStep(step: "Did fetched event", eventID: eventID.uuidString)
-            }
+        for eventID in eventIds {
+            DebugLogger.addStep(step: "RS: Did fetch event: ", eventID: eventID.uuidString)
         }
 
         if let lastEventId = lastEventId {

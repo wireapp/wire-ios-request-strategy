@@ -22,15 +22,24 @@ public class DebugLogger {
     public static let DebugFlagIsOnKey = "DebugFlagIsOn"
     public static let PushNotificationLogsKey = "PushNotificationLogs"
 
+//    public static func addStep(step: String, eventID: String) {
+//        guard storage.bool(forKey: DebugFlagIsOnKey) == true else { return }
+//        var logsDictionary = (storage.object(forKey: PushNotificationLogsKey) as? Dictionary<String, Any>) ?? [:]
+//        var eventDictionary: [String: String] = (logsDictionary[eventID] as? Dictionary<String, String>) ?? [:]
+//        let timeStamp = "\(Date().timeIntervalSince1970)"
+//        eventDictionary[timeStamp] = step
+//        logsDictionary[eventID] = eventDictionary
+//        storage.set(logsDictionary, forKey: PushNotificationLogsKey)
+//    }
+
     public static func addStep(step: String, eventID: String) {
         guard storage.bool(forKey: DebugFlagIsOnKey) == true else { return }
-        var logsDictionary = (storage.object(forKey: PushNotificationLogsKey) as? Dictionary<String, Any>) ?? [:]
-        var eventDictionary: [String: String] = (logsDictionary[eventID] as? Dictionary<String, String>) ?? [:]
+        var logsDictionary = (storage.object(forKey: PushNotificationLogsKey) as? Dictionary<String, String>) ?? [:]
         let timeStamp = "\(Date().timeIntervalSince1970)"
-        eventDictionary[timeStamp] = step
-        logsDictionary[eventID] = eventDictionary
+        logsDictionary[timeStamp] = step + " | " + eventID
         storage.set(logsDictionary, forKey: PushNotificationLogsKey)
     }
+
 
     public static func addFinalStep(eventID: String) {
         guard storage.bool(forKey: DebugFlagIsOnKey) == true else { return }
