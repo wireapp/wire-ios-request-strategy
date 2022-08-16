@@ -71,7 +71,6 @@ public enum LocalNotificationContentType: Equatable {
             return ZMOTRMessage.fetch(withNonce: quotedMessageId, for: conversation, in: moc)
         }
 
-        DebugLogger.addStep(step: "! Message content: \(String(describing: message.content))", eventID: "!")
         switch message.content {
         case .location:
             self =  .location
