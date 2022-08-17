@@ -70,6 +70,7 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
         }
 
         set {
+            DebugLogger.addStep(step: "RS2: New lastNotificationID is : ", eventID: newValue?.uuidString ?? "!")
             self.managedObjectContext.zm_lastNotificationID = newValue
         }
     }

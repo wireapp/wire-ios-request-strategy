@@ -52,7 +52,7 @@ open class PushNotificationStatus: NSObject {
         if lastEventIdIsNewerThan(lastEventId: managedObjectContext.zm_lastNotificationID, eventId: eventId) {
             // We have already fetched the event and will therefore immediately call the completion handler
             Logging.eventProcessing.info("Already fetched event with [\(eventId)]")
-            DebugLogger.addStep(step: "! Already fetched event: ", eventID: eventId.uuidString)
+            DebugLogger.addStep(step: "! Already fetched event \(eventId.uuidString) and lastNotificationID is : ", eventID: managedObjectContext.zm_lastNotificationID?.uuidString ?? "!")
             return completionHandler()
         }
 
@@ -86,6 +86,7 @@ open class PushNotificationStatus: NSObject {
         }
 
         if let lastEventId = lastEventId {
+            DebugLogger.addStep(step: "RS1: New lastNotificationID is : ", eventID: lastEventId.uuidString)
             managedObjectContext.zm_lastNotificationID = lastEventId
             managedObjectContext.saveOrRollback()
         }
@@ -99,6 +100,7 @@ open class PushNotificationStatus: NSObject {
 
     /// Report that events couldn't be fetched due to a permanent error
     public func didFailToFetchEvents() {
+        DebugLogger.addStep(step: "RS: didFailToFetchEvents due to a permanent error ", eventID: "!")
         for completionHandler in completionHandlers.values {
             completionHandler()
         }
