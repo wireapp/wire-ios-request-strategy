@@ -95,7 +95,7 @@ public enum LocalNotificationContentType: Equatable {
                 let textMessageData = message.textData,
                 let text = message.textData?.content.removingExtremeCombiningCharacters, !text.isEmpty
             else {
-                DebugLogger.addStep(step: "! Doesn't have message.textData", eventID: "!")
+                DebugLogger.addStep(step: "RS: Doesn't have message.textData", eventID: "!")
                 return nil
             }
 
@@ -119,6 +119,7 @@ public enum LocalNotificationContentType: Equatable {
             }
 
         default:
+            DebugLogger.addStep(step: "RS: Can not create LocalNotificationContentType from - \(String(describing: message.content))", eventID: "")
             return nil
         }
     }

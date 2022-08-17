@@ -28,8 +28,9 @@ public extension ZMLocalNotification {
         switch event.type {
         case .conversationOtrMessageAdd:
             guard let message = GenericMessage(from: event) else {
-                DebugLogger.addStep(step: "! MessageAddEvent: failed to create notification from event", eventID: event.uuid?.uuidString ?? "")
-                break }
+                DebugLogger.addStep(step: "RS: MessageAddEvent: failed to create notification from event", eventID: event.uuid?.uuidString ?? "")
+                break
+            }
             builderType = message.hasReaction ? ReactionEventNotificationBuilder.self : NewMessageNotificationBuilder.self
 
         case .conversationCreate:
@@ -282,12 +283,14 @@ private class NewMessageNotificationBuilder: EventNotificationBuilder {
     private let contentType: LocalNotificationContentType
 
     required init?(event: ZMUpdateEvent, conversation: ZMConversation?, managedObjectContext: NSManagedObjectContext) {
-        DebugLogger.addStep(step: "! NewMessageNotificationBuilder init()", eventID: "!")
+        DebugLogger.addStep(step: "RS: NewMessageNotificationBuilder init()", eventID: "!")
         guard
             let message = GenericMessage(from: event),
             let contentType = LocalNotificationContentType(message: message, conversation: conversation, in: managedObjectContext)
         else {
-            DebugLogger.addStep(step: "! Failed to create notification", eventID: event.uuid?.uuidString ?? "")
+            DebugLogger.addStep(step: "RS: Failed to create notification, GenericMessage(from: event) - \(String(describing: GenericMessage(from: event))))",
+                                eventID: event.uuid?.uuidString ?? "")
+
             return nil
         }
 
@@ -324,18 +327,18 @@ private class NewMessageNotificationBuilder: EventNotificationBuilder {
             let senderUUID = event.senderUUID,
             conversation.isMessageSilenced(message, senderID: senderUUID) {
             Logging.push.safePublic("Not creating local notification for message with nonce = \(event.messageNonce) because conversation is silenced")
-            DebugLogger.addStep(step: "! Shouldn't create notification, conversation is silenced", eventID: event.uuid?.uuidString ?? "")
+            DebugLogger.addStep(step: "RS: Shouldn't create notification, conversation is silenced", eventID: event.uuid?.uuidString ?? "")
             return false
         }
         if ZMUser.selfUser(in: moc).remoteIdentifier == event.senderUUID {
-            DebugLogger.addStep(step: "! Shouldn't create notification, selfUser.remoteIdentifier == event.senderUUID", eventID: event.uuid?.uuidString ?? "")
+            DebugLogger.addStep(step: "RS: Shouldn't create notification, selfUser.remoteIdentifier == event.senderUUID", eventID: event.uuid?.uuidString ?? "")
             return false
         }
 
         if let timeStamp = event.timestamp,
             let lastRead = conversation?.lastReadServerTimeStamp,
             lastRead.compare(timeStamp) != .orderedAscending {
-            DebugLogger.addStep(step: "! Shouldn't create notification, timeStamp: \(timeStamp), lastRead = \(lastRead)", eventID: event.uuid?.uuidString ?? "")
+            DebugLogger.addStep(step: "RS: Shouldn't create notification, timeStamp: \(timeStamp), lastRead = \(lastRead)", eventID: event.uuid?.uuidString ?? "")
             return false
         }
         return true

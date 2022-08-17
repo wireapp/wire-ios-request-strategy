@@ -45,19 +45,19 @@ open class PushNotificationStatus: NSObject {
     @objc(fetchEventId:completionHandler:)
     public func fetch(eventId: UUID, completionHandler: @escaping () -> Void) {
         guard eventId.isType1UUID else {
-            DebugLogger.addStep(step: "! eventId.isType1UUID is FALSE ", eventID: "!")
+            DebugLogger.addStep(step: "RS: eventId.isType1UUID is FALSE ", eventID: "!")
             return zmLog.error("Attempt to fetch event id not conforming to UUID type1: \(eventId)")
         }
 
         if lastEventIdIsNewerThan(lastEventId: managedObjectContext.zm_lastNotificationID, eventId: eventId) {
             // We have already fetched the event and will therefore immediately call the completion handler
             Logging.eventProcessing.info("Already fetched event with [\(eventId)]")
-            DebugLogger.addStep(step: "! Already fetched event \(eventId.uuidString) and lastNotificationID is : ", eventID: managedObjectContext.zm_lastNotificationID?.uuidString ?? "!")
+            DebugLogger.addStep(step: "RS: Already fetched event \(eventId.uuidString) and lastNotificationID is : ", eventID: managedObjectContext.zm_lastNotificationID?.uuidString ?? "!")
             return completionHandler()
         }
 
         Logging.eventProcessing.info("Scheduling to fetch events notified by push [\(eventId)]")
-        DebugLogger.addStep(step: "Scheduling to fetch event: ", eventID: eventId.uuidString)
+        DebugLogger.addStep(step: "RS: Scheduling to fetch event: ", eventID: eventId.uuidString)
 
         eventIdRanking.add(eventId)
         completionHandlers[eventId] = completionHandler
@@ -86,7 +86,7 @@ open class PushNotificationStatus: NSObject {
         }
 
         if let lastEventId = lastEventId {
-            DebugLogger.addStep(step: "RS1: New lastNotificationID is : ", eventID: lastEventId.uuidString)
+            DebugLogger.addStep(step: "RS: #1 New lastNotificationID is : ", eventID: lastEventId.uuidString)
             managedObjectContext.zm_lastNotificationID = lastEventId
             managedObjectContext.saveOrRollback()
         }

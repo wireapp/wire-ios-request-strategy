@@ -70,7 +70,7 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
         }
 
         set {
-            DebugLogger.addStep(step: "RS2: New lastNotificationID is : ", eventID: newValue?.uuidString ?? "!")
+            DebugLogger.addStep(step: "RS: #2 New lastNotificationID is : ", eventID: newValue?.uuidString ?? "!")
             self.managedObjectContext.zm_lastNotificationID = newValue
         }
     }
@@ -107,13 +107,13 @@ public class NotificationStreamSync: NSObject, ZMRequestGenerator, ZMSimpleListR
             .compactMap { ZMUpdateEvent.eventsArray(from: $0 as ZMTransportData, source: source) }
             .flatMap { $0 }
 
-        DebugLogger.addStep(step: "! RS: Will send events to NE", eventID: "!")
+        DebugLogger.addStep(step: "RS: Will send \(events.count) events to NE", eventID: "!")
         notificationStreamSyncDelegate?.fetchedEvents(events, hasMoreToFetch: self.listPaginator.hasMoreToFetch)
         latestEventId = events.last(where: { !$0.isTransient })?.uuid
 
         //        ZMLogWithLevelAndTag(ZMLogLevelInfo, ZMTAG_EVENT_PROCESSING, @"Downloaded %lu event(s)", (unsigned long)parsedEvents.count);
         for event in events {
-            DebugLogger.addStep(step: "Decoding", eventID: event.uuid?.uuidString ?? "")
+            DebugLogger.addStep(step: "RS: Decoding", eventID: event.uuid?.uuidString ?? "")
         }
 
         tp?.warnIfLongerThanInterval()
