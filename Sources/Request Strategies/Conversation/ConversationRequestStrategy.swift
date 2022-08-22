@@ -49,6 +49,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
     let addParticipantActionHandler: AddParticipantActionHandler
     let removeParticipantActionHandler: RemoveParticipantActionHandler
+    let updateAccessRolesActionHandler: UpdateAccessRolesActionHandler
 
     let updateRoleActionHandler: UpdateRoleActionHandler
 
@@ -60,8 +61,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
     var keysToSync: [String] = [
         ZMConversationUserDefinedNameKey,
         ZMConversationArchivedChangedTimeStampKey,
-        ZMConversationSilencedChangedTimeStampKey,
-        AccessRoleStringsKeyV2
+        ZMConversationSilencedChangedTimeStampKey
     ]
 
     let eventsToProcess: [ZMUpdateEventType] = [
@@ -113,12 +113,14 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
         self.addParticipantActionHandler = AddParticipantActionHandler(context: managedObjectContext)
         self.removeParticipantActionHandler = RemoveParticipantActionHandler(context: managedObjectContext)
+        self.updateAccessRolesActionHandler = UpdateAccessRolesActionHandler(context: managedObjectContext)
 
         self.updateRoleActionHandler = UpdateRoleActionHandler(context: managedObjectContext)
 
         self.actionSync = EntityActionSync(actionHandlers: [
             addParticipantActionHandler,
             removeParticipantActionHandler,
+            updateAccessRolesActionHandler,
             updateRoleActionHandler
         ])
 
@@ -521,35 +523,6 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
             return ZMUpstreamRequest(keys: changedKeys,
                                      transportRequest: request)
 
-        }
-
-        /// Updates access roles for conversations created by private users with wrong access roles.  Patch in SE  modifies `AccessRoleStringsKeyV2`
-        if keys.contains(AccessRoleStringsKeyV2) {
-            guard conversation.team == nil,
-                  let payload = Payload.UpdateConversationAccess(conversation),
-                  let payloadData = payload.payloadData(encoder: .defaultEncoder),
-                  let payloadAsString = String(bytes: payloadData, encoding: .utf8) else {
-                      return nil
-                  }
-            let request: ZMTransportRequest
-
-            switch apiVersion {
-            case .v0:
-            request = ZMTransportRequest(path: "/conversations/\(conversationID)/access",
-                                             method: .methodPUT,
-                                             payload: payloadAsString as ZMTransportData?,
-                                             apiVersion: apiVersion.rawValue)
-            case .v1, .v2:
-                guard let domain = conversation.domain.nonEmptyValue ?? APIVersion.domain else { return nil }
-                request = ZMTransportRequest(path: "/conversations/\(domain)/\(conversationID)/access",
-                                                 method: .methodPUT,
-                                                 payload: payloadAsString as ZMTransportData?,
-                                                 apiVersion: apiVersion.rawValue)
-            }
-
-            let changedKeys: Set<String> = [AccessRoleStringsKeyV2]
-            return ZMUpstreamRequest(keys: changedKeys,
-                                     transportRequest: request)
         }
 
         return nil
