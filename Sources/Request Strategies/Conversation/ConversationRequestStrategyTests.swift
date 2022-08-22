@@ -183,25 +183,6 @@ class ConversationRequestStrategyTests: MessagingTestBase {
         }
     }
 
-    func testThatRequestToUpdateAccessRolesIsGenerated_WhenModifiedKeyIsSet() {
-        syncMOC.performGroupedBlockAndWait {
-            // given
-            self.apiVersion = .v1
-            let conversationID = self.groupConversation.remoteIdentifier!
-            self.groupConversation.team = nil
-            let accessRoleStringsKeyV2Set: Set<AnyHashable> = [AccessRoleStringsKeyV2]
-            self.groupConversation.setLocallyModifiedKeys(accessRoleStringsKeyV2Set)
-            self.sut.contextChangeTrackers.forEach({ $0.objectsDidChange(Set([self.groupConversation])) })
-
-            // when
-            let request = self.sut.nextRequest(for: self.apiVersion)!
-
-            // then
-            XCTAssertEqual(request.path, "/v1/conversations/\(conversationID.transportString())/access")
-            XCTAssertEqual(request.method, .methodPUT)
-        }
-    }
-
     // MARK: - Slow Sync
 
     func testThatRequestToListConversationsIsGenerated_DuringFetchingConversationsSyncPhase() {
