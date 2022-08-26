@@ -124,7 +124,7 @@ final class UpdateAccessRolesActionHandlerTests: MessagingTestBase {
             let payload = Payload.UpdateConversationAccess(accessMode: accessMode,
                                                            accessRoles: accessRoles)
 
-            let conversationEvent = conversationEventPayload(from: payload!,
+            let conversationEvent = conversationEventPayload(from: payload,
                                                              conversationID: conversation.qualifiedID,
                                                              senderID: self.otherUser.qualifiedID)
             let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!
@@ -163,7 +163,7 @@ final class UpdateAccessRolesActionHandlerTests: MessagingTestBase {
             let payload = Payload.UpdateConversationAccess(accessMode: accessMode,
                                                            accessRoles: accessRoles)
 
-            let conversationEvent = conversationEventPayload(from: payload!,
+            let conversationEvent = conversationEventPayload(from: payload,
                                                              conversationID: conversation.qualifiedID,
                                                              senderID: self.otherUser.qualifiedID)
             let payloadAsString = String(bytes: conversationEvent.payloadData()!, encoding: .utf8)!

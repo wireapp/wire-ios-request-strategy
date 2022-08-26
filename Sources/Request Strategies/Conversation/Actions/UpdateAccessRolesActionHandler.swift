@@ -38,9 +38,10 @@ final class UpdateAccessRolesActionHandler: ActionHandler<UpdateAccessRolesActio
 
     override func request(for action: UpdateAccessRolesAction, apiVersion: APIVersion) -> ZMTransportRequest? {
 
+        let payload = Payload.UpdateConversationAccess(accessMode: action.accessMode, accessRoles: action.accessRoles)
+
         guard let conversation = ZMConversation.existingObject(for: action.conversationID, in: context),
               let conversationID = conversation.remoteIdentifier?.transportString(),
-              let payload = Payload.UpdateConversationAccess(accessMode: action.accessMode, accessRoles: action.accessRoles),
               let payloadData = payload.payloadData(encoder: .defaultEncoder),
               let payloadAsString = String(bytes: payloadData, encoding: .utf8) else {
                   return nil
