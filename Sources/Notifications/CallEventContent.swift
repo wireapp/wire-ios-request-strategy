@@ -87,6 +87,14 @@ public struct CallEventContent: Decodable {
         return type == "REMOTEMUTE"
     }
 
+    public var isConferenceKey: Bool {
+        return type == "CONFKEY"
+    }
+
+    public var isReject: Bool {
+        return type == "REJECT"
+    }
+
 }
 
 extension CallEventContent {
