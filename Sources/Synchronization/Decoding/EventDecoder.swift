@@ -159,8 +159,8 @@ extension EventDecoder {
             return nil
         }
 
-        guard !conversation.isPendingWelcomeMessage else {
-            Logging.eventProcessing.warn("MLS conversation is still pending welcome message")
+        guard conversation.mlsStatus == .ready else {
+            Logging.eventProcessing.warn("MLS conversation is not ready to decrypt messages")
             return nil
         }
 

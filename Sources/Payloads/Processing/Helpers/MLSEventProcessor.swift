@@ -22,6 +22,7 @@ protocol MLSEventProcessing {
 
     func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext)
     func process(welcomeMessage: String, domain: String, in context: NSManagedObjectContext)
+    func addConversationToBeJoinedAfterSyncIfNeeded(_ conversation: ZMConversation, context: NSManagedObjectContext)
 
 }
 
@@ -31,7 +32,11 @@ class MLSEventProcessor: MLSEventProcessing {
 
     // MARK: - Update conversation
 
-    func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext) {
+    func updateConversationIfNeeded(
+        conversation: ZMConversation,
+        groupID: String?,
+        context: NSManagedObjectContext
+    ) {
         guard conversation.messageProtocol == .mls else {
             return Logging.mls.info("Message protocol is not mls")
         }
@@ -46,7 +51,35 @@ class MLSEventProcessor: MLSEventProcessing {
             return Logging.mls.warn("Missing MLSController in context")
         }
 
-        conversation.isPendingWelcomeMessage = !mlsController.conversationExists(groupID: mlsGroupID)
+        let conversationExists = mlsController.conversationExists(groupID: mlsGroupID)
+        conversation.mlsStatus = conversationExists ? .ready : .pendingWelcomeMessage
+
+
+        context.saveOrRollback()
+    }
+
+    // MARK: - Joining new conversations
+
+    func addConversationToBeJoinedAfterSyncIfNeeded(_ conversation: ZMConversation, context: NSManagedObjectContext) {
+        guard conversation.messageProtocol == .mls else {
+            return Logging.mls.info("Message protocol is not mls")
+        }
+
+        guard let status = conversation.mlsStatus else {
+            return Logging.mls.warn("Conversation's MLS status is nil")
+        }
+
+        guard let mlsGroup = MLSGroup(from: conversation) else {
+            return Logging.mls.warn("Failed to create MLSGroup from conversation")
+        }
+
+        guard let mlsController = context.mlsController else {
+            return Logging.mls.warn("Missing MLSController in context")
+        }
+
+        if status.isPendingWelcomeMessage {
+            mlsController.addGroupPendingWelcomeMessage(mlsGroup)
+        }
     }
 
     // MARK: - Process welcome message
@@ -63,10 +96,17 @@ class MLSEventProcessor: MLSEventProcessing {
                 return Logging.mls.warn("Conversation does not exist")
             }
 
-            conversation.isPendingWelcomeMessage = false
+            conversation.mlsStatus = .ready
+            context.saveOrRollback()
         } catch {
             return Logging.mls.warn("Couldn't process welcome message for conversation: \(String(describing: error))")
         }
+    }
+}
+
+extension MLSGroupStatus {
+    var isPendingWelcomeMessage: Bool {
+        return self == .pendingWelcomeMessage
     }
 }
 
