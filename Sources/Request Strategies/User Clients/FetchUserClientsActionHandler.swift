@@ -101,7 +101,7 @@ final class FetchUserClientsActionHandler: ActionHandler<FetchUserClientsAction>
                         }
 
                         result.formUnion(clients.map { client in
-                            Action.QualifiedClientID(
+                            QualifiedClientID(
                                 userID: userID,
                                 domain: domain,
                                 clientID: client.id

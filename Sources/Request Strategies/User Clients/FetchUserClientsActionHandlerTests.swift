@@ -118,17 +118,17 @@ class FetchUserClientsActionHandlerTests: ActionHandlerTestBase<FetchUserClients
 
         // Then
         XCTAssertEqual(result, Set([
-            FetchUserClientsAction.QualifiedClientID(
+            QualifiedClientID(
                 userID: userID1,
                 domain: domain1,
                 clientID: clientID1
             ),
-            FetchUserClientsAction.QualifiedClientID(
+            QualifiedClientID(
                 userID: userID1,
                 domain: domain1,
                 clientID: clientID2
             ),
-            FetchUserClientsAction.QualifiedClientID(
+            QualifiedClientID(
                 userID: userID2,
                 domain: domain2,
                 clientID: clientID3
