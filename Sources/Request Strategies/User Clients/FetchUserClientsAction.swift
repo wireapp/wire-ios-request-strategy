@@ -24,6 +24,12 @@ public struct QualifiedClientID: Hashable {
     public let domain: String
     public let clientID: String
 
+    public init(userID: UUID, domain: String, clientID: String) {
+        self.userID = userID
+        self.domain = domain
+        self.clientID = clientID
+    }
+
 }
 
 /// An action to fetch all user client IDs given a set of
