@@ -29,9 +29,9 @@ public final class FetchUserClientsAction: EntityAction {
 
     public struct QualifiedClientID: Hashable {
 
-        let userID: UUID
-        let domain: String
-        let clientID: String
+        public let userID: UUID
+        public let domain: String
+        public let clientID: String
 
     }
 
