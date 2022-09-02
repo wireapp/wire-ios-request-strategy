@@ -18,6 +18,14 @@
 
 import Foundation
 
+public struct QualifiedClientID: Hashable {
+
+    public let userID: UUID
+    public let domain: String
+    public let clientID: String
+
+}
+
 /// An action to fetch all user client IDs given a set of
 /// user IDs.
 
@@ -26,14 +34,6 @@ public final class FetchUserClientsAction: EntityAction {
     // MARK: - Types
 
     public typealias Result = Set<QualifiedClientID>
-
-    public struct QualifiedClientID: Hashable {
-
-        public let userID: UUID
-        public let domain: String
-        public let clientID: String
-
-    }
 
     public enum Failure: Error, Equatable {
 
