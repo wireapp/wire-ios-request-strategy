@@ -1099,7 +1099,7 @@ class ConversationRequestStrategyTests: MessagingTestBase {
             self.sut.processEvents([updateEvent], liveEvents: true, prefetchResult: nil)
 
             // THEN
-            XCTAssertEqual(mlsEventProcessorMock.processedMessage, message)
+            XCTAssertEqual(mlsEventProcessorMock.calls.processWelcomeMessage.first?.message, message)
 
             MLSEventProcessor.reset()
         }
