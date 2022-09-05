@@ -22,7 +22,7 @@ protocol MLSEventProcessing {
 
     func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext)
     func process(welcomeMessage: String, domain: String, in context: NSManagedObjectContext)
-    func addConversationToBeJoinedAfterSyncIfNeeded(_ conversation: ZMConversation, context: NSManagedObjectContext)
+    func joinMLSGroupWhenReady(forConversation conversation: ZMConversation, context: NSManagedObjectContext)
 
 }
 
@@ -52,7 +52,7 @@ class MLSEventProcessor: MLSEventProcessing {
         }
 
         let conversationExists = mlsController.conversationExists(groupID: mlsGroupID)
-        conversation.mlsStatus = conversationExists ? .ready : .pendingWelcomeMessage
+        conversation.mlsStatus = conversationExists ? .ready : .pendingJoin
 
 
         context.saveOrRollback()
@@ -60,7 +60,7 @@ class MLSEventProcessor: MLSEventProcessing {
 
     // MARK: - Joining new conversations
 
-    func addConversationToBeJoinedAfterSyncIfNeeded(_ conversation: ZMConversation, context: NSManagedObjectContext) {
+    func joinMLSGroupWhenReady(forConversation conversation: ZMConversation, context: NSManagedObjectContext) {
         guard conversation.messageProtocol == .mls else {
             return Logging.mls.info("Message protocol is not mls")
         }
@@ -77,8 +77,8 @@ class MLSEventProcessor: MLSEventProcessing {
             return Logging.mls.warn("Missing MLSController in context")
         }
 
-        if status.isPendingWelcomeMessage {
-            mlsController.addGroupPendingWelcomeMessage(mlsGroup)
+        if status.isPendingJoin {
+            mlsController.addGroupPendingJoin(mlsGroup)
         }
     }
 
@@ -105,8 +105,8 @@ class MLSEventProcessor: MLSEventProcessing {
 }
 
 extension MLSGroupStatus {
-    var isPendingWelcomeMessage: Bool {
-        return self == .pendingWelcomeMessage
+    var isPendingJoin: Bool {
+        return self == .pendingJoin
     }
 }
 
