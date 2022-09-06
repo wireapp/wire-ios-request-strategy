@@ -45,7 +45,7 @@ class MLSEventProcessor: MLSEventProcessing {
         let previousGroupID = conversation.mlsGroupID
         conversation.mlsGroupID = mlsGroupID
 
-        Logging.mls.info("MLS event processor updated previous group ID (\(previousGroupID)) with new value (\(mlsGroupID))")
+        Logging.mls.info("MLS event processor updated previous group ID (\(String(describing: previousGroupID))) with new value (\(mlsGroupID))")
 
         guard let mlsController = context.mlsController else {
             return Logging.mls.warn("MLS event processor aborting conversation update: missing MLSController")
@@ -53,7 +53,7 @@ class MLSEventProcessor: MLSEventProcessing {
 
         let previousIsPendingWelcomeMessage = conversation.isPendingWelcomeMessage
         conversation.isPendingWelcomeMessage = !mlsController.conversationExists(groupID: mlsGroupID)
-        Logging.mls.info("MLS event processor updated previous isPendingWelcomeMessage (\(previousIsPendingWelcomeMessage)) with new value (\(conversation.isPendingWelcomeMessage)) for conversation (\(conversation.qualifiedID))")
+        Logging.mls.info("MLS event processor updated previous isPendingWelcomeMessage (\(previousIsPendingWelcomeMessage)) with new value (\(conversation.isPendingWelcomeMessage)) for conversation (\(String(describing: conversation.qualifiedID)))")
     }
 
     // MARK: - Process welcome message
