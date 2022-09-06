@@ -144,28 +144,31 @@ extension EventDecoder {
     }
 
     func decryptMlsMessage(from updateEvent: ZMUpdateEvent, context: NSManagedObjectContext) -> ZMUpdateEvent? {
+        let eventType = String(describing: updateEvent.type)
+        Logging.mls.info("decrypting update event (\(eventType))")
+
         guard let mlsController = context.mlsController else {
-            Logging.mls.info("MLS controller is missing from context")
+            Logging.mls.warn("failed to decrypt update event (\(eventType)): MLS controller is missing")
             return nil
         }
 
         guard let payload = updateEvent.eventPayload(type: Payload.UpdateConversationMLSMessageAdd.self) else {
-            Logging.mls.warn("invalid update event payload")
+            Logging.mls.warn("failed to decrypt update event (\(eventType)): invalid update event payload")
             return nil
         }
 
         guard let conversation = ZMConversation.fetch(with: payload.id, domain: payload.qualifiedID?.domain, in: context) else {
-            Logging.mls.warn("MLS conversation does not exist")
+            Logging.mls.warn("failed to decrypt update event (\(eventType)): conversation not found in db")
             return nil
         }
 
         guard !conversation.isPendingWelcomeMessage else {
-            Logging.mls.warn("MLS conversation is still pending welcome message")
+            Logging.mls.warn("failed to decrypt update event (\(eventType)): conversation is pending welcome message")
             return nil
         }
 
         guard let groupID = conversation.mlsGroupID else {
-            Logging.mls.warn("Missing MLS group ID")
+            Logging.mls.warn("failed to decrypt update event (\(eventType)): missing MLS group ID")
             return nil
         }
 
@@ -173,12 +176,14 @@ extension EventDecoder {
             guard
                 let decryptedData = try mlsController.decrypt(message: payload.data, for: groupID)
             else {
-                Logging.mls.info("No decrypted data returned, likely due to handshake message")
+                Logging.mls.info("successfully decrypted update event (\(eventType)) but no data returned due to handshake message")
                 return nil
             }
+
             return updateEvent.decryptedMLSEvent(decryptedData: decryptedData)
+
         } catch {
-            Logging.mls.warn("failed to decrypt message: \(String(describing: error))")
+            Logging.mls.warn("failed to decrypt update event (\(eventType)): \(String(describing: error))")
             return nil
         }
     }

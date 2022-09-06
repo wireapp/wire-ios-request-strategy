@@ -379,19 +379,19 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
 
         if newConversation.messageProtocol == .mls {
             guard let mlsController = managedObjectContext.mlsController else {
-                Logging.mls.warn("Can't create mls group because mls controller doesn't exist.")
+                Logging.mls.warn("failed to create mls group: MLSController doesn't exist")
                 return
             }
 
             guard let groupID = newConversation.mlsGroupID else {
-                Logging.mls.warn("Can't create mls group because it doesn't have a group id.")
+                Logging.mls.warn("failed to create mls group: conversation is missing group id.")
                 return
             }
 
             do {
                 try mlsController.createGroup(for: groupID)
             } catch let error {
-                Logging.mls.error("Failed to create mls group: \(String(describing: error))")
+                Logging.mls.error("failed to create mls group: \(String(describing: error))")
                 return
             }
 
@@ -401,7 +401,7 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 do {
                     try await mlsController.addMembersToConversation(with: users, for: groupID)
                 } catch let error {
-                    Logging.mls.error("Failed to add members to mls group: \(String(describing: error))")
+                    Logging.mls.error("failed to add members to new mls group: \(String(describing: error))")
                     return
                 }
             }
