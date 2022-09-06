@@ -145,27 +145,27 @@ extension EventDecoder {
 
     func decryptMlsMessage(from updateEvent: ZMUpdateEvent, context: NSManagedObjectContext) -> ZMUpdateEvent? {
         guard let mlsController = context.mlsController else {
-            Logging.eventProcessing.info("MLS controller is missing from context")
+            Logging.mls.info("MLS controller is missing from context")
             return nil
         }
 
         guard let payload = updateEvent.eventPayload(type: Payload.UpdateConversationMLSMessageAdd.self) else {
-            Logging.eventProcessing.warn("invalid update event payload")
+            Logging.mls.warn("invalid update event payload")
             return nil
         }
 
         guard let conversation = ZMConversation.fetch(with: payload.id, domain: payload.qualifiedID?.domain, in: context) else {
-            Logging.eventProcessing.warn("MLS conversation does not exist")
+            Logging.mls.warn("MLS conversation does not exist")
             return nil
         }
 
         guard !conversation.isPendingWelcomeMessage else {
-            Logging.eventProcessing.warn("MLS conversation is still pending welcome message")
+            Logging.mls.warn("MLS conversation is still pending welcome message")
             return nil
         }
 
         guard let groupID = conversation.mlsGroupID else {
-            Logging.eventProcessing.warn("Missing MLS group ID")
+            Logging.mls.warn("Missing MLS group ID")
             return nil
         }
 
@@ -173,12 +173,12 @@ extension EventDecoder {
             guard
                 let decryptedData = try mlsController.decrypt(message: payload.data, for: groupID)
             else {
-                Logging.eventProcessing.info("No decrypted data returned, likely due to handshake message")
+                Logging.mls.info("No decrypted data returned, likely due to handshake message")
                 return nil
             }
             return updateEvent.decryptedMLSEvent(decryptedData: decryptedData)
         } catch {
-            Logging.eventProcessing.warn("failed to decrypt message: \(String(describing: error))")
+            Logging.mls.warn("failed to decrypt message: \(String(describing: error))")
             return nil
         }
     }
