@@ -42,10 +42,10 @@ class MLSEventProcessor: MLSEventProcessing {
             return Logging.mls.warn("MLS event processor aborting conversation update: missing group ID")
         }
 
-        let previousGroupID = conversation.mlsGroupID
-        conversation.mlsGroupID = mlsGroupID
-
-        Logging.mls.info("MLS event processor updated previous group ID (\(String(describing: previousGroupID))) with new value (\(mlsGroupID))")
+        if conversation.mlsGroupID == nil {
+           conversation.mlsGroupID = mlsGroupID
+           Logging.mls.info("MLS event processor set the group ID to value: (\(mlsGroupID)) for conversation: (\(String(describing: conversation.qualifiedID))")
+        }
 
         guard let mlsController = context.mlsController else {
             return Logging.mls.warn("MLS event processor aborting conversation update: missing MLSController")
