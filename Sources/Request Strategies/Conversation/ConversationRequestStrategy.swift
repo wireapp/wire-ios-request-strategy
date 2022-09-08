@@ -49,6 +49,7 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
     let addParticipantActionHandler: AddParticipantActionHandler
     let removeParticipantActionHandler: RemoveParticipantActionHandler
+    let updateAccessRolesActionHandler: UpdateAccessRolesActionHandler
 
     let updateRoleActionHandler: UpdateRoleActionHandler
 
@@ -103,12 +104,14 @@ public class ConversationRequestStrategy: AbstractRequestStrategy, ZMRequestGene
 
         self.addParticipantActionHandler = AddParticipantActionHandler(context: managedObjectContext)
         self.removeParticipantActionHandler = RemoveParticipantActionHandler(context: managedObjectContext)
+        self.updateAccessRolesActionHandler = UpdateAccessRolesActionHandler(context: managedObjectContext)
 
         self.updateRoleActionHandler = UpdateRoleActionHandler(context: managedObjectContext)
 
         self.actionSync = EntityActionSync(actionHandlers: [
             addParticipantActionHandler,
             removeParticipantActionHandler,
+            updateAccessRolesActionHandler,
             updateRoleActionHandler
         ])
 
@@ -367,6 +370,10 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
 
         newConversation.remoteIdentifier = conversationID
 
+        if newConversation.messageProtocol == .mls {
+            Logging.mls.info("created new conversation on backend, got group ID (\(String(describing: payload.mlsGroupID)))")
+        }
+
         // If this is an mls conversation, then the initial participants won't have
         // been added yet on the backend. This means that when we process response payload
         // we'll actually overwrite the local participants with just the self user. We
@@ -378,25 +385,23 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
         newConversation.needsToBeUpdatedFromBackend = deletedDuplicate
 
         if newConversation.messageProtocol == .mls {
-            guard let mlsController = managedObjectContext.mlsController else {
-                Logging.network.warn("Can't create mls group because mls controller doesn't exist.")
-                return
-            }
+            Logging.mls.info("resetting `isPendingWelcomeMessage` to `false` b/c self client is creator")
+            newConversation.isPendingWelcomeMessage = false
 
-            guard #available(iOS 15, *) else {
-                Logging.network.warn("iOS 15 required for creating an mls group.")
+            guard let mlsController = managedObjectContext.mlsController else {
+                Logging.mls.warn("failed to create mls group: MLSController doesn't exist")
                 return
             }
 
             guard let groupID = newConversation.mlsGroupID else {
-                Logging.network.warn("Can't create mls group because it doesn't have a group id.")
+                Logging.mls.warn("failed to create mls group: conversation is missing group id.")
                 return
             }
 
             do {
                 try mlsController.createGroup(for: groupID)
             } catch let error {
-                Logging.network.error("Failed to create mls group: \(String(describing: error))")
+                Logging.mls.error("failed to create mls group: \(String(describing: error))")
                 return
             }
 
@@ -406,7 +411,7 @@ extension ConversationRequestStrategy: ZMUpstreamTranscoder {
                 do {
                     try await mlsController.addMembersToConversation(with: users, for: groupID)
                 } catch let error {
-                    Logging.network.error("Failed to add members to mls group: \(String(describing: error))")
+                    Logging.mls.error("failed to add members to new mls group: \(String(describing: error))")
                     return
                 }
             }
