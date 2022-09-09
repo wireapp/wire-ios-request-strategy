@@ -387,7 +387,8 @@ extension EventDecoderTest {
     func test_DecryptMLSMessage_ReturnsDecryptedEvent() {
         syncMOC.performAndWait {
             // Given
-            mockMLSController.mockDecryptedData = randomData
+            let messageData = randomData
+            mockMLSController.mockDecryptResult = MLSDecryptResult.message(messageData)
 
             let event = mlsMessageAddEvent(
                 data: randomData.base64EncodedString(),
@@ -399,8 +400,7 @@ extension EventDecoderTest {
 
             // Then
             let decryptedData = decryptedEvent?.payload["data"] as? String
-            let expectedData = mockMLSController.mockDecryptedData?.base64EncodedString()
-            XCTAssertEqual(decryptedData, expectedData)
+            XCTAssertEqual(decryptedData, messageData.base64EncodedString())
             XCTAssertEqual(decryptedEvent?.uuid, event.uuid)
         }
     }
@@ -438,7 +438,7 @@ extension EventDecoderTest {
     func test_DecryptMLSMessage_ReturnsNil_WhenDecryptedDataIsNil() {
         syncMOC.performAndWait {
             // Given
-            mockMLSController.mockDecryptedData = nil
+            mockMLSController.mockDecryptResult = nil
 
             let event = mlsMessageAddEvent(
                 data: randomData.base64EncodedString(),
