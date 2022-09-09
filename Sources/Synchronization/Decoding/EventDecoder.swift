@@ -188,10 +188,12 @@ extension EventDecoder {
                 mlsController.scheduleCommitPendingProposals(groupID: groupID, at: scheduledDate)
 
                 if updateEvent.source == .webSocket {
-                    do {
-                        try mlsController.commitPendingProposals()
-                    } catch {
-                        Logging.mls.error("Failed to commit pending proposals: \(String(describing: error))")
+                    Task {
+                        do {
+                            try await mlsController.commitPendingProposals()
+                        } catch {
+                            Logging.mls.error("Failed to commit pending proposals: \(String(describing: error))")
+                        }
                     }
                 }
                 return nil
