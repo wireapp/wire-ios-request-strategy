@@ -53,7 +53,7 @@ class FetchBackendMLSPublicKeysActionHandlerTests: ActionHandlerTestBase<FetchBa
     func test_itDoesntGenerateRequests_APIV0() {
         test_itDoesntGenerateARequest(
             action: action,
-            apiVersion: .v1,
+            apiVersion: .v0,
             expectedError: .endpointUnavailable
         )
     }
