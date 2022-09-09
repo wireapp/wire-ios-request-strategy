@@ -23,10 +23,16 @@ class MockMLSController: MLSControllerProtocol {
 
     var mockDecryptResult: MLSDecryptResult?
     var mockDecryptionError: MLSController.MLSMessageDecryptionError?
-    var decryptCalls = [(String, MLSGroupID)]()
+    var calls = Calls()
+
+    struct Calls {
+        var decrypt: [(String, MLSGroupID)] = []
+        var commitPendingProposals: [Void] = []
+        var scheduleCommitPendingProposals: [(MLSGroupID, Date)] = []
+    }
 
     func decrypt(message: String, for groupID: MLSGroupID) throws -> MLSDecryptResult? {
-        decryptCalls.append((message, groupID))
+        calls.decrypt.append((message, groupID))
 
         if let error = mockDecryptionError {
             throw error
@@ -83,10 +89,10 @@ class MockMLSController: MLSControllerProtocol {
     }
 
     func commitPendingProposals() async throws {
-
+        calls.commitPendingProposals.append(())
     }
 
     func scheduleCommitPendingProposals(groupID: MLSGroupID, at commitDate: Date) {
-
+        calls.scheduleCommitPendingProposals.append((groupID, commitDate))
     }
 }

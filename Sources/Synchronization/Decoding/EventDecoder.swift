@@ -184,7 +184,7 @@ extension EventDecoder {
             case .message(let decryptedData):
                 return updateEvent.decryptedMLSEvent(decryptedData: decryptedData)
             case .proposal(let commitDelay):
-                let scheduledDate = updateEvent.timestamp ?? Date() + TimeInterval(commitDelay)
+                let scheduledDate = (updateEvent.timestamp ?? Date()) + TimeInterval(commitDelay)
                 mlsController.scheduleCommitPendingProposals(groupID: groupID, at: scheduledDate)
 
                 if updateEvent.source == .webSocket {

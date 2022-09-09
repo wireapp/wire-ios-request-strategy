@@ -405,6 +405,80 @@ extension EventDecoderTest {
         }
     }
 
+    func test_DecryptMLSMessage_SchedulesCommit_WhenMessageContainsProposal() {
+        syncMOC.performAndWait {
+            // Given
+            let commitDelay: UInt64 = 5
+            let mlsGroupID = randomGroupID
+            let event = mlsMessageAddEvent(
+                data: randomData.base64EncodedString(),
+                groupID: mlsGroupID
+            )
+            let expectedCommitDate = event.timestamp! + TimeInterval(commitDelay)
+            mockMLSController.mockDecryptResult = MLSDecryptResult.proposal(commitDelay)
+
+            // When
+            let decryptedEvent = sut.decryptMlsMessage(from: event, context: syncMOC)
+
+            // Then
+            XCTAssertNil(decryptedEvent)
+
+            let scheduleCommitPendingProposalsCalls = mockMLSController.calls.scheduleCommitPendingProposals
+            XCTAssertEqual(1, scheduleCommitPendingProposalsCalls.count)
+            XCTAssertEqual(mlsGroupID, scheduleCommitPendingProposalsCalls[0].0)
+            XCTAssertEqual(expectedCommitDate, scheduleCommitPendingProposalsCalls[0].1)
+        }
+    }
+
+    func test_DecryptMLSMessage_CommitsPendingsProposals_WhenReceivingProposalOnWebsocket() {
+        syncMOC.performAndWait {
+            // Given
+            let commitDelay: UInt64 = 5
+            let mlsGroupID = randomGroupID
+            let event = mlsMessageAddEvent(
+                data: randomData.base64EncodedString(),
+                groupID: mlsGroupID
+            )
+            event.source = .webSocket
+            mockMLSController.mockDecryptResult = MLSDecryptResult.proposal(commitDelay)
+
+            // When
+            let decryptedEvent = sut.decryptMlsMessage(from: event, context: syncMOC)
+
+            // Then
+            XCTAssertNil(decryptedEvent)
+            XCTAssertTrue(wait(withTimeout: 3.0) { [self] in
+                !mockMLSController.calls.commitPendingProposals.isEmpty
+            })
+
+            let commitPendingProposalsCalls: [Void] = mockMLSController.calls.commitPendingProposals
+            XCTAssertEqual(1, commitPendingProposalsCalls.count)
+        }
+    }
+
+    func test_DecryptMLSMessage_CommitsPendingsProposalsIsNotCalled_WhenReceivingProposalViaDownload() {
+        syncMOC.performAndWait {
+            // Given
+            let commitDelay: UInt64 = 5
+            let mlsGroupID = randomGroupID
+            let event = mlsMessageAddEvent(
+                data: randomData.base64EncodedString(),
+                groupID: mlsGroupID
+            )
+            event.source = .download
+            mockMLSController.mockDecryptResult = MLSDecryptResult.proposal(commitDelay)
+
+            // When
+            let decryptedEvent = sut.decryptMlsMessage(from: event, context: syncMOC)
+
+            // Then
+            XCTAssertNil(decryptedEvent)
+            spinMainQueue(withTimeout: 1)
+            let commitPendingProposalsCalls: [Void] = mockMLSController.calls.commitPendingProposals
+            XCTAssertEqual(0, commitPendingProposalsCalls.count)
+        }
+    }
+
     func test_DecryptMLSMessage_ReturnsNil_WhenPayloadIsInvalid() {
         syncMOC.performAndWait {
             // Given
