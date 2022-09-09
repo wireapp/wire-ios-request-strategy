@@ -173,11 +173,19 @@ extension EventDecoder {
 
         do {
             guard
-                let decryptedData = try mlsController.decrypt(message: payload.data,
-                                                              for: groupID,
-                                                              timestamp: updateEvent.timestamp ?? Date())
+                let result = try mlsController.decrypt(message: payload.data,
+                                                       for: groupID)
             else {
-                Logging.mls.info("successfully decrypted mls message but no data returned due to handshake message")
+                Logging.mls.info("successfully decrypted mls message but no result was returned")
+                return nil
+            }
+
+            switch result {
+            case .message(let decryptedData):
+                return updateEvent.decryptedMLSEvent(decryptedData: decryptedData)
+            case .proposal(let commitDelay):
+                let scheduledDate = updateEvent.timestamp ?? Date() + TimeInterval(commitDelay)
+                mlsController.scheduleCommitPendingProposals(groupID: groupID, at: scheduledDate)
 
                 if updateEvent.source == .webSocket {
                     do {
@@ -188,8 +196,6 @@ extension EventDecoder {
                 }
                 return nil
             }
-
-            return updateEvent.decryptedMLSEvent(decryptedData: decryptedData)
 
         } catch {
             Logging.mls.warn("failed to decrypt mls message: \(String(describing: error))")
