@@ -103,7 +103,7 @@ class MLSEventProcessor: MLSEventProcessing {
         do {
             let groupID = try mlsController.processWelcomeMessage(welcomeMessage: welcomeMessage)
 
-            guard let conversation = ZMConversation.fetch(with: groupID, domain: domain, in: context) else {
+            guard let conversation = ZMConversation.fetch(with: groupID, in: context) else {
                 return Logging.mls.warn("MLS event processor aborting processing welcome message: conversation does not exist in db")
             }
 

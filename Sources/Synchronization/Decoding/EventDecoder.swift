@@ -173,9 +173,19 @@ extension EventDecoder {
 
         do {
             guard
-                let decryptedData = try mlsController.decrypt(message: payload.data, for: groupID)
+                let decryptedData = try mlsController.decrypt(message: payload.data,
+                                                              for: groupID,
+                                                              timestamp: updateEvent.timestamp ?? Date())
             else {
                 Logging.mls.info("successfully decrypted mls message but no data returned due to handshake message")
+
+                if updateEvent.source == .webSocket {
+                    do {
+                        try mlsController.commitPendingProposals()
+                    } catch {
+                        Logging.mls.error("Failed to commit pending proposals: \(String(describing: error))")
+                    }
+                }
                 return nil
             }
 
