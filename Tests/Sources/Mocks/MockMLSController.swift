@@ -71,9 +71,9 @@ class MockMLSController: MLSControllerProtocol {
         return message + [000]
     }
 
-    var groupsPendingJoin = [MLSGroup]()
+    var groupsPendingJoin = [MLSGroupID]()
 
-    func addGroupPendingJoin(_ group: MLSGroup) {
+    func addGroupPendingJoin(_ group: MLSGroupID) {
         groupsPendingJoin.append(group)
     }
 

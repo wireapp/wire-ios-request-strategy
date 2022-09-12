@@ -747,7 +747,7 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             event.process(in: syncMOC, originalEvent: updateEvent)
 
             // then
-            XCTAssertEqual(message, mockEventProcessor.calls.processWelcomeMessage.first?.message)
+            XCTAssertEqual(message, mockEventProcessor.calls.processWelcomeMessage.first)
         }
     }
 
@@ -789,7 +789,8 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             userIDs: [],
             users: [selfMember],
             messageProtocol: "mls",
-            mlsGroupID: "id"
+            mlsGroupID: "id",
+            epoch: nil
         )
     }
 }
