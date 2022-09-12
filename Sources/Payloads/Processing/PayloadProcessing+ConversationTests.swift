@@ -692,6 +692,26 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         }
     }
 
+    func testUpdateOrCreateConversation_Group_UpdatesEpoch() {
+        syncMOC.performAndWait {
+            // given
+            MLSEventProcessor.setMock(MockMLSEventProcessor())
+            groupConversation.epoch = 0
+
+            let conversation = Payload.Conversation(
+                qualifiedID: groupConversation.qualifiedID!,
+                type: BackendConversationType.group.rawValue,
+                epoch: 1
+            )
+
+            // when
+            conversation.updateOrCreate(in: syncMOC)
+
+            // then
+            XCTAssertEqual(conversation.epoch, 1)
+        }
+    }
+
     // MARK: - MLS: Conversation Member Join
 
     func testUpdateConversationMemberJoin_MLS_AsksToUpdateConversationIfNeeded() {
