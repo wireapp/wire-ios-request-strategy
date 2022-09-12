@@ -743,6 +743,19 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         }
     }
 
+    func testUpdateConversationMemberJoin_UpdatesEpoch() {
+        syncMOC.performAndWait {
+            // given
+            groupConversation.epoch = 0
+
+            // when
+            processMemberJoinEvent(epoch: 1)
+
+            // then
+            XCTAssertEqual(groupConversation.epoch, 1)
+        }
+    }
+
     // MARK: - MLS: Welcome Message
 
     func testUpdateConversationMLSWelcome_AsksToProcessWelcomeMessage() {
@@ -794,15 +807,15 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         )
     }
 
-    private func processMemberJoinEvent() {
-        let payload = memberJoinPayload()
+    private func processMemberJoinEvent(epoch: UInt? = nil) {
+        let payload = memberJoinPayload(epoch: epoch)
         let event = conversationEvent(with: payload)
         let updateEvent = updateEvent(from: payload)
 
         event.process(in: syncMOC, originalEvent: updateEvent)
     }
 
-    private func memberJoinPayload() -> Payload.UpdateConverationMemberJoin {
+    private func memberJoinPayload(epoch: UInt?) -> Payload.UpdateConverationMemberJoin {
         let selfUser = ZMUser.selfUser(in: syncMOC)
         let selfMember = Payload.ConversationMember(qualifiedID: selfUser.qualifiedID)
         return Payload.UpdateConverationMemberJoin(
@@ -810,7 +823,7 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
             users: [selfMember],
             messageProtocol: "mls",
             mlsGroupID: "id",
-            epoch: nil
+            epoch: epoch
         )
     }
 }
