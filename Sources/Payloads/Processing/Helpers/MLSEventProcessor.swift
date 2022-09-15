@@ -92,7 +92,7 @@ class MLSEventProcessor: MLSEventProcessing {
             return logWarn(abortedWithReason: "MLS status is not .pendingJoin")
         }
 
-        mlsController.addGroupPendingJoin(groupID)
+        mlsController.registerPendingJoin(groupID)
         Logging.mls.info("MLS event processor added group (\(groupID)) to be joined")
     }
 
