@@ -23,6 +23,7 @@ protocol MLSEventProcessing {
     func updateConversationIfNeeded(conversation: ZMConversation, groupID: String?, context: NSManagedObjectContext)
     func process(welcomeMessage: String, in context: NSManagedObjectContext)
     func joinMLSGroupWhenReady(forConversation conversation: ZMConversation, context: NSManagedObjectContext)
+    func wipeMLSGroup(forConversation conversation: ZMConversation, context: NSManagedObjectContext)
 
 }
 
@@ -120,6 +121,51 @@ class MLSEventProcessor: MLSEventProcessing {
             )
         } catch {
             return Logging.mls.warn("MLS event processor aborting processing welcome message: \(String(describing: error))")
+        }
+    }
+
+    // MARK: - Wipe conversation
+
+    func wipeMLSGroup(forConversation conversation: ZMConversation, context: NSManagedObjectContext) {
+        Logging.mls.info("MLS event processor is wiping conversation")
+
+        func logWarn(abortedWithReason reason: AbortReason) {
+            Logging.mls.warn("MLS event processor aborting conversation wipe: \(reason.stringValue)")
+        }
+
+        guard conversation.messageProtocol == .mls else {
+            return logWarn(abortedWithReason: .notMLSConversation)
+        }
+
+        guard let mlsGroupID = conversation.mlsGroupID else {
+            return logWarn(abortedWithReason: .missingGroupID)
+        }
+
+        guard let mlsController = context.mlsController else {
+            return logWarn(abortedWithReason: .missingMLSController)
+        }
+
+        mlsController.wipeGroup(mlsGroupID)
+    }
+
+    // MARK: Log Helpers
+    enum AbortReason {
+        case notMLSConversation
+        case missingGroupID
+        case missingMLSController
+        case other(reason: String)
+
+        var stringValue: String {
+            switch self {
+            case .notMLSConversation:
+                return "not an MLS conversation"
+            case .missingGroupID:
+                return "missing group ID"
+            case .missingMLSController:
+                return "missing MLSController"
+            case .other(reason: let reason):
+                return reason
+            }
         }
     }
 }
