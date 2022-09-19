@@ -80,4 +80,10 @@ class MockMLSController: MLSControllerProtocol {
     func performPendingJoins() {
 
     }
+
+    var wipeGroupCalls = [MLSGroupID]()
+
+    func wipeGroup(_ groupID: MLSGroupID) {
+        wipeGroupCalls.append(groupID)
+    }
 }

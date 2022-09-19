@@ -358,7 +358,7 @@ extension Payload.ConversationEvent where T == Payload.UpdateConverationMemberLe
         // checking that the participants are in the conversation before being removed
         conversation.removeParticipantsAndUpdateConversationState(users: Set(removedUsers), initiatingUser: sender)
 
-        if removedUsers.contains(where: \.isSelfUser) {
+        if removedUsers.contains(where: \.isSelfUser), conversation.messageProtocol == .mls {
             MLSEventProcessor.shared.wipeMLSGroup(forConversation: conversation, context: context)
         }
     }
