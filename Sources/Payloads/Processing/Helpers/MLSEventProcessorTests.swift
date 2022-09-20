@@ -149,8 +149,8 @@ class MLSEventProcessorTests: MessagingTestBase {
             )
 
             // Then
-            XCTAssertEqual(mlsControllerMock.wipeGroupCalls.count, 1)
-            XCTAssertEqual(mlsControllerMock.wipeGroupCalls.first, groupID)
+            XCTAssertEqual(mlsControllerMock.calls.wipeGroup.count, 1)
+            XCTAssertEqual(mlsControllerMock.calls.wipeGroup.first, groupID)
         }
     }
 
@@ -167,7 +167,7 @@ class MLSEventProcessorTests: MessagingTestBase {
             )
 
             // Then
-            XCTAssertEqual(mlsControllerMock.wipeGroupCalls.count, 0)
+            XCTAssertEqual(mlsControllerMock.calls.wipeGroup.count, 0)
         }
     }
 
