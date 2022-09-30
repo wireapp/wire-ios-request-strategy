@@ -140,10 +140,7 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
             )
             let memberJoined = Payload.UpdateConverationMemberJoin(
                 userIDs: [user.remoteIdentifier],
-                users: [member],
-                messageProtocol: "proteus",
-                mlsGroupID: nil,
-                epoch: nil
+                users: [member]
             )
             let conversationEvent = conversationEventPayload(
                 from: memberJoined,
@@ -217,10 +214,7 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
             )
             let memberJoined = Payload.UpdateConverationMemberJoin(
                 userIDs: [user.remoteIdentifier],
-                users: [member],
-                messageProtocol: "proteus",
-                mlsGroupID: nil,
-                epoch: nil
+                users: [member]
             )
             let conversationEvent = conversationEventPayload(
                 from: memberJoined,
