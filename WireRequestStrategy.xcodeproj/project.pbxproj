@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -250,6 +250,9 @@
 		EEB5DE05283773C3009B4741 /* GetFeatureConfigsAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB5DE04283773C3009B4741 /* GetFeatureConfigsAction.swift */; };
 		EEB5DE0728377635009B4741 /* GetFeatureConfigsActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB5DE0628377635009B4741 /* GetFeatureConfigsActionHandler.swift */; };
 		EEB5DE0F28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB5DE0E28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift */; };
+		EECBE8EC28E71ED7005DE5DD /* SyncConversationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EECBE8EB28E71ED7005DE5DD /* SyncConversationAction.swift */; };
+		EECBE8EE28E71F19005DE5DD /* SyncConversationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EECBE8ED28E71F19005DE5DD /* SyncConversationActionHandler.swift */; };
+		EECBE8F028E71F57005DE5DD /* SyncConversationActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EECBE8EF28E71F57005DE5DD /* SyncConversationActionHandlerTests.swift */; };
 		EEE0EDB12858906500BBEE29 /* MLSRequestStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEE0EDB02858906500BBEE29 /* MLSRequestStrategy.swift */; };
 		EEE0EE0528591D3200BBEE29 /* OptionalString+NonEmptyValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEE0EE0328591D2C00BBEE29 /* OptionalString+NonEmptyValue.swift */; };
 		EEE0EE0728591E9C00BBEE29 /* AssetDownloadRequestFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEE0EE0628591E9C00BBEE29 /* AssetDownloadRequestFactoryTests.swift */; };
@@ -657,6 +660,9 @@
 		EEB5DE04283773C3009B4741 /* GetFeatureConfigsAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetFeatureConfigsAction.swift; sourceTree = "<group>"; };
 		EEB5DE0628377635009B4741 /* GetFeatureConfigsActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetFeatureConfigsActionHandler.swift; sourceTree = "<group>"; };
 		EEB5DE0E28379A19009B4741 /* GetFeatureConfigsActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetFeatureConfigsActionHandlerTests.swift; sourceTree = "<group>"; };
+		EECBE8EB28E71ED7005DE5DD /* SyncConversationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncConversationAction.swift; sourceTree = "<group>"; };
+		EECBE8ED28E71F19005DE5DD /* SyncConversationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncConversationActionHandler.swift; sourceTree = "<group>"; };
+		EECBE8EF28E71F57005DE5DD /* SyncConversationActionHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncConversationActionHandlerTests.swift; sourceTree = "<group>"; };
 		EEE0EDB02858906500BBEE29 /* MLSRequestStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLSRequestStrategy.swift; sourceTree = "<group>"; };
 		EEE0EE0328591D2C00BBEE29 /* OptionalString+NonEmptyValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OptionalString+NonEmptyValue.swift"; sourceTree = "<group>"; };
 		EEE0EE0628591E9C00BBEE29 /* AssetDownloadRequestFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDownloadRequestFactoryTests.swift; sourceTree = "<group>"; };
@@ -1110,6 +1116,9 @@
 				06A9FDD128B36FF500B3C730 /* UpdateAccessRolesAction.swift */,
 				06A9FDD328B3701000B3C730 /* UpdateAccessRolesActionHandler.swift */,
 				06A9FDD528B3702700B3C730 /* UpdateAccessRolesActionHandlerTests.swift */,
+				EECBE8EB28E71ED7005DE5DD /* SyncConversationAction.swift */,
+				EECBE8ED28E71F19005DE5DD /* SyncConversationActionHandler.swift */,
+				EECBE8EF28E71F57005DE5DD /* SyncConversationActionHandlerTests.swift */,
 			);
 			path = Actions;
 			sourceTree = "<group>";
@@ -1872,6 +1881,7 @@
 				EEE0EE0528591D3200BBEE29 /* OptionalString+NonEmptyValue.swift in Sources */,
 				168D7CB226FB0E3F00789960 /* EntityActionSync.swift in Sources */,
 				168D7CBB26FB21D900789960 /* RemoveParticipantActionHandler.swift in Sources */,
+				EECBE8EC28E71ED7005DE5DD /* SyncConversationAction.swift in Sources */,
 				F963E8E11D955D5500098AD3 /* SharedProtocols.swift in Sources */,
 				166901F21D7081C7000FE4AF /* ZMUpstreamModifiedObjectSync.m in Sources */,
 				16FFDE441DF6C668003494D6 /* DependencyEntitySync.swift in Sources */,
@@ -1982,6 +1992,7 @@
 				F18401BB2073BE0800E9F4CC /* LinkPreviewAssetDownloadRequestStrategy.swift in Sources */,
 				63CC83B9285B4845008549AD /* String+Empty.swift in Sources */,
 				16751E8524CF72970099AE09 /* DeliveryReceiptRequestStrategy.swift in Sources */,
+				EECBE8EE28E71F19005DE5DD /* SyncConversationActionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2015,6 +2026,7 @@
 				1621D2281D75AB2D007108C2 /* MockEntity.m in Sources */,
 				F18401EC2073C26700E9F4CC /* AssetV3PreviewDownloadRequestStrategyTests.swift in Sources */,
 				87F7288521AFF37D000ED371 /* UserPropertyRequestStrategyTests.swift in Sources */,
+				EECBE8F028E71F57005DE5DD /* SyncConversationActionHandlerTests.swift in Sources */,
 				1621D26B1D75C7FF007108C2 /* ZMUpstreamInsertedObjectSyncTests.m in Sources */,
 				7A111DEA285C90B70085BF91 /* SendMLSMessageActionHandlerTests.swift in Sources */,
 				F18401EB2073C26700E9F4CC /* OTREntityTranscoderTests.swift in Sources */,
