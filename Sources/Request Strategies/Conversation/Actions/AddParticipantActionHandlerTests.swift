@@ -42,7 +42,13 @@ class AddParticipantActionHandlerTests: MessagingTestBase {
             self.conversation = conversation
         }
 
-        sut = AddParticipantActionHandler(context: syncMOC)
+        sut = AddParticipantActionHandler(
+            context: syncMOC,
+            eventProcessor: ConversationEventProcessor(
+                context: syncMOC,
+                conversationService: MockConversationService()
+            )
+        )
     }
 
     override func tearDown() {

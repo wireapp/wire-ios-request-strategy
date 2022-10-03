@@ -712,25 +712,6 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         }
     }
 
-    // MARK: - MLS: Conversation Member Join
-
-    // I don't know how to test this yet.
-//    func testUpdateConversationMemberJoin_MLS_AsksToUpdateConversationIfNeeded() {
-//        syncMOC.performAndWait {
-//            // given
-//            let mockEventProcessor = MockMLSEventProcessor()
-//            MLSEventProcessor.setMock(mockEventProcessor)
-//
-//            // when
-//            processMemberJoinEvent()
-//
-//            // then
-//            let updateConversationCalls = mockEventProcessor.calls.updateConversationIfNeeded
-//            XCTAssertEqual(updateConversationCalls.count, 1)
-//            XCTAssertEqual(updateConversationCalls.first?.conversation, groupConversation)
-//        }
-//    }
-
     // MARK: - MLS: Welcome Message
 
     func testUpdateConversationMLSWelcome_AsksToProcessWelcomeMessage() {
@@ -881,22 +862,6 @@ class PayloadProcessing_ConversationTests: MessagingTestBase {
         )
     }
 
-    private func processMemberJoinEvent(epoch: UInt? = nil) {
-        let payload = memberJoinPayload(epoch: epoch)
-        let event = conversationEvent(with: payload)
-        let updateEvent = updateEvent(from: payload)
-
-        event.process(in: syncMOC, originalEvent: updateEvent)
-    }
-
-    private func memberJoinPayload(epoch: UInt?) -> Payload.UpdateConverationMemberJoin {
-        let selfUser = ZMUser.selfUser(in: syncMOC)
-        let selfMember = Payload.ConversationMember(qualifiedID: selfUser.qualifiedID)
-        return Payload.UpdateConverationMemberJoin(
-            userIDs: [],
-            users: [selfMember]
-        )
-    }
 }
 
 extension Payload.Conversation {
