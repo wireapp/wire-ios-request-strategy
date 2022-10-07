@@ -277,7 +277,6 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
 
     }
 
-
     public func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         switch apiVersion {
         case .v0:
