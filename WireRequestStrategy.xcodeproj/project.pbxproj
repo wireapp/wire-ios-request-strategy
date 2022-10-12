@@ -186,8 +186,6 @@
 		63CC83B9285B4845008549AD /* String+Empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83B8285B4845008549AD /* String+Empty.swift */; };
 		63CC83E2285C9C6C008549AD /* UploadSelfMLSKeyPackagesActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83DF285C9C6C008549AD /* UploadSelfMLSKeyPackagesActionHandler.swift */; };
 		63CC83E5285C9C72008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83E0285C9C6C008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift */; };
-		63CC83EE285CA2B0008549AD /* SendMLSWelcomeActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83EB285CA2B0008549AD /* SendMLSWelcomeActionHandler.swift */; };
-		63CC83F0285CA2B8008549AD /* SendMLSWelcomeActionHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83EC285CA2B0008549AD /* SendMLSWelcomeActionHandlerTests.swift */; };
 		63CC83F2285CB96A008549AD /* ActionHandlerTestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC83F1285CB96A008549AD /* ActionHandlerTestBase.swift */; };
 		63DA339F286DF6ED00818C3C /* MLSEventProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63DA339E286DF6ED00818C3C /* MLSEventProcessor.swift */; };
 		63DA33A8286F27DD00818C3C /* MLSEventProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63DA33A7286F27DD00818C3C /* MLSEventProcessorTests.swift */; };
@@ -600,8 +598,6 @@
 		63CC83B8285B4845008549AD /* String+Empty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Empty.swift"; sourceTree = "<group>"; };
 		63CC83DF285C9C6C008549AD /* UploadSelfMLSKeyPackagesActionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadSelfMLSKeyPackagesActionHandler.swift; sourceTree = "<group>"; };
 		63CC83E0285C9C6C008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadSelfMLSKeyPackagesActionHandlerTests.swift; sourceTree = "<group>"; };
-		63CC83EB285CA2B0008549AD /* SendMLSWelcomeActionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendMLSWelcomeActionHandler.swift; sourceTree = "<group>"; };
-		63CC83EC285CA2B0008549AD /* SendMLSWelcomeActionHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendMLSWelcomeActionHandlerTests.swift; sourceTree = "<group>"; };
 		63CC83F1285CB96A008549AD /* ActionHandlerTestBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionHandlerTestBase.swift; sourceTree = "<group>"; };
 		63DA339E286DF6ED00818C3C /* MLSEventProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLSEventProcessor.swift; sourceTree = "<group>"; };
 		63DA33A7286F27DD00818C3C /* MLSEventProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLSEventProcessorTests.swift; sourceTree = "<group>"; };
@@ -1190,8 +1186,6 @@
 				7A111DE9285C90B70085BF91 /* SendMLSMessageActionHandlerTests.swift */,
 				7AEBB676285A10620090B524 /* CountSelfMLSKeyPackagesActionHandler.swift */,
 				7AEBB678285A16400090B524 /* CountSelfMLSKeyPackagesActionHandlerTests.swift */,
-				63CC83EB285CA2B0008549AD /* SendMLSWelcomeActionHandler.swift */,
-				63CC83EC285CA2B0008549AD /* SendMLSWelcomeActionHandlerTests.swift */,
 				63CC83DF285C9C6C008549AD /* UploadSelfMLSKeyPackagesActionHandler.swift */,
 				63CC83E0285C9C6C008549AD /* UploadSelfMLSKeyPackagesActionHandlerTests.swift */,
 				63CC83B02859D488008549AD /* ClaimMLSKeyPackageActionHandler.swift */,
@@ -1920,7 +1914,6 @@
 				06CDDE9F282E9CC200F9360F /* RemovePushTokenAction.swift in Sources */,
 				062DD2D82760CFAA00E27FD9 /* UUID+SafeLogging.swift in Sources */,
 				5E9EA4DE2243C10400D401B2 /* LinkAttachmentsPreprocessor.swift in Sources */,
-				63CC83EE285CA2B0008549AD /* SendMLSWelcomeActionHandler.swift in Sources */,
 				166901E01D7081C7000FE4AF /* ZMRemoteIdentifierObjectSync.m in Sources */,
 				633B396A2891890600208124 /* ZMUpdateEvent+Decryption.swift in Sources */,
 				06474D4B24AF6858002C695D /* EventDecoder.swift in Sources */,
@@ -2013,7 +2006,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63CC83F0285CA2B8008549AD /* SendMLSWelcomeActionHandlerTests.swift in Sources */,
 				F18401E12073C25900E9F4CC /* OTREntityTests+Dependency.swift in Sources */,
 				547D47191E7C2F6C002EEA15 /* DependentObjectsTests.swift in Sources */,
 				168D7CCE26FB303A00789960 /* AddParticipantActionHandlerTests.swift in Sources */,
