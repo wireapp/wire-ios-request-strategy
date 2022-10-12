@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import WireDataModel
 
 class SendMLSMessageActionHandler: ActionHandler<SendMLSMessageAction> {
 
@@ -32,12 +33,12 @@ class SendMLSMessageActionHandler: ActionHandler<SendMLSMessageAction> {
         var action = action
 
         guard apiVersion > .v0 else {
-            action.notifyResult(.failure(.endpointUnavailable))
+            action.fail(with: .endpointUnavailable)
             return nil
         }
 
         guard !action.message.isEmpty else {
-            action.notifyResult(.failure(.malformedRequest))
+            action.fail(with: .malformedRequest)
             return nil
         }
 
@@ -133,11 +134,11 @@ class SendMLSMessageActionHandler: ActionHandler<SendMLSMessageAction> {
 
         default:
             let errorInfo = response.errorInfo
-            action.notifyResult(.failure(.unknown(
+            action.fail(with: .unknown(
                 status: response.httpStatus,
                 label: errorInfo.label,
                 message: errorInfo.message
-            )))
+            ))
         }
     }
 }
