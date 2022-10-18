@@ -39,16 +39,6 @@ class FetchPublicGroupStateActionHandler: ActionHandler<FetchPublicGroupStateAct
             return nil
         }
 
-//        return ZMTransportRequest(
-//            path: "/conversations/\(action.domain)/\(action.conversationId)/groupinfo",
-//            method: .methodGET,
-//            binaryData: nil,
-//            type: "application/jose",
-//            acceptHeaderType: .anything,
-//            contentDisposition: nil,
-//            shouldCompress: false,
-//            apiVersion: apiVersion.rawValue
-//        )
         return ZMTransportRequest(
             path: "/conversations/\(action.domain)/\(action.conversationId)/groupinfo",
             method: .methodGET,
