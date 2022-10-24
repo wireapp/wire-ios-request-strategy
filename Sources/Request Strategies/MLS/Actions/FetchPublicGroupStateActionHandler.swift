@@ -55,7 +55,7 @@ class FetchPublicGroupStateActionHandler: ActionHandler<FetchPublicGroupStateAct
             guard let data = response.rawData,
                   let payload = try? JSONDecoder().decode(ResponsePayload.self, from: data)
             else {
-                action.notifyResult(.failure(.malformedResponse))
+                action.fail(with: .malformedResponse)
                 return
             }
             action.succeed(with: payload.groupState)
