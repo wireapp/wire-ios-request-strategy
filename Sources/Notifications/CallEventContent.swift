@@ -66,13 +66,17 @@ public struct CallEventContent: Decodable {
     }
 
     public var callState: LocalNotificationType.CallState? {
-        if isStartCall && !resp {
+        if isIncomingCall {
             return .incomingCall(video: properties?.isVideo ?? false)
         } else if isEndCall {
             return .missedCall(cancelled: true)
         } else {
             return nil
         }
+    }
+
+    public var isIncomingCall: Bool {
+        return isStartCall && !resp
     }
 
     public var isStartCall: Bool {
