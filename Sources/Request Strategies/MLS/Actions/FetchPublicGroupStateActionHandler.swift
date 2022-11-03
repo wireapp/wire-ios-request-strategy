@@ -33,14 +33,14 @@ class FetchPublicGroupStateActionHandler: ActionHandler<FetchPublicGroupStateAct
 
         guard
             !action.domain.isEmpty,
-            !action.conversationId.isEmpty
+            !action.conversationId.uuidString.isEmpty
         else {
             action.fail(with: .emptyParameters)
             return nil
         }
 
         return ZMTransportRequest(
-            path: "/conversations/\(action.domain)/\(action.conversationId)/groupinfo",
+            path: "/conversations/\(action.domain)/\(action.conversationId.uuidString)/groupinfo",
             method: .methodGET,
             payload: nil,
             apiVersion: apiVersion.rawValue
@@ -64,9 +64,14 @@ class FetchPublicGroupStateActionHandler: ActionHandler<FetchPublicGroupStateAct
         case (404, "no-conversation"):
             action.fail(with: .noConversation)
         case (404, _):
-            action.fail(with: .conversationIDOrDomainNotFound)
+            action.fail(with: .conversationIdOrDomainNotFound)
         default:
-            action.fail(with: .unknown(status: response.httpStatus))
+            let errorInfo = response.errorInfo
+            action.notifyResult(.failure(.unknown(
+                status: response.httpStatus,
+                label: errorInfo.label,
+                message: errorInfo.message
+            )))
         }
     }
 }
@@ -76,6 +81,6 @@ extension FetchPublicGroupStateActionHandler {
     // MARK: - Payload
 
     struct ResponsePayload: Codable {
-        let groupState: String
+        let groupState: Data
     }
 }
