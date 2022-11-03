@@ -24,7 +24,7 @@ import WireDataModel
 class FetchPublicGroupStateActionHandlerTests: ActionHandlerTestBase<FetchPublicGroupStateAction, FetchPublicGroupStateActionHandler> {
 
     let domain = "example.com"
-    let conversationId = UUID().transportString()
+    let conversationId = UUID()
 
     override func setUp() {
         super.setUp()
@@ -68,7 +68,8 @@ class FetchPublicGroupStateActionHandlerTests: ActionHandlerTestBase<FetchPublic
 
     func test_itHandlesSuccess() {
         // Given
-        let payload = ResponsePayload(groupState: "abc123")
+        let groupState = Data([1, 2, 3])
+        let payload = ResponsePayload(groupState: groupState)
 
         // When
         let receivedKeyPackagesCount = test_itHandlesSuccess(status: 200, payload: transportData(for: payload))
@@ -80,10 +81,11 @@ class FetchPublicGroupStateActionHandlerTests: ActionHandlerTestBase<FetchPublic
     func test_itHandlesFailures() {
         test_itHandlesFailures([
             .failure(status: 200, error: .malformedResponse),
-            .failure(status: 404, error: .conversationIDOrDomainNotFound),
+            .failure(status: 404, error: .conversationIdOrDomainNotFound),
             .failure(status: 404, error: .noConversation, label: "no-conversation"),
             .failure(status: 404, error: .missingGroupInfo, label: "mls-missing-group-info"),
-            .failure(status: 999, error: .unknown(status: 999))
+            .failure(status: 999, error: .unknown(status: 999, label: "foo", message: "?"), label: "foo")
+
         ])
     }
 
