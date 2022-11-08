@@ -20,7 +20,7 @@ import Foundation
 
 public struct CallEventContent: Decodable {
 
-    private enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
 
         case type
 
@@ -36,7 +36,7 @@ public struct CallEventContent: Decodable {
 
     /// Call event type.
 
-    let type: String
+    public let type: String
 
     /// Properties containing info whether the incoming call has video or not.
 
@@ -46,7 +46,7 @@ public struct CallEventContent: Decodable {
 
     let callerIdString: String
 
-    let resp: Bool
+    public let resp: Bool
 
     // MARK: - Life cycle
 
@@ -79,12 +79,20 @@ public struct CallEventContent: Decodable {
         return isStartCall && !resp
     }
 
+    public var isAnsweredElsewhere: Bool {
+        return isStartCall && resp
+    }
+
     public var isStartCall: Bool {
         return type.isOne(of: ["SETUP", "GROUPSTART", "CONFSTART"])
     }
 
     public var isEndCall: Bool {
         return type.isOne(of: ["CANCEL", "GROUPEND", "CONFEND"])
+    }
+
+    public var isRegected: Bool {
+        return type == "REJECT"
     }
 
     public var isRemoteMute: Bool {
