@@ -40,7 +40,7 @@ class FetchPublicGroupStateActionHandler: ActionHandler<FetchPublicGroupStateAct
         }
 
         return ZMTransportRequest(
-            path: "/conversations/\(action.domain)/\(action.conversationId.uuidString)/groupinfo",
+            path: "/conversations/\(action.domain)/\(action.conversationId.transportString())/groupinfo",
             method: .methodGET,
             payload: nil,
             apiVersion: apiVersion.rawValue
@@ -52,8 +52,9 @@ class FetchPublicGroupStateActionHandler: ActionHandler<FetchPublicGroupStateAct
 
         switch (response.httpStatus, response.payloadLabel()) {
         case (200, _):
-            guard let data = response.rawData,
-                  let payload = try? JSONDecoder().decode(ResponsePayload.self, from: data)
+            guard
+                let data = response.rawData,
+                let payload = try? JSONDecoder().decode(ResponsePayload.self, from: data)
             else {
                 action.fail(with: .malformedResponse)
                 return
@@ -67,11 +68,11 @@ class FetchPublicGroupStateActionHandler: ActionHandler<FetchPublicGroupStateAct
             action.fail(with: .conversationIdOrDomainNotFound)
         default:
             let errorInfo = response.errorInfo
-            action.notifyResult(.failure(.unknown(
+            action.fail(with: .unknown(
                 status: response.httpStatus,
                 label: errorInfo.label,
                 message: errorInfo.message
-            )))
+            ))
         }
     }
 }
