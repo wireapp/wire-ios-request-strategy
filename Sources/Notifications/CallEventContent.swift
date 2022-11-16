@@ -50,6 +50,19 @@ public struct CallEventContent: Decodable {
 
     // MARK: - Life cycle
 
+    public init?(from event: ZMUpdateEvent) {
+        guard
+            event.type == .conversationOtrMessageAdd,
+            let message = GenericMessage(from: event),
+            message.hasCalling,
+            let payload = message.calling.content.data(using: .utf8, allowLossyConversion: false)
+        else {
+            return nil
+        }
+
+        self.init(from: payload)
+    }
+
     public init?(from data: Data, with decoder: JSONDecoder = .init()) {
         do {
             self = try decoder.decode(Self.self, from: data)
@@ -75,6 +88,14 @@ public struct CallEventContent: Decodable {
         }
     }
 
+    public var initiatesRinging: Bool {
+        return isIncomingCall
+    }
+
+    public var terminatesRinging: Bool {
+        return isEndCall || isAnsweredElsewhere || isRejected
+    }
+
     public var isIncomingCall: Bool {
         return isStartCall && !resp
     }
@@ -91,7 +112,7 @@ public struct CallEventContent: Decodable {
         return type.isOne(of: ["CANCEL", "GROUPEND", "CONFEND"])
     }
 
-    public var isRegected: Bool {
+    public var isRejected: Bool {
         return type == "REJECT"
     }
 
