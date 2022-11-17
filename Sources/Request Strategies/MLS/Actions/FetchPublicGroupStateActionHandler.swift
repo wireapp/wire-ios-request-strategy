@@ -18,6 +18,7 @@
 
 import Foundation
 import WireTransport
+import WireDataModel
 
 class FetchPublicGroupStateActionHandler: ActionHandler<FetchPublicGroupStateAction> {
 
