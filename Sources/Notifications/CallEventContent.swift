@@ -120,6 +120,14 @@ public struct CallEventContent: Decodable {
         return type == "REMOTEMUTE"
     }
 
+    public var isVideo: Bool {
+        guard let properties = properties else {
+            return false
+        }
+
+        return properties.isVideo
+    }
+
 }
 
 extension CallEventContent {
