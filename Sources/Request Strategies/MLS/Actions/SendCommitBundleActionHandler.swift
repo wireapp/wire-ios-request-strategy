@@ -45,7 +45,7 @@ class SendCommitBundleActionHandler: ActionHandler<SendCommitBundleAction> {
             path: "/mls/commit-bundles",
             method: .methodPOST,
             binaryData: action.commitBundle,
-            type: "message/mls",
+            type: "application/x-protobuf",
             contentDisposition: nil,
             shouldCompress: false,
             apiVersion: apiVersion.rawValue
@@ -80,6 +80,9 @@ class SendCommitBundleActionHandler: ActionHandler<SendCommitBundleAction> {
 
             action.succeed(with: updateEvents)
 
+        case (400, "mls-welcome-mismatch"):
+            action.fail(with: .mlsWelcomeMismatch)
+
         case (400, "mls-group-conversation-mismatch"):
             action.fail(with: .mlsGroupConversationMismatch)
 
@@ -100,6 +103,9 @@ class SendCommitBundleActionHandler: ActionHandler<SendCommitBundleAction> {
 
         case (403, "missing-legalhold-consent"):
             action.fail(with: .missingLegalHoldConsent)
+
+        case (403, "mls-missing-sender-client"):
+            action.fail(with: .mlsMissingSenderClient)
 
         case (403, "legalhold-not-enabled"):
             action.fail(with: .legalHoldNotEnabled)
