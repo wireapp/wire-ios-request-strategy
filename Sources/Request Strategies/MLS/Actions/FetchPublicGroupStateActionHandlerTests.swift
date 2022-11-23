@@ -40,7 +40,7 @@ class FetchPublicGroupStateActionHandlerTests: ActionHandlerTestBase<FetchPublic
     func test_itGeneratesARequest_APIV2() throws {
         try test_itGeneratesARequest(
             for: action,
-            expectedPath: "/v2/conversations/\(domain)/\(conversationId)/groupinfo",
+            expectedPath: "/v2/conversations/\(domain)/\(conversationId.transportString())/groupinfo",
             expectedMethod: .methodGET,
             apiVersion: .v2
         )
