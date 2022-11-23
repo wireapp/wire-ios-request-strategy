@@ -35,7 +35,7 @@ class SendCommitBundleActionHandlerTests: ActionHandlerTestBase<SendCommitBundle
                expectedPath: "/v2/mls/commit-bundles",
                expectedMethod: .methodPOST,
                expectedData: commitBundle,
-               expectedContentType: "message/mls",
+               expectedContentType: "application/x-protobuf",
                apiVersion: .v2
         )
     }
@@ -89,12 +89,14 @@ class SendCommitBundleActionHandlerTests: ActionHandlerTestBase<SendCommitBundle
 
     func test_itHandlesFailures() {
         test_itHandlesFailures([
+            .failure(status: 400, error: .mlsWelcomeMismatch, label: "mls-welcome-mismatch"),
             .failure(status: 400, error: .mlsGroupConversationMismatch, label: "mls-group-conversation-mismatch"),
             .failure(status: 400, error: .mlsClientSenderUserMismatch, label: "mls-client-sender-user-mismatch"),
             .failure(status: 400, error: .mlsSelfRemovalNotAllowed, label: "mls-self-removal-not-allowed"),
             .failure(status: 400, error: .mlsCommitMissingReferences, label: "mls-commit-missing-references"),
             .failure(status: 400, error: .mlsProtocolError, label: "mls-protocol-error"),
             .failure(status: 400, error: .invalidRequestBody),
+            .failure(status: 403, error: .mlsMissingSenderClient, label: "mls-missing-sender-client"),
             .failure(status: 403, error: .missingLegalHoldConsent, label: "missing-legalhold-consent"),
             .failure(status: 403, error: .legalHoldNotEnabled, label: "legalhold-not-enabled"),
             .failure(status: 403, error: .accessDenied, label: "access-denied"),
