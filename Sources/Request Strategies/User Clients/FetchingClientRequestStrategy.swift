@@ -70,7 +70,7 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
             guard let `self` = self, let objectID = note.object as? NSManagedObjectID else { return }
             self.managedObjectContext.performGroupedBlock {
                 guard
-                    let apiVersion = APIVersion.current,
+                    let apiVersion = BackendInfo.apiVersion,
                     let user = (try? self.managedObjectContext.existingObject(with: objectID)) as? ZMUser,
                     let userID = user.remoteIdentifier
                 else {
@@ -92,7 +92,7 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
                     }
 
                 case .v2:
-                    if let domain = user.domain.nonEmptyValue ?? APIVersion.domain {
+                    if let domain = user.domain.nonEmptyValue ?? BackendInfo.domain {
                         let qualifiedID = QualifiedID(uuid: userID, domain: domain)
                         self.userClientsByQualifiedUserID.sync(identifiers: [qualifiedID])
                     }
@@ -135,7 +135,7 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
     }
 
     private func fetch(userClients: [UserClient]) {
-        guard let apiVersion = APIVersion.current else { return }
+        guard let apiVersion = BackendInfo.apiVersion else { return }
         let initialResult: ([QualifiedID], [UserClientByUserClientIDTranscoder.UserClientID]) = ([], [])
         let result = userClients.reduce(into: initialResult) { (result, userClient) in
             switch apiVersion {
@@ -187,7 +187,7 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
     private func qualifiedIDWithFallback(from userClient: UserClient) -> QualifiedID? {
         guard
             let userID = userClient.user?.remoteIdentifier,
-            let domain = userClient.user?.domain.nonEmptyValue ?? APIVersion.domain
+            let domain = userClient.user?.domain.nonEmptyValue ?? BackendInfo.domain
         else { return nil }
 
         return .init(uuid: userID, domain: domain)
@@ -265,47 +265,114 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
         return 100
     }
 
-    public func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
+    struct RequestPayload: Codable, Equatable {
 
+        enum CodingKeys: String, CodingKey {
+
+            case qualifiedIDs = "qualified_users"
+
+        }
+
+        let qualifiedIDs: Set<QualifiedID>
+
+    }
+
+    public func request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
+        switch apiVersion {
+        case .v0:
+            Logging.network.warn("fetching user clients by qualified id is not available on API V0.")
+            return nil
+
+        case .v1:
+            return v1Request(for: identifiers)
+
+        case .v2:
+            return v2Request(for: identifiers)
+        }
+    }
+
+    private func v1Request(for identifiers: Set<QualifiedID>) -> ZMTransportRequest? {
         guard
-            apiVersion > .v0,
-            let payloadData = identifiers.payloadData(encoder: encoder),
+            let payloadData = RequestPayload(qualifiedIDs: identifiers).payloadData(encoder: encoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
         else {
             return nil
         }
 
-        // POST /users/list-clients
-        let path = NSString.path(withComponents: ["/users/list-clients"])
-        return ZMTransportRequest(path: path, method: .methodPOST, payload: payloadAsString as ZMTransportData?, apiVersion: apiVersion.rawValue)
+        return ZMTransportRequest(
+            path: "/users/list-clients/v2",
+            method: .methodPOST,
+            payload: payloadAsString as ZMTransportData?,
+            apiVersion: 1
+        )
+    }
+
+    private func v2Request(for identifiers: Set<QualifiedID>) -> ZMTransportRequest? {
+        guard
+            let payloadData = RequestPayload(qualifiedIDs: identifiers).payloadData(encoder: encoder),
+            let payloadAsString = String(bytes: payloadData, encoding: .utf8)
+        else {
+            return nil
+        }
+
+        return ZMTransportRequest(
+            path: "/users/list-clients",
+            method: .methodPOST,
+            payload: payloadAsString as ZMTransportData?,
+            apiVersion: 2
+        )
+    }
+
+    struct ResponsePayload: Codable {
+
+        enum CodingKeys: String, CodingKey {
+
+            case qualifiedUsers = "qualified_user_map"
+
+        }
+
+        let qualifiedUsers: Payload.UserClientByDomain
+
     }
 
     public func didReceive(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
+        guard let apiVersion = APIVersion(rawValue: response.apiVersion) else { return }
+        switch apiVersion {
+        case .v0:
+            return
+
+        case .v1, .v2:
+            commonResponseHandling(response: response, for: identifiers)
+        }
+    }
+
+    private func commonResponseHandling(response: ZMTransportResponse, for identifiers: Set<QualifiedID>) {
         guard
             let rawData = response.rawData,
-            let payload = Payload.UserClientByDomain(rawData, decoder: decoder),
+            let payload = ResponsePayload(rawData, decoder: decoder),
             let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
         else {
             Logging.network.warn("Can't process response, aborting.")
             return
         }
 
-        for (domain, users) in payload {
+        for (domain, users) in payload.qualifiedUsers {
             for (userID, clientPayloads) in users {
-                guard
-                    let userID = UUID(uuidString: userID)
-                else {
+                guard let userID = UUID(uuidString: userID) else {
                     continue
                 }
 
-                let user = ZMUser.fetchOrCreate(with: userID,
-                                                domain: domain,
-                                                in: managedObjectContext)
+                let user = ZMUser.fetchOrCreate(
+                    with: userID,
+                    domain: domain,
+                    in: managedObjectContext
+                )
 
                 clientPayloads.updateClients(for: user, selfClient: selfClient)
             }
         }
     }
+
 }
 
 final class UserClientByUserIDTranscoder: IdentifierObjectSyncTranscoder {
