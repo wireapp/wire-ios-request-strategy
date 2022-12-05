@@ -125,11 +125,8 @@ public final class StoredUpdateEvent: NSManagedObject {
     /// - Returns: a dictionary which contains decrypted payload
     private static func decryptPayloadIfNeeded(storedEvent: StoredUpdateEvent, encryptionKeys: EncryptionKeys?) -> NSDictionary? {
         if !storedEvent.isEncrypted {
-            Logging.eventProcessing.info("stored event is not encrypted")
             return storedEvent.payload
         }
-
-        Logging.eventProcessing.info("stored event is encrypted")
 
         guard let keys = encryptionKeys,
             let encryptedPayload = storedEvent.payload?[encryptedPayloadKey] as? Data,
@@ -137,7 +134,6 @@ public final class StoredUpdateEvent: NSManagedObject {
                                                           .eciesEncryptionCofactorX963SHA256AESGCM,
                                                           encryptedPayload as CFData,
                                                           nil) else {
-                Logging.eventProcessing.info("couldn't decrypt")
                                                             return nil
         }
 
