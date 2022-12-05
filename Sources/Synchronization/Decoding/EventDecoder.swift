@@ -111,6 +111,7 @@ extension EventDecoder {
     fileprivate func decryptAndStoreEvents(_ events: [ZMUpdateEvent], startingAtIndex startIndex: Int64) -> [ZMUpdateEvent] {
         let account = Account(userName: "", userIdentifier: ZMUser.selfUser(in: self.syncMOC).remoteIdentifier)
         let publicKey = try? EncryptionKeys.publicKey(for: account)
+        Logging.eventProcessing.info("public key exists? \(publicKey != nil)")
         var decryptedEvents: [ZMUpdateEvent] = []
 
         syncMOC.zm_cryptKeyStore.encryptionContext.perform { [weak self] (sessionsDirectory) -> Void in
@@ -145,6 +146,8 @@ extension EventDecoder {
     // This method terminates when no more events are in the database.
     private func process(with encryptionKeys: EncryptionKeys?, _ consumeBlock: ConsumeBlock, firstCall: Bool) {
         let events = fetchNextEventsBatch(with: encryptionKeys)
+        Logging.eventProcessing.info("encryption keys exist? \(encryptionKeys != nil)")
+        Logging.eventProcessing.info("fetched events, stored: \(events.storedEvents.count), update: \(events.updateEvents.count)")
         guard events.storedEvents.count > 0 else {
             if firstCall {
                 consumeBlock([])
