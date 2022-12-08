@@ -32,11 +32,11 @@ class SendCommitBundleActionHandlerTests: ActionHandlerTestBase<SendCommitBundle
     func test_itGenerateARequest() throws {
         try test_itGeneratesARequest(
             for: action,
-            expectedPath: "/v2/mls/commit-bundles",
+            expectedPath: "/v3/mls/commit-bundles",
             expectedMethod: .methodPOST,
             expectedData: commitBundle,
             expectedContentType: "application/x-protobuf",
-            apiVersion: .v2
+            apiVersion: .v3
         )
     }
 
@@ -48,8 +48,20 @@ class SendCommitBundleActionHandlerTests: ActionHandlerTestBase<SendCommitBundle
         )
 
         test_itDoesntGenerateARequest(
-            action: SendCommitBundleAction(commitBundle: Data()),
+            action: action,
             apiVersion: .v1,
+            expectedError: .endpointUnavailable
+        )
+
+        test_itDoesntGenerateARequest(
+            action: action,
+            apiVersion: .v2,
+            expectedError: .endpointUnavailable
+        )
+
+        test_itDoesntGenerateARequest(
+            action: SendCommitBundleAction(commitBundle: Data()),
+            apiVersion: .v3,
             expectedError: .malformedRequest
         )
     }
