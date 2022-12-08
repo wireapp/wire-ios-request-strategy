@@ -26,6 +26,8 @@ public enum PushTokenStorage {
 
     static var storage: UserDefaults = .standard
 
+    public static var onTokenChange: ((PushToken?) -> Void)?
+
     public static var pushToken: PushToken? {
         get {
             guard let storedValue = storage.object(forKey: Keys.pushToken.rawValue) as? Data else { return nil }
@@ -34,12 +36,16 @@ public enum PushTokenStorage {
 
         set {
             guard
-               let value = newValue,
-               let data = try? JSONEncoder().encode(value)
+                let value = newValue,
+                let data = try? JSONEncoder().encode(value)
             else {
-               return storage.set(nil, forKey: Keys.pushToken.rawValue)
+                storage.set(nil, forKey: Keys.pushToken.rawValue)
+                onTokenChange?(nil)
+                return
             }
+
             storage.set(data, forKey: Keys.pushToken.rawValue)
+            onTokenChange?(newValue)
         }
     }
 
