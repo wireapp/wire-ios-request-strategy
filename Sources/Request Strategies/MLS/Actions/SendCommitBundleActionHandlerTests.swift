@@ -32,11 +32,11 @@ class SendCommitBundleActionHandlerTests: ActionHandlerTestBase<SendCommitBundle
     func test_itGenerateARequest() throws {
         try test_itGeneratesARequest(
             for: action,
-               expectedPath: "/v2/mls/commit-bundles",
-               expectedMethod: .methodPOST,
-               expectedData: commitBundle,
-               expectedContentType: "application/x-protobuf",
-               apiVersion: .v2
+            expectedPath: "/v2/mls/commit-bundles",
+            expectedMethod: .methodPOST,
+            expectedData: commitBundle,
+            expectedContentType: "application/x-protobuf",
+            apiVersion: .v2
         )
     }
 
