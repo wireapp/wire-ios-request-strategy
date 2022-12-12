@@ -70,7 +70,7 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
             guard let `self` = self, let objectID = note.object as? NSManagedObjectID else { return }
             self.managedObjectContext.performGroupedBlock {
                 guard
-                    let apiVersion = APIVersion.current,
+                    let apiVersion = BackendInfo.apiVersion,
                     let user = (try? self.managedObjectContext.existingObject(with: objectID)) as? ZMUser,
                     let userID = user.remoteIdentifier
                 else {
@@ -91,8 +91,8 @@ public final class FetchingClientRequestStrategy: AbstractRequestStrategy {
                         self.userClientsByUserID.sync(identifiers: userIdSet)
                     }
 
-                case .v2:
-                    if let domain = user.domain.nonEmptyValue ?? APIVersion.domain {
+                case .v2, .v3:
+                    if let domain = user.domain.nonEmptyValue ?? BackendInfo.domain {
                         let qualifiedID = QualifiedID(uuid: userID, domain: domain)
                         self.userClientsByQualifiedUserID.sync(identifiers: [qualifiedID])
                     }
@@ -135,7 +135,7 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
     }
 
     private func fetch(userClients: [UserClient]) {
-        guard let apiVersion = APIVersion.current else { return }
+        guard let apiVersion = BackendInfo.apiVersion else { return }
         let initialResult: ([QualifiedID], [UserClientByUserClientIDTranscoder.UserClientID]) = ([], [])
         let result = userClients.reduce(into: initialResult) { (result, userClient) in
             switch apiVersion {
@@ -151,7 +151,7 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
                     // Fallback.
                     result.1.append(userClientID)
                 }
-            case .v2:
+            case .v2, .v3:
                 if let qualifiedID = qualifiedIDWithFallback(from: userClient) {
                     result.0.append(qualifiedID)
                 }
@@ -187,7 +187,7 @@ extension FetchingClientRequestStrategy: ZMContextChangeTracker, ZMContextChange
     private func qualifiedIDWithFallback(from userClient: UserClient) -> QualifiedID? {
         guard
             let userID = userClient.user?.remoteIdentifier,
-            let domain = userClient.user?.domain.nonEmptyValue ?? APIVersion.domain
+            let domain = userClient.user?.domain.nonEmptyValue ?? BackendInfo.domain
         else { return nil }
 
         return .init(uuid: userID, domain: domain)
@@ -286,8 +286,8 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
         case .v1:
             return v1Request(for: identifiers)
 
-        case .v2:
-            return v2Request(for: identifiers)
+        case .v2, .v3:
+            return v2Request(for: identifiers, apiVersion: apiVersion)
         }
     }
 
@@ -307,7 +307,7 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
         )
     }
 
-    private func v2Request(for identifiers: Set<QualifiedID>) -> ZMTransportRequest? {
+    private func v2Request(for identifiers: Set<QualifiedID>, apiVersion: APIVersion) -> ZMTransportRequest? {
         guard
             let payloadData = RequestPayload(qualifiedIDs: identifiers).payloadData(encoder: encoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
@@ -319,7 +319,7 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
             path: "/users/list-clients",
             method: .methodPOST,
             payload: payloadAsString as ZMTransportData?,
-            apiVersion: 2
+            apiVersion: apiVersion.rawValue
         )
     }
 
@@ -341,7 +341,7 @@ final class UserClientByQualifiedUserIDTranscoder: IdentifierObjectSyncTranscode
         case .v0:
             return
 
-        case .v1, .v2:
+        case .v1, .v2, .v3:
             commonResponseHandling(response: response, for: identifiers)
         }
     }
