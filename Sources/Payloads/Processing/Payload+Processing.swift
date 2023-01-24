@@ -216,14 +216,24 @@ extension Payload.ClientListByQualifiedUserID {
 
                 let user = ZMUser.fetchOrCreate(with: userID, domain: domain, in: context)
                 let userClients = userClientIDs.compactMap { (clientID) -> UserClient? in
+                    Logging.missingClients.warn("fetching client (\(clientID)) for user (\(userID))...")
+
                     guard
-                        let userClient = UserClient.fetchUserClient(withRemoteId: clientID,
-                                                                    forUser: user,
-                                                                    createIfNeeded: true),
-                        !userClient.hasSessionWithSelfClient
+                        let userClient = UserClient.fetchUserClient(
+                            withRemoteId: clientID,
+                            forUser: user,
+                            createIfNeeded: true
+                        )
                     else {
+                        Logging.missingClients.warn("fetching client (\(clientID)) for user (\(userID))... failed: couldn't fetch or create")
                         return nil
                     }
+
+                    guard !userClient.hasSessionWithSelfClient else {
+                        Logging.missingClients.warn("fetching client (\(clientID)) for user (\(userID))... failed: client has session with self client")
+                        return nil
+                    }
+
                     return userClient
                 }
 
