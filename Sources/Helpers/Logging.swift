@@ -44,4 +44,6 @@ public enum Logging {
 
     public static let EAR = ZMSLog(tag: "EAR")
 
+    public static let missingClients = WireLogger(tag: "missing-clients")
+
 }

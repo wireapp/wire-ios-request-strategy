@@ -63,11 +63,14 @@ public final class MissingClientsRequestFactory {
     }
 
     public func fetchPrekeys(for missingClients: Set<UserClient>, apiVersion: APIVersion) -> ZMUpstreamRequest? {
+        Logging.missingClients.info("generating V(\(apiVersion.rawValue)) request for fetching prekeys for clients: \(missingClients.map(\.remoteIdentifier)))")
+
         guard
             apiVersion == .v0,
             let payloadData = missingClients.prefix(pageSize).clientListByUserID.payloadData(encoder: defaultEncoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
         else {
+            Logging.missingClients.info("aborting generating V(\(apiVersion.rawValue)) request: couldn't create payload")
             return nil
         }
 
@@ -82,11 +85,13 @@ public final class MissingClientsRequestFactory {
     }
 
     public func fetchPrekeysFederated(for missingClients: Set<UserClient>, apiVersion: APIVersion) -> ZMUpstreamRequest? {
+        Logging.missingClients.info("generating V(\(apiVersion.rawValue)) request for fetching prekeys for clients: \(missingClients.map(\.remoteIdentifier)))")
         guard
             apiVersion > .v0,
             let payloadData = missingClients.prefix(pageSize).clientListByDomain.payloadData(encoder: defaultEncoder),
             let payloadAsString = String(bytes: payloadData, encoding: .utf8)
         else {
+            Logging.missingClients.info("aborting generating V(\(apiVersion.rawValue)) request: couldn't create payload")
             return nil
         }
 

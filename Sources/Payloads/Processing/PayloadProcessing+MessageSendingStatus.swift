@@ -54,8 +54,12 @@ extension Payload.MessageSendingStatus {
             message.detectedRedundantUsers(redundantUsers)
         }
 
+        Logging.missingClients.info("payload: \(String(describing: missing))")
+
         let missingClients = missing.fetchOrCreateClients(in: message.context)
+
         for (user, userClients) in missingClients {
+            Logging.missingClients.info("user: \(user.remoteIdentifier!), missing clients: \(userClients.map(\.remoteIdentifier))")
             userClients.forEach({ $0.discoveredByMessage = message as? ZMOTRMessage })
             message.registersNewMissingClients(Set(userClients))
             message.conversation?.addParticipantAndSystemMessageIfMissing(user, date: nil)

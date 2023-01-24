@@ -116,28 +116,35 @@ public final class MissingClientsRequestStrategy: AbstractRequestStrategy, ZMUps
                                     requestUserInfo: [AnyHashable: Any]?,
                                     response: ZMTransportResponse,
                                     keysToParse: Set<String>) -> Bool {
+        Logging.missingClients.info("got reponse for updated object")
 
         guard let apiVersion = APIVersion(rawValue: response.apiVersion) else {
+            Logging.missingClients.info("got reponse for updated object: aborting due to missing api version")
             return false
         }
 
         if keysToParse.contains(ZMUserClientMissingKey) {
             switch apiVersion {
             case .v0:
+                Logging.missingClients.info("processing V0 response...")
+
                 guard let rawData = response.rawData,
                       let prekeys = Payload.PrekeyByUserID(rawData),
                       let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
                 else {
+                    Logging.missingClients.info("processing V0 response...failed")
                     return false
                 }
 
                 return prekeys.establishSessions(with: selfClient, context: managedObjectContext)
 
             case .v1, .v2, .v3:
+                Logging.missingClients.info("processing V(\(apiVersion.rawValue)) response...")
                 guard let rawData = response.rawData,
                       let prekeys = Payload.PrekeyByQualifiedUserID(rawData),
                       let selfClient = ZMUser.selfUser(in: managedObjectContext).selfClient()
                 else {
+                    Logging.missingClients.info("processing V(\(apiVersion.rawValue)) response...failed")
                     return false
                 }
 

@@ -74,6 +74,9 @@ extension Payload.PrekeyByUserID {
     func establishSessions(with selfClient: UserClient,
                            context: NSManagedObjectContext,
                            domain: String? = nil) -> Bool {
+
+        Logging.missingClients.info("establish sessions using prekeys...")
+
         for (userID, prekeyByClientID) in self {
             for (clientID, prekey) in prekeyByClientID {
                 guard
@@ -83,6 +86,7 @@ extension Payload.PrekeyByUserID {
                                                                    forUser: user,
                                                                    createIfNeeded: true)
                 else {
+                    Logging.missingClients.warn("establish sessions using prekeys... skipping because couldn't get missing client (\(clientID) for user \(userID)")
                     continue
                 }
 
@@ -112,6 +116,7 @@ extension Payload.PrekeyByQualifiedUserID {
     ///
     /// - returns `True` if there's more sessions which needs to be established.
     func establishSessions(with selfClient: UserClient, context: NSManagedObjectContext) -> Bool {
+        Logging.missingClients.info("establish session...")
         for (domain, prekeyByUserID) in self {
             _ = prekeyByUserID.establishSessions(with: selfClient, context: context, domain: domain)
         }
@@ -130,18 +135,20 @@ extension UserClient {
     /// Creates session and update missing clients and messages that depend on those clients
     fileprivate func establishSessionAndUpdateMissingClients(prekey: Payload.Prekey,
                                                              selfClient: UserClient) {
-
+        Logging.missingClients.info("establish sessions using prekey (\(prekey)) for client \(remoteIdentifier)...")
         let sessionCreated = selfClient.establishSessionWithClient(self,
                                                                    usingPreKey: prekey.key)
 
        // If the session creation failed, the client probably has corrupted prekeys,
        // we mark the client in order to send him a bogus message and not block all requests
        failedToEstablishSession = !sessionCreated
+        Logging.missingClients.info("establish sessions using prekey (\(prekey)) for client \(remoteIdentifier)...did fail? \(failedToEstablishSession)")
        clearMessagesMissingRecipient()
        selfClient.removeMissingClient(self)
    }
 
     fileprivate func markClientAsInvalidAfterFailingToRetrievePrekey(selfClient: UserClient) {
+        Logging.missingClients.warn("marking client \(remoteIdentifier) as invalided after failing to retrieve prekey")
         failedToEstablishSession = true
         clearMessagesMissingRecipient()
         selfClient.removeMissingClient(self)

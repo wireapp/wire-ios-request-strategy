@@ -111,6 +111,7 @@ public class ProteusMessageSync<Message: ProteusMessage>: NSObject, EntityTransc
             case .v0:
                 return entity.parseUploadResponse(response, clientRegistrationDelegate: applicationStatus.clientRegistrationDelegate).contains(.missing)
             case .v1, .v2, .v3:
+                Logging.missingClients.info("received 412 response")
                 let payload = Payload.MessageSendingStatus(response, decoder: .defaultDecoder)
                 return payload?.updateClientsChanges(for: entity) ?? false
             }
