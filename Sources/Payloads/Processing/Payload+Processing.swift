@@ -208,9 +208,8 @@ extension Payload.ClientListByQualifiedUserID {
     func fetchOrCreateClients(in context: NSManagedObjectContext) -> [ZMUser: [UserClient]] {
         let userClientsByUserTuples = flatMap { (domain, userClientsByUserID) in
             return userClientsByUserID.compactMap { (userID, userClientIDs) -> [ZMUser: [UserClient]]? in
-                guard
-                    let userID = UUID(uuidString: userID)
-                else {
+                guard let userID = UUID(uuidString: userID) else {
+                    Logging.missingClients.warn("fetching client for user (\(userID))... failed: invalid user id")
                     return nil
                 }
 
@@ -228,6 +227,8 @@ extension Payload.ClientListByQualifiedUserID {
                         Logging.missingClients.warn("fetching client (\(clientID)) for user (\(userID))... failed: couldn't fetch or create")
                         return nil
                     }
+
+                    Logging.missingClients.info("user (\(user.remoteIdentifier)) has \(user.clients.count) clients: \(user.clients.map(\.remoteIdentifier))")
 
                     guard !userClient.hasSessionWithSelfClient else {
                         Logging.missingClients.warn("fetching client (\(clientID)) for user (\(userID))... failed: client has session with self client")
