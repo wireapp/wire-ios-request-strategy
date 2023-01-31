@@ -111,7 +111,7 @@
         <key>one</key>
         <string> </string>
         <key>other</key>
-        <string> %2$@ times </string>
+        <string> %2$@ vezes </string>
       </dict>
     </dict>
     <key>push.notification.knock.group.noconversationname</key>
@@ -127,7 +127,7 @@
         <key>one</key>
         <string> </string>
         <key>other</key>
-        <string> %2$@ times </string>
+        <string> %2$@ vezes </string>
       </dict>
     </dict>
     <key>push.notification.knock.group.nousername</key>
@@ -175,7 +175,7 @@
         <key>one</key>
         <string> </string>
         <key>other</key>
-        <string> %1$@ times</string>
+        <string> %1$@ vezes</string>
       </dict>
     </dict>
     <key>push.notification.knock.oneonone.nousername</key>

@@ -174,8 +174,8 @@
 "push.notification.callkit.call.started.group.noconversationname" = "%@ appelle dans une conversation";
 
 // CONVERSATION CREATE
-"push.notification.conversation.create" = "%1$@ a créé une conversation";
-"push.notification.conversation.create.nousername" = "Quelqu'un a créé une conversation";
+"push.notification.conversation.create" = "%1$@ created a conversation";
+"push.notification.conversation.create.nousername" = "Someone created a conversation";
 
 // CONVERSATION DELETE
 "push.notification.conversation.delete" = "%1$@ a supprimé le groupe";
@@ -206,7 +206,7 @@
 "push.notification.alert.availability.busy.message" = "Le statut affecte maintenant les notifications. Vous êtes en statut « Occupé » et ne recevrez des notifications que lorsque quelqu’un vous mentionne ou répond à l’un de vos messages.";
 
 // BUNDLED MESSAGES
-"push.notification.bundled-messages" = "%d nouveaux messages";
+"push.notification.bundled-messages" = "%d new messages";
 
 // REACTIONS
 "push.notification.reaction.group" = "%1$@ %2$@ votre message";

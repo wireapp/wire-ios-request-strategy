@@ -174,8 +174,8 @@
 "push.notification.callkit.call.started.group.noconversationname" = "%@ ruft in einer Unterhaltung an";
 
 // CONVERSATION CREATE
-"push.notification.conversation.create" = "%1$@ hat eine Unterhaltung erstellt";
-"push.notification.conversation.create.nousername" = "Jemand hat eine Unterhaltung erstellt";
+"push.notification.conversation.create" = "%1$@ created a conversation";
+"push.notification.conversation.create.nousername" = "Someone created a conversation";
 
 // CONVERSATION DELETE
 "push.notification.conversation.delete" = "%1$@ hat die Gruppe gelöscht";
@@ -206,7 +206,7 @@
 "push.notification.alert.availability.busy.message" = "Status wirkt sich jetzt auf Benachrichtigungen aus. Beim aktuellen Status \"Beschäftigt\" werden nur Benachrichtigungen über Erwähnungen oder Antworten angezeigt.";
 
 // BUNDLED MESSAGES
-"push.notification.bundled-messages" = "%d neue Nachrichten";
+"push.notification.bundled-messages" = "%d new messages";
 
 // REACTIONS
 "push.notification.reaction.group" = "%1$@ %2$@ Ihre Nachricht";
