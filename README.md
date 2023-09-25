@@ -13,3 +13,5 @@ For licensing information, see the attached LICENSE file and the list of third-p
 # wire-ios-request-strategy
 
 This framework is part of Wire iOS stack. Additional documentation is available in the [Wire iOS wiki](https://github.com/wireapp/wire-ios/wiki).
+
+⚠️ **This repository is now part of [wire-ios-mono](https://github.com/wireapp/wire-ios-mono)**
